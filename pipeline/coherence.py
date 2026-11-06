@@ -175,16 +175,90 @@ def controler(t: dict) -> list[dict]:
     # Ce n'est pas une incohérence : c'est une asymétrie qu'un lecteur ne peut
     # pas deviner. Un cours du jour et des fondamentaux de juin cohabitent dans
     # la même note sans que rien ne le dise.
+    # ⚠️ 06/11/2026 : la phrase citait « X % du poids de la note » — le poids
+    # fondamental de la note v5.3, que le terminal n'affiche plus. L'âge porte
+    # sur les fondamentaux dont dépend la note fondamentale publiée
+    # (`note_fond`) ; le code et le seuil sont inchangés.
     age = _nb(meta.get("fond_age_jours"))
     if age is not None and age > 180:
         dire("fondamentaux_perimes",
              f"fondamentaux vieux de {age:.0f} jours ({meta.get('fond_asof')}) "
-             f"pour {p.get('f', '?')} % du poids de la note")
+             f"sous la note fondamentale publiée")
     elif age is None and meta.get("source_fond") == "bpa_calcule":
         dire("fondamentaux_sans_date",
              "ratios calculés sur des fondamentaux dont la date est inconnue")
 
+    # ── 10. ⚠️ LE SCORE BVC DOIT SE REFAIRE À LA MAIN — 06/11/2026 ──────────
+    # Le score publié est le Score BVC (lot 1 du retrait de la note v5.3). Le
+    # même principe que le contrôle 3 : ce que la fiche affiche — facteurs,
+    # points, poids — doit redonner la valeur. Aucun bloc : rien à dire ici
+    # (la panne du calcul est un contrôle du soir, `verifier_seance.py`).
+    a.extend(controler_score_bvc(t))
+
     return a
+
+
+ETATS_BVC = {"CALCULABLE", "PARTIEL", "NON_CALCULABLE"}
+
+
+def controler_score_bvc(t: dict) -> list[dict]:
+    """Les incohérences du bloc `score_bvc` d'un titre. Fonction pure.
+
+    Contrat de `pipeline/score_bvc.py::score_bvc` :
+      · CALCULABLE ⇔ une valeur ; PARTIEL et NON_CALCULABLE n'en ont pas ;
+      · valeur et couverture dans [0, 100] ; CALCULABLE ⇒ couverture ≥ seuil ;
+      · couverture = somme des poids des facteurs DISPONIBLES (ceux dont les
+        points sont mesurés, zéro compris ; `points: None` = indisponible) ;
+      · valeur = points ÷ couverture × 100, arrondie à 2 décimales ;
+      · titre suspendu ou cours périmé ⇒ NON_CALCULABLE.
+    """
+    out = []
+    b = t.get("score_bvc")
+    if not isinstance(b, dict):
+        return out
+
+    def dire(code, quoi, gravite="erreur"):
+        out.append({"code": code, "quoi": quoi, "gravite": gravite})
+
+    etat, v, couv = b.get("etat"), b.get("valeur"), b.get("couverture_pct")
+    if etat not in ETATS_BVC:
+        dire("score_bvc_etat", f"Score BVC à l'état inconnu « {etat} »")
+        return out
+    if (v is not None) != (etat == "CALCULABLE"):
+        dire("score_bvc_etat", f"Score BVC {etat} avec une valeur {v!r} — "
+                               "seul CALCULABLE porte une valeur")
+    vn, cn = _nb(v), _nb(couv)
+    if v is not None and (vn is None or not 0 <= vn <= 100):
+        dire("hors_bornes", f"score_bvc.valeur = {v!r}, hors [0, 100]")
+    if cn is None or not 0 <= cn <= 100:
+        dire("hors_bornes", f"score_bvc.couverture_pct = {couv!r}, hors [0, 100]")
+    meta = t.get("_meta") or {}
+    if (meta.get("suspendu") or meta.get("stale")) and etat != "NON_CALCULABLE":
+        dire("score_bvc_sur_cours_perime",
+             f"Score BVC {etat} sur un titre "
+             f"{'suspendu' if meta.get('suspendu') else 'au cours périmé'}")
+    if etat == "NON_CALCULABLE" or cn is None:
+        return out
+    try:
+        from pipeline.score_bvc import COUVERTURE_MIN
+    except ImportError:                                   # lancé hors de la racine
+        from score_bvc import COUVERTURE_MIN              # type: ignore
+    if etat == "CALCULABLE" and cn < COUVERTURE_MIN:
+        dire("score_bvc_couverture",
+             f"Score BVC calculé sur {cn:g} % du poids, sous le seuil de {COUVERTURE_MIN} %")
+    fac = b.get("facteurs") or {}
+    dispo = [f for f in fac.values() if isinstance(f, dict) and _nb(f.get("points")) is not None]
+    somme_poids = sum(_nb(f.get("poids")) or 0 for f in dispo)
+    if abs(somme_poids - cn) > 1e-6:
+        dire("score_bvc_irreproductible",
+             f"couverture publiée {cn:g} % ≠ somme des poids des facteurs disponibles "
+             f"{somme_poids:g} %")
+    elif vn is not None and cn > 0:
+        attendu = sum(_nb(f.get("points")) for f in dispo) / cn * 100
+        if abs(attendu - vn) > 0.01:
+            dire("score_bvc_irreproductible",
+                 f"Score BVC = {vn:g} alors que ses facteurs donnent {attendu:.2f}")
+    return out
 
 
 def controler_tous(tickers: list[dict]) -> dict:

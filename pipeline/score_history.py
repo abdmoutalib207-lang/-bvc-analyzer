@@ -77,7 +77,20 @@ COLONNES = [
     "conf",        # la confiance 0-5 : en dessous de 2, le produit ne conclut pas
     "prix",        # le cours retenu ce jour-là
     "prix_asof",   # ⚠️ la séance du cours, qui n'est pas toujours celle du run
+    # ── ajoutées le 06/11/2026, EN FIN DE LISTE (lot 1 du retrait de v5.3) ──
+    "score_bvc",   # la valeur du Score BVC sur 100 — None si PARTIEL ou NON_CALCULABLE
+    "etat_bvc",    # CALCULABLE / PARTIEL / NON_CALCULABLE : une valeur absente
+                   # n'est lisible qu'avec son état
 ]
+
+# ⚠️ LE SCORE BVC EST LE SCORE PUBLIÉ — 06/11/2026 (décision d'Abd Moutalib).
+# Il est journalisé en plus de la note v5.3, dont les colonnes RESTENT : le
+# format est positionnel et elles portent toute la trace depuis le 24/09.
+# Au lot 2, le moteur cessera de produire `v53`, `score_fond`, `score_tech`,
+# `poids` et `sig` : leurs colonnes vaudront alors None sur les nouvelles
+# lignes, et `ligne_ticker` enregistre un titre qui n'a QUE son Score BVC.
+# Les lecteurs du journal (backtest_reproductible, backtest_score_descriptif,
+# mesure_note_sectorielle) écartent déjà une note ou un signal absents.
 
 _INDEX = {c: i for i, c in enumerate(COLONNES)}
 
@@ -100,28 +113,37 @@ def _entier(v):
 def ligne_ticker(t: dict) -> list | None:
     """Un titre du flux → une ligne du journal. Fonction pure.
 
-    ⚠️ Rend `None` si le titre n'a ni symbole ni note : un enregistrement vide
-    gonflerait le journal sans rien apprendre. En revanche un titre dont la
-    note existe mais dont la confiance est basse EST enregistré — c'est même
-    le cas le plus intéressant, puisqu'il permettra plus tard de vérifier que
-    le produit a eu raison de ne pas conclure.
+    ⚠️ Rend `None` si le titre n'a pas de symbole, ou s'il n'a NI note v5.3
+    NI bloc Score BVC : un enregistrement vide gonflerait le journal sans rien
+    apprendre. Un titre dont le Score BVC est PARTIEL ou NON_CALCULABLE EST
+    enregistré (valeur None, état écrit) — comme un titre à confiance basse :
+    ce sont les cas qui permettront de vérifier que le produit a eu raison de
+    ne pas conclure.
+
+    ⚠️ Tolérant aux vides (lot 2) : sans `v53`, `poids` ni `sig`, les
+    colonnes v5.3 valent None et la ligne garde sa longueur.
     """
     if not isinstance(t, dict):
         return None
     sym = t.get("symbol")
     v53 = _nombre(t.get("v53"))
-    if not sym or v53 is None:
+    bvc = t.get("score_bvc") if isinstance(t.get("score_bvc"), dict) else None
+    if not sym or (v53 is None and bvc is None):
         return None
     p = t.get("poids") or {}
     m = t.get("_meta") or {}
+    v53_present = v53 is not None
     return [
         sym, v53,
         _nombre(t.get("score_fond")), _nombre(t.get("score_tech")),
         None,                       # score_nlp : plus de pilier NLP (29/10/2026)
         _entier(p.get("f")), _entier(p.get("t")),
-        0,                          # poids_n : poids NLP appliqué, nul (cf. COLONNES)
+        # poids_n : poids NLP appliqué, nul (cf. COLONNES) — None quand la note
+        # v5.3 n'est plus publiée (lot 2) : il n'y a plus de poids appliqué.
+        0 if v53_present else None,
         t.get("sig"), _entier(m.get("confidence")),
         _nombre(t.get("price")), m.get("prix_asof"),
+        _nombre((bvc or {}).get("valeur")), (bvc or {}).get("etat"),
     ]
 
 
@@ -188,6 +210,13 @@ def enregistrer(seance: str, tickers: list, etat_marche: dict | None = None) -> 
                        if isinstance(t, dict) and t.get("score_version")})
     if versions:
         releve["score_version"] = versions[0] if len(versions) == 1 else versions
+    # La version du Score BVC, au même titre (06/11/2026) : un backtest ne doit
+    # pas mêler deux formules sans le savoir.
+    v_bvc = sorted({t["score_bvc"].get("version") for t in tickers
+                    if isinstance(t, dict) and isinstance(t.get("score_bvc"), dict)
+                    and t["score_bvc"].get("version")})
+    if v_bvc:
+        releve["score_bvc_version"] = v_bvc[0] if len(v_bvc) == 1 else v_bvc
     if etat_marche:
         # ⚠️ Apparié ICI, pas après coup : rapprocher deux fichiers plus tard
         # obligerait à SUPPOSER qu'ils parlent de la même séance.

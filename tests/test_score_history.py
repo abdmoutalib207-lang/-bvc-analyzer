@@ -206,3 +206,81 @@ def test_le_moteur_date_le_journal_sur_la_seance_pas_sur_le_run():
     bloc = src[i:i + 700]
     assert "prix_asof" in bloc, (
         "le journal serait daté de la date du run, pas de la séance des cours")
+
+
+# ── ⚠️ Le Score BVC au journal — 06/11/2026 (lot 1 du retrait de v5.3) ─────
+
+def _bvc(valeur=72.5, etat="CALCULABLE", version="bvc-score-v1"):
+    return {"valeur": valeur, "etat": etat, "couverture_pct": 100, "version": version,
+            "facteurs": {}, "motif": None}
+
+
+def test_les_colonnes_du_score_bvc_sont_ajoutees_en_fin():
+    """Attendu écrit à la main : les douze colonnes d'origine restent à leur
+    place, les deux nouvelles viennent APRÈS."""
+    assert sh.COLONNES[:12] == ["symbol", "v53", "score_fond", "score_tech", "score_nlp",
+                                "poids_f", "poids_t", "poids_n", "sig", "conf", "prix", "prix_asof"]
+    assert sh.COLONNES[12:] == ["score_bvc", "etat_bvc"]
+
+
+def test_la_ligne_porte_le_score_bvc_et_son_etat():
+    l = sh.ligne_ticker(dict(_titre(), score_bvc=_bvc()))
+    assert sh.valeur(l, "score_bvc") == 72.5 and sh.valeur(l, "etat_bvc") == "CALCULABLE"
+    assert sh.valeur(l, "v53") == 6.5, "la note v5.3 reste journalisée au lot 1"
+    p = sh.ligne_ticker(dict(_titre(), score_bvc=_bvc(None, "PARTIEL")))
+    assert sh.valeur(p, "score_bvc") is None and sh.valeur(p, "etat_bvc") == "PARTIEL"
+
+
+def test_un_titre_qui_n_a_plus_que_son_score_bvc_est_enregistre():
+    """⚠️ LE CAS DU LOT 2 : le moteur ne publiera plus `v53`, `poids`, `sig`.
+    La ligne doit exister, garder sa longueur, et porter None — jamais un 0
+    qui passerait pour un poids appliqué."""
+    t = {"symbol": "ATW", "price": 694.6, "score_bvc": _bvc(90.0),
+         "_meta": {"confidence": 5, "prix_asof": "2026-11-05"}}
+    l = sh.ligne_ticker(t)
+    assert l is not None and len(l) == len(sh.COLONNES)
+    for c in ("v53", "score_fond", "score_tech", "score_nlp", "poids_f", "poids_t", "poids_n", "sig"):
+        assert sh.valeur(l, c) is None, c
+    assert sh.valeur(l, "score_bvc") == 90.0 and sh.valeur(l, "conf") == 5
+    nc = sh.ligne_ticker(dict(t, score_bvc=_bvc(None, "NON_CALCULABLE")))
+    assert nc is not None and sh.valeur(nc, "etat_bvc") == "NON_CALCULABLE"
+
+
+def test_une_ligne_d_avant_le_score_bvc_se_relit_sans_lever():
+    ancienne = ["ADH", 6.5, 7.25, 5.2, None, 65, 35, 0, "ACHETER ★★", 4, 37.2, "2026-09-24"]
+    assert sh.valeur(ancienne, "score_bvc") is None and sh.valeur(ancienne, "etat_bvc") is None
+
+
+def test_le_journal_publie_se_relit_avec_les_nouvelles_colonnes():
+    """Relit le VRAI journal : toutes ses lignes, plus courtes, se lisent."""
+    j = json.loads((RACINE / "pipeline" / "score_history.json").read_text(encoding="utf-8"))
+    n = 0
+    for s in j["seances"].values():
+        for l in s["tickers"]:
+            assert sh.valeur(l, "etat_bvc") in (None, "CALCULABLE", "PARTIEL", "NON_CALCULABLE")
+            n += 1
+    assert n > 0
+
+
+def test_le_releve_porte_la_version_du_score_bvc(journal):
+    j = sh.enregistrer("2026-11-05", [dict(_titre(sym=s), score_bvc=_bvc()) for s in ("ADH", "ATW")])
+    assert j["seances"]["2026-11-05"]["score_bvc_version"] == "bvc-score-v1"
+    j = sh.enregistrer("2026-11-05", [dict(_titre(sym="ADH"), score_bvc=_bvc()),
+                                      dict(_titre(sym="ATW"), score_bvc=_bvc(version="bvc-score-v2"))])
+    assert j["seances"]["2026-11-05"]["score_bvc_version"] == ["bvc-score-v1", "bvc-score-v2"]
+    assert json.loads(journal.read_text(encoding="utf-8"))["_colonnes"][-2:] == ["score_bvc", "etat_bvc"]
+
+
+def test_le_backtest_reproductible_ecarte_une_ligne_sans_note_v53(journal):
+    """Le lecteur du journal le plus exposé : une ligne du lot 2 (v53 et sig
+    vides) se relit et ne produit pas de palier — elle sera écartée
+    (`signal_sans_palier`), sans lever."""
+    sys.path.insert(0, str(RACINE / "pipeline"))
+    import backtest_reproductible as br
+    t = {"symbol": "ATW", "price": 694.6, "score_bvc": _bvc(90.0),
+         "_meta": {"confidence": 5, "prix_asof": "2026-11-05"}}
+    sh.enregistrer("2026-11-05", [t])
+    notes, _ = br.notes_score_history(journal)
+    assert notes == [{"date": "2026-11-05", "t": "ATW", "v53": None, "sig": None,
+                      "conf": 5, "asof": "2026-11-05"}]
+    assert br.palier(notes[0]["sig"]) is None

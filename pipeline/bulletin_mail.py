@@ -18,12 +18,24 @@ données sont trop dégradées pour être envoyées.
 """
 
 import json
+import math
 import sys
 from html import escape
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 RACINE = Path(__file__).parent.parent
+
+# ⚠️ LA LECTURE DE LA SÉANCE MANQUAIT AU COURRIEL RÉEL — constaté le 06/11/2026.
+# Le workflow lance `python pipeline/bulletin_mail.py` : `sys.path[0]` vaut alors
+# `pipeline/`, et `from pipeline.briefing import …` (comme `from bvc_config
+# import …`) levait ModuleNotFoundError — avalé par `_briefing()`, qui ne lève
+# jamais. Le courriel partait sans sa lecture de séance pendant que les tests,
+# qui importent le module depuis la racine, la voyaient. La racine est donc
+# posée ici, une fois ; `tests/test_bulletin.py` lance le script comme le
+# workflow le fait.
+if str(RACINE.resolve()) not in sys.path:
+    sys.path.insert(0, str(RACINE.resolve()))
 
 # ⚠️ LE MAROC N'EST PAS À UTC+1 TOUTE L'ANNÉE — corrigé le 25/09/2026.
 # Il est repassé à UTC+0 le 20/09/2026, et le registre `DECALAGES_MAROC` de
@@ -43,6 +55,131 @@ MIN_TITRES_SEANCE = 40
 
 MOIS = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet",
         "août", "septembre", "octobre", "novembre", "décembre")
+
+# ── LE SCORE BVC REMPLACE LA NOTE v5.3 — 06/11/2026 ──────────────────────────
+# Décision d'Abd Moutalib : « l'ancien scoring doit disparaître ». Le courriel
+# ne lit plus `v53` ni `sig` : plus de « notes vertes », plus de note sur 10,
+# plus aucun mot d'action. Il présente le Score BVC (`score_bvc`, sur 100), sa
+# tranche, et ce que la mesure en a établi.
+#
+# ⚠️ LES TRANCHES sont celles du backtest (`TRANCHES` de
+# pipeline/backtest_score_descriptif.py) et du terminal (`TRANCHES_BVC`) :
+# [0, 40) · [40, 60) · [60, 75) · [75, 100]. Recopiées ici parce que le
+# courriel tourne sans aucune dépendance installée (le module du backtest
+# importe pandas) ; `tests/test_bulletin.py` vérifie que les trois concordent.
+TRANCHES_BVC = (("≥ 75", 75), ("60–74", 60), ("40–59", 40), ("< 40", -math.inf))
+
+# ⚠️ Mis en avant : score CALCULÉ, confiance ≥ 2, titre ni suspendu ni
+# périmé. C'est la règle de la tuile « Score BVC le plus élevé » du terminal :
+# un seul critère sur tous les canaux. Sous 2, le terminal grise le score —
+# le relayer par courriel, où l'indicateur ne se voit pas, le présenterait
+# comme plus sûr qu'il ne l'est. (L'ancien seuil de 3 portait sur un SIGNAL
+# d'achat ; il n'y a plus de signal.)
+CONFIANCE_MIN = 2
+N_SCORE_BVC = 10
+
+# La mesure citée par le courriel. Rien n'est écrit en dur : chaque chiffre
+# est lu dans cet artefact daté, et n'est cité que si sa version de score est
+# celle que data.json publie (R12).
+MESURE_SCORE_BVC = RACINE / "datasets" / "backtests" / "score_bvc_2026-11-03.json"
+_LIBELLES_MESURE = (("< 40", "sous 40"), ("40 – 59", "de 40 à 59"),
+                    ("60 – 74", "de 60 à 74"), ("≥ 75", "à 75 et plus"))
+
+
+def valeur_bvc(x):
+    """La valeur publiée du Score BVC, ou None (PARTIEL, NON_CALCULABLE,
+    bloc absent, valeur hors [0, 100])."""
+    s = x.get("score_bvc")
+    if not isinstance(s, dict) or s.get("etat") != "CALCULABLE":
+        return None
+    v = s.get("valeur")
+    if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v):
+        return None
+    return float(v) if 0 <= v <= 100 else None
+
+
+def tranche_bvc(v):
+    """« ≥ 75 », « 60–74 », « 40–59 », « < 40 » — sur la valeur EXACTE (un
+    arrondi rangerait 74,5 dans la tranche du dessus)."""
+    return next(nom for nom, bas in TRANCHES_BVC if v >= bas)
+
+
+def mis_en_avant(x):
+    """Un titre que le courriel peut citer : voir CONFIANCE_MIN."""
+    m = x.get("_meta") or {}
+    return (valeur_bvc(x) is not None
+            and (m.get("confidence") or 0) >= CONFIANCE_MIN
+            and not m.get("suspendu") and not m.get("stale", True))
+
+
+def _score(v):
+    """74.5 → « 74,5 » ; 82.0 → « 82 »."""
+    s = f"{v:.1f}".replace(".", ",")
+    return s[:-2] if s.endswith(",0") else s
+
+
+def mesure_score_bvc(chemin=None):
+    """Les fréquences mesurées du Score BVC, lues dans l'artefact — ou None.
+
+    Ne lève jamais : un artefact illisible retire le paragraphe, il n'empêche
+    pas l'envoi. ⚠️ On ne cite que la mesure SANS rentabilité : c'est la seule
+    sans biais d'anticipation (le ROE 2025 n'était pas connu en 2023-2024)."""
+    try:
+        chemin = Path(chemin) if chemin else MESURE_SCORE_BVC
+        d = json.loads(chemin.read_text(encoding="utf-8"))
+        r = d["resultats"]["sans_rentabilite"]["score_bvc"]
+        sem = r.get("par_semestre") or {}
+        tranches = [(lib, r["tranches"][cle]["frequence_surperformance"], r["tranches"][cle]["n"])
+                    for cle, lib in _LIBELLES_MESURE]
+        return {
+            "fichier": f"datasets/backtests/{chemin.name}",
+            "version": d["version_score"],
+            "n": r["observations_total"],
+            "base": r["taux_de_base_global"],
+            "du": min((s["du"] for s in sem.values()), default=None),
+            "au": max((s["au"] for s in sem.values()), default=None),
+            "horizon": d["horizon_seances"],
+            "frais": d["frais_aller_retour"],
+            "reference": d["reference_principale"],
+            "tranches": tranches,
+            "significatives": [lib for cle, lib in _LIBELLES_MESURE
+                               if r["tranches"][cle].get("ecart_significatif_5pct")],
+        }
+    except Exception as e:                                # noqa: BLE001
+        # Le courriel part sans ce paragraphe, mais jamais sans le dire (R5).
+        print(f"⚠️ bulletin : mesure du Score BVC illisible ({type(e).__name__}: {e})",
+              file=sys.stderr)
+        return None
+
+
+def _pc(f):
+    return f"{f * 100:.1f} %".replace(".", ",")
+
+
+def phrase_mesure(m):
+    """La mesure en une phrase, ou une chaîne vide. Même texte pour les deux rendus."""
+    if not m:
+        return ""
+    periode = (f" (dates d'entrée du {_jjmm(m['du'], True)} au {_jjmm(m['au'], True)})"
+               if m.get("du") and m.get("au") else "")
+    tr = " · ".join(f"{_pc(f)} {lib}" for lib, f, _n in m["tranches"])
+    if m["significatives"]:
+        lecture = ("écart au taux de base significatif à 5 % pour : "
+                   + ", ".join(m["significatives"]) + ".")
+    else:
+        lecture = ("aucune tranche ne s'en distingue de façon robuste : le score "
+                   "décrit la situation, il ne distingue pas les gagnants.")
+    return (f"Ce que le score a mesuré : sur {_nb(m['n'], 0)} observations{periode}, "
+            f"part des cas ayant fait mieux que le {m['reference']} {m['horizon']} séances "
+            f"plus tard, frais de {_nb(m['frais'] * 100, 0)} % compris : {tr}, pour "
+            f"{_pc(m['base'])} sur l'ensemble — {lecture} Mesure faite sans le facteur "
+            f"rentabilité ({m['fichier']}). Une fréquence passée, pas une promesse.")
+
+
+PHRASE_SCORE = ("Score descriptif sur 100, pas une prévision : il décrit la situation "
+                "du titre à la dernière séance (moyennes mobiles, momentum, MACD, "
+                "activité, liquidité, rentabilité). La tranche situe le score ; "
+                "elle ne dit pas quoi faire.")
 
 
 def _date_longue(iso):
@@ -86,9 +223,10 @@ def mention_offre(x):
     29/10/2026) : prix, période, pièces, écart du prix de l'offre au cours
     publié. Factuelle, sans mot d'action.
 
-    ⚠️ Un titre sous offre publique peut figurer parmi les notes vertes — CMT,
-    n°1 à ~3 800 DH le 28/10, sous une OPA obligatoire à 2 217 DH. La note n'en
-    tient pas compte ; le courriel, lu sans le terminal, doit le dire."""
+    ⚠️ Un titre sous offre publique peut figurer parmi les scores les plus
+    élevés — CMT, n°1 de la note v5.3 à ~3 800 DH le 28/10, sous une OPA
+    obligatoire à 2 217 DH. Le score n'en tient pas compte ; le courriel, lu
+    sans le terminal, doit le dire."""
     o = (x.get("_meta") or {}).get("offre_publique")
     if not o:
         return None
@@ -130,30 +268,25 @@ def analyser(data, titres):
     baisses = sorted((x for x in cotes if (x.get("chg") or 0) < 0),
                      key=lambda z: z["chg"])
 
-    # ⚠️ Un signal n'est retenu qu'à partir d'une confiance de 3. En dessous,
-    # le terminal lui-même le grise : le relayer par courriel, où le lecteur ne
-    # voit pas l'indicateur, serait le présenter comme plus sûr qu'il ne l'est.
+    # ⚠️ LE SCORE BVC, PLUS LA NOTE v5.3 NI SON SIGNAL — 06/11/2026.
     #
-    # ⚠️ LE SIGNAL VIENT DU MOTEUR, PLUS D'UNE TABLE DE JUIN — corrigé le
-    # 29/09/2026 après trois audits externes.
-    #
-    # Ce tri lisait `sigBvc`. Ce champ n'est PAS calculé : c'est `SIG_BVC`,
-    # une table écrite à la main le 03/06/2026 et jamais mise à jour depuis
-    # (57 titres, 17 « ACHETER »). Le bulletin présentait donc chaque matin,
-    # sous le titre « SIGNAUX D'ACHAT », un avis figé depuis quatre mois.
-    #
-    # Mesuré sur la séance du 28/09 : la table donnait 14 achats, le moteur 9,
-    # et 4 seulement en commun. Dix titres recommandés par courriel n'étaient
-    # recommandés par rien d'autre ; cinq retenus par le moteur n'y figuraient
-    # pas.
-    #
-    # Le bulletin lit désormais `sig`, le signal que publie le moteur et
-    # qu'affiche le terminal. Un seul avis, sur tous les canaux. Un test
-    # vérifie que modifier `sigBvc` ne change plus rien au bulletin.
-    achats = sorted((x for x in cotes
-                     if str(x.get("sig") or "").startswith(("ACHETER", "ACHAT"))
-                     and ((x.get("_meta") or {}).get("confidence") or 0) >= 3),
-                    key=lambda z: -(z.get("v53") or 0))
+    # Ce tri lisait `sig` (« ACHETER… », confiance ≥ 3), classé par `v53` ;
+    # avant le 29/09 il lisait `sigBvc`, une table écrite à la main en juin. Il
+    # lit désormais le Score BVC publié par le moteur, celui qu'affiche le
+    # terminal, selon la même règle que sa tuile d'accueil (`mis_en_avant`).
+    # Un test vérifie que modifier `v53`, `sig` ou `sigBvc` ne change plus
+    # rien au bulletin.
+    notes = [x for x in titres if mis_en_avant(x)]
+    score_bvc = sorted(notes, key=lambda z: (-valeur_bvc(z), z["symbol"]))
+    repartition = {nom: 0 for nom, _ in TRANCHES_BVC}
+    for x in notes:
+        repartition[tranche_bvc(valeur_bvc(x))] += 1
+    # La mesure n'est citée que si elle porte sur la formule publiée.
+    versions = {(x.get("score_bvc") or {}).get("version") for x in titres
+                if isinstance(x.get("score_bvc"), dict)}
+    mesure = mesure_score_bvc()
+    if mesure and mesure["version"] not in versions:
+        mesure = None
 
     return {
         "masi": masi,
@@ -168,7 +301,12 @@ def analyser(data, titres):
         "non_cotes": len(titres) - len(cotes),
         "hausses": hausses,
         "baisses": baisses,
-        "achats": achats,
+        "score_bvc": score_bvc,
+        "repartition": repartition,
+        "mesure": mesure,
+        # Titres sans Score BVC publié : PARTIEL ou NON_CALCULABLE (cours
+        # périmé, suspension, couverture insuffisante).
+        "sans_score": [x for x in titres if valeur_bvc(x) is None],
         "insuffisants": [x for x in titres
                          if ((x.get("_meta") or {}).get("confidence") or 0) <= 1],
         "updated": data.get("updated"),
@@ -251,12 +389,37 @@ def largeur_ligne(a):
             f"cotés, l'indice n'ayant pas livré sa largeur")
 
 
+def ligne_retenus():
+    return (f"Retenus : score calculé, confiance d'au moins {CONFIANCE_MIN} sur 5, "
+            "titre ni suspendu ni périmé.")
+
+
+def ligne_repartition(a):
+    """La répartition par tranche des titres retenus — une fonction pour les
+    deux rendus (cf. `largeur_ligne`)."""
+    r = a["repartition"]
+    return " · ".join(f"{r[nom]} {lib}" for nom, lib in
+                      (("≥ 75", "à 75 et plus"), ("60–74", "de 60 à 74"),
+                       ("40–59", "de 40 à 59"), ("< 40", "sous 40")))
+
+
+def ligne_sans_score(a):
+    xs = a["sans_score"]
+    return (f"{len(xs)} valeur(s) sans Score BVC (cours périmé, suspension ou "
+            f"couverture insuffisante) : {', '.join(x['symbol'] for x in xs)}.")
+
+
 def _briefing(data):
     """La lecture de la séance, ou une chaîne vide. Ne lève jamais."""
     try:
         from pipeline.briefing import composer, texte
         return texte(composer(data))
-    except Exception:                                     # noqa: BLE001
+    except Exception as e:                                # noqa: BLE001
+        # ⚠️ Ce silence a caché, jusqu'au 06/11/2026, un courriel parti sans sa
+        # lecture de séance (import impossible lancé en script). L'envoi n'est
+        # pas bloqué, mais la panne s'écrit dans le journal du workflow (R5).
+        print(f"⚠️ bulletin : lecture de séance absente ({type(e).__name__}: {e})",
+              file=sys.stderr)
         return ""
 
 
@@ -306,24 +469,33 @@ def texte(a):
         add(a["briefing"])
         add("")
 
-    add(f"NOTES VERTES, 6,5 ET PLUS ({len(a['achats'])})")
-    if a["achats"]:
-        add("   Retenus seulement à partir d'une confiance de 3 sur 5.")
-        for x in a["achats"][:10]:
+    sb = a["score_bvc"]
+    add(f"SCORE BVC — LES {min(len(sb), N_SCORE_BVC)} PLUS ÉLEVÉS "
+        f"(sur {len(sb)} titres notés)")
+    add(f"   {PHRASE_SCORE}")
+    add(f"   {ligne_retenus()}")
+    if sb:
+        add(f"   Répartition : {ligne_repartition(a)}")
+        for x in sb[:N_SCORE_BVC]:
+            v = valeur_bvc(x)
             c = (x.get("_meta") or {}).get("confidence")
             add(f"   {x['symbol']:<6} {(x.get('name') or '')[:26]:<26} "
-                f"note {_nb(x.get('v53'), 2)}/10   confiance {c}/5")
+                f"{_score(v):>4}/100  {tranche_bvc(v):<6} confiance {c}/5")
             if mention_offre(x):
                 add(f"          ↳ {mention_offre(x)}")
     else:
-        add("   Aucune note verte avec une confiance suffisante sur cette séance.")
+        add("   Aucun Score BVC publiable sur cette séance.")
+    if phrase_mesure(a.get("mesure")):
+        add(f"   {phrase_mesure(a.get('mesure'))}")
     add("")
     add("CE QUE CE BULLETIN NE SAIT PAS")
     add(f"   {a['non_cotes']} valeur(s) n'ont pas coté : leur prix est celui "
         f"de la dernière séance où elles l'ont fait.")
+    if a["sans_score"]:
+        add(f"   {ligne_sans_score(a)}")
     if a["insuffisants"]:
-        add(f"   {len(a['insuffisants'])} valeur(s) sans données suffisantes, "
-            f"aucune couleur affichée : "
+        add(f"   {len(a['insuffisants'])} valeur(s) sans données suffisantes "
+            f"(confiance ≤ 1), score non mis en avant : "
             f"{', '.join(x['symbol'] for x in a['insuffisants'])}.")
     add("")
     add(f"Terminal complet : {TERMINAL}")
@@ -353,26 +525,35 @@ def html(a):
                 f'{_pct(x.get("chg"))}</td></tr>')
         return "".join(out)
 
-    achats = "".join(
+    scores = "".join(
         f'<tr><td style="padding:7px 10px;font-family:monospace;'
         f'font-weight:600">{x["symbol"]}</td>'
         f'<td style="padding:7px 10px;color:#414b58">'
-        f'{(x.get("name") or "")[:30]}</td>'
+        f'{escape((x.get("name") or "")[:30], quote=False)}</td>'
         f'<td style="padding:7px 10px;text-align:right;font-family:monospace">'
-        f'{_nb(x.get("v53"), 2)}/10</td>'
+        f'{_score(valeur_bvc(x))}/100</td>'
+        f'<td style="padding:7px 10px;text-align:right;font-family:monospace;'
+        f'color:#414b58">{escape(tranche_bvc(valeur_bvc(x)), quote=False)}</td>'
         f'<td style="padding:7px 10px;text-align:right;font-family:monospace;'
         f'color:#6d7887">{(x.get("_meta") or {}).get("confidence")}/5</td></tr>'
-        + (f'<tr><td></td><td colspan="3" style="padding:0 10px 9px;font-size:12.5px;'
+        + (f'<tr><td></td><td colspan="4" style="padding:0 10px 9px;font-size:12.5px;'
            f'color:#9a5b00">↳ {escape(mention_offre(x), quote=False)}</td></tr>' if mention_offre(x) else "")
-        for x in a["achats"][:10]) or (
-        '<tr><td colspan="4" style="padding:12px 10px;color:#6d7887">'
-        'Aucune note verte avec une confiance suffisante sur cette séance.</td></tr>')
+        for x in a["score_bvc"][:N_SCORE_BVC]) or (
+        '<tr><td colspan="5" style="padding:12px 10px;color:#6d7887">'
+        'Aucun Score BVC publiable sur cette séance.</td></tr>')
+    rep = (f'<p style="font-size:12.5px;color:#414b58;margin:0 0 8px">Répartition&nbsp;: '
+           f'{escape(ligne_repartition(a), quote=False)}</p>' if a["score_bvc"] else "")
+    mes = phrase_mesure(a.get("mesure"))
+    mes = (f'<p style="font-size:12px;color:#6d7887;margin:0 0 22px;line-height:1.6">'
+           f'{escape(mes, quote=False)}</p>' if mes else '<div style="margin-bottom:22px"></div>')
 
     ins = ""
+    if a["sans_score"]:
+        ins += f"<li>{escape(ligne_sans_score(a), quote=False)}</li>"
     if a["insuffisants"]:
-        ins = (f"<li>{len(a['insuffisants'])} valeur(s) sans données "
-               f"suffisantes, aucune couleur affichée : "
-               f"{', '.join(x['symbol'] for x in a['insuffisants'])}.</li>")
+        ins += (f"<li>{len(a['insuffisants'])} valeur(s) sans données "
+                f"suffisantes (confiance ≤ 1), score non mis en avant : "
+                f"{', '.join(x['symbol'] for x in a['insuffisants'])}.</li>")
 
     th = ('style="padding:8px 10px;text-align:left;font-size:11px;'
           'letter-spacing:.1em;text-transform:uppercase;color:#6d7887;'
@@ -418,15 +599,18 @@ background:#ffffff;line-height:1.6">
   {_briefing_html(a)}
 
   <h2 style="font-size:15px;margin:0 0 4px">
-    Notes vertes, 6,5 et plus ({len(a['achats'])})</h2>
-  <p style="font-size:12.5px;color:#6d7887;margin:0 0 8px">
-    Retenus seulement à partir d'une confiance de 3 sur 5.</p>
+    Score BVC — les {min(len(a['score_bvc']), N_SCORE_BVC)} plus élevés
+    (sur {len(a['score_bvc'])} titres notés)</h2>
+  <p style="font-size:12.5px;color:#6d7887;margin:0 0 4px">{escape(PHRASE_SCORE, quote=False)}</p>
+  <p style="font-size:12.5px;color:#6d7887;margin:0 0 8px">{escape(ligne_retenus(), quote=False)}</p>
+  {rep}
   <table style="width:100%;border-collapse:collapse;font-size:14px;
-         margin-bottom:22px">
-    <tr><th {th}>Valeur</th><th {th}></th><th {thr}>Note</th>
-        <th {thr}>Confiance</th></tr>
-    {achats}
+         margin-bottom:10px">
+    <tr><th {th}>Valeur</th><th {th}></th><th {thr}>Score BVC</th>
+        <th {thr}>Tranche</th><th {thr}>Confiance</th></tr>
+    {scores}
   </table>
+  {mes}
 
   <div style="background:#f6f7f9;border-left:3px solid #9a5b00;
        border-radius:0 6px 6px 0;padding:14px 16px;margin-bottom:22px">

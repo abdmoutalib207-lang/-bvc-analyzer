@@ -330,6 +330,45 @@ def test_meta_absent(audit, regenere):
     assert "meta.absent" in audit(regenere[1]["tickers"][0]["symbol"], lambda t: t.pop("_meta"))
 
 
+# ── 3 bis. Le Score BVC publié (06/11/2026, lot 1 du retrait de v5.3) ──────
+
+def _calculable(data):
+    return _premier(data, lambda t: (t.get("score_bvc") or {}).get("etat") == "CALCULABLE")
+
+
+def test_score_bvc_qui_ne_se_recompose_pas(audit, regenere):
+    sym = _calculable(regenere[1])
+    levees = audit(sym, lambda t: t["score_bvc"].update(valeur=min(100.0, t["score_bvc"]["valeur"] + 7)))
+    assert "score_bvc.score_bvc_irreproductible" in levees
+
+
+def test_score_bvc_absent_ou_d_une_autre_version(audit, regenere):
+    sym = _calculable(regenere[1])
+    assert "score_bvc.absent" in audit(sym, lambda t: t.pop("score_bvc"))
+    assert "score_bvc.version" in audit(sym, lambda t: t["score_bvc"].update(version="bvc-score-v0"))
+
+
+def test_score_bvc_calcule_sur_un_cours_perime(audit, regenere):
+    sym = _calculable(regenere[1])
+    assert "score_bvc.score_bvc_sur_cours_perime" in audit(sym, lambda t: t["_meta"].update(stale=True))
+
+
+def test_score_bvc_recalcule_depuis_les_chandelles(regenere, entrees):
+    """Le fichier écrit par le code actuel se recalcule à l'identique depuis
+    SES chandelles ; des chandelles qui ne correspondent plus (ici : aucune)
+    donnent un AVERTISSEMENT, jamais une erreur."""
+    dossier, data = regenere
+    fo, faits, bpa = entrees
+    incs = A.auditer(data, fo, faits, bpa, A.bougies_depuis(dossier))
+    assert not [i for i in incs if i["controle"] == "score_bvc.recalcul"], "recalcul ≠ publié"
+    sym = _calculable(data)
+    t = next(x for x in data["tickers"] if x["symbol"] == sym)
+    sans = A.auditer({"tickers": [t]}, fo, faits, bpa, lambda s: [])
+    rec = [i for i in sans if i["controle"] == "score_bvc.recalcul"]
+    assert rec and rec[0]["gravite"] == A.AVERT
+    assert not [i for i in sans if i["controle"].startswith("score_bvc") and i["gravite"] == A.ERREUR]
+
+
 # ═══ 4. L'affichage, vérifié STATIQUEMENT ═══════════════════════════════════
 # ⚠️ LIMITE : ces contrôles lisent du texte. Ils prouvent que les composants ne
 # lisent que les champs publiés ; ils ne prouvent pas que l'écran se rend.

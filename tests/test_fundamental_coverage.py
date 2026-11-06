@@ -45,3 +45,13 @@ def test_le_projet_ne_regresse_pas_sur_la_couverture_deja_validee():
     assert s["fondamentaux_complets"] >= 34
     assert s["pb_source"].get("faits_ammc", 0) >= 29
     assert s["source_fond"].get("bpa_calcule", 0) >= 57
+
+
+def test_le_rapport_lit_la_note_fondamentale_publiee_pas_le_pilier_v53():
+    """06/11/2026 : `score_fond` (pilier de la note v5.3) part au lot 2 ; le
+    rapport lit `note_fond.note`, qui reste publiée."""
+    data = {"tickers": [{"symbol": "ADH", "score_fond": 9.99, "note_fond": {"note": 6.25},
+                         "_meta": {}}]}
+    r = build_report(data=data, fondamentaux={}, bpa={}, faits={})
+    d = r["tickers"]["ADH"]
+    assert d["note_fond_publiee"] == 6.25 and "score_fond_publie" not in d
