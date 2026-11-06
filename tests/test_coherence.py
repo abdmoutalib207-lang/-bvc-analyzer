@@ -31,24 +31,23 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
-from coherence import ADX_SANS_TENDANCE, controler, controler_tous  # noqa: E402
+import pytest  # noqa: E402
+
+from coherence import controler, controler_tous  # noqa: E402
 
 
 def _t(**kw):
     """Un titre publié, cohérent par défaut. Chaque test ne casse qu'un point.
 
-    ⚠️ Le socle vaut 6,5325 : fond 7,25×65 + tech 5,2×35 — deux piliers depuis
-    le retrait du pilier NLP (28/10/2026). Calculé à la main, pas par la
-    fonction testée.
+    ⚠️ 06/11/2026 : plus de `score_fond`, `score_tech`, `poids`, `v53`,
+    `setup` ni `sig` — le producteur de la note v5.3 est retiré (lot 2).
     """
     base = {
         "symbol": "ZZZ", "close": 95.05, "open": 96.2,
         "h52w": 121.45, "l52w": 89.99,
         "ma20": 97.66, "ma50": 95.71, "ma200": 99.18,
         "rsi": 41.6, "adx": 22.9, "stoch_k": 23.86, "stoch_d": 31.39,
-        "score_fond": 7.25, "score_tech": 5.2,
-        "poids": {"f": 65, "t": 35}, "v53": 6.53, "bvc": 7.08,
-        "setup": "NEUTRE", "sig": "SURVEILLER ★",
+        "bvc": 7.08,
         "_meta": {"confidence": 5, "fond_asof": "2026-06-18",
                   "fond_age_jours": 98, "source_fond": "bpa_calcule"},
     }
@@ -88,87 +87,35 @@ def test_les_bornes_du_pilier_nlp_sont_retirees():
     assert not {"nlp", "nlp_corpus", "nlp_news", "score_nlp"} & set(BORNES)
 
 
-# ── Les poids ──────────────────────────────────────────────────────────────
+# ── ⚠️ 06/11/2026 : les contrôles de la note v5.3 sont retirés ────────────
+# Retrait du producteur (lot 2, décision d'Abd Moutalib : « l'ancien scoring
+# doit disparaître »). « poids_somme », « score_irreproductible »,
+# « direction_sans_tendance » (setup) et « signal_sans_confiance » vérifiaient
+# des champs que le moteur ne publie plus ; les bornes `v53`, `score_fond`,
+# `score_tech` partent avec eux. Le Score BVC se refait à la main au
+# contrôle 10 (tests/test_score_bvc.py). Les anciens cas sont retournés : un
+# data.json écrit AVANT la fusion porte encore ces champs, et même faux ils ne
+# doivent plus rien déclencher — l'outil ne juge que ce qui est publié.
 
-def test_des_poids_qui_ne_font_pas_cent_sont_une_erreur():
-    a = controler(_t(poids={"f": 65, "t": 45}))
-    assert any(x["code"] == "poids_somme" and x["gravite"] == "erreur" for x in a)
-
-
-def test_un_arrondi_a_un_point_pres_est_tolere():
-    """⚠️ Les arrondis d'un calcul normalisé peuvent donner 99 ou 101.
-    Sans cette tolérance, le contrôle rougirait sur des runs parfaitement
-    sains — et on apprendrait à l'ignorer."""
-    assert "poids_somme" not in _codes(_t(poids={"f": 65, "t": 36}))
-
-
-# ── ⚠️ Le score doit se refaire à la main ──────────────────────────────────
-
-def test_un_score_irreproductible_est_une_erreur():
-    """LE CONTRÔLE CENTRAL. Si la note ne se retrouve pas depuis les deux
-    notes et les deux poids publiés, l'un des cinq chiffres est faux — et le
-    lecteur qui refait le calcul le verra avant nous."""
-    a = controler(_t(v53=9.4))
-    assert any(x["code"] == "score_irreproductible" and x["gravite"] == "erreur"
-               for x in a)
+CODES_V53 = {"poids_somme", "score_irreproductible", "direction_sans_tendance",
+             "signal_sans_confiance"}
 
 
-def test_l_ecart_des_bonus_documentes_ne_declenche_pas():
-    """⚠️ Le cas voisin, et il est essentiel : la note v5.3 porte des bonus et
-    malus par-dessus le socle — jusqu'à ±1,5 point. Les compter comme une
-    incohérence ferait rougir les titres les plus commentés du terminal."""
-    assert "score_irreproductible" not in _codes(_t(v53=7.3))
-    assert "score_irreproductible" not in _codes(_t(v53=5.1))
+def test_les_bornes_de_la_note_v53_sont_retirees():
+    from coherence import BORNES
+    assert not {"v53", "score_fond", "score_tech"} & set(BORNES)
 
 
-def test_un_titre_sans_decomposition_n_est_pas_accuse():
-    """Un titre dont les briques ne sont pas publiées ne peut pas être vérifié.
-    Ne rien dire est alors la seule réponse honnête — inventer un verdict sur
-    une absence serait pire que le silence."""
-    t = _t()
-    for k in ("score_fond", "score_tech"):
-        t.pop(k)
-    assert "score_irreproductible" not in _codes(t)
-
-
-# ── ⚠️ 28/10/2026 : le pilier NLP est retiré ───────────────────────────────
-# Deux piliers publiés : fondamental et technique. Le 28/10 (lot 1), l'absence
-# de `poids.n` valait 0 pour ne pas désarmer les deux contrôles ci-dessus ; le
-# 29/10 (lot 2), le contrôle ne lit plus que `f` et `t`. Un pilier NLP qui
-# reviendrait avec un poids non nul doit donc se voir.
-
-def test_un_troisieme_poids_non_nul_est_vu():
-    assert "poids_somme" in _codes(_t(poids={"f": 52, "n": 28, "t": 20}))
-
-
-def test_un_poids_n_nul_reste_muet():
-    """Les data.json écrits entre le 25/09 et le 28/10 portaient `n: 0`."""
-    assert not {"poids_somme", "score_irreproductible"} & _codes(
-        _t(poids={"f": 65, "n": 0, "t": 35}))
-
-
-def test_sans_pilier_nlp_un_score_irreproductible_est_vu():
-    assert "score_irreproductible" in _codes(_t(v53=9.4))
-
-
-# ── ⚠️ La conviction directionnelle sans tendance ──────────────────────────
-
-def test_un_setup_directionnel_sous_adx_20_est_signale():
-    """La faille relevée de l'extérieur : le score retient une conviction de
-    direction là où son PROPRE indicateur de force dit qu'il n'y a pas de
-    tendance. 18 titres sur 80 étaient dans ce cas au 24/09."""
-    assert "direction_sans_tendance" in _codes(_t(adx=19, setup="CONTRARIEN"))
-
-
-def test_un_setup_neutre_sous_adx_20_ne_l_est_pas():
-    """Le cas voisin : un ADX bas AVEC un setup neutre, c'est la cohérence
-    même. C'est ce que le terminal devrait afficher plus souvent."""
-    assert "direction_sans_tendance" not in _codes(_t(adx=19, setup="NEUTRE"))
-
-
-def test_un_setup_directionnel_avec_tendance_ne_l_est_pas():
-    assert "direction_sans_tendance" not in _codes(
-        _t(adx=ADX_SANS_TENDANCE + 5, setup="CONTRARIEN"))
+@pytest.mark.parametrize("champs", [
+    {"poids": {"f": 65, "t": 45}},
+    {"poids": {"f": 52, "n": 28, "t": 20}},
+    {"score_fond": 7.25, "score_tech": 5.2, "poids": {"f": 65, "t": 35}, "v53": 9.4},
+    {"v53": 14.0, "score_fond": -3, "score_tech": 11},
+    {"adx": 19, "setup": "CONTRARIEN"},
+    {"sig": "ACHAT FORT ★★★", "_meta": {"confidence": 1}},
+])
+def test_les_champs_v53_d_un_ancien_fichier_ne_declenchent_plus_rien(champs):
+    assert controler(_t(**champs)) == []
 
 
 # ── L'identité et les extrêmes ─────────────────────────────────────────────
@@ -207,24 +154,6 @@ def test_le_controle_de_decomposition_du_sentiment_est_retire():
         _t(nlp=0.5, nlp_corpus=0.1, nlp_news=0.1))
 
 
-# ── Le signal exige de la confiance ────────────────────────────────────────
-
-def test_un_signal_sans_confiance_est_une_erreur():
-    """L'anti-pattern nommé dans le CLAUDE.md : « ne pas émettre ACHAT/ÉVITER
-    si confidence ≤ 1 »."""
-    t = _t(sig="ACHAT FORT ★★★")
-    t["_meta"]["confidence"] = 1
-    assert "signal_sans_confiance" in _codes(t)
-
-
-def test_surveiller_sans_confiance_n_est_pas_accuse():
-    """Le cas voisin : « SURVEILLER » n'est pas une décision, c'est une
-    invitation à regarder. La règle vise ACHAT et ÉVITER."""
-    t = _t(sig="SURVEILLER ★")
-    t["_meta"]["confidence"] = 0
-    assert "signal_sans_confiance" not in _codes(t)
-
-
 # ── La fraîcheur ───────────────────────────────────────────────────────────
 
 def test_des_fondamentaux_de_plus_de_six_mois_sont_signales():
@@ -252,7 +181,7 @@ def test_quatre_vingt_dix_huit_jours_ne_declenchent_pas():
 def test_le_releve_compte_par_code_et_par_titre():
     r = controler_tous([_t(symbol="AAA"),
                         _t(symbol="BBB", rsi=140),
-                        _t(symbol="CCC", adx=19, setup="CONTRARIEN")])
+                        _t(symbol="CCC", close=200)])
     assert r["titres_controles"] == 3
     assert r["titres_avec_anomalie"] == 2
     assert r["erreurs"] == 1
