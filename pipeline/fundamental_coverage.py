@@ -96,7 +96,11 @@ def build_report(data: dict | None = None, fondamentaux: dict | None = None,
 
         details[sym] = {
             **cov,
-            "score_fond_publie": row.get("score_fond"),
+            # 06/11/2026 (lot 1 du retrait de v5.3) : la note fondamentale se lit
+            # dans `note_fond`, qui reste publiée ; `score_fond` (pilier de la
+            # note v5.3, égal à `note_fond.note` sur 73/73 titres le 05/11) part
+            # au lot 2 avec son producteur.
+            "note_fond_publiee": (row.get("note_fond") or {}).get("note"),
             "source_fond": src,
             "pb_source": pbs,
             "pe_disponible": row.get("pe") is not None,
