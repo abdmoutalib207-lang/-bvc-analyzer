@@ -145,7 +145,10 @@ def mesure_score_bvc(chemin=None):
             "significatives": [lib for cle, lib in _LIBELLES_MESURE
                                if r["tranches"][cle].get("ecart_significatif_5pct")],
         }
-    except Exception:                                     # noqa: BLE001
+    except Exception as e:                                # noqa: BLE001
+        # Le courriel part sans ce paragraphe, mais jamais sans le dire (R5).
+        print(f"⚠️ bulletin : mesure du Score BVC illisible ({type(e).__name__}: {e})",
+              file=sys.stderr)
         return None
 
 
@@ -164,8 +167,8 @@ def phrase_mesure(m):
         lecture = ("écart au taux de base significatif à 5 % pour : "
                    + ", ".join(m["significatives"]) + ".")
     else:
-        lecture = ("aucune tranche ne s'en distingue à 5 % : le score décrit la "
-                   "situation, il ne distingue pas les gagnants.")
+        lecture = ("aucune tranche ne s'en distingue de façon robuste : le score "
+                   "décrit la situation, il ne distingue pas les gagnants.")
     return (f"Ce que le score a mesuré : sur {_nb(m['n'], 0)} observations{periode}, "
             f"part des cas ayant fait mieux que le {m['reference']} {m['horizon']} séances "
             f"plus tard, frais de {_nb(m['frais'] * 100, 0)} % compris : {tr}, pour "
@@ -411,7 +414,12 @@ def _briefing(data):
     try:
         from pipeline.briefing import composer, texte
         return texte(composer(data))
-    except Exception:                                     # noqa: BLE001
+    except Exception as e:                                # noqa: BLE001
+        # ⚠️ Ce silence a caché, jusqu'au 06/11/2026, un courriel parti sans sa
+        # lecture de séance (import impossible lancé en script). L'envoi n'est
+        # pas bloqué, mais la panne s'écrit dans le journal du workflow (R5).
+        print(f"⚠️ bulletin : lecture de séance absente ({type(e).__name__}: {e})",
+              file=sys.stderr)
         return ""
 
 
