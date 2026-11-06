@@ -117,9 +117,11 @@ def test_le_nombre_d_actions_n_a_pas_bouge():
 # ── l'effet sur le moteur ────────────────────────────────────────────────
 
 def test_le_signal_est_suspendu_pendant_la_suspension(moteur, monkeypatch):
-    """Rejeu de la publication du 02/11 : « ACHETER ★★ » devient SUSPENDU."""
+    """Rejeu de la publication du 02/11 : le titre est suspendu ce jour-là.
+    (Jusqu'au 06/11/2026, « ACHETER ★★ » devenait SUSPENDU ; le signal est
+    retiré avec la note v5.3, la suspension se lit dans `_meta.suspendu`.)"""
     monkeypatch.setenv("BVC_DATE_ANALYSE", "2026-11-02")
-    assert moteur._signal_publie("MNG", "ACHETER ★★", None, None) == ("SUSPENDU", None)
+    assert moteur._suspendu_maintenant("MNG")
 
 
 def test_a_la_reprise_le_signal_revient_sans_abstention(moteur, monkeypatch):
@@ -130,7 +132,7 @@ def test_a_la_reprise_le_signal_revient_sans_abstention(moteur, monkeypatch):
     for dates in (["2026-10-28", "2026-10-29"], ["2026-10-29", "2026-11-03"]):
         serie = pd.DataFrame({"d": dates, "c": [1490.0, 1390.0]})
         assert moteur.reprise_trop_recente("MNG", serie) is None
-    assert moteur._signal_publie("MNG", "ACHETER ★★", None, None) == ("ACHETER ★★", None)
+    assert not moteur._suspendu_maintenant("MNG")
 
 
 def test_la_regle_de_reprise_ne_vise_que_la_reference_remise_a_neuf():

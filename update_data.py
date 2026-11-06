@@ -58,7 +58,6 @@ except NameError:
     OUTPUT = Path("data.json")  # Colab : dossier courant
 
 from bvc_config import decalage_maroc
-from bvc_config import SCORE_VERSION
 from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
@@ -104,7 +103,7 @@ TICKER_INFO = {
 
 # `SIG_BVC` — table de signaux saisie le 03/06, retirée le 29/09/2026 et
 # supprimée de l'arbre le 29/10/2026 avec le NLP (historique git :
-# archive/sig_bvc_2026-06-03.py). Voir « score canonique » dans compute_v53().
+# archive/sig_bvc_2026-06-03.py). La note v5.3 elle-même est retirée le 06/11/2026.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SCORES FONDAMENTAUX
@@ -2118,154 +2117,29 @@ def calc_adx(highs: pd.Series, lows: pd.Series, closes: pd.Series,
         return None, None, None
 
 
-def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
-    """
-    Score technique simplifié [0-10].
-    Basé sur RSI, alignement des MAs, position dans la range 90 jours.
-    """
-    score = 5.0
-
-    # ⚠️ UN RSI ABSENT NE CONTRIBUE PAS — il ne vaut pas « neutre ».
-    # `calc_rsi` rendait `nan` quand la profondeur manquait ou qu'aucune baisse
-    # n'existait. Aucune comparaison ne se déclenche sur `nan` : le titre
-    # traversait ce bloc sans rien gagner ni perdre, et personne ne le voyait.
-    # Désormais l'absence est explicite, et l'abstention aussi.
-    if rsi is None:
-        pass
-    # RSI (zone idéale 40-65 pour BVC, peu liquide)
-    elif 40 <= rsi <= 65:
-        score += 1.0
-    elif rsi > 75:       # suracheté
-        score -= 1.0
-    elif rsi < 30:       # survendu → rebond potentiel
-        score += 0.5
-    elif rsi < 40:
-        score -= 0.3
-
-    # Alignement des moyennes mobiles
-    # ⚠️ UNE MOYENNE ABSENTE NE VAUT NI POUR NI CONTRE — MÊME RÈGLE QUE LE RSI.
-    # Depuis que `calc_ma` refuse de rendre une moyenne sur moins de séances
-    # que sa période, `ma50` peut être None : un titre introduit il y a sept
-    # semaines n'a pas de moyenne 50 jours. Le bloc levait alors
-    # « '>' not supported between float and NoneType » et le run s'arrêtait
-    # net — mesuré sur T2S le 15/09/2026, avant toute publication.
-    #
-    # Comparer un prix à une moyenne qui n'existe pas n'a pas de sens, et lui
-    # attribuer zéro non plus : zéro se lirait comme « sous les deux moyennes »,
-    # c'est-à-dire −1,2. L'abstention est la seule lecture juste.
-    if ma20 is None and ma50 is None:
-        pass
-    elif ma50 is None:
-        if price > ma20:
-            score += 0.8
-    elif ma20 is None:
-        if price > ma50:
-            score += 0.3
-        elif price < ma50:
-            score -= 1.2
-    elif price > ma20 > ma50:   # tendance haussière confirmée
-        score += 1.5
-    elif price > ma20:           # au-dessus MA20 seulement
-        score += 0.8
-    elif price > ma50:           # entre MA20 et MA50
-        score += 0.3
-    elif price < ma50:           # sous les deux MAs → faiblesse
-        score -= 1.2
-
-    # Position dans la range 90 jours
-    if h90 is not None and l90 is not None and h90 > l90:
-        pos = (price - l90) / (h90 - l90)
-        if 0.25 <= pos <= 0.70:  # zone médiane = saine
-            score += 0.4
-        elif pos > 0.90:          # proche du sommet = risque retournement
-            score -= 0.6
-        elif pos < 0.10:          # proche du bas = rebond potentiel (BVC peu liquide)
-            score += 0.3
-
-    return round(min(max(score, 0), 10), 2)
-
 # ─────────────────────────────────────────────────────────────────────────────
-# MOTEUR DE SCORE v5.3 (port depuis l'ancien archive/bvc_analyzer_v53.py,
-# supprimé le 03/11/2026 avec le reste du NLP ; il reste dans l'historique git)
+# ⚠️ MOTEUR DE SCORE v5.3 — RETIRÉ LE 06/11/2026 (lot 2 du retrait, décision
+# d'Abd Moutalib du 06/11 : « l'ancien scoring doit disparaître »).
+#
+# Le terminal affichait déjà le seul Score BVC (#325) et tous les lecteurs de
+# la note v5.3 étaient passés au Score BVC (lot 1, #326). Sont retirés d'ici :
+# `calc_score_tech` (pilier technique), `get_weights` (pondération
+# Fond 72,22 / Tech 27,78, modulée par titre), `compute_v53` (note et paliers
+# ACHETER … ÉVITER FORT), `_signal_publie` (suspension, données insuffisantes,
+# non comparable, couverture partielle, plafond de liquidité du verdict) et
+# `_setup_technique`. Les champs publiés `v53`, `sig`, `score_fond`,
+# `score_tech`, `poids`, `bonus`, `setup`, `verdict_plafonne` et
+# `score_version` partent avec eux.
+#
+# Restent publiés, inchangés : la note fondamentale (`note_fond`), la note par
+# famille (`note_fond_metier`), `technique_neutralise`, `_meta` (confiance,
+# `non_comparable`, suspension…), le Score BVC, les alertes, le risque.
+#
+# La trace : l'historique git, `pipeline/score_history.json` (colonnes v53,
+# score_fond, score_tech, poids, sig jusqu'au 06/11/2026) et, pour la formule
+# du pilier technique, `pipeline/mesure_score_tech.py`, qui en garde une copie
+# figée pour rejouer sa mesure.
 # ─────────────────────────────────────────────────────────────────────────────
-
-def get_weights(context: dict) -> dict:
-    """WeightEngine.get_weights() — pondération dynamique selon contexte.
-
-    Deux piliers : `fondamental` et `technique`, qui totalisent 1.
-
-    ⚠️ `masi_ytd` attend la performance de l'indice DEPUIS LE 1ER JANVIER, en
-    pourcentage. Les deux seuils (-5 % et +10 %) sont annuels. Jusqu'au
-    05/09/2026 l'appelant y passait `masi["chg"]`, c'est-à-dire la variation
-    de la SÉANCE : un chiffre qui vaut typiquement ±1 %, donc deux régimes —
-    le mode défensif de marché baissier et le mode haussier — qui ne se sont
-    jamais déclenchés depuis l'origine du projet. Signalé par l'audit externe
-    du 05/09, vérifié ligne par ligne avant correction.
-
-    `None` signifie « inconnu » et neutralise le bloc. C'est volontaire : le
-    projet ne stocke aucun historique de l'indice, donc le YTD réel n'est pas
-    calculable aujourd'hui (cf. `pipeline/masi_history.json`, qui commence à
-    l'enregistrer). Un `0` par défaut aurait affirmé « marché plat » —
-    une affirmation, alors que nous ne savons pas.
-
-    ⚠️ LE PILIER NLP (« comportemental ») N'EXISTE PLUS — 28/10/2026.
-    Historique, pour la trace (R8) :
-      · jusqu'au 25/09/2026 : Tech 25 · Fond 47 · NLP 28, et cinq modulateurs
-        déplaçaient aussi le pilier NLP ;
-      · 25/09/2026 (accord d'Abd Moutalib, backtest à l'appui) : poids NLP
-        ramené à zéro et reversé AU PRORATA sur les deux autres
-        (`_replier_comportemental`). Le pilier ne déplaçait que 0,37 point
-        sur 10 ; sur les notes publiées (13 jours, 194 observations), la
-        corrélation à l'alpha passait de +0,0774 à +0,0752, écart
-        décile haut / bas identique (+3,22 %). La redistribution ne
-        dégradait rien — elle rendait le score sincère ;
-      · 29/09/2026 : les modulateurs tirés du corpus (`ticker_coverage`,
-        `smart_money_active`, `hype_spike`) ne sont plus construits ;
-      · 28/10/2026 (lot 2 du retrait) : le pilier sort du calcul.
-    Un repli au prorata d'un poids `c` sur `t` et `f` donne t/(t+f) et
-    f/(t+f) : c'est exactement ce que rend la normalisation ci-dessous sur
-    les seuls deux piliers. Les poids publiés sont donc INCHANGÉS — vérifié
-    par énumération de tous les contextes (tests/test_retrait_nlp.py) et par
-    deux essais à blanc simultanés, 80/80 identiques.
-
-    ⚠️ LA PONDÉRATION NE DÉPEND PLUS DE L'HEURE DU RUN — 03/11/2026, accord
-    R8 d'Abd Moutalib. Jusque-là, `market_status` CLOSED ou PRE_MARKET
-    ajoutait +0,05 au fondamental et −0,05 au technique. Constaté sur MNG
-    suspendu, aucune donnée ne bougeant (cours 1 490, fond 7,2, tech 5,2) :
-    v53 = 6,63 aux runs en séance et 6,76 aux runs après clôture, le 30/10
-    et le 02/11. La même situation recevait deux notes selon l'horloge.
-    Décision : la pondération « marché fermé » — celle du bulletin J+1 du
-    soir — s'applique partout. La note du soir ne change pas ; celles
-    affichées en séance s'y alignent. `market_status` n'est plus lu ici.
-    L'ajustement reste écrit en deux temps (0,25 − 0,05 ; 0,47 + 0,05) pour
-    reproduire au bit près l'arithmétique de l'ancien chemin « fermé ».
-    Les autres modulateurs (`has_results`, `masi_ytd`, `tech_non_fiable`)
-    sont inchangés.
-    """
-    w = {"technique": 0.25, "fondamental": 0.47}
-
-    # Ex-bonus de clôture, désormais inconditionnel (03/11/2026).
-    w["fondamental"] += 0.05; w["technique"] -= 0.05
-    if context.get("has_results"):
-        w["fondamental"] += 0.10; w["technique"] -= 0.07
-
-    masi_ytd = context.get("masi_ytd")
-    if masi_ytd is not None:
-        if masi_ytd < -5:
-            w["fondamental"] += 0.08; w["technique"] -= 0.03
-        elif masi_ytd > 10:
-            w["technique"] += 0.03; w["fondamental"] -= 0.03
-
-    # ⚠️ PILIER TECHNIQUE NEUTRALISÉ SUR LES TITRES PEU LIQUIDES ET AU FIXING —
-    # 03/10/2026, accord d'Abd Moutalib (R8). Rejoué sur trois ans, il y
-    # annonce l'INVERSE de la suite (étape 0 du calibrage). Sa part revient au
-    # fondamental ; règle et mesure : `pipeline/technique_fiable.py`.
-    if context.get("tech_non_fiable"):
-        w["fondamental"] += w["technique"]
-        w["technique"] = 0.0
-
-    total = sum(w.values())
-    return {k: round(v / total, 4) for k, v in w.items()}
 
 def _indicateurs_depuis_candles(df_candles):
     """Recalcule les indicateurs depuis les chandelles stockées.
@@ -3831,111 +3705,6 @@ def _objectifs(ticker, price, fd) -> dict:
                                "n'est affichée que recalculée et sourcée"}
 
 
-def compute_v53(ticker, score_tech, score_fond, red_flags, upside, context) -> dict:
-    """ScoreEngineV53.compute() — note sur 10 : fondamental et technique pondérés.
-
-    ⚠️ PLUS DE PILIER NLP — 28/10/2026 (lot 2 du retrait, décision d'Abd
-    Moutalib). Retirés d'ici : la lecture de la table `SENTIMENT`, l'apport
-    du sentiment d'actualités (`_apport_actualites`, pipeline/news_sentiment.py),
-    `score_nlp` et son terme `score_nlp × poids` (poids nul depuis le 25/09),
-    les champs `nlp`, `nlp_corpus`, `nlp_news`, `alpha`, `win`, `biais`,
-    `conv`, `poids.n` (plus publiés depuis le lot 1) et l'alerte `warn` /
-    `warnMsg` (« alpha historique négatif », lue dans le corpus, toujours
-    fausse depuis le gel du 29/09). La note, le signal et les poids sont
-    inchangés : mesuré par deux essais à blanc simultanés, 80/80 identiques.
-
-    `ticker` reste dans la signature pour ne pas réécrire les appelants ; il
-    n'entre plus dans le calcul.
-    """
-    del ticker
-    w = get_weights(context)
-
-    base = (score_tech   * w["technique"]
-            + score_fond * w["fondamental"])
-
-    bonus = 0.0
-    bonus_log = []
-
-    # ⚠️ LE GEL DU PILIER NLP S'ÉTENDAIT AUX BONUS — 29/09/2026.
-    #
-    # Le 25/09, le poids du pilier est passé à zéro ; le sentiment entrait
-    # pourtant encore dans la note par six bonus lisant le corpus : convergence,
-    # convergence baissière, divergence, Smart Money, Contrarian, alpha
-    # historique négatif. Un pilier « gelé » qui déplace la note n'est pas
-    # gelé. Tous ont été retirés.
-    #
-    # Seul « Conv baissière +0,15 » se déclenchait, sur 35 titres au 28/09 —
-    # et `nlp_bull` n'étant jamais vrai, il récompensait en fait un score BVC
-    # INFÉRIEUR à 5,5. Les autres : zéro occurrence depuis le 10/08.
-    #
-    # Mesure sur les notes publiées (25 jours depuis le 10/08, 1 765
-    # observations à 5 séances, confiance ≥ 2) : corrélation à l'alpha
-    # −0,0555 avec, −0,0480 sans. On ne dégrade rien. ⚠️ Et la corrélation est
-    # NÉGATIVE dans les deux cas : la note ne se montre pas prédictive sur
-    # cette période — un seul régime, observations chevauchantes.
-    #
-    # ⚠️ LES DEUX DERNIERS MALUS SONT GELÉS — 30/09/2026 (accord d'Abd
-    # Moutalib, R8). « Red flags » et « Upside négatif » lisaient `FOND_DATA`,
-    # une table ÉCRITE EN DUR : un nombre d'alertes sans aucune raison
-    # enregistrée (SRM : 4, quand le détecteur d'origine n'en justifie qu'une)
-    # et un upside jamais recalculé (MSA : −13, saisi).
-    #
-    # Mesure sur les notes publiées (42 jours depuis le 10/08, 1 343
-    # observations à 5 séances, confiance ≥ 2, 90 pénalisées) : alpha moyen
-    # des observations pénalisées +0,87 %, contre +0,84 % pour l'ensemble — la
-    # pénalité ne désignait pas les titres qui allaient sous-performer.
-    # Corrélation de la note à l'alpha −0,0622 avec, −0,0616 sans. ⚠️ Négative
-    # dans les deux cas : un seul régime, observations chevauchantes.
-    #
-    # Les alertes ne disparaissent pas : `detecter_alertes()` les CALCULE
-    # désormais, chacune avec sa raison, son chiffre, son seuil, sa source et
-    # sa date, et le terminal les affiche au clic — comme information, sans
-    # effet sur la note. Les paramètres restent dans la signature pour ne pas
-    # réécrire les appelants ; ils ne sont plus lus.
-    del red_flags, upside
-
-    final = round(min(max(base + bonus, 0), 10), 2)
-
-    # Signal enrichi
-    #
-    # ⚠️ « ACHAT FORT » est SUSPENDU depuis le gel du pilier NLP (29/09). Il
-    # exigeait une note ≥ 7,5 ET un taux de réussite smart money ≥ 80 % — lu
-    # dans le corpus arrêté au 02/07, et atteint par aucun titre depuis le
-    # 10/08. Le rebrancher sur la seule note créerait un palier qui n'a jamais
-    # été mesuré. Une note ≥ 7,5 publie donc « ACHETER ».
-    if final >= 6.5:
-        sig = "ACHETER ★★"
-    elif final >= 5.5:
-        sig = "SURVEILLER ★"
-    elif final >= 4.5:
-        sig = "ATTENDRE"
-    elif final >= 3.5:
-        sig = "ÉVITER"
-    else:
-        sig = "ÉVITER FORT"
-
-    return {
-        "v53":       final,
-        # ⚠️ SCORE CANONIQUE — 29/09/2026. `bvc` (la note figée du 03/06) et
-        # `delta` (l'écart à cette note) ne sont plus publiés : le terminal
-        # les affichait comme une « note BVC de référence », et ce n'était
-        # pas un calcul. Un seul verdict, versionné par SCORE_VERSION.
-        "score_tech": round(score_tech, 2),
-        # ⚠️ `score_fond` n'était émis NULLE PART. Le moteur le calcule pour
-        # composer la v5.3 et ne le publiait pas : le frontend ne pouvait donc
-        # pas l'utiliser même en le voulant, et son mode personnalisé lisait
-        # `r.bvc` — la note BVC de référence — faute de mieux. Publier une note
-        # sans ses composantes rend le calcul invérifiable pour le lecteur.
-        "score_fond": round(score_fond, 2),
-        "sig":    sig,
-        "bonus":  bonus_log,
-        # get_weights() retient quatre décimales en fraction : publier deux
-        # décimales en pourcentage conserve exactement cette précision.
-        # Un entier (71 au lieu de 71,43) empêchait l'audit de recomposer la
-        # note et bloquait toute publication en séance. Calcul et seuils inchangés.
-        "poids":  {"f": round(w["fondamental"]*100, 2), "t": round(w["technique"]*100, 2)},
-    }
-
 def bougie_a_ecrire(seance: str, aujourd_hui: str,
                     derniere_bougie: str | None) -> str:
     """Que faut-il faire de la séance `seance` pour ce titre ?
@@ -4057,9 +3826,6 @@ def _entrees_depots_ammc() -> list:
         return _ammc.charger()
 
 
-SIG_NON_COMPARABLE = "Non comparable (liquidité)"
-
-
 def non_comparable(tech_nf) -> dict | None:
     """Règle A (27/10/2026, accord R8) : le bloc `_meta.non_comparable`, ou None.
 
@@ -4068,7 +3834,7 @@ def non_comparable(tech_nf) -> dict | None:
     échangées sous `bvc_config.SEUIL_NON_COMPARABLE_DH`. Sans séance échangée,
     la médiane est absente et comptée 0 — convention de la mesure préalable.
     Pure : ne lit ni la suspension ni la note ; la précédence est dans
-    `_signal_publie`.
+    `non_comparable_publie`.
     """
     from bvc_config import SEUIL_NON_COMPARABLE_DH
     if not tech_nf:
@@ -4110,83 +3876,35 @@ def _poser_non_comparable(e: dict, nc_publie) -> None:
         m.pop("non_comparable", None)
 
 
-def _signal_publie(ticker, sig_v53, tech_nf, depuis_reprise, sans_note=False,
-                   couverture_partielle=False, non_comparable=None,
-                   fonciere_sans_note=False):
-    """(signal publié, verdict_plafonne) : la SEULE règle de substitution.
-
-    Ordre : suspension, puis « Données insuffisantes » (reprise récente, société
-    sans comptes, ou note fondamentale incalculable), puis « Non comparable
-    (liquidité) » (règle A, 27/10/2026), puis « Couverture partielle »
-    (couverture sous le seuil, ou foncière sans note par métier — règle B,
-    27/10/2026), puis plafond de liquidité du verdict (04/10/2026). Un titre
-    sans note fondamentale ne reçoit JAMAIS un verdict ACHETER ou ÉVITER : il
-    n'a pas de pilier fondamental à juger.
-    """
-    if _suspendu_maintenant(ticker):
-        return "SUSPENDU", None
-    if depuis_reprise is not None or sans_comptes(ticker) or sans_note:
-        return "Données insuffisantes", None
-    # Règle A (accord R8 du 27/10/2026) : titre trop peu échangé pour que sa
-    # note se compare à celle d'un titre liquide. La note reste publiée ;
-    # AUCUN verdict de palier (ni ACHETER, ni SURVEILLER, ATTENDRE, ÉVITER).
-    if non_comparable:
-        return SIG_NON_COMPARABLE, None
-    # Règle de prudence provisoire (bvc_config.COUVERTURE_VERDICT_MIN) : note
-    # publiée comme indicative, AUCUN verdict de palier (15/10/2026).
-    # Règle B (27/10/2026) : foncière dont la note par métier est incalculable
-    # (ARD, IMI, BAL) — même étiquette, la note et le rang ne changent pas.
-    if couverture_partielle or fonciere_sans_note:
-        return "Couverture partielle", None
-    if tech_nf and str(sig_v53).startswith("ACHETER"):
-        return "SURVEILLER ★", f"ACHETER plafonné : {tech_nf['motif']}"
-    return sig_v53, None
-
-
-def _setup_technique(v53_final, price, ma20, ma50, tech_nf):
-    """Étiquette technique déduite des moyennes et de la note. Pure."""
-    if tech_nf or ma20 is None or ma50 is None or v53_final is None:
-        return "NEUTRE"
-    if v53_final >= 7.0 and price > ma20 > ma50:
-        return "MOMENTUM CONFIRME"
-    if v53_final >= 5.5 and price < ma20 and price >= ma50:
-        return "PULLBACK HAUSSIER"
-    if v53_final >= 5.0 and price < ma50:
-        return "CONTRARIEN"
-    if v53_final < 4.5:
-        return "FAIBLESSE"
-    return "NEUTRE"
-
-
 def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux: dict,
                                bpa: dict, faits: dict, s1: dict, publier: bool | None = None,
                                nb_notes_precedent: int | None = None, oci: dict | None = None,
                                dividendes: dict | None = None) -> dict:
-    """Calcule la note fondamentale de chaque fiche PAR FAMILLE et la publie.
-
-    ⚠️ MODE COMPARAISON (11/10/2026, Abd Moutalib) : tant que `publier` est faux
-    (`bvc_config.NOTE_METIER_PUBLIEE`), la note par famille est calculée et
-    publiée À CÔTÉ (`note_fond_metier`) ; `score_fond`, `v53`, `sig`, `setup`, la
-    confiance et le plancher de publication restent ceux de la grille ACTUELLE,
-    calculés dans la boucle. Rien de publié ne change, À UNE EXCEPTION PRÈS :
-    la règle B (27/10/2026, accord R8) — une foncière dont la note par famille
-    est nulle reçoit le signal « Couverture partielle ». Ce fait n'existe que
-    dans cette note ; seuls `sig` et `verdict_plafonne` en dépendent, jamais la
-    note ni le rang.
+    """Calcule la note fondamentale de chaque fiche PAR FAMILLE et la publie
+    (`note_fond_metier`, lue entre autres par l'avertissement MASI 1 de
+    `pipeline/verifier_seance.py`).
 
     ⚠️ DEUX PASSES, ET C'EST VOULU. Les valorisations sont RELATIVES (médiane des
     pairs) : il faut les cours des 80 titres avant de noter le premier, or chaque
     cours se résout dans la boucle, ticker par ticker. Ce passage voit tous les
     cours et tous les P/B publiés.
 
-    Si `publier` est vrai, il remplace en plus `score_fond`, `v53`, `sig`,
-    `verdict_plafonne`, `setup` et la confiance (plafonnée à 1 sans note), et
-    applique le plancher de publication — qui ne bloque QUE sur une panne des
-    sources. Les POIDS des piliers ne sont jamais touchés (R8).
+    ⚠️ 06/11/2026 — RETRAIT DE LA NOTE v5.3 (lot 2). Ce passage remplaçait
+    aussi, en mode publié, `score_fond`, `v53`, `sig`, `verdict_plafonne` et
+    `setup`, et posait la règle B (foncière sans note par métier → signal
+    « Couverture partielle »). Ces champs ne sont plus publiés : ces branches
+    sont retirées. Restent, si `publier` est vrai
+    (`bvc_config.NOTE_METIER_PUBLIEE`, faux aujourd'hui) :
+      · le plancher de publication — bloque QUE sur une panne des sources ;
+        une chute du nombre de notes est une ALERTE ;
+      · le plafond de confiance — un titre sans note par famille perd le point
+        « fondamentaux réels » (confiance ≤ 1), et `_meta.non_comparable`
+        suit (pas de note, rien à comparer).
+    En mode comparaison (faux), rien de publié ne dépend de cette note.
     """
     from bvc_config import NOTE_METIER_PUBLIEE
     from pipeline.smart_money.fond_score_sectoriel import (
-        alertes_notes, detail_publie, limiter_signal_partiel, noter_univers, problemes_sources)
+        alertes_notes, detail_publie, noter_univers, problemes_sources)
     publier = NOTE_METIER_PUBLIEE if publier is None else publier
     res = noter_univers(
         [e["symbol"] for e in tickers_out],
@@ -4211,40 +3929,14 @@ def appliquer_note_sectorielle(tickers_out: list, passe1: dict, *, fondamentaux:
         r, p1 = res[sym], passe1[sym]
         note = r["note"]
         e["note_fond_metier"] = details[sym]
-        # Règle B (27/10/2026) : foncière sans note par métier → « Couverture
-        # partielle ». Connue seulement ici : la note par famille se calcule
-        # après la boucle. Mêmes entrées que la boucle, une seule règle.
-        fonciere_sn = (details[sym].get("famille") == "fonciere" and details[sym].get("note") is None
-                       and not details[sym].get("indisponible"))
-        nc = p1.get("non_comparable")
         if publier:
-            sig_actuel = e["sig"]               # signal de la grille actuelle, calculé dans la boucle
             if note is None:
-                e["score_fond"], e["v53"] = None, None
-                e["sig"], e["verdict_plafonne"] = _signal_publie(
-                    sym, None, p1["tech_nf"], p1["depuis_reprise"], sans_note=True)
-                e["setup"] = "NEUTRE"
                 # Le point « fondamentaux réels » tombe et la confiance est plafonnée à 1.
                 e["_meta"] = _meta_ticker(*p1["meta_args"], **p1["meta_kw"], note_fond_ok=False)
-            else:
-                v = compute_v53(sym, p1["score_tech"], note, 0, 0, p1["ctx"])
-                e["score_fond"], e["v53"] = v["score_fond"], v["v53"]
-                e["sig"], e["verdict_plafonne"] = _signal_publie(
-                    sym, v["sig"], p1["tech_nf"], p1["depuis_reprise"], non_comparable=nc,
-                    fonciere_sans_note=fonciere_sn)
-                # Règle 11 : une note PARTIELLE ne peut pas être plus favorable que la grille actuelle.
-                e["sig"] = limiter_signal_partiel(sig_actuel, e["sig"], r["partielle"])
-                e["setup"] = _setup_technique(v["v53"], p1["price"], p1["ma20"], p1["ma50"], p1["tech_nf"])
-            _poser_non_comparable(e, non_comparable_publie(sym, nc, p1["depuis_reprise"], note is None))
-        elif fonciere_sn and "sig_v53" in p1:
-            e["sig"], e["verdict_plafonne"] = _signal_publie(
-                sym, p1["sig_v53"], p1["tech_nf"], p1["depuis_reprise"], sans_note=p1.get("sans_note", False),
-                couverture_partielle=p1.get("couv_partielle", False), non_comparable=nc,
-                fonciere_sans_note=True)
-            _poser_non_comparable(e, non_comparable_publie(sym, nc, p1["depuis_reprise"],
-                                                           p1.get("sans_note", False)))
-        logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | Score v5.3: "
-                    f"{e['v53']} (fond {e['score_fond']}) | {e['sig']} | note par famille "
+            _poser_non_comparable(e, non_comparable_publie(
+                sym, p1.get("non_comparable"), p1["depuis_reprise"], note is None))
+        logger.info(f"  ✓ {sym}: {e['price']} DH | RSI {e.get('rsi')} | note fondamentale "
+                    f"{(e.get('note_fond') or {}).get('note')} | note par famille "
                     f"({r['famille']}) : {note}")
     return res
 
@@ -4260,10 +3952,9 @@ def note_metier_du_run(tickers_out: list, passe1: dict, *, fondamentaux: dict, b
     ajout de comparaison ne doit jamais interrompre le run. En mode publié, une
     erreur reste bloquante (la note publiée en dépend).
 
-    ⚠️ Exception, règle B (27/10/2026) : sans note par famille, une foncière
-    sans note ne peut pas être reconnue ; elle garde alors le signal de la
-    grille actuelle au lieu de « Couverture partielle ». Seuls `sig` et
-    `verdict_plafonne` diffèrent (tests/test_run_complet_comparaison_isolee.py)."""
+    ⚠️ 06/11/2026 : la règle B (foncière sans note par métier → « Couverture
+    partielle ») est retirée avec le signal ; une panne de ce calcul ne change
+    plus que `note_fond_metier` (tests/test_run_complet_comparaison_isolee.py)."""
     from bvc_config import NOTE_METIER_PUBLIEE
 
     def calcul():
@@ -4456,13 +4147,12 @@ def run(dry_run=False, push=False, token=""):
         return None
 
 
-    # Enregistrement de l'indice du jour, AVANT de calculer son YTD : sans
-    # série conservée, la performance depuis janvier n'existe pas. Écriture
+    # Enregistrement de l'indice du jour : sans série conservée, la
+    # performance depuis janvier n'existe pas. Écriture
     # idempotente — quatre runs par jour ouvré déposent la même date.
-    _masi_ytd = None
     try:
         sys.path.insert(0, str(Path(__file__).parent / "pipeline"))
-        from masi_history import enregistrer as _masi_enr, performance_ytd as _masi_ytd_calc
+        from masi_history import enregistrer as _masi_enr
         # ⚠️ `--dry-run` promet « aperçu sans écrire » (docstring, ligne 12) et
         # écrivait pourtant masi_history.json à chaque appel. Trouvé le
         # 09/09/2026 : un dry-run laissait le fichier modifié dans git status.
@@ -4479,25 +4169,13 @@ def run(dry_run=False, push=False, token=""):
                          f"— NON enregistrée dans l'historique")
         elif _masi_enr(masi.get("value"), masi.get("asof")):
             logger.info(f"  MASI {masi.get('value')} enregistré au {str(masi.get('asof'))[:10]}")
-        _masi_ytd = _masi_ytd_calc(masi.get("asof"))
     except Exception as _e:
         logger.warning(f"  Historique MASI indisponible : {_e}")
 
-    # Contexte marché global
-    mkt_ctx_base = {
-        "market_status":    mkt_status,
-        # ⚠️ Non branché : aucun calendrier de publication de résultats
-        # n'existe dans le projet. Le bloc `has_results` de `get_weights()`
-        # est donc inactif — il l'a toujours été, mais un `False` écrit en dur
-        # le faisait passer pour une décision. Le laisser absent dit la
-        # vérité : l'information n'est pas disponible.
-        #
-        # ⚠️ `masi_ytd` attend la performance DEPUIS JANVIER. On y passait la
-        # variation de la séance — un chiffre cent fois trop petit pour des
-        # seuils annuels de ±5 % et +10 %, donc deux régimes de marché morts
-        # depuis l'origine. `None` tant que la série est trop courte.
-        "masi_ytd":         _masi_ytd,
-    }
+    # ⚠️ 06/11/2026 : plus de « contexte marché global » (`mkt_ctx_base` :
+    # `market_status`, `masi_ytd`) — il ne servait qu'à la pondération de la
+    # note v5.3 (`get_weights`), retirée avec elle. L'historique de l'indice
+    # reste enregistré ci-dessus ; le YTD publié vient de `_etat_marche()`.
 
     from zoneinfo import ZoneInfo
     from pipeline.session_candles import preparer
@@ -5006,8 +4684,9 @@ def run(dry_run=False, push=False, token=""):
             rsi = ma20 = ma50 = h90 = l90 = ma200 = None
             isin_suspect = True
 
-        # Score technique
-        score_tech = calc_score_tech(rsi, price, ma20, ma50, h90, l90)
+        # ⚠️ 06/11/2026 (lot 2) : plus de score technique v5.3
+        # (`calc_score_tech`) ni de note composée. La note fondamentale
+        # ci-dessous reste publiée (`note_fond`), avec ses composantes.
         # Score fondamental : fondamentaux.json en priorité, table statique en fallback
         #
         # ⚠️ La valorisation lit le PER sur douze mois PUBLIÉ (cours du jour ÷
@@ -5022,8 +4701,7 @@ def run(dry_run=False, push=False, token=""):
         # est en mode comparaison (`bvc_config.NOTE_METIER_PUBLIEE` faux, 11/10).
         # La note par famille (`fond_score_sectoriel`) est calculée après la
         # boucle par `appliquer_note_sectorielle`, quand les cours des 80
-        # titres sont connus (valorisations relatives aux pairs) ; si elle
-        # devient la note publiée, ce passage refait v53, signal et setup.
+        # titres sont connus (valorisations relatives aux pairs).
         _b = BPA_DATA.get(ticker) or {}
         _per_12m = _per(price, _b.get("bpa_12m")) if _b.get("bpa_12m") is not None else _per(price, _b.get("bpa"))
         # ⚠️ Le DÉTAIL est publié (`note_fond`) : composantes notées, poids,
@@ -5042,60 +4720,26 @@ def run(dry_run=False, push=False, token=""):
                     if c["note"] is None and "sans objet" in (c.get("motif") or ""))
         _note_fond["couverture_applicable"] = (round(_note_fond["couverture"] / (1 - _p_so), 4)
                                                if _p_so < 1 else None)
-        from bvc_config import COUVERTURE_VERDICT_MIN
-        _couv_partielle = (score_fond is not None and _note_fond["couverture_applicable"] is not None
-                           and _note_fond["couverture_applicable"] < COUVERTURE_VERDICT_MIN)
         _note_fond["motif"] = None if score_fond is not None else (
             f"composantes mesurées : {_note_fond['couverture']:.0%} du poids, sous le "
             f"seuil de 50 % — " + " ; ".join(
                 f"{k} : {c['motif']}" for k, c in _note_fond["composantes"].items() if c["note"] is None))
-        # Note fondamentale incalculable (couverture < COUVERTURE_MIN) : même
-        # traitement que la note par famille — note grise, « Données
-        # insuffisantes », confiance plafonnée à 1.
+        # Note fondamentale incalculable (couverture < COUVERTURE_MIN) :
+        # confiance plafonnée à 1 (`_meta_ticker`, `note_fond_ok`).
         _sans_note_fond = score_fond is None
 
-        # Contexte de pondération.
-        #
-        # ⚠️ Plus aucune entrée tirée du corpus WhatsApp (gel du 29/09,
-        # retrait du 28/10). `ticker_coverage`, `smart_money_active` et
-        # `hype_spike` lisaient la table `SENTIMENT`, aujourd'hui retirée ; ils
-        # redécoupaient fondamental et technique, le corpus pouvait donc
-        # déplacer la note. La pondération ne dépend que du contexte de
-        # MARCHÉ : c'est ce que dit le badge « modulée par le contexte de marché ».
-        ctx = dict(mkt_ctx_base)
-        # Pilier technique illisible (peu liquide, fixing) : voir get_weights.
+        # Pilier technique illisible (peu liquide, fixing) : publié dans
+        # `technique_neutralise`, lu par la règle A (`non_comparable`) et par
+        # le pilier technique v2 (mode ombre). Il ne module plus aucune note
+        # depuis le retrait de la v5.3 (06/11/2026).
         # ⚠️ Un titre SUSPENDU n'a pas de motif à publier : « aucune
         # chandelle » se lirait comme un défaut de données (relecture du 03/10).
         _tech_nf = None if _suspendu_maintenant(ticker) else technique_non_fiable(_candles_cache.get(ticker))
-        ctx["tech_non_fiable"] = bool(_tech_nf)
 
-        # Score enrichi v5.3
-        #
-        # ⚠️ L'UPSIDE LU PAR LA NOTE EST CELUI QUI EST PUBLIÉ — 30/09/2026.
-        # La pénalité lisait `fd["upside"]` BRUT, alors que `_objectifs()` le
-        # déclare périmé et le retire de l'affichage quand l'objectif n'est
-        # plus à l'échelle du cours. Tant que la condition passait par la
-        # note figée de juin, ça ne se voyait pas ; en la remplaçant par la
-        # note calculée (PR #114), SNA a été pénalisé de 0,20 sur un objectif
-        # de 540 DH pour un cours de 1 850 — que le terminal n'affiche même
-        # pas. Trouvé par une exécution à blanc, avant toute publication.
+        # Objectifs (retirés le 01/10/2026, champs publiés à null) et alertes
+        # calculées — affichées comme information, sans effet sur aucune note.
         _obj = _objectifs(ticker, price, fd)
         _alertes = detecter_alertes(_FOND_BRUT.get(ticker), rsi, ticker)
-        v53 = compute_v53(ticker, score_tech, 5.0 if _sans_note_fond else score_fond,
-                          fd.get("flags", 0), _obj["upside"] or 0, ctx)
-        if _sans_note_fond:             # 5,0 ci-dessus : simple garnissage, rien n'est publié
-            v53["v53"], v53["score_fond"] = None, None
-
-        # Setup technique (déduit du score et des MAs)
-        # ⚠️ Trois des cinq cas lisent `ma50`, qui peut être absente depuis que
-        # `calc_ma` refuse de rendre une moyenne sur moins de séances que sa
-        # période. Sans cette garde, le run s'arrêtait sur T2S — trente séances,
-        # pas de moyenne 50. Un setup se DÉDUIT des moyennes : sans elles, il
-        # n'y a rien à déduire, et « NEUTRE » dit exactement cela.
-        v53_final = v53["v53"]
-        # Pilier technique neutralisé (peu liquide, fixing) : aucune étiquette
-        # technique — elle se lirait comme une mesure que l'on vient d'écarter.
-        setup = _setup_technique(v53_final, price, ma20, ma50, _tech_nf)
 
         info = TICKER_INFO.get(ticker, {})
         # La capitalisation est confrontée à prix × actions sourcées AVANT
@@ -5154,16 +4798,10 @@ def run(dry_run=False, push=False, token=""):
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
         # Règle A (27/10/2026, accord R8) : titre très peu liquide, non comparable.
         _nc = non_comparable(_tech_nf)
-        _sig_pub, _verdict_plafonne = _signal_publie(
-            ticker, v53["sig"], _tech_nf, _seances_depuis_reprise, sans_note=_sans_note_fond,
-            couverture_partielle=_couv_partielle, non_comparable=_nc)
-        passe1[ticker] = {"score_tech": score_tech, "ctx": ctx, "tech_nf": _tech_nf,
-                          "depuis_reprise": _seances_depuis_reprise, "price": price,
-                          "ma20": ma20, "ma50": ma50,
+        # Entrées du second passage (`appliquer_note_sectorielle`).
+        passe1[ticker] = {"tech_nf": _tech_nf, "depuis_reprise": _seances_depuis_reprise,
                           "meta_args": _meta_args, "meta_kw": _meta_kw,
-                          # Entrées du signal, gardées pour la règle B (second passage).
-                          "sig_v53": v53["sig"], "sans_note": _sans_note_fond,
-                          "couv_partielle": _couv_partielle, "non_comparable": _nc}
+                          "sans_note": _sans_note_fond, "non_comparable": _nc}
         tickers_out.append({
             "symbol": ticker,
             # ── Bloc _meta (spécification CLAUDE.md) ─────────────────────────
@@ -5324,56 +4962,19 @@ def run(dry_run=False, push=False, token=""):
             "adx":         adx_val,
             "adx_pdi":     pdi_val,
             "adx_mdi":     mdi_val,
-            # Scores v5.3 (INVIOLABLE — ne pas modifier la logique)
-            "v53":        v53["v53"],
-            # Quelle formule a produit la note — la même partout : écran,
-            # bulletin, export, score_history.
-            "score_version": SCORE_VERSION,
-            # ⚠️ 28/10/2026 — LE PILIER NLP N'EST PLUS PUBLIÉ (décision d'Abd
-            # Moutalib : « le corpus à supprimer et tout ce qui est NLP »).
-            # `nlp`, `nlp_corpus`, `nlp_news`, `score_nlp`, `alpha`, `win`,
-            # `biais`, `conv` et `poids.n` sortent du flux. Il pesait 0 depuis
-            # le 25/09 et ses bonus étaient gelés depuis le 29/09 : la note,
-            # le signal et la confiance n'en dépendent pas (mesuré à blanc,
-            # 80/80 identiques). Lot 2 (même jour) : le calcul lui-même est
-            # retiré du moteur (compute_v53, get_weights), avec `warn` et
-            # `warnMsg`, l'alerte « alpha historique négatif » lue dans le
-            # corpus et toujours fausse depuis le 29/09.
-            # Garde-fou : tests/test_retrait_nlp.py.
-            "score_tech": v53.get("score_tech", 5.0),
-            "score_fond": v53.get("score_fond", 5.0),
+            # ⚠️ 06/11/2026 — LA NOTE v5.3 N'EST PLUS PUBLIÉE (lot 2, décision
+            # d'Abd Moutalib : « l'ancien scoring doit disparaître »). `v53`,
+            # `score_version`, `score_tech` et `score_fond` sortent du flux ;
+            # le score publié est le Score BVC (`score_bvc`, annexé plus bas).
+            # La note fondamentale reste publiée avec ses composantes.
+            # Garde-fou : tests/test_retrait_v53.py.
             "note_fond":  _note_fond,
             # Pourquoi le technique pèse zéro sur ce titre, s'il pèse zéro.
             "technique_neutralise": _tech_nf,
-            # ⚠️ Un titre suspendu ne reçoit PAS de recommandation.
-            #
-            # Le 09/09/2026 le terminal affichait « ACHETER ★★ » sur CMT,
-            # suspendue depuis le 17/07 dans l'attente d'une OPA obligatoire.
-            # Le score, lui, reste calculé et affiché : les fondamentaux sont
-            # réels et le lecteur a le droit de les voir. C'est la CONCLUSION
-            # qui n'a pas lieu d'être — on ne recommande pas d'acheter ce qui
-            # ne s'achète pas. Le raisonnement est celui du plafond de
-            # liquidité du 01/09, poussé jusqu'à son terme.
-            # ⚠️ « Données insuffisantes » plutôt qu'un signal, et ce n'est pas
-            # une précaution de style. Au premier run après la reprise de CMT,
-            # le moteur a publié ACHETER ★★ : le cours venait de passer de
-            # 4 350 à 2 438 sur UN titre échangé, et des moyennes calculées sur
-            # le régime d'avant le faisaient paraître survendu. Un signal
-            # d'achat sorti d'indicateurs qui décrivent un autre prix est pire
-            # qu'une absence de signal.
-            "sig":    _sig_pub,
-            # Règle unique : `_signal_publie` (suspension ; « Données
-            # insuffisantes » ; plafond de liquidité du verdict).
-            # ⚠️ PLAFOND DE LIQUIDITÉ DU VERDICT — 04/10/2026, accord
-            # d'Abd Moutalib. Sur un titre peu liquide ou au fixing, une bonne
-            # note fondamentale ne dit pas qu'on peut y entrer ou en sortir :
-            # « ACHETER » y devient « SURVEILLER ★ ». La note chiffrée ne change pas.
-            "verdict_plafonne": _verdict_plafonne,
-            "setup":  setup,
-            "bonus":  v53["bonus"],
-            # Deux piliers publiés : fondamental et technique. Le pilier NLP
-            # (`n`, nul depuis le 25/09) n'existe plus depuis le 28/10.
-            "poids":  v53["poids"],
+            # ⚠️ 06/11/2026 : plus de `sig`, `verdict_plafonne`, `setup`,
+            # `bonus` ni `poids`. Ce que le signal disait d'un titre suspendu,
+            # en reprise ou sans données se lit dans `_meta` (`suspendu`,
+            # `reprise_recente`, `confidence`), que le terminal affiche.
             # Alerte variation extrême (≥ ±8% approche limite BVC ±10%)
             "chg_alert": chg is not None and abs(round(chg, 2)) >= 8.0,
             # Fondamentaux
@@ -5384,23 +4985,18 @@ def run(dry_run=False, push=False, token=""):
             "flags":  len(_alertes["liste"]) if _alertes["evaluable"] else None,
         })
         # `_meta.non_comparable` : {motif, montant_median_dh, seuil}, posé SI ET
-        # SEULEMENT SI le signal publié est « Non comparable (liquidité) ».
+        # SEULEMENT SI `non_comparable_publie` le rend (condition de liquidité).
         _poser_non_comparable(tickers_out[-1], non_comparable_publie(
             ticker, _nc, _seances_depuis_reprise, _sans_note_fond))
 
-        # Le signal JOURNALISÉ doit être celui qui sera PUBLIÉ. Il imprimait
-        # `v53['sig']`, calculé avant la substitution : le dry-run annonçait
-        # « ACHETER ★★ » sur CMT pendant que le fichier écrivait « SUSPENDU ».
-        # Un journal qui contredit le fichier qu'il décrit est pire qu'un
-        # journal muet — c'est là qu'on va vérifier quand on doute.
         # (le journal « ✓ » est écrit par `appliquer_note_sectorielle`, une fois
-        # la note de la famille connue : ici le score n'est que provisoire.)
+        # la note de la famille connue.)
 
     # 4b. Note fondamentale PAR FAMILLE — MODE COMPARAISON (11/10/2026).
     #
-    # Calculée et publiée à côté (`note_fond_metier`) ; la note, le signal et la
-    # confiance publiés restent ceux de la grille actuelle tant que
-    # `bvc_config.NOTE_METIER_PUBLIEE` est faux. Décision d'Abd Moutalib du
+    # Calculée et publiée à côté (`note_fond_metier`) ; la confiance publiée
+    # reste celle de la grille actuelle tant que `bvc_config.NOTE_METIER_PUBLIEE`
+    # est faux. Décision d'Abd Moutalib du
     # 10/10/2026 (R8 assoupli sur le CONTENU, pas sur les poids), corrections
     # exigées le 11/10 avant toute bascule.
     note_metier_du_run(tickers_out, passe1, fondamentaux=_FOND_BRUT, bpa=BPA_DATA, faits=FAITS_DATA,
@@ -5564,8 +5160,8 @@ def run(dry_run=False, push=False, token=""):
     # ⚠️ PUBLIÉ À CÔTÉ, JAMAIS DANS LA NOTE (R8). Décision d'Abd Moutalib du
     # 28/10 : étape 1 = construire le référentiel de Nour dans notre moteur et
     # mesurer ses fréquences ; la bascule viendra après, sur accord et sur
-    # preuves. Calculé APRÈS `v53`, `sig`, `confidence` et le classement, et
-    # rien en aval ne le lit : ces champs sont identiques avec ou sans ce bloc
+    # preuves. Calculé APRÈS `confidence` et le classement, et rien en aval ne
+    # le lit : ces champs sont identiques avec ou sans ce bloc
     # (essai à blanc jumeau, voir `pipeline/score_descriptif.py`).
     # Un échec ici ne doit jamais emporter la publication.
     try:

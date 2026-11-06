@@ -1,14 +1,21 @@
 """Branchement de la note par famille dans le moteur — MODE COMPARAISON (11/10/2026).
 
 Tant que `bvc_config.NOTE_METIER_PUBLIEE` est faux, la note par famille est
-publiée À CÔTÉ (`note_fond_metier`) : `score_fond`, `v53`, `sig`, `setup`, la
-confiance et le plancher restent ceux de la grille ACTUELLE. Les comportements
-du mode « publié » (note remplacée, « Données insuffisantes » sans note,
-confiance plafonnée, plancher de sources) restent testés avec `publier=True`
-pour que la bascule, une fois décidée, ne soit pas une découverte. Les POIDS
-des piliers (Fond 65,28 % / Tech 34,72 % / NLP 0 ; 72,22 / 27,78 à toute heure
-depuis le 03/11/2026) ne bougent dans aucun mode.
+publiée À CÔTÉ (`note_fond_metier`) : la confiance et le plancher restent ceux
+de la grille ACTUELLE. Les comportements du mode « publié » (confiance
+plafonnée sans note, plancher de sources) restent testés avec `publier=True`
+pour que la bascule, une fois décidée, ne soit pas une découverte.
 Les grilles elles-mêmes sont dans test_note_sectorielle.py.
+
+⚠️ 06/11/2026 — retrait de la note v5.3 (lot 2). Le mode publié remplaçait
+aussi `score_fond`, `v53`, `sig`, `setup` et `verdict_plafonne`, et une note
+partielle ne pouvait pas donner un signal plus favorable (règle 11). Ces
+champs ne sont plus publiés : les tests correspondants (poids des piliers,
+linéarité de v53, signal sans note, v53 de la famille, garde-fou de la note
+partielle) sont archivés dans
+`archive/tests/test_note_sectorielle_branchement_lot2_2026-11-06.py`. Les
+fiches de test portent encore ces champs, comme un data.json d'avant la
+fusion : le moteur ne doit plus les toucher.
 """
 
 import sys
@@ -29,37 +36,9 @@ def _fiche(secteur="Industrie", s1=True, **ratios):
     return f
 
 
-# ── 13. les poids des piliers ne bougent pas ────────────────────────────
-
-def test_poids_des_piliers_inchanges():
-    import update_data
-    # Base historique 25/47/28 repliée : le pilier NLP à zéro, 47/72 et 25/72.
-    # ⚠️ 28/10/2026 : le repli (`_replier_comportemental`) et le pilier NLP
-    # sont retirés du moteur ; restent deux piliers, aux mêmes poids.
-    assert not hasattr(update_data, "_replier_comportemental")
-    # Pondération en vigueur, mesurée le 10/10/2026 avant le changement de note :
-    # base 65,28 / 34,72 / 0 ; marché fermé 72,22 / 27,78 / 0 ; technique
-    # neutralisé 100 / 0 / 0. Aucune ne dépend de la note fondamentale.
-    # ⚠️ 03/11/2026 (accord R8) : la pondération ne dépend plus de l'heure —
-    # la base est celle du marché fermé, 72,22 / 27,78, quel que soit le statut.
-    for ctx, attendu in (({}, (0.7222, 0.2778)), ({"market_status": "OPEN"}, (0.7222, 0.2778)),
-                         ({"market_status": "CLOSED"}, (0.7222, 0.2778)),
-                         ({"market_status": "CLOSED", "tech_non_fiable": True}, (1.0, 0.0))):
-        p = update_data.get_weights(ctx)
-        assert set(p) == {"fondamental", "technique"}, ctx
-        assert (round(p["fondamental"], 4), round(p["technique"], 4)) == attendu, ctx
-    src = (Path(bvc_config.__file__).parent / "pipeline" / "collect_financial_data.py").read_text(encoding="utf-8")
-    assert "score_tech * 0.2778 + fond_score * 0.7222" in src
-
-
-def test_v53_reste_lineaire_en_note_fondamentale_aux_memes_poids():
-    import update_data
-    ctx = {"market_status": "CLOSED"}
-    a = update_data.compute_v53("ZZZ", 4.0, 5.0, 0, 0, ctx)
-    b = update_data.compute_v53("ZZZ", 4.0, 7.0, 0, 0, ctx)
-    assert a["poids"] == b["poids"]
-    wf = update_data.get_weights(ctx)["fondamental"]
-    assert abs((b["v53"] - a["v53"]) - 2.0 * wf) <= 0.011       # arrondis des deux notes
+# ── 13. (retiré le 06/11/2026) : les poids des piliers de la note v5.3 ──
+# La pondération (`get_weights`) n'existe plus ; garde-fou du retrait :
+# tests/test_retrait_v53.py.
 
 
 # ── 14. mode comparaison : rien de publié ne change ─────────────────────
@@ -82,10 +61,10 @@ def _fond_alu():
             | {"croissance_bpa": 50.0, "croissance_ca": 50.0}}
 
 
-def test_l_interrupteur_est_en_mode_comparaison_et_la_version_du_score_ne_change_pas():
+def test_l_interrupteur_est_en_mode_comparaison_et_la_version_v53_n_existe_plus():
     assert bvc_config.NOTE_METIER_PUBLIEE is False
-    # 03/11/2026 : la version suit la pondération sans heure, pas l'interrupteur.
-    assert bvc_config.SCORE_VERSION == "v5.3-poids-sans-heure-2026-11-03"
+    # 06/11/2026 : `SCORE_VERSION` est retirée avec la note v5.3 (lot 2).
+    assert not hasattr(bvc_config, "SCORE_VERSION")
 
 
 def test_mode_comparaison_ne_change_ni_note_ni_signal_ni_confiance(monkeypatch):
@@ -135,54 +114,48 @@ def test_le_second_pipeline_garde_la_note_actuelle_en_comparaison(monkeypatch):
         "ALU": {"famille": "autre", "note": 9.0, "poids_disponible": 100, "motif": None, "criteres": {},
                 "partielle": False, "criteres_essentiels_manquants": []}})
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", False)
-    monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-11T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
         "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
-    assert t["score_fond"] == 4.0 and t["note_fond_metier"]["note"] == 9.0
+    assert t["note_fond_metier"]["note"] == 9.0
+    assert not {"v53", "sig", "score_fond", "score_tech"} & set(t), "lot 2 : plus de note v5.3 ici non plus"
 
 
 # ── 14 bis. mode publié (bascule décidée plus tard) : comportements gardés ──
 
-def test_publie_un_titre_sans_note_ne_recoit_ni_acheter_ni_eviter(monkeypatch):
+def test_publie_sans_note_ne_fabrique_aucun_champ_v53(monkeypatch):
+    """Mode publié, titre sans note par famille : la confiance tombe, et le
+    passage n'écrit plus ni `score_fond`, ni `v53`, ni `sig` (lot 2)."""
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
     monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
-    out = [_fiche_sortie("ALU")]
+    out = [{k: v for k, v in _fiche_sortie("ALU").items()
+            if k not in ("score_fond", "v53", "sig", "setup", "verdict_plafonne")}]
     sources = {f"T{i}": {} for i in range(80)}
     update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux=sources, bpa=sources,
                                            faits=sources, s1=sources, publier=True)
     e = out[0]
-    assert e["score_fond"] is None and e["v53"] is None
-    assert e["sig"] == "Données insuffisantes" and e["verdict_plafonne"] is None and e["setup"] == "NEUTRE"
-    assert e["note_fond_metier"]["note"] is None
+    assert not {"score_fond", "v53", "sig", "setup", "verdict_plafonne"} & set(e)
+    assert e["note_fond_metier"]["note"] is None and e["_meta"]["confidence"] <= 1
 
 
-@pytest.mark.parametrize("sig", ["ACHETER ★★", "SURVEILLER ★", "ATTENDRE", "ÉVITER", "ÉVITER FORT"])
-def test_signal_publie_sans_note_est_toujours_donnees_insuffisantes(monkeypatch, sig):
-    import update_data
-    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
-    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
-    assert update_data._signal_publie("ALU", sig, None, None, sans_note=True) == ("Données insuffisantes", None)
-
-
-def test_publie_un_titre_note_recoit_la_note_de_sa_famille_et_son_v53(monkeypatch):
+def test_publie_un_titre_note_recoit_la_note_de_sa_famille_et_garde_sa_confiance(monkeypatch):
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
     monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
     sources = {f"T{i}": {} for i in range(80)}
     out = [_fiche_sortie("ALU")]
+    meta = dict(out[0]["_meta"])
     update_data.appliquer_note_sectorielle(out, {"ALU": _passe1("ALU")}, fondamentaux=sources | _fond_alu(),
                                            bpa=sources | {"ALU": {"bpa_12m": 10.0}}, faits=sources, s1=sources,
                                            publier=True)
     e = out[0]
     # Aucun pair, aucune cote hors lui → valorisation absente. Sur 80 points :
     # (40×9,5 + 30×9,0 + 10×9,0) ÷ 80 = 9,25
-    assert e["score_fond"] == 9.25 and e["note_fond_metier"]["famille"] == "autre"
-    p = update_data.get_weights({"market_status": "CLOSED"})
-    assert e["v53"] == round(min(max(5.0 * p["technique"] + 9.25 * p["fondamental"], 0), 10), 2)
-    assert e["sig"].startswith("ACHETER")
+    assert e["note_fond_metier"]["note"] == 9.25 and e["note_fond_metier"]["famille"] == "autre"
+    assert e["_meta"] == meta, "un titre noté garde la confiance de la boucle"
+    assert e["v53"] == 9.99 and e["sig"] == "ACHETER ★★", "le passage ne réécrit plus aucun champ v5.3"
 
 
 def test_publie_le_second_pipeline_note_par_famille(monkeypatch):
@@ -197,10 +170,10 @@ def test_publie_le_second_pipeline_note_par_famille(monkeypatch):
         s: {"market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
             "flags": {"stale": False, "partial_data": False}} for s in ("AAA", "BBB")}}
     par = {t["symbol"]: t for t in c.to_legacy_format(sortie)["tickers"]}
-    assert par["AAA"]["score_fond"] is None and par["AAA"]["v53"] is None
-    assert par["AAA"]["sig"] == "Données insuffisantes"
-    assert par["BBB"]["score_fond"] == 6.0
-    assert par["BBB"]["sig"].startswith("SURVEILLER") or par["BBB"]["sig"].startswith("ACHETER")
+    assert par["AAA"]["note_fond_metier"]["note"] is None and par["BBB"]["note_fond_metier"]["note"] == 6.0
+    for t in par.values():
+        assert not {"v53", "sig", "score_fond"} & set(t)
+    assert list(par) == ["AAA", "BBB"], "tri par symbole (06/11/2026)"
 
 
 def test_la_confiance_est_plafonnee_a_1_sans_note_fondamentale(monkeypatch):
@@ -226,7 +199,7 @@ def test_publie_un_titre_sans_note_a_une_confiance_au_plus_1_meme_hors_fondament
     out[0]["_meta"]["confidence"] = 4
     update_data.appliquer_note_sectorielle(out, {"DLM": _passe1("DLM")}, fondamentaux=sources, bpa=sources,
                                            faits=sources, s1=sources, publier=True)
-    assert out[0]["sig"] == "Données insuffisantes" and out[0]["_meta"]["confidence"] <= 1
+    assert out[0]["_meta"]["confidence"] <= 1
 
 
 # ── 15. plancher : panne des SOURCES seulement (11/10/2026) ─────────────────
@@ -409,32 +382,13 @@ def test_le_second_pipeline_isole_aussi_la_comparaison(monkeypatch):
 
     monkeypatch.setattr(c, "noter_depuis_fichiers", boum)
     monkeypatch.setattr(c, "NOTE_METIER_PUBLIEE", False)
-    monkeypatch.setattr(c, "compute_fond_score", lambda sym: 4.0)
     sortie = {"timestamp": "2026-10-12T00:00:00Z", "data": {"ALU": {
         "market": {"price": 100.0}, "technical": {"rsi_14": 50}, "fundamentals": {},
         "flags": {"stale": False, "partial_data": False}}}}
     t = c.to_legacy_format(sortie)["tickers"][0]
-    assert t["score_fond"] == 4.0 and t["note_fond_metier"] == {"indisponible": True}
+    assert t["note_fond_metier"] == {"indisponible": True} and t["price"] == 100.0
 
 
-# ── 18. note partielle : jamais un signal plus favorable ─────────────────────
-
-def test_une_note_partielle_ne_donne_pas_un_signal_plus_favorable_que_la_grille_actuelle(monkeypatch):
-    import update_data
-    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
-    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
-    sources = {f"T{i}": {} for i in range(80)}
-    # ALU : rentabilité ABSENTE (aucun ROIC ni ROE), croissance 50/50 et PER très bas
-    # → note 9,2 sur 50 % du poids, donc PARTIELLE.
-    fond = {"ALU": _fiche() | {"croissance_bpa": 50.0, "croissance_ca": 50.0}}
-    pairs = ("AFI", "CIM", "COL")                                    # PER 20 : la médiane des pairs d'ALU
-    out = [_fiche_sortie("ALU")] + [_fiche_sortie(s, price=200.0) for s in pairs]
-    out[0]["sig"] = "ATTENDRE"                                      # signal de la grille actuelle
-    update_data.appliquer_note_sectorielle(
-        out, {s: _passe1(s, 100.0 if s == "ALU" else 200.0) for s in ("ALU",) + pairs},
-        fondamentaux=sources | fond, bpa=sources | {s: {"bpa_12m": 10.0} for s in ("ALU",) + pairs},
-        faits=sources, s1=sources, publier=True)
-    nf = out[0]["note_fond_metier"]
-    assert nf["criteres_essentiels_manquants"] == ["rentabilite"]
-    assert nf["note"] is not None and out[0]["v53"] >= 6.5, "la note seule donnerait ACHETER"
-    assert out[0]["sig"] == "ATTENDRE", "garde-fou : une note partielle n'améliore pas le signal"
+# ── 18. (retiré le 06/11/2026) : note partielle et signal ─────────────────
+# Le garde-fou « une note partielle ne donne pas un signal plus favorable que la
+# grille actuelle » portait sur `sig`, plus publié. Archivé (voir l'en-tête).

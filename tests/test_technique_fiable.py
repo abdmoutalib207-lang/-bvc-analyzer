@@ -53,48 +53,14 @@ def test_sans_aucune_seance_echangee_le_titre_est_neutralise():
     assert technique_non_fiable(None)["motif"] == "aucune chandelle"
 
 
-def test_la_part_du_technique_revient_au_fondamental():
-    import update_data
-    w = update_data.get_weights({"market_status": "CLOSED", "tech_non_fiable": True})
-    assert w["technique"] == 0.0
-    assert "comportemental" not in w        # pilier NLP retiré du moteur (28/10)
-    assert w["fondamental"] == 1.0
+# ⚠️ 06/11/2026 — retrait de la note v5.3 (lot 2). La neutralisation reversait
+# la part du technique au fondamental (`get_weights`) et plafonnait ACHETER à
+# SURVEILLER (`_signal_publie`) : les deux sont retirés avec la note. Le motif
+# reste publié (`technique_neutralise`), lu par la règle A
+# (`_meta.non_comparable`) et par le pilier technique v2 en mode ombre.
+# Tests d'origine : archive/tests/test_technique_fiable_lot2_2026-11-06.py.
 
-
-def test_la_note_d_un_titre_neutralise_ne_depend_plus_du_technique():
-    """Invariance : technique à 1 ou à 9, la note est la même — le fondamental."""
-    import update_data
-    ctx = {"market_status": "CLOSED", "tech_non_fiable": True}
-    a = update_data.compute_v53("ZZZ", 1.0, 4.0, 0, 0, ctx)
-    b = update_data.compute_v53("ZZZ", 9.0, 4.0, 0, 0, ctx)
-    assert a["v53"] == b["v53"] == 4.0
-    assert a["poids"]["t"] == 0
-
-
-def test_sans_drapeau_rien_ne_change():
-    import update_data
-    w = update_data.get_weights({"market_status": "CLOSED"})
-    assert w["technique"] > 0
-
-
-def test_le_verdict_d_un_titre_peu_liquide_est_plafonne(monkeypatch):
-    """04/10/2026 : « ACHETER » plafonné à « SURVEILLER ★ » sur un titre au
-    technique neutralisé (peu liquide, fixing). La note chiffrée reste.
-    Depuis le 10/10/2026 la règle vit dans `_signal_publie` : prouvée ici par
-    son comportement plutôt que par le texte du code."""
-    import update_data
-    monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: False)
-    monkeypatch.setattr(update_data, "sans_comptes", lambda t: None)
-    nf = {"motif": "titre au fixing"}
-    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, None) == (
-        "SURVEILLER ★", "ACHETER plafonné : titre au fixing")
-    # Seul ACHETER est plafonné : les autres paliers passent tels quels.
-    for sig in ("SURVEILLER ★", "ATTENDRE", "ÉVITER", "ÉVITER FORT"):
-        assert update_data._signal_publie("ZZZ", sig, nf, None) == (sig, None)
-    # Sans neutralisation du technique, ACHETER reste ACHETER.
-    assert update_data._signal_publie("ZZZ", "ACHETER ★★", None, None) == ("ACHETER ★★", None)
-    # « Données insuffisantes » prime, et aucun verdict plafonné n'est annoncé.
-    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, 3) == ("Données insuffisantes", None)
-    assert update_data._signal_publie("ZZZ", "ACHETER ★★", nf, None, sans_note=True) == (
-        "Données insuffisantes", None)
-    assert '"verdict_plafonne"' in (RACINE / "update_data.py").read_text(encoding="utf-8")
+def test_le_motif_reste_publie_et_ne_module_plus_aucune_note():
+    src = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    assert '"technique_neutralise": _tech_nf,' in src
+    assert "tech_non_fiable" not in src.split("def run(dry_run=False")[1]

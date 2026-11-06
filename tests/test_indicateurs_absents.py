@@ -42,8 +42,13 @@ def test_le_repli_du_run_precedent_ne_recopie_que_le_prix():
 
 
 def test_sans_aucune_mesure_la_note_technique_s_abstient():
-    import update_data as u
-    assert u.calc_score_tech(None, 100.0, None, None, None, None) == 5.0
+    # ⚠️ 06/11/2026 : `calc_score_tech` n'est plus dans le moteur (retrait de la
+    # note v5.3, lot 2) ; la formule vit, figée, dans pipeline/mesure_score_tech.py,
+    # qui la rejoue sur l'historique. Ces gardes protègent cette copie.
+    import sys
+    sys.path.insert(0, str(RACINE / "pipeline"))
+    import mesure_score_tech as m
+    assert m.calc_score_tech(None, 100.0, None, None, None, None) == 5.0
 
 
 def test_la_neutralisation_retire_au_lieu_d_inventer():
@@ -52,11 +57,13 @@ def test_la_neutralisation_retire_au_lieu_d_inventer():
     assert r == (None, None, None, None, None, True)
 
 
-def test_la_note_lit_l_upside_publie():
+def test_plus_aucune_note_ne_lit_l_upside():
     """SNA : objectif 540 DH pour un cours de 1 850, retiré de l'affichage
-    comme périmé, mais qui pénalisait quand même la note."""
-    appel = re.search(r"v53 = compute_v53\((.*?)\)\n", MOTEUR, flags=re.S).group(1)
-    assert '_obj["upside"]' in appel and 'fd.get("upside")' not in appel
+    comme périmé, mais qui pénalisait quand même la note (30/09/2026).
+    ⚠️ 06/11/2026 : la note v5.3 qui le lisait est retirée (lot 2) ; aucun
+    calcul du moteur ne lit plus l'upside, publié à null."""
+    import update_data as u
+    assert not hasattr(u, "compute_v53") and 'fd.get("upside")' not in MOTEUR
 
 
 def test_le_terminal_n_affiche_plus_un_rsi_de_50_par_defaut():

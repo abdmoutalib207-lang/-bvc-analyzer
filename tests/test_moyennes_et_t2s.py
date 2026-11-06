@@ -85,24 +85,34 @@ def test_les_deux_copies_rendent_la_meme_chose(ud, collecteur):
 
 
 # ── Le score : une moyenne absente ne vaut ni pour ni contre ───────────────
+# ⚠️ 06/11/2026 : `calc_score_tech` est retiré du moteur avec la note v5.3
+# (lot 2) ; la formule est conservée, figée, dans pipeline/mesure_score_tech.py
+# pour rejouer sa mesure. Ces gardes protègent désormais cette copie.
 
-def test_le_score_technique_s_abstient_sur_une_moyenne_absente(ud):
+@pytest.fixture(scope="module")
+def mesure():
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
+    import mesure_score_tech
+    return mesure_score_tech
+
+
+def test_le_score_technique_s_abstient_sur_une_moyenne_absente(mesure):
     """⚠️ Zéro n'est pas l'abstention : zéro se lit « sous les deux moyennes »."""
-    base = ud.calc_score_tech(50.0, 100.0, None, None, 120.0, 80.0)
-    dessous = ud.calc_score_tech(50.0, 100.0, 110.0, 120.0, 120.0, 80.0)
+    base = mesure.calc_score_tech(50.0, 100.0, None, None, 120.0, 80.0)
+    dessous = mesure.calc_score_tech(50.0, 100.0, 110.0, 120.0, 120.0, 80.0)
     assert base is not None
     assert base != dessous, "l'absence se confond avec « sous les deux moyennes »"
 
 
-def test_le_score_technique_ne_leve_plus_sur_une_moyenne_absente(ud):
+def test_le_score_technique_ne_leve_plus_sur_une_moyenne_absente(mesure):
     """Le run s'arrêtait net sur T2S. Aucune combinaison ne doit lever."""
     for ma20, ma50 in ((None, None), (None, 95.0), (105.0, None)):
-        v = ud.calc_score_tech(45.0, 100.0, ma20, ma50, 120.0, 80.0)
+        v = mesure.calc_score_tech(45.0, 100.0, ma20, ma50, 120.0, 80.0)
         assert 0 <= v <= 10
 
 
-def test_la_position_dans_la_range_tolere_des_extremes_absents(ud):
-    assert 0 <= ud.calc_score_tech(45.0, 100.0, 99.0, 98.0, None, None) <= 10
+def test_la_position_dans_la_range_tolere_des_extremes_absents(mesure):
+    assert 0 <= mesure.calc_score_tech(45.0, 100.0, 99.0, 98.0, None, None) <= 10
 
 
 # ── La série T2S ───────────────────────────────────────────────────────────

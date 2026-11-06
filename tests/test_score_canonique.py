@@ -10,6 +10,12 @@ affichaient « vs BVC » comme s'il s'agissait d'une référence.
 
 Ces tests figent la règle : une note, un signal, une version de formule, lus
 à l'identique par l'écran, le bulletin et le journal des scores.
+
+⚠️ 06/11/2026 — retrait de la note v5.3 (lot 2). Le moteur ne publie plus ni
+`v53`, ni `sig`, ni `score_version` (constante `SCORE_VERSION` retirée) : le
+score unique est le Score BVC, versionné dans `score_bvc.version`. Le journal
+des scores garde les séances anciennes et leurs versions. Tests d'origine :
+archive/tests/test_score_canonique_lot2_2026-11-06.py.
 """
 
 from __future__ import annotations
@@ -42,27 +48,30 @@ def test_le_classement_n_a_plus_de_colonne_bvc_ni_delta():
 
 
 def _cles_publiees() -> set[str]:
-    """Les clés littérales des dictionnaires du moteur contenant `v53`."""
+    """Les clés littérales du dictionnaire publié pour chaque titre (celui qui
+    porte `note_fond`)."""
     cles = set()
     for n in ast.walk(ast.parse(MOTEUR)):
         if isinstance(n, ast.Dict):
             k = {c.value for c in n.keys if isinstance(c, ast.Constant)}
-            if "v53" in k:
+            if {"symbol", "note_fond"} <= k:
                 cles |= k
     return cles
 
 
-def test_le_moteur_ne_publie_plus_bvc_delta_sigbvc_et_publie_la_version():
+def test_le_moteur_ne_publie_plus_bvc_delta_sigbvc_ni_la_note_v53():
     cles = _cles_publiees()
-    assert not {"bvc", "delta", "sigBvc"} & cles, {"bvc", "delta", "sigBvc"} & cles
-    assert "score_version" in cles
+    assert "note_fond" in cles, "le dictionnaire publié n'a pas été trouvé"
+    interdits = {"bvc", "delta", "sigBvc", "v53", "sig", "score_version", "score_fond", "score_tech",
+                 "poids", "bonus", "setup", "verdict_plafonne"}
+    assert not interdits & cles, interdits & cles
     assert "SIG_BVC" not in re.sub(r"#.*", "", MOTEUR), "SIG_BVC est archivé, plus lu"
 
 
-def test_la_version_est_declaree_une_seule_fois():
-    from bvc_config import SCORE_VERSION
-    assert SCORE_VERSION.startswith("v5.3")
-    assert 'SCORE_VERSION = "' not in MOTEUR, "la version vit dans bvc_config.py"
+def test_la_version_v53_n_est_plus_declaree():
+    import bvc_config
+    assert not hasattr(bvc_config, "SCORE_VERSION")
+    assert "SCORE_VERSION" not in re.sub(r"#.*", "", MOTEUR)
 
 
 def test_le_journal_enregistre_la_version_et_le_meme_signal(tmp_path, monkeypatch):
@@ -83,18 +92,6 @@ def test_deux_versions_dans_un_run_sont_gardees_toutes(tmp_path, monkeypatch):
     ts = [{"symbol": "A", "v53": 5, "score_version": "x"},
           {"symbol": "B", "v53": 5, "score_version": "y"}]
     assert sh.enregistrer("2026-09-29", ts)["seances"]["2026-09-29"]["score_version"] == ["x", "y"]
-
-
-def test_les_malus_figes_ne_touchent_plus_la_note():
-    """Gel du 30/09/2026 (R8) : ni le nombre de « red flags » ni l'upside —
-    tous deux lus dans une table écrite en dur — ne déplacent la note."""
-    import update_data as u
-    ctx = {"market_status": "CLOSED", "masi_ytd": 0.0}
-    ref = u.compute_v53("ZZTEST", 6.0, 7.0, 0, 20.0, dict(ctx))
-    for flags, upside in ((4, -40.0), (3, -15.0), (0, -99.0)):
-        r = u.compute_v53("ZZTEST", 6.0, 7.0, flags, upside, dict(ctx))
-        assert (r["v53"], r["sig"], r["bonus"]) == (ref["v53"], ref["sig"], ref["bonus"])
-    assert "bvc" not in ref and "delta" not in ref
 
 
 def test_la_note_figee_n_est_plus_lue():

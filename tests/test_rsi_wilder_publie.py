@@ -114,8 +114,10 @@ def test_l_amorcage_est_la_moyenne_arithmetique_des_quatorze_premieres(calc_rsi)
 
 def test_un_rsi_absent_ne_contribue_pas_au_score_technique():
     """⚠️ Une absence ne doit pas être lue comme « zone idéale » ni comme
-    « suracheté ». Elle ne contribue pas, et cela se voit dans le code."""
-    src = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    « suracheté ». Elle ne contribue pas, et cela se voit dans le code.
+    ⚠️ 06/11/2026 : la formule a quitté le moteur avec la note v5.3 (lot 2) ;
+    elle reste, figée, dans pipeline/mesure_score_tech.py."""
+    src = (RACINE / "pipeline" / "mesure_score_tech.py").read_text(encoding="utf-8")
     i = src.index("def calc_score_tech")
     corps = src[i:i + 1200]
     assert "if rsi is None:" in corps, (

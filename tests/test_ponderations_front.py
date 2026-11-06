@@ -78,12 +78,14 @@ def test_plus_de_palier_v53_ni_de_mot_d_action_derive():
         assert disparu not in code, disparu
 
 
-def test_le_contrat_de_data_json_ne_change_pas():
-    """Le moteur publie toujours v53 et sig : seul l'écran change."""
-    assert re.search(r'"v53"\s*:', MOTEUR) and re.search(r'"sig"\s*:', MOTEUR)
+def test_le_contrat_de_data_json_porte_le_score_bvc():
+    """Le 06/11/2026 (#325), seul l'écran changeait et le moteur publiait encore
+    v53 et sig. Le même jour (lot 2), le moteur cesse de les publier : le
+    contrat garde le Score BVC sur chaque titre. L'absence de v53 et la
+    transition du data.json commité : tests/test_retrait_v53.py."""
+    assert not re.search(r'"v53"\s*:', MOTEUR) and not re.search(r'"sig"\s*:', MOTEUR)
     d = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
-    t = d["tickers"]
-    assert all("v53" in x and "sig" in x and "score_bvc" in x for x in t), "contrat de data.json rompu"
+    assert all("score_bvc" in x for x in d["tickers"]), "contrat de data.json rompu"
 
 
 # ── 2. Le Score BVC prend la place ──────────────────────────────────────────
