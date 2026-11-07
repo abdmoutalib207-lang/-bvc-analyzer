@@ -82,20 +82,8 @@ def test_r8_aucun_score_manquant_sans_explication(titres):
              if not (x.get("note_fond") or {}).get("motif")
              or ((x.get("_meta") or {}).get("confidence") or 0) > 1]
     assert not muets, f"note fondamentale absente sans explication publiée : {muets}"
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2 :
-    # un data.json d'avant le retrait porte encore v53 ; il doit rester
-    # cohérent avec lui-même (règle d'avant, inchangée).
-    if not any("v53" in x for x in titres.values()):
-        return
-    manquants = {s: x for s, x in titres.items() if x.get("v53") is None}
-    muets = [s for s, x in manquants.items()
-             if x.get("sig") not in ("Données insuffisantes", "SUSPENDU")
-             or x.get("score_fond") is not None
-             or not (x.get("note_fond") or {}).get("motif")]
-    assert not muets, f"v53 absent sans explication publiée : {muets}"
-    ambigus = [s for s, x in titres.items()
-               if x.get("v53") is not None and x.get("score_fond") is None]
-    assert not ambigus, f"v53 publié sans note fondamentale : {ambigus}"
+    # Plus de v5.3 depuis le 07/11/2026 : la note fondamentale suffit.
+    assert not any("v53" in x for x in titres.values()), "v53 republié"
 
 
 # ── Le bloc `_meta` : sans lui, le frontend ne peut pas dire ce qu'il sait ──

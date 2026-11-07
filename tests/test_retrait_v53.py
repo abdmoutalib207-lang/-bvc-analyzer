@@ -38,7 +38,6 @@ CHAMPS_V53 = ("v53", "sig", "score_fond", "score_tech", "poids", "bonus", "setup
               "verdict_plafonne", "score_version")
 FONCTIONS_V53 = ("calc_score_tech", "get_weights", "compute_v53", "_signal_publie",
                  "_setup_technique")
-TRANSITION = "⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2 (retrait v5.3)"
 
 
 # ── 1. Le code ──────────────────────────────────────────────────────────────
@@ -128,16 +127,7 @@ def test_le_fichier_publie_ne_porte_plus_la_note_v53():
         pytest.skip("data.json sans titres")
     porteurs = {t.get("symbol"): sorted(c for c in CHAMPS_V53 if c in t) for t in titres}
     porteurs = {s: k for s, k in porteurs.items() if k}
-    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2
-    # (transition du 06/11/2026). Le data.json du dépôt est écrit par le moteur
-    # d'AVANT le lot 2 : ses 80 titres portent encore les NEUF champs. TOUS
-    # les titres et TOUS les champs = fichier antérieur au code, on le dit ;
-    # une PARTIE seulement = vraie incohérence (un producteur non mis à jour,
-    # ou un mélange de deux runs), on échoue. Dans la CI (tests.yml) et dans
-    # update_bvc, le fichier est généré par le code courant : cette
-    # échappatoire ne s'y déclenche pas.
-    if len(porteurs) == len(titres) and all(k == sorted(CHAMPS_V53) for k in porteurs.values()):
-        pytest.skip(f"{TRANSITION} — data.json antérieur au retrait du producteur v5.3")
+    # Transition du 06/11 close : premier run sans v5.3 publié le 07/11 à 01h56.
     assert not porteurs, f"champs v5.3 encore publiés : {dict(list(porteurs.items())[:5])}"
     # Ce qui les remplace est là, sur chaque titre.
     assert all(isinstance((t.get("_meta") or {}).get("confidence"), int) for t in titres)
