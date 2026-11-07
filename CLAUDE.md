@@ -245,7 +245,8 @@ l'automne 2027.
 **Retrait de la note v5.3 — 06/11/2026** (PR #325 terminal, #326 lecteurs,
 lot 2 producteur ; décision d'Abd Moutalib : « l'ancien scoring doit
 disparaître »). Déclencheur : le 05/11 (MASI +3,33 %), ADH +4,31 % voyait sa
-note passer de 4,59 à 4,37 (ATTENDRE → ÉVITER), la composante technique
+note passer de 4,59 (passage de 14h56, commit `90b22f8`) à 4,37 à la clôture
+(ATTENDRE → ÉVITER ; elle valait 4,73 la veille au soir), la composante technique
 retirant des points à un RSI montant vers 70 ; sur 58 titres en hausse, la
 v5.3 a baissé pour 9 et monté pour 22, le Score BVC baissé pour 8 et monté
 pour 45. Les champs `v53`, `sig`, `score_fond`, `score_tech`, `poids`,
