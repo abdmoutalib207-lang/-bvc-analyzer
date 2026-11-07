@@ -131,23 +131,19 @@ def test_le_meta_porte_la_suspension():
         "la distinguer d'une simple donnée périmée")
 
 
-def test_le_signal_devient_suspendu(monkeypatch):
-    """LE test qui compte : sans lui, le moteur recommande d'acheter un titre
-    qu'on ne peut pas acheter. Depuis le 10/10/2026 la règle vit dans
-    `_signal_publie` (une seule fois, pour la boucle ET le second passage) :
-    on la prouve par son comportement, et on vérifie qu'elle est bien celle
-    que la fiche publie."""
+def test_la_suspension_se_lit_dans_le_meta_et_plus_dans_un_signal(monkeypatch):
+    """LE test qui compte : on ne recommande pas d'acheter un titre qu'on ne
+    peut pas acheter. ⚠️ 06/11/2026 (lot 2) : le signal « SUSPENDU » part avec
+    la note v5.3 — le moteur ne publie plus AUCUNE recommandation. La
+    suspension se lit dans `_meta.suspendu` (confiance 0), et le terminal
+    affiche « SUSPENDU » à sa place (classement et fiche)."""
     import update_data
     monkeypatch.setattr(update_data, "_suspendu_maintenant", lambda t: True)
-    for sig in ("ACHETER ★★", "ÉVITER FORT", None):
-        assert update_data._signal_publie("CMT", sig, None, None) == ("SUSPENDU", None)
-        assert update_data._signal_publie("CMT", sig, None, None, sans_note=True)[0] == "SUSPENDU"
+    assert update_data.non_comparable_publie("CMT", {"motif": "x"}, None, False) is None
     src = _moteur()
-    assert re.search(r'"sig":\s*_sig_pub,', src), "la fiche ne publie pas le signal de la règle unique"
-    assert "_sig_pub, _verdict_plafonne = _signal_publie(" in src
-    assert 'e["sig"], e["verdict_plafonne"] = _signal_publie(' in src, (
-        "le second passage (note par famille) doit refaire passer le signal par la même règle")
-
+    assert not re.search(r'"sig":', src) and not hasattr(update_data, "_signal_publie")
+    ecran = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
+    assert 'label="SUSPENDU"' in ecran and "meta(r).susp" in ecran
 
 def test_l_ecriture_de_chandelle_est_refusee(tmp_path):
     from pipeline.session_candles import preparer
@@ -274,26 +270,14 @@ def test_la_variation_d_un_titre_suspendu_est_nulle_aux_trois_endroits():
 
 
 def test_le_journal_annonce_le_signal_reellement_publie():
-    """Le dry-run affichait « ACHETER ★★ » sur CMT pendant que le fichier
-    écrivait « SUSPENDU » : le journal imprimait `v53['sig']`, calculé avant
-    la substitution. Un journal qui contredit le fichier qu'il décrit est pire
-    qu'un journal muet — c'est là qu'on va vérifier quand on doute."""
+    """Le journal « ✓ » d'un titre ne doit pas contredire le fichier qu'il
+    décrit. ⚠️ 06/11/2026 (lot 2) : il n'y a plus de signal publié, le
+    journal n'en imprime donc plus — ni avant, ni après substitution."""
     import inspect
     import update_data
-    s = _moteur()
-    # ⚠️ Ce test figeait la ligne de calcul au caractère près (16/09), puis la
-    # variable `_sig_publie` (10/10/2026) : depuis la note par famille, le
-    # signal définitif n'est connu qu'au second passage, qui écrit le journal.
-    # Ce qui doit tenir est le LIEN : la ligne de journal imprime le champ
-    # `sig` de la fiche telle qu'elle sera écrite, et ce champ vient de la
-    # règle unique, qui connaît les mêmes cas.
     corps = inspect.getsource(update_data.appliquer_note_sectorielle)
-    assert "{e['sig']}" in corps, "la ligne de journal n'utilise pas le signal publié"
-    assert "{v53['sig']}" not in s, "le journal imprimerait un signal d'avant substitution"
-    regle = inspect.getsource(update_data._signal_publie)
-    for cas in ("SUSPENDU", "Données insuffisantes", "SURVEILLER"):
-        assert cas in regle, f"la règle unique ignore le cas « {cas} »"
-
+    assert "{e['sig']}" not in corps and "Score v5.3" not in corps
+    assert "{v53['sig']}" not in _moteur()
 
 def test_le_dry_run_n_ecrit_rien():
     """`--dry-run` promet « aperçu sans écrire » et enregistrait pourtant le

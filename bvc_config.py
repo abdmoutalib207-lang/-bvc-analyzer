@@ -354,21 +354,19 @@ IDB_TICKER_MAP: dict = {
 }
 
 
-# ⚠️ RÈGLE DE PRUDENCE PROVISOIRE — 15/10/2026 (accord d'Abd Moutalib, verdict
-# externe). Sous ce seuil de couverture APPLICABLE (poids des composantes
-# mesurées, hors composantes sans objet pour le métier), la note reste publiée
-# comme indicative mais aucun verdict de palier n'est émis : « Couverture
-# partielle ». 75 % n'est PAS une frontière validée ; à revoir par mesure.
-COUVERTURE_VERDICT_MIN = 0.75
+# ⚠️ `COUVERTURE_VERDICT_MIN` (0,75 — règle de prudence du 15/10/2026 : sous
+# cette couverture applicable, aucun verdict de palier, signal « Couverture
+# partielle ») est RETIRÉ le 06/11/2026 avec le signal de la note v5.3 (lot 2).
+# La couverture applicable reste publiée dans `note_fond.couverture_applicable`.
 
 # ⚠️ RÈGLE A — TITRES TRÈS PEU LIQUIDES NON COMPARABLES (27/10/2026, accord R8
 # d'Abd Moutalib). Quand le pilier technique est neutralisé faute d'échanges
 # (`technique_neutralise` publié) ET que son `montant_median_dh` est sous ce
-# seuil, la note v53 reste calculée et affichée mais n'est PAS comparable à
-# celle d'un titre liquide : signal « Non comparable (liquidité) », champ
-# `_meta.non_comparable`, rang après tous les titres comparables. « SUSPENDU »
-# et « Données insuffisantes » gardent la priorité ; la règle passe avant
-# « Couverture partielle ».
+# seuil, le titre n'est PAS comparable à un titre liquide : champ
+# `_meta.non_comparable` (lu par la vue PER du terminal). Un titre suspendu,
+# en reprise récente, sans comptes ou sans note n'en reçoit pas
+# (`update_data.non_comparable_publie`). ⚠️ 06/11/2026 : le signal « Non
+# comparable (liquidité) » de la note v5.3 est retiré avec elle (lot 2).
 #   · La médiane est celle de `pipeline/technique_fiable.py` : montant (cours ×
 #     titres) des 20 dernières séances ÉCHANGÉES — convention de la mesure
 #     préalable, gardée telle quelle. Ce n'est pas `_meta.echange_median_dh`
@@ -1638,11 +1636,14 @@ TICKERS_ALL: list = [
 ]
 
 
-# ⚠️ SCORE CANONIQUE — 29/09/2026. La version de la formule qui produit la
-# note publiée (`v53`) et son signal (`sig`). Émise sur chaque titre de
-# data.json et sur chaque séance de pipeline/score_history.json, pour qu'une
-# note se relise toujours avec la formule qui l'a produite.
-# À CHANGER à toute modification de pondération, de bonus ou de palier (R8).
+# ⚠️ SCORE CANONIQUE — 29/09/2026 → 06/11/2026. `SCORE_VERSION` était la
+# version de la formule qui produisait la note publiée (`v53`) et son signal
+# (`sig`), émise sur chaque titre et sur chaque séance de
+# pipeline/score_history.json. La note v5.3 est RETIRÉE le 06/11/2026 (lot 2,
+# décision d'Abd Moutalib : « l'ancien scoring doit disparaître ») et la
+# constante avec elle ; la version du score publié est `score_bvc.version`
+# (pipeline/score_bvc.py::VERSION). Historique des versions, pour relire les
+# séances de score_history.json :
 #   v5.3-gel-nlp-2026-09-29 : Fond 65,28 / Tech 34,72 / NLP 0 (25/09), six
 #   bonus du corpus retirés et ACHAT FORT suspendu (29/09).
 #   v5.3-sans-note-figee-2026-09-29 : la pénalité « Upside négatif » se
@@ -1693,14 +1694,15 @@ TICKERS_ALL: list = [
 #   `market_status`. Base Fond 72,22 / Tech 27,78 (était 65,28 / 34,72 en
 #   séance). La note du soir ne change pas ; celle des runs en séance s'y
 #   aligne (MNG suspendu : 6,63 en séance, 6,76 le soir, les 30/10 et 02/11).
+#   (fin) dernière version publiée : v5.3-poids-sans-heure-2026-11-03.
 # ⚠️ MODE COMPARAISON (11/10/2026). Abd Moutalib a validé le principe d'une note
 # par métier (10/10) mais exige des corrections avant toute bascule : tant que
-# cet interrupteur est FAUX, `score_fond`, `v53`, le signal, la confiance et le
-# plancher de publication restent ceux de la grille ACTUELLE ; la note par
-# famille est calculée et publiée À CÔTÉ (`note_fond_metier`). Le passer à vrai
-# est une décision, pas un correctif : il change les deux points d'application
-# (update_data.appliquer_note_sectorielle et pipeline/collect_financial_data.py)
-# et la version du score.
+# cet interrupteur est FAUX, la confiance et le plancher de publication restent
+# ceux de la grille ACTUELLE ; la note par famille est calculée et publiée À
+# CÔTÉ (`note_fond_metier`), et sa panne n'interrompt pas le run. Le passer à
+# vrai est une décision, pas un correctif : il change les deux points
+# d'application (update_data.appliquer_note_sectorielle et
+# pipeline/collect_financial_data.py). ⚠️ Depuis le 06/11/2026 (retrait de la
+# note v5.3), il ne touche plus aucune note publiée : `score_fond`, `v53` et le
+# signal qu'il remplaçait n'existent plus.
 NOTE_METIER_PUBLIEE: bool = False
-SCORE_VERSION = ("v5.3-fond-sectoriel-2026-10-10" if NOTE_METIER_PUBLIEE
-                 else "v5.3-poids-sans-heure-2026-11-03")

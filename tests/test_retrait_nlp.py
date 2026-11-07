@@ -149,16 +149,13 @@ def test_les_actualites_restent_sans_leur_sentiment():
 # ── 2. Le moteur ───────────────────────────────────────────────────────────
 
 def test_le_moteur_ne_publie_plus_les_champs_du_corpus():
-    """L'enregistrement du titre (update_data.run) ne recopie plus les champs
-    du pilier depuis `v53`, et `compute_v53` ne les calcule plus (lot 2)."""
-    publies = re.findall(r'^\s*"(' + "|".join(CHAMPS_RETIRES) + r')":\s*v53\b',
-                         MOTEUR, re.M)
+    """L'enregistrement du titre (update_data.run) ne publie plus les champs du
+    pilier. ⚠️ 06/11/2026 : `compute_v53` et `poids` sont retirés à leur tour
+    avec la note v5.3 (garde-fou : tests/test_retrait_v53.py)."""
+    publies = re.findall(r'^\s*"(' + "|".join(CHAMPS_RETIRES) + r')":', MOTEUR, re.M)
     assert not publies, f"update_data.py publie encore : {publies}"
-    assert '"poids":  v53["poids"],' in MOTEUR
     import update_data
-    r = update_data.compute_v53("MNG", 6.0, 7.0, 0, 0.0, {"market_status": "CLOSED"})
-    assert not set(CHAMPS_RETIRES) & set(r), sorted(set(CHAMPS_RETIRES) & set(r))
-    assert set(r["poids"]) == {"f", "t"}
+    assert not hasattr(update_data, "compute_v53")
 
 
 
@@ -254,14 +251,11 @@ def test_le_dossier_du_corpus_ne_revient_pas():
     assert not (RACINE / "requirements_nlp.txt").exists()
 
 
-def test_les_poids_n_ont_que_deux_piliers():
+def test_plus_aucune_ponderation_de_piliers():
+    """Jusqu'au 06/11/2026 : deux piliers seulement (fondamental, technique).
+    Depuis le lot 2 du retrait de la note v5.3, plus de pondération du tout."""
     import update_data
-    for ctx in ({}, {"market_status": "CLOSED"}, {"market_status": "OPEN"},
-                {"market_status": "PRE_MARKET"}, {"market_status": "OPEN", "masi_ytd": -6.0},
-                {"market_status": "CLOSED", "tech_non_fiable": True}):
-        w = update_data.get_weights(ctx)
-        assert set(w) == {"fondamental", "technique"}, ctx
-        assert abs(sum(w.values()) - 1) < 1e-9, ctx
+    assert not hasattr(update_data, "get_weights")
 
 
 def test_le_controle_du_moteur_voit_bien_un_retour():

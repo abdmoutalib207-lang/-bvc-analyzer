@@ -5,8 +5,14 @@ Aucune note ne change : seuls le signal publié, le champ `_meta.non_comparable`
 et l'ordre du classement du terminal. Mesure avant/après sur le même origin/main
 (essai à blanc hors réseau) : 31 signaux changent, 29 par la règle A, 2 par la
 règle B (ARD, IMI) ; zéro note v53 modifiée.
+
+⚠️ 06/11/2026 — retrait de la note v5.3 (lot 2). Le signal « Non comparable
+(liquidité) » et la règle B (« Couverture partielle ») partent avec `sig`. Il
+reste la règle A dans `_meta.non_comparable`, décidée par sa condition
+(`non_comparable_publie`) et lue par la vue PER du terminal. Les tests du
+signal sont archivés dans `archive/tests/test_non_comparable_lot2_2026-11-06.py`.
 """
-import copy
+
 import re
 import sys
 from pathlib import Path
@@ -36,12 +42,12 @@ def _tn(med, motif="peu liquide et coté au fixing"):
 
 # ── Le seuil et la condition ────────────────────────────────────────────────
 
-def test_seuil_dans_bvc_config_et_version_du_score():
+def test_seuil_dans_bvc_config_et_plus_de_signal():
     assert bvc_config.SEUIL_NON_COMPARABLE_DH == 100_000
     assert "RÈGLE A" in (RACINE / "bvc_config.py").read_text(encoding="utf-8")
-    # La règle A date du 27/10 ; la version a suivi la pondération sans heure (03/11).
-    assert bvc_config.SCORE_VERSION == "v5.3-poids-sans-heure-2026-11-03"
-    assert U.SIG_NON_COMPARABLE == NC
+    # 06/11/2026 : plus de version de la note v5.3, plus de libellé de signal.
+    assert not hasattr(bvc_config, "SCORE_VERSION")
+    assert not hasattr(U, "SIG_NON_COMPARABLE") and not hasattr(U, "_signal_publie")
 
 
 def test_condition_technique_neutralisee_et_mediane_sous_le_seuil():
@@ -55,93 +61,61 @@ def test_condition_technique_neutralisee_et_mediane_sous_le_seuil():
     assert sans == {"motif": "aucune séance échangée", "montant_median_dh": None, "seuil": 100_000}
 
 
-# ── La précédence ───────────────────────────────────────────────────────────
+# ── La précédence (dans le champ, depuis le retrait du signal) ─────────────
 
-def test_precedence_suspendu_puis_donnees_insuffisantes_puis_non_comparable(monkeypatch):
+def test_le_champ_meta_suit_la_condition_et_ses_priorites(monkeypatch):
+    """06/11/2026 (retrait de la note v5.3, lot 2) : `_meta.non_comparable` ne
+    dépend plus du signal. Il est posé par la condition de liquidité, avec les
+    priorités que le signal lui imposait : suspension, reprise récente, société
+    sans comptes, note fondamentale absente."""
     nc = U.non_comparable(_tn(754))
-    assert U._signal_publie("X", "SURVEILLER ★", _tn(754), None, non_comparable=nc) == (NC, None)
-    # Avant « Couverture partielle », et avant le plafond de liquidité du verdict.
-    assert U._signal_publie("X", "ACHETER ★★", _tn(754), None, couverture_partielle=True,
-                            non_comparable=nc, fonciere_sans_note=True) == (NC, None)
-    # « Données insuffisantes » garde la priorité (reprise, sans note, sans comptes).
-    assert U._signal_publie("X", "ATTENDRE", _tn(754), 3, non_comparable=nc)[0] == "Données insuffisantes"
-    assert U._signal_publie("X", None, _tn(754), None, sans_note=True, non_comparable=nc)[0] == \
-        "Données insuffisantes"
+    assert U.non_comparable_publie("X", nc, None, False) == nc
+    assert U.non_comparable_publie("X", None, None, False) is None          # titre liquide
+    assert U.non_comparable_publie("X", nc, 3, False) is None               # reprise récente
+    assert U.non_comparable_publie("X", nc, None, True) is None             # sans note
     monkeypatch.setattr(U, "sans_comptes", lambda t: {"motif": "x"})
-    assert U._signal_publie("X", "ATTENDRE", _tn(754), None, non_comparable=nc)[0] == "Données insuffisantes"
+    assert U.non_comparable_publie("X", nc, None, False) is None            # sans comptes
+    monkeypatch.setattr(U, "sans_comptes", lambda t: None)
     monkeypatch.setattr(U, "_suspendu_maintenant", lambda t: True)
-    assert U._signal_publie("X", "ATTENDRE", _tn(754), None, non_comparable=nc)[0] == "SUSPENDU"
-
-
-@pytest.mark.parametrize("sig", ["ACHETER ★★", "SURVEILLER ★", "ATTENDRE", "ÉVITER", "ÉVITER FORT"])
-def test_aucun_verdict_de_palier_n_est_emis(sig):
-    s, plafond = U._signal_publie("X", sig, _tn(5_000), None, non_comparable=U.non_comparable(_tn(5_000)))
-    assert (s, plafond) == (NC, None)
-
-
-def test_sans_regle_rien_ne_change():
-    """Titre liquide : verdict et plafond comme avant le 27/10."""
-    assert U._signal_publie("X", "ATTENDRE", None, None) == ("ATTENDRE", None)
-    assert U._signal_publie("X", "ACHETER ★★", _tn(110_000), None)[0] == "SURVEILLER ★"
-
-
-def test_le_champ_meta_suit_le_signal_et_seulement_lui():
-    nc = U.non_comparable(_tn(754))
-    e = {"sig": NC, "_meta": {}}
+    assert U.non_comparable_publie("X", nc, None, False) is None            # suspendu
+    e = {"_meta": {}}
     U._poser_non_comparable(e, nc)
     assert e["_meta"]["non_comparable"] == nc
-    e["sig"] = "Données insuffisantes"
-    U._poser_non_comparable(e, nc)
+    U._poser_non_comparable(e, None)
     assert "non_comparable" not in e["_meta"]
 
 
-# ── Règle B : foncière sans note par métier (second passage) ─────────────────
+def test_la_condition_ne_lit_aucun_signal():
+    import inspect
+    src = inspect.getsource(U.non_comparable_publie) + inspect.getsource(U._poser_non_comparable)
+    assert '"sig"' not in src and "SIG_NON_COMPARABLE" not in src
 
-def _passe1(sym, sig_v53="ATTENDRE", tech_nf=None):
-    return {"score_tech": 5.0, "ctx": {"market_status": "CLOSED"}, "tech_nf": tech_nf,
-            "depuis_reprise": None, "price": 100.0, "ma20": None, "ma50": None,
+
+# ── Le second passage ne touche plus le champ en mode comparaison ────────────
+# Règle B (foncière sans note par métier → « Couverture partielle ») : retirée
+# avec le signal le 06/11/2026.
+
+def _passe1(sym, tech_nf=None):
+    return {"tech_nf": tech_nf, "depuis_reprise": None,
             "meta_args": (sym, "cdg", "2026-10-27", {}, None, False), "meta_kw": {},
-            "sig_v53": sig_v53, "sans_note": False, "couv_partielle": False,
-            "non_comparable": U.non_comparable(tech_nf)}
+            "sans_note": False, "non_comparable": U.non_comparable(tech_nf)}
 
 
-def _fiche(sym, sig="ATTENDRE"):
-    return {"symbol": sym, "price": 100.0, "pb": None, "rsi": 50, "_meta": {"confidence": 5},
-            "score_fond": 4.7, "v53": 4.7, "sig": sig, "setup": "NEUTRE", "verdict_plafonne": None}
-
-
-def _brancher(monkeypatch, familles):
+def test_le_second_passage_garde_le_champ_et_n_ajoute_aucun_signal(monkeypatch):
     from pipeline.smart_money import fond_score_sectoriel as F
     monkeypatch.setattr(F, "noter_univers", lambda syms, *a, **k: {
-        s: {"note": None if familles[s] == "fonciere" else 5.0, "famille": familles[s], "partielle": False}
-        for s in syms})
+        s: {"note": None if s != "ADH" else 5.0, "famille": "fonciere" if s != "ADH" else "promoteur",
+            "partielle": False} for s in syms})
     monkeypatch.setattr(F, "detail_publie", lambda r: {"famille": r["famille"], "note": r["note"]})
-
-
-def test_regle_b_fonciere_sans_note_metier_devient_couverture_partielle(monkeypatch):
-    _brancher(monkeypatch, {"ARD": "fonciere", "ADH": "promoteur", "BAL": "fonciere"})
-    out = [_fiche("ARD"), _fiche("ADH"), _fiche("BAL", NC)]
-    p1 = {"ARD": _passe1("ARD"), "ADH": _passe1("ADH"), "BAL": _passe1("BAL", "SURVEILLER ★", _tn(754))}
+    out = [{"symbol": s, "price": 100.0, "pb": None, "rsi": 50, "_meta": {"confidence": 5}}
+           for s in ("ARD", "ADH", "BAL")]
+    p1 = {"ARD": _passe1("ARD"), "ADH": _passe1("ADH"), "BAL": _passe1("BAL", _tn(754))}
     out[2]["_meta"]["non_comparable"] = p1["BAL"]["non_comparable"]
-    avant = copy.deepcopy(out)
     U.appliquer_note_sectorielle(out, p1, fondamentaux={}, bpa={}, faits={}, s1={}, publier=False)
-    ard, adh, bal = out
-    assert (ard["sig"], ard["verdict_plafonne"]) == ("Couverture partielle", None)
-    assert adh["sig"] == "ATTENDRE"                       # pas une foncière : inchangé
-    assert bal["sig"] == NC and bal["_meta"]["non_comparable"]["montant_median_dh"] == 754   # A avant B
-    # Étiquette seulement : note, score fondamental et rang ne bougent pas.
-    for a, b in zip(avant, out):
-        assert (a["v53"], a["score_fond"]) == (b["v53"], b["score_fond"])
-
-
-def test_regle_b_une_note_indisponible_n_est_pas_une_fonciere_sans_note(monkeypatch):
-    from pipeline.smart_money import fond_score_sectoriel as F
-    _brancher(monkeypatch, {"ARD": "fonciere"})
-    monkeypatch.setattr(F, "detail_publie", lambda r: {"famille": "fonciere", "note": None, "indisponible": True})
-    out = [_fiche("ARD")]
-    U.appliquer_note_sectorielle(out, {"ARD": _passe1("ARD")}, fondamentaux={}, bpa={}, faits={}, s1={},
-                                 publier=False)
-    assert out[0]["sig"] == "ATTENDRE"
+    assert out[2]["_meta"]["non_comparable"]["montant_median_dh"] == 754
+    assert "non_comparable" not in out[0]["_meta"] and "non_comparable" not in out[1]["_meta"]
+    for e in out:
+        assert not {"sig", "verdict_plafonne", "v53", "score_fond", "setup"} & set(e)
 
 
 # ── Le terminal : la règle A n'est plus affichée (06/11/2026) ────────────────
@@ -152,8 +126,7 @@ def test_regle_b_une_note_indisponible_n_est_pas_une_fonciere_sans_note(monkeypa
 # la note v5.3 quitte l'écran (décision d'Abd Moutalib) et le Score BVC, qui
 # a son propre facteur de liquidité, devient le score unique : ces six
 # affichages partent avec la note qu'ils qualifiaient. Le MOTEUR, lui, garde
-# la règle A (tests ci-dessus, inchangés) et publie toujours
-# `_meta.non_comparable`. Il en reste à l'écran la mention de liquidité de la
+# la règle A (tests ci-dessus) et publie toujours `_meta.non_comparable`. Il en reste à l'écran la mention de liquidité de la
 # vue PER, qui lit le CHAMP — jamais un libellé.
 
 def test_terminal_lit_meta_non_comparable_et_garde_la_precedence():

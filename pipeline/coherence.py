@@ -38,29 +38,25 @@ from __future__ import annotations
 # absorbe la représentation et rien d'autre.
 TOLERANCE = 0.01
 
-# En dessous, l'ADX dit qu'il n'y a PAS de tendance. Seuil usuel, et celui que
-# le terminal affiche déjà comme « range ».
-ADX_SANS_TENDANCE = 20
+# ⚠️ 06/11/2026 : `ADX_SANS_TENDANCE` (20) n'est plus lu — il ne servait qu'au
+# contrôle 6, retiré avec le champ `setup`.
 
 # Bornes des indicateurs, par construction mathématique. Un RSI hors [0, 100]
 # n'est pas un RSI extrême : c'est un calcul faux.
 BORNES = {
     "rsi": (0, 100), "stoch_k": (0, 100), "stoch_d": (0, 100),
     "adx": (0, 100), "adx_pdi": (0, 100), "adx_mdi": (0, 100),
-    "score_fond": (0, 10), "score_tech": (0, 10),
-    "v53": (0, 10), "bvc": (0, 10),
+    "bvc": (0, 10),
+    # ⚠️ 06/11/2026 : plus de bornes `v53`, `score_fond`, `score_tech` — le
+    # producteur de la note v5.3 est retiré (lot 2) et ces champs ne sont plus
+    # publiés. Le Score BVC a ses bornes dans `controler_score_bvc`.
     # ⚠️ 29/10/2026 : plus de bornes `score_nlp`, `nlp`, `nlp_corpus`,
     # `nlp_news` — le pilier NLP est retiré du moteur (lot 2) et ces champs ne
     # sont plus publiés depuis le lot 1 ; leurs bornes ne s'armaient plus.
 }
 
-# Les setups qui affirment une DIRECTION. Les opposer à un ADX qui dit
-# « pas de tendance » n'est pas une contradiction logique — l'ADX mesure la
-# force, pas le sens — mais c'est une conviction directionnelle posée sur un
-# terrain que notre propre indicateur déclare sans direction. Le lecteur doit
-# le savoir.
-SETUPS_DIRECTIONNELS = {"MOMENTUM CONFIRME", "PULLBACK HAUSSIER",
-                        "CONTRARIEN", "FAIBLESSE"}
+# ⚠️ 06/11/2026 : `SETUPS_DIRECTIONNELS` est retiré avec le champ `setup`
+# (étiquette déduite de la note v5.3, plus publiée) et le contrôle 6.
 
 
 def _nb(v):
@@ -91,35 +87,11 @@ def controler(t: dict) -> list[dict]:
         if v is not None and not (lo <= v <= hi):
             dire("hors_bornes", f"{champ} = {v}, hors [{lo}, {hi}]", "erreur")
 
-    # ── 2. La somme des poids ──────────────────────────────────────────────
-    p = t.get("poids") or {}
-    # ⚠️ Deux piliers depuis le 28/10/2026 : fondamental et technique. Le
-    # pilier NLP (`n`) est retiré ; s'il réapparaissait avec un poids non nul,
-    # la somme f + t ne ferait plus 100 et ce contrôle le dirait.
-    parts = [_nb(p.get(k)) for k in ("f", "t")]
-    if all(x is not None for x in parts):
-        total = sum(parts)
-        if abs(total - 100) > 1:
-            dire("poids_somme", f"les poids totalisent {total:g} % et non 100",
-                 "erreur")
-
-    # ── 3. ⚠️ LE SCORE DOIT SE REFAIRE À LA MAIN ───────────────────────────
-    # Le contrôle central. Si la note affichée ne se retrouve pas depuis les
-    # deux notes et les deux poids publiés, alors l'un des cinq chiffres est
-    # faux — et le lecteur qui refait le calcul le verra avant nous.
-    #
-    # La note v5.3 porte en plus des bonus/malus ; on ne vérifie donc que
-    # l'écart au socle, et on ne s'alarme qu'au-delà de ce que les bonus
-    # documentés peuvent produire (±1,5 point au total).
-    notes = [_nb(t.get(k)) for k in ("score_fond", "score_tech")]
-    if all(x is not None for x in parts) and all(x is not None for x in notes):
-        socle = sum(n * w for n, w in zip(notes, parts)) / 100.0
-        v53 = _nb(t.get("v53"))
-        if v53 is not None and abs(v53 - socle) > 1.5:
-            dire("score_irreproductible",
-                 f"v53 = {v53:g} alors que fond×f + tech×t donne "
-                 f"{socle:.2f} — écart {abs(v53 - socle):.2f}, au-delà de ce "
-                 f"que les bonus/malus peuvent expliquer", "erreur")
+    # ── 2. et 3. (retirés le 06/11/2026) ───────────────────────────────────
+    # « poids_somme » et « score_irreproductible » vérifiaient que la note v5.3
+    # se refaisait à la main depuis `score_fond`, `score_tech` et `poids`. Le
+    # producteur est retiré (lot 2) : plus aucun de ces champs n'est publié.
+    # Le Score BVC se refait à la main au contrôle 10. Numérotation conservée.
 
     # ── 4. L'invariant OHLC du jour ────────────────────────────────────────
     c = _nb(t.get("close"))
@@ -147,29 +119,21 @@ def controler(t: dict) -> list[dict]:
                  f"{ma} = {m:g} pour un cours de {c:g} — facteur supérieur à 3",
                  "erreur")
 
-    # ── 6. ⚠️ LA CONVICTION DIRECTIONNELLE SANS TENDANCE ───────────────────
-    adx = _nb(t.get("adx"))
-    setup = (t.get("setup") or "").strip().upper()
-    if adx is not None and adx < ADX_SANS_TENDANCE and setup in SETUPS_DIRECTIONNELS:
-        dire("direction_sans_tendance",
-             f"setup « {setup} » alors que l'ADX vaut {adx:g} — sous "
-             f"{ADX_SANS_TENDANCE}, notre propre indicateur dit qu'il n'y a "
-             f"pas de tendance à suivre")
+    # ── 6. (retiré le 06/11/2026) ──────────────────────────────────────────
+    # « direction_sans_tendance » opposait le `setup` (étiquette déduite de la
+    # note v5.3) à un ADX sans tendance. Le champ n'est plus publié.
 
     # ── 7. (retiré le 29/10/2026) ──────────────────────────────────────────
     # « nlp_decompose_faux » vérifiait nlp = corpus + news. Les trois champs
     # ne sont plus publiés depuis le 28/10 et le pilier est retiré du moteur :
     # le contrôle était devenu inerte. Numérotation conservée pour la trace.
 
-    # ── 8. Un signal exige de la confiance ─────────────────────────────────
+    # ── 8. (retiré le 06/11/2026) ──────────────────────────────────────────
+    # « signal_sans_confiance » refusait un ACHETER / ÉVITER à confiance ≤ 1.
+    # Le signal n'est plus publié (lot 2) ; la règle « confiance ≤ 1 →
+    # Données insuffisantes » vit désormais à l'écran, qui lit
+    # `_meta.confidence` (classement et fiche du terminal).
     meta = t.get("_meta") or {}
-    conf = _nb(meta.get("confidence"))
-    sig = (t.get("sig") or "").upper()
-    if conf is not None and conf <= 1 and any(
-            m in sig for m in ("ACHAT", "ACHETER", "ÉVITER", "EVITER")):
-        dire("signal_sans_confiance",
-             f"signal « {t.get('sig')} » avec une confiance de {conf:g}/5",
-             "erreur")
 
     # ── 9. ⚠️ LA FRAÎCHEUR, PAR BRIQUE ─────────────────────────────────────
     # Ce n'est pas une incohérence : c'est une asymétrie qu'un lecteur ne peut

@@ -120,6 +120,19 @@ def test_les_80_titres_sont_audites(regenere):
     assert len(data["tickers"]) == 80
 
 
+def test_le_fichier_regenere_ne_porte_plus_la_note_v53(regenere):
+    """Lot 2 du retrait de la note v5.3 (06/11/2026) : sur 80/80 titres écrits par
+    le code actuel, aucun champ du producteur ; ce qui les remplace est là."""
+    _, data = regenere
+    champs = ("v53", "sig", "score_fond", "score_tech", "poids", "bonus", "setup",
+              "verdict_plafonne", "score_version")
+    porteurs = {t["symbol"]: [c for c in champs if c in t] for t in data["tickers"]}
+    assert not {s: k for s, k in porteurs.items() if k}
+    for t in data["tickers"]:
+        assert isinstance(t["_meta"]["confidence"], int) and "score_bvc" in t and "note_fond" in t
+        assert "note_fond_metier" in t and "technique_neutralise" in t
+
+
 def test_titre_non_cote_variation_et_ouverture_nulles(regenere):
     """R9 (audit du 22/10/2026) : un cours antérieur à la séance de référence
     n'a ni variation ni ouverture du jour — `null`, pas 0,00 % ni la clôture.
@@ -143,13 +156,17 @@ def test_titre_non_cote_variation_et_ouverture_nulles(regenere):
 
 def test_l_audit_n_est_pas_vide_de_sens(regenere, entrees):
     """Garde contre un audit qui passerait faute de matière : il existe des titres
-    contestés, des couvertures partielles, des alertes et des titres sans note."""
+    contestés, des titres non comparables, des alertes, des titres sans note et
+    des confiances plafonnées à 1 (06/11/2026 : plus de signal publié, la
+    matière se lit dans les champs qui restent)."""
     _, data = regenere
     fo, faits, _ = entrees
     assert A.contestations(fo, faits), "aucune grandeur contestée : le contrôle « contestée » ne teste rien"
-    sigs = {t["sig"] for t in data["tickers"]}
-    assert {"Couverture partielle", "Données insuffisantes"} <= sigs
-    assert any(t["alertes"]["liste"] for t in data["tickers"])
+    T = data["tickers"]
+    assert any(t["note_fond"]["note"] is None for t in T)
+    assert any(t["_meta"].get("non_comparable") for t in T)
+    assert any(t["_meta"]["confidence"] <= 1 for t in T)
+    assert any(t["alertes"]["liste"] for t in T)
 
 
 # ═══ 2. Le data.json PUBLIÉ ═════════════════════════════════════════════════
@@ -181,11 +198,6 @@ def test_note_divergente(audit, regenere):
     assert "note.recalcul" in audit(sym, lambda t: t["note_fond"].update(note=round(t["note_fond"]["note"] + 1, 2)))
 
 
-def test_score_fond_different_de_la_note(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["note_fond"]["note"] is not None)
-    assert "note.score_fond" in audit(sym, lambda t: t.update(score_fond=round(t["score_fond"] + 0.5, 2)))
-
-
 def test_composante_affichee_avec_une_autre_valeur(audit, regenere):
     sym = _premier(regenere[1], lambda t: (t["note_fond"]["composantes"]["valorisation"]["note"] is not None))
     assert "composante.valorisation.note" in audit(
@@ -203,58 +215,37 @@ def test_reserve_effacee_de_l_affichage(audit, regenere):
 
 
 def test_couverture_gonflee(audit, regenere):
-    # Une couverture RÉELLEMENT partielle : depuis la règle B (27/10/2026), une
-    # foncière à couverture pleine peut aussi porter « Couverture partielle ».
-    sym = _premier(regenere[1], lambda t: t["sig"] == "Couverture partielle"
+    sym = _premier(regenere[1], lambda t: t["note_fond"]["note"] is not None
                    and (t["note_fond"].get("couverture_applicable") or 1) < 0.75)
     assert "note.couverture" in audit(sym, lambda t: t["note_fond"].update(couverture=1.0))
 
 
-def test_signal_incoherent_avec_la_couverture(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["sig"] == "Couverture partielle")
-    assert "signal.couverture" in audit(sym, lambda t: t.update(sig="ACHETER ★★"))
-    ok = _premier(regenere[1], lambda t: t["sig"] in ("ACHETER ★★", "SURVEILLER ★"))
-    assert "signal.couverture" in audit(ok, lambda t: t.update(sig="Couverture partielle"))
-
-
-def test_signal_incoherent_avec_la_confiance(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["sig"] == "Données insuffisantes" and t["_meta"]["confidence"] <= 1)
-    assert "signal.confiance" in audit(sym, lambda t: t.update(sig="ÉVITER FORT"))
-    assert "signal.sans_donnees" in audit(sym, lambda t: t.update(sig="ATTENDRE"))
-
-
-def test_regle_a_signal_et_champ_non_comparables_vont_ensemble(audit, regenere):
-    """Règle A (27/10/2026, accord R8) : un verdict sur un titre très peu liquide,
-    un champ `_meta.non_comparable` effacé ou décalé, un libellé sans condition —
-    chacun doit être refusé."""
-    nc = "Non comparable (liquidité)"
-    sym = _premier(regenere[1], lambda t: t["sig"] == nc)
-    assert "signal.non_comparable" in audit(sym, lambda t: t.update(sig="SURVEILLER ★"))
-    assert "signal.non_comparable_meta" in audit(sym, lambda t: t["_meta"].pop("non_comparable"))
-    assert "signal.non_comparable_meta" in audit(
+def test_regle_a_le_champ_non_comparable_suit_sa_condition(audit, regenere):
+    """Règle A (27/10/2026, accord R8) : un champ `_meta.non_comparable` effacé,
+    décalé, ou posé sur un titre liquide doit être refusé. Depuis le 06/11/2026
+    (lot 2), la condition se lit dans les champs publiés, plus dans un signal."""
+    sym = _premier(regenere[1], lambda t: t["_meta"].get("non_comparable"))
+    assert "non_comparable.meta" in audit(sym, lambda t: t["_meta"].pop("non_comparable"))
+    assert "non_comparable.meta" in audit(
         sym, lambda t: t["_meta"]["non_comparable"].update(montant_median_dh=1))
-    ok = _premier(regenere[1], lambda t: t["sig"] in ("ACHETER ★★", "SURVEILLER ★") and not t.get("technique_neutralise"))
-    assert "signal.non_comparable" in audit(ok, lambda t: t.update(sig=nc))
+    ok = _premier(regenere[1], lambda t: not t.get("technique_neutralise")
+                  and t["note_fond"]["note"] is not None and not t["_meta"].get("suspendu"))
+    assert "non_comparable.meta" in audit(ok, lambda t: t["_meta"].update(
+        non_comparable={"motif": "titre peu liquide", "montant_median_dh": 1, "seuil": 100_000}))
 
 
-def test_regle_b_fonciere_sans_note_metier(audit, regenere):
-    """Règle B (27/10/2026) : foncière sans note par métier → « Couverture partielle »."""
-    sym = _premier(regenere[1], lambda t: (t.get("note_fond_metier") or {}).get("famille") == "fonciere"
-                   and (t.get("note_fond_metier") or {}).get("note") is None
-                   and t["sig"] == "Couverture partielle")
-    assert "signal.couverture" in audit(sym, lambda t: t.update(sig="ATTENDRE"))
-
-
-def test_suspendu_sans_signal_suspendu(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["_meta"].get("suspendu"))
-    assert "signal.suspendu" in audit(sym, lambda t: t.update(sig="ATTENDRE"))
-
-
-def test_v53_non_recomposable(audit, regenere):
-    sym = _premier(regenere[1], lambda t: t["v53"] is not None and not t.get("bonus"))
-    assert "v53.recomposition" in audit(sym, lambda t: t.update(v53=round(min(10.0, t["v53"] + 1.5), 2)))
-    sans = _premier(regenere[1], lambda t: t["v53"] is None)
-    assert "v53.sans_note" in audit(sans, lambda t: t.update(v53=5.0))
+def test_l_audit_ne_lit_plus_la_note_v53(audit, regenere):
+    """Lot 2 (06/11/2026) : les champs du producteur v5.3 ne sont plus contrôlés.
+    Les modifier — ou les retirer — ne change rien au verdict de l'audit : un
+    data.json écrit avant la fusion (avec `v53`) et après (sans) se jugent pareil."""
+    for sym in (_premier(regenere[1], lambda t: t["note_fond"]["note"] is not None),
+                _premier(regenere[1], lambda t: t["_meta"].get("suspendu"))):
+        base = audit(sym, lambda t: None)
+        assert audit(sym, lambda t: t.update(v53=99.0, sig="ACHETER ★★", score_fond=-1, score_tech=42,
+                                             poids={"f": 1, "t": 1}, bonus=["x"], setup="MOMENTUM CONFIRME",
+                                             verdict_plafonne="x")) == base
+        for k in ("v53", "sig", "score_fond", "score_tech", "poids", "bonus", "setup", "verdict_plafonne"):
+            assert audit(sym, lambda t, k=k: t.pop(k, None)) == base
 
 
 def test_confiance_mal_sommee(audit, regenere):

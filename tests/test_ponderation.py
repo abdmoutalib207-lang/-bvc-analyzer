@@ -23,75 +23,17 @@ affirmé « marché plat ».
 ⚠️ R8 — la formule 47/28/25 n'est pas touchée. C'est l'entrée du moteur qui
 était fausse, pas la pondération. (Depuis le 28/10/2026, le pilier NLP — 28,
 nul depuis le 25/09 — est retiré : deux piliers, mêmes poids publiés.)
+
+⚠️ 06/11/2026 — retrait de la note v5.3 (lot 2) : `get_weights` (le
+WeightEngine) n'existe plus. Ses tests sont archivés dans
+`archive/tests/test_ponderation_lot2_2026-11-06.py`. Restent ici ceux de
+l'historique de l'indice (`pipeline/masi_history.py`), qui sert toujours au YTD
+publié et au Score BVC.
 """
 
 import json
 
-from update_data import get_weights
 from masi_history import enregistrer, performance_ytd, profondeur, MIN_SEANCES
-
-# Base des deux piliers, à la normalisation près : 0,47/0,72 et 0,25/0,72
-# jusqu'au 03/11/2026 ; depuis, le bonus « marché fermé » s'applique à toute
-# heure (accord R8) : 0,52/0,72 et 0,20/0,72.
-BASE = {"technique": round(0.20 / 0.72, 4), "fondamental": round(0.52 / 0.72, 4)}
-
-
-# ── get_weights ──────────────────────────────────────────────────────────
-
-def test_masi_ytd_inconnu_ne_change_rien():
-    """`None` doit neutraliser le bloc, pas se comporter comme un zéro."""
-    assert get_weights({"masi_ytd": None}) == get_weights({})
-
-
-def test_masi_ytd_absent_vaut_inconnu():
-    """Ne pas fournir la clé revient à dire « je ne sais pas »."""
-    assert get_weights({}) == get_weights({"masi_ytd": None})
-
-
-def test_marche_baissier_arme_le_mode_defensif():
-    """Le régime qui n'a jamais pu s'activer doit s'activer.
-
-    Avec l'ancienne alimentation, `masi_ytd` valait la variation du jour :
-    atteindre -5 % aurait demandé que l'indice entier perde 5 % en une séance.
-    """
-    w = get_weights({"masi_ytd": -12.0})
-    assert w["fondamental"] > BASE["fondamental"]
-    assert w["technique"] < BASE["technique"]
-
-
-def test_marche_haussier_favorise_le_technique():
-    w = get_weights({"masi_ytd": 18.0})
-    assert w["technique"] > BASE["technique"]
-
-
-def test_les_seuils_sont_annuels_pas_quotidiens():
-    """Une variation de séance plausible ne doit armer aucun régime.
-
-    C'est le cœur du défaut : ±1 % un jour ordinaire, et la BVC plafonne de
-    toute façon à ±10 % par titre. Passer ces valeurs comme si elles étaient
-    annuelles rendait les deux régimes inatteignables.
-    """
-    neutre = get_weights({"masi_ytd": None})
-    for variation_du_jour in (-1.04, -0.3, 0.0, 0.44, 1.9, 4.9):
-        assert get_weights({"masi_ytd": variation_du_jour}) == neutre
-
-
-def test_les_poids_somment_toujours_a_un():
-    for ctx in ({}, {"masi_ytd": -30.0}, {"masi_ytd": 40.0},
-                {"has_results": True}, {"market_status": "CLOSED", "masi_ytd": -9.0},
-                {"tech_non_fiable": True, "has_results": True}):
-        assert abs(sum(get_weights(ctx).values()) - 1.0) < 1e-6
-
-
-def test_le_bloc_resultats_reste_fonctionnel():
-    """Il n'est plus alimenté, mais il ne doit pas être cassé pour autant.
-
-    `has_results` n'est branché sur aucun calendrier — l'ancien `False` écrit
-    en dur faisait passer cette absence pour une décision. Le jour où un
-    calendrier existera, ce test garantit que la branche répond encore.
-    """
-    assert get_weights({"has_results": True})["fondamental"] > BASE["fondamental"]
-
 
 # ── masi_history ─────────────────────────────────────────────────────────
 

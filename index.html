@@ -11831,7 +11831,6 @@ const NewsFeed = () => {
     }, a.source)));
   })));
 };
-const CHAMPS_SCORE = ["score_tech", "score_fond"];
 const CLE_FAV_VU = "bvc_fav_vu_score_bvc";
 const ECART_FAV_BVC = 5;
 const ChangementsFavoris = ({
@@ -12207,13 +12206,7 @@ function App() {
             bb_lower: t.bb_lower,
             stoch_k: t.stoch_k,
             stoch_d: t.stoch_d,
-            v53: t.v53,
-            score_version: t.score_version,
-            ...Object.fromEntries(CHAMPS_SCORE.map(c => [c, t[c]])),
-            sig: t.sig,
             reference: t.reference,
-            bonus: t.bonus,
-            poids: t.poids,
             note_fond: t.note_fond,
             bear: t.bear,
             base: t.base,
@@ -12224,7 +12217,6 @@ function App() {
             ratios_publies: t.ratios_publies,
             risque: t.risque,
             score_bvc: t.score_bvc,
-            setup: t.setup,
             obv: t.obv,
             adx: t.adx,
             adx_pdi: t.adx_pdi,
@@ -12236,8 +12228,7 @@ function App() {
             seuil_bas: t.seuil_bas,
             seuil_haut: t.seuil_haut,
             score_tech_v2: t.score_tech_v2,
-            technique_neutralise: t.technique_neutralise,
-            verdict_plafonne: t.verdict_plafonne
+            technique_neutralise: t.technique_neutralise
           };
         });
         REGIME_TECH = d.regime_technique || null;

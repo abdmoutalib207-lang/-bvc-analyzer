@@ -112,7 +112,12 @@ def test_un_titre_suspendu_ne_porte_aucun_signal_dans_le_fichier(ticker):
     assert m.get("suspendu") is True, (
         f"{ticker} : _meta.suspendu={m.get('suspendu')} alors que le registre "
         f"le déclare suspendu (prix_asof={m.get('prix_asof')})")
-    assert t.get("sig") == "SUSPENDU", (
+    # ⚠️ 06/11/2026 (lot 2) : le moteur ne publie plus AUCUN signal (`sig` est
+    # retiré avec la note v5.3) — c'est la forme la plus forte de la règle. Le
+    # terminal affiche « SUSPENDU » d'après `_meta.suspendu`, vérifié ci-dessus.
+    # ⏳ À RETIRER APRÈS LE PREMIER RUN update_bvc SUIVANT LA FUSION DU LOT 2 :
+    # un data.json d'avant porte encore `sig`, qui doit alors valoir SUSPENDU.
+    assert t.get("sig", "SUSPENDU") == "SUSPENDU", (
         f"{ticker} : signal publié « {t.get('sig')} » — le terminal recommande "
         "une action sur un titre qu'on ne peut pas négocier")
     assert m.get("confidence") == 0, (

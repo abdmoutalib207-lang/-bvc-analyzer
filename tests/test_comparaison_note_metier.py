@@ -75,7 +75,9 @@ def test_la_comparaison_ne_change_aucun_signal_publie(comparaison):
     data = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
     for t in data["tickers"]:
         x = comparaison["titres"][t["symbol"]]
-        assert x["note_actuelle"] == t.get("score_fond") and x["v53_actuelle"] == t.get("v53")
+        assert x["note_actuelle"] == cm.note_actuelle(t) and x["v53_actuelle"] == t.get("v53")
+        # 06/11/2026 (lot 2) : sans `score_fond` publié, la note actuelle est `note_fond.note`.
+        assert x["note_actuelle"] == (t["score_fond"] if "score_fond" in t else t["note_fond"]["note"])
         assert x["signal_actuel"] == t.get("sig")
 
 

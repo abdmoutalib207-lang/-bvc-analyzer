@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pipeline.scrapers.constants      import TICKERS, IPO_RECENT
 from pipeline.scrapers.market         import fetch_market_data
 from bvc_config import NOTE_METIER_PUBLIEE
-from pipeline.smart_money.fond_score  import compute_fond_score, reload as fond_reload
+from pipeline.smart_money.fond_score  import reload as fond_reload
 from pipeline.smart_money.fond_score_sectoriel import detail_publie, noter_depuis_fichiers
 from pipeline.technical.indicators  import compute_technical
 from pipeline.utils.validation      import validate_ticker_data
@@ -204,9 +204,8 @@ def to_legacy_format(pipeline_out: dict) -> dict:
     """Convertit le format v9 → format data.json consommé par index.html."""
     # ⚠️ NOTE FONDAMENTALE PAR FAMILLE — second point d'application (avec
     # `update_data.appliquer_note_sectorielle`) : les deux bougent ENSEMBLE, selon
-    # `bvc_config.NOTE_METIER_PUBLIEE`. En mode comparaison (11/10/2026, faux),
-    # la note publiée reste celle de la grille actuelle et la note par famille
-    # est seulement jointe (`note_fond_metier`). Les valorisations étant RELATIVES,
+    # `bvc_config.NOTE_METIER_PUBLIEE`. Elle est jointe (`note_fond_metier`) ; en
+    # mode comparaison (faux), sa panne n'interrompt pas la publication. Les valorisations étant RELATIVES,
     # elle a besoin des cours de tout l'univers : ce pipeline ne couvre que ses
     # propres titres, le reste vient du data.json publié.
     try:
@@ -225,55 +224,15 @@ def to_legacy_format(pipeline_out: dict) -> dict:
         t  = d.get("technical", {})
         f  = d.get("fundamentals", {})
 
-        # Score v5.3 simplifié (recalcul complet possible via update_data.py)
-        rsi    = t.get("rsi_14") or 50
-        price  = m.get("price") or 0
-        ma20   = t.get("ma20") or price
-        ma50   = t.get("ma50") or price
-
-        score_tech = 5.0
-        if 40 <= rsi <= 65:    score_tech += 1.0
-        elif rsi > 75:         score_tech -= 1.0
-        elif rsi < 30:         score_tech += 0.5
-        if price > ma20 > ma50:score_tech += 1.5
-        elif price > ma20:     score_tech += 0.8
-        elif price < ma50:     score_tech -= 1.2
-        score_tech = round(min(max(score_tech, 0), 10), 2)
-
-        if NOTE_METIER_PUBLIEE:
-            # None = « Données insuffisantes » : moins de la moitié du poids de la
-            # grille de la famille est calculable. Jamais une note par défaut.
-            fond_score = (notes.get(sym) or {}).get("note")
-        else:
-            fond_score = compute_fond_score(sym)  # fondamentaux.json → 5.0 si absent
-        # ⚠️ PONDÉRATION DU 25/09/2026 — le pilier NLP est ramené à zéro et son
-        # poids reversé au prorata sur les deux autres : 0,47/0,72 et 0,25/0,72.
-        # Justification complète et résultat du backtest dans
-        # `update_data.py::get_weights()`. Le pilier est retiré le 28/10/2026.
-        #
-        # ⚠️ 03/11/2026 (accord R8 d'Abd Moutalib) : la pondération ne dépend
-        # plus de l'heure du run. Le bonus « marché fermé » (+0,05 fond,
-        # −0,05 tech) s'applique partout : 0,52/0,72 et 0,20/0,72, soit
-        # 72,22 / 27,78 — la base de `get_weights()` désormais.
-        #
-        # ⚠️ Ce fichier porte la SECONDE formule de score du projet. Elle est
-        # écrite en dur ici alors que `update_data.py` la module par titre :
-        # les deux doivent bouger ensemble, sans quoi le terminal publierait
-        # deux notes différentes selon le pipeline qui a tourné en dernier.
-        v53        = (round(score_tech * 0.2778 + fond_score * 0.7222, 2)
-                      if fond_score is not None else None)
-
-        # ⚠️ « ACHAT FORT » SUSPENDU, comme dans `update_data.py::compute_v53`
-        # (gel NLP du 29/09). Ici il était servi dès 7,5 sans la condition
-        # smart money que le moteur principal exigeait : les deux pipelines ne
-        # publiaient déjà pas le même palier pour la même note.
-        def sig(s):
-            if s is None: return "Données insuffisantes"
-            if s >= 6.5: return "ACHETER ★★"
-            if s >= 5.5: return "SURVEILLER ★"
-            if s >= 4.5: return "ATTENDRE"
-            if s >= 3.5: return "ÉVITER"
-            return "ÉVITER FORT"
+        # ⚠️ 06/11/2026 — RETRAIT DE LA NOTE v5.3 (lot 2, décision d'Abd
+        # Moutalib : « l'ancien scoring doit disparaître »). Ce fichier portait
+        # la SECONDE formule du score (Tech 27,78 % + Fond 72,22 %, écrite en
+        # dur ici quand `update_data.py` la modulait par titre) et ses paliers
+        # ACHETER … ÉVITER FORT. Les deux points d'application de R8 bougent
+        # ENSEMBLE : `v53`, `score_fond` et `sig` ne sont plus émis ici non
+        # plus. Le score publié est le Score BVC, calculé par update_data.py
+        # (propriétaire unique de data.json).
+        rsi    = t.get("rsi_14") or 50   # inchangé (repli 50 : hors du périmètre de ce lot)
 
         tickers.append({
             "symbol":   sym,
@@ -292,20 +251,16 @@ def to_legacy_format(pipeline_out: dict) -> dict:
             "rsi":      rsi,
             "ma20":     t.get("ma20"),
             "ma50":     t.get("ma50"),
-            "v53":      v53,
-            # ⚠️ S'appelait `bvc` jusqu'au 29/09/2026 — le même nom que la note
-            # figée de update_data.py, pour un sens différent. `delta` (l'écart
-            # entre les deux) n'est plus affiché nulle part.
-            "score_fond": round(fond_score, 2) if fond_score is not None else None,
-            # Comparaison, non retenue dans la note tant que NOTE_METIER_PUBLIEE est faux.
+            # Note par famille, jointe (comparaison tant que NOTE_METIER_PUBLIEE est faux).
             "note_fond_metier": (detail_publie(notes.get(sym)) if notes else {"indisponible": True}),
-            "sig":      sig(v53),
             "stale":    d["flags"]["stale"],
             "partial":  d["flags"]["partial_data"],
         })
 
-    # Tri par score v53 décroissant
-    tickers.sort(key=lambda x: x.get("v53") or 0, reverse=True)
+    # ⚠️ 06/11/2026 : le tri par `v53` décroissant part avec la note. Ce format
+    # ne porte pas le Score BVC (calculé par update_data.py sur les chandelles) :
+    # tri par symbole, stable d'un run à l'autre.
+    tickers.sort(key=lambda x: x.get("symbol") or "")
     return {
         "updated": pipeline_out["timestamp"],
         "version": "v9.0",

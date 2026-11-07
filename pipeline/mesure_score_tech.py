@@ -11,9 +11,14 @@ Chaque jour on ne lui donne que les séances connues ce jour-là
 information postérieure n'entre dans le calcul.
 
 ⚠️ CE QUI EST MESURÉ
-- Le score est celui de la PRODUCTION (`update_data.calc_score_tech`), avec les
-  indicateurs de la production (`collect_history_bvcscrap.compute_indicators`).
-  Aucune copie de la formule ici : une copie dériverait.
+- Le score est celui de la PRODUCTION jusqu'au 06/11/2026 (`calc_score_tech`,
+  pilier technique de la note v5.3), avec les indicateurs de la production
+  (`collect_history_bvcscrap.compute_indicators`).
+  ⚠️ 06/11/2026 : la note v5.3 est retirée du moteur (lot 2) et
+  `update_data.calc_score_tech` avec elle. La formule est COPIÉE ici, telle
+  qu'elle était au dernier jour de production, pour que cette mesure reste
+  rejouable : la copie ne peut plus dériver, l'original n'existe plus.
+  Historique de l'original : l'historique git de update_data.py.
 - Rendement futur à h séances (séances de la série du titre), comparé au MASI
   sur les mêmes dates (`masi_history.json`, 916 séances depuis le 02/01/2023).
 - Frais : un aller-retour en formule « Trading » Attijari Intermédiation coûte
@@ -50,7 +55,78 @@ sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(RACINE / "pipeline"))
 
 from collect_history_bvcscrap import compute_indicators  # noqa: E402
-from update_data import calc_score_tech  # noqa: E402
+
+
+# ── Copie figée de `update_data.calc_score_tech` au 06/11/2026 ─────────────
+# Retirée du moteur avec la note v5.3 (lot 2). Ne pas modifier : c'est la
+# formule MESURÉE à l'étape 0 du calibrage (voir pipeline/technique_fiable.py),
+# pas une formule vivante.
+def calc_score_tech(rsi, price, ma20, ma50, h90, l90) -> float:
+    """
+    Score technique simplifié [0-10].
+    Basé sur RSI, alignement des MAs, position dans la range 90 jours.
+    """
+    score = 5.0
+
+    # ⚠️ UN RSI ABSENT NE CONTRIBUE PAS — il ne vaut pas « neutre ».
+    # `calc_rsi` rendait `nan` quand la profondeur manquait ou qu'aucune baisse
+    # n'existait. Aucune comparaison ne se déclenche sur `nan` : le titre
+    # traversait ce bloc sans rien gagner ni perdre, et personne ne le voyait.
+    # Désormais l'absence est explicite, et l'abstention aussi.
+    if rsi is None:
+        pass
+    # RSI (zone idéale 40-65 pour BVC, peu liquide)
+    elif 40 <= rsi <= 65:
+        score += 1.0
+    elif rsi > 75:       # suracheté
+        score -= 1.0
+    elif rsi < 30:       # survendu → rebond potentiel
+        score += 0.5
+    elif rsi < 40:
+        score -= 0.3
+
+    # Alignement des moyennes mobiles
+    # ⚠️ UNE MOYENNE ABSENTE NE VAUT NI POUR NI CONTRE — MÊME RÈGLE QUE LE RSI.
+    # Depuis que `calc_ma` refuse de rendre une moyenne sur moins de séances
+    # que sa période, `ma50` peut être None : un titre introduit il y a sept
+    # semaines n'a pas de moyenne 50 jours. Le bloc levait alors
+    # « '>' not supported between float and NoneType » et le run s'arrêtait
+    # net — mesuré sur T2S le 15/09/2026, avant toute publication.
+    #
+    # Comparer un prix à une moyenne qui n'existe pas n'a pas de sens, et lui
+    # attribuer zéro non plus : zéro se lirait comme « sous les deux moyennes »,
+    # c'est-à-dire −1,2. L'abstention est la seule lecture juste.
+    if ma20 is None and ma50 is None:
+        pass
+    elif ma50 is None:
+        if price > ma20:
+            score += 0.8
+    elif ma20 is None:
+        if price > ma50:
+            score += 0.3
+        elif price < ma50:
+            score -= 1.2
+    elif price > ma20 > ma50:   # tendance haussière confirmée
+        score += 1.5
+    elif price > ma20:           # au-dessus MA20 seulement
+        score += 0.8
+    elif price > ma50:           # entre MA20 et MA50
+        score += 0.3
+    elif price < ma50:           # sous les deux MAs → faiblesse
+        score -= 1.2
+
+    # Position dans la range 90 jours
+    if h90 is not None and l90 is not None and h90 > l90:
+        pos = (price - l90) / (h90 - l90)
+        if 0.25 <= pos <= 0.70:  # zone médiane = saine
+            score += 0.4
+        elif pos > 0.90:          # proche du sommet = risque retournement
+            score -= 0.6
+        elif pos < 0.10:          # proche du bas = rebond potentiel (BVC peu liquide)
+            score += 0.3
+
+    return round(min(max(score, 0), 10), 2)
+
 
 DEBUT = "2023-10-04"
 COUPURE = "2025-01-01"

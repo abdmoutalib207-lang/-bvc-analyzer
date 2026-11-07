@@ -27,7 +27,12 @@ CHAMPS_OBLIGATOIRES = {
     # figés du 03/06, plus lus par le terminal (test_score_canonique.py).
     # `nlp` retiré le 28/10/2026 avec tout le pilier NLP (corpus supprimé) :
     # le terminal ne le lit plus. Garde inverse : tests/test_retrait_nlp.py.
-    "v53", "sig", "score_tech", "poids",
+    # ⚠️ 06/11/2026 (lot 2) : `v53`, `sig`, `score_tech`, `poids`, `setup` et
+    # `bonus` retirés avec le producteur de la note v5.3 ; le terminal ne les
+    # lisait plus depuis #325. Le score publié est le Score BVC, et la note
+    # fondamentale reste publiée avec ses composantes. Garde inverse :
+    # tests/test_retrait_v53.py.
+    "score_bvc", "note_fond",
     # fondamentaux
     "pe", "pb", "div", "bpa", "upside",
     # technique
@@ -40,7 +45,7 @@ CHAMPS_OBLIGATOIRES = {
     "bull", "bear", "base",
     # présentation — `biais` et `conv` (corpus) retirés le 28/10/2026, avec
     # `warn` / `warnMsg` (« alpha historique négatif », lu dans le corpus).
-    "setup", "flags", "bonus",
+    "flags",
     # provenance
     "_meta",
 }
@@ -52,7 +57,7 @@ CHAMPS_META = {"source_prix", "source_fond", "prix_asof", "stale",
                "pb_source",      # « faits_ammc » ou « non_disponible »
                "vol_median20"}   # liquidité, qui plafonne la confiance
 
-NUMERIQUES = {"price", "chg", "vol", "bvc", "v53", "score_tech",
+NUMERIQUES = {"price", "chg", "vol", "bvc",
               "rsi", "ma20", "ma50", "ma200", "upside"}
 
 
@@ -129,6 +134,9 @@ def test_signaux_dans_le_vocabulaire_connu(titres):
     # Trouvé par l'audit externe du 09/09/2026, pas par nous. La leçon : un
     # test qui relit les données publiées ne protège rien tant que ces données
     # n'ont pas traversé le code neuf.
+    # ⚠️ 06/11/2026 (lot 2) : `sig` n'est plus publié. Sur un fichier écrit
+    # après la fusion, aucun signal n'est vu et le test passe sans rien
+    # juger ; il ne garde de sens que sur un data.json d'avant (transition).
     connus = {"ACHAT FORT", "ACHAT", "ACHETER", "SURVEILLER", "ATTENDRE",
               "ÉVITER", "ÉVITER FORT", "EVITER", "NEUTRE",
               "SUSPENDU", "Données insuffisantes",

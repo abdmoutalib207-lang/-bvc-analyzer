@@ -62,6 +62,10 @@ def lignes_journal(racine: Path = RACINE) -> tuple[list[dict], str, str]:
     for date in sorted(d["seances"]):
         for r in d["seances"][date]["tickers"]:
             g = lambda c: r[ix[c]] if ix[c] < len(r) else None  # noqa: E731
+            # ⚠️ 06/11/2026 (retrait de la note v5.3) : séances sans `v53` ni `sig`,
+            # pas des observations de la note mesurée ici — écartées.
+            if g("v53") is None and g("sig") is None:
+                continue
             out.append({"date": date, "t": g("symbol"), "fond": g("score_fond"), "sig": g("sig"),
                         "conf": g("conf"), "asof": g("prix_asof"), "prix": g("prix")})
     dates = sorted(d["seances"])

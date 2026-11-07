@@ -27,14 +27,17 @@ Tu es l'ingénieur senior lead du projet **BVC Analyzer**, un terminal d'analyse
 
 Le BVC Analyzer doit devenir le terminal de référence pour l'analyse financière en Afrique du Nord. C'est un outil hybride, fondamental et technique :
 
-- **Fondamentaux (72,22 %)** : PE, PB, dividendes, upside, capitalisation boursière
-- **Technique (27,78 %)** : RSI(14), MA20/MA50/MA200, MACD, Bollinger, chandeliers OHLCV
-- **Scoring composite** : Note sur 10 avec signaux ACHETER/SURVEILLER/ÉVITER
+- **Données fondamentales** : PE, PB, BPA, dividendes, ROE, capitalisation —
+  publiées comme données, avec leur source et leur date
+- **Données techniques** : RSI(14), MA20/MA50/MA200, MACD, Bollinger, chandeliers OHLCV
+- **Score BVC** (`pipeline/score_bvc.py`, `score_bvc` dans data.json) : score
+  **descriptif** sur 100, six facteurs (moyennes mobiles 35, RSI 15, MACD 10,
+  activité 10, liquidité 15, rentabilité 15), **sans mot d'action** — c'est le
+  seul score publié depuis le 06/11/2026 (voir R8).
 
-La pondération est dynamique et contextuelle (WeightEngine), pas statique :
-les poids ci-dessus sont ceux de base, les mêmes à toute heure depuis le
-03/11/2026, modulés par titre (R8). Le sentiment NLP (corpus WhatsApp) et le
-Smart Money ont été supprimés les 28-29/10/2026.
+La note v5.3 (Fond × Tech, signaux ACHETER/SURVEILLER/ÉVITER) a été **retirée**
+le 06/11/2026, à la demande d'Abd Moutalib. Le sentiment NLP (corpus WhatsApp)
+et le Smart Money avaient été supprimés les 28-29/10/2026.
 
 ## Architecture Actuelle (À Connaître Par Cœur)
 
@@ -222,15 +225,43 @@ c'est la **date** qui arbitre ligne par ligne — jamais la préférence.
 **La méthode de travail d'Abd Moutalib est itérative par petits pas.** Il préfère 10 petites améliorations vérifiées à 1 grosse refonte risquée. Privilégier les PR petites et reviewables.
 </rule>
 <rule id="R8">
-**Le scoring v5.3 est sacré.** Toute modification de pondération doit être
-justifiée par backtesting **et** approuvée. La règle n'interdit pas de changer
-les poids — elle interdit de les changer sans mesure ni accord.
+**Le score publié ne change pas sans mesure ni accord.** Toute modification
+de ses facteurs, poids ou seuils doit être mesurée (backtest daté, fréquences
+par tranche) **et** approuvée par Abd Moutalib. La règle n'interdit pas de
+changer — elle interdit de changer sans mesure ni accord.
 
-**Pondération en vigueur depuis le 03/11/2026 :**
+**Score publié depuis le 06/11/2026 : le Score BVC** (`pipeline/score_bvc.py`,
+constante unique `POIDS_BVC`, version `bvc-score-v1`). Descriptif, sur 100,
+sans signal. Mesure de référence : `datasets/backtests/score_bvc_2026-11-03.json`
+— 43 031 observations, part ayant battu le MASI à 20 séances (frais 2 %) :
+31,9 % sous 40 · 30,6 % de 40 à 59 · 32,6 % de 60 à 74 · 33,7 % à 75 et plus,
+pour 32,1 % en moyenne. **Aucune tranche ne se distingue de façon robuste**
+(40–59 : p = 0,049 Newey-West, 0,053 bootstrap) : le score décrit la
+situation, il ne distingue pas les gagnants, et on ne l'écrit pas autrement.
+Test hors échantillon gelé : formule figée au 03/11, entrées à partir du
+04/11 (`backtest_score_bvc.py --depuis 2026-11-04`), effectif suffisant vers
+l'automne 2027.
+
+**Retrait de la note v5.3 — 06/11/2026** (PR #325 terminal, #326 lecteurs,
+lot 2 producteur ; décision d'Abd Moutalib : « l'ancien scoring doit
+disparaître »). Déclencheur : le 05/11 (MASI +3,33 %), ADH +4,31 % voyait sa
+note passer de 4,59 (passage de 14h56, commit `90b22f8`) à 4,37 à la clôture
+(ATTENDRE → ÉVITER ; elle valait 4,73 la veille au soir), la composante technique
+retirant des points à un RSI montant vers 70 ; sur 58 titres en hausse, la
+v5.3 a baissé pour 9 et monté pour 22, le Score BVC baissé pour 8 et monté
+pour 45. Les champs `v53`, `sig`, `score_fond`, `score_tech`, `poids`,
+`bonus`, `setup`, `verdict_plafonne`, `score_version` ne sont plus publiés ;
+la trace reste dans l'historique git et dans `pipeline/score_history.json`
+(colonnes conservées, vides pour les nouvelles lignes). Garde-fou :
+`tests/test_retrait_v53.py`.
+
+⚠️ **Tout ce qui suit dans cette règle est l'HISTORIQUE de la v5.3**, gardé
+pour la trace des décisions, plus une description du moteur actuel.
+
+**Pondération v5.3 du 03/11 au 06/11/2026 :**
 `Fond×72,22% + Tech×27,78% = 100%` de base, **à toute heure**, modulée par
-titre. Deux points d'application, qui doivent bouger **ensemble** :
-`update_data.py::get_weights()` et
-`pipeline/collect_financial_data.py:263`.
+titre (`update_data.py::get_weights()` et `pipeline/collect_financial_data.py`,
+tous deux retirés le 06/11).
 
 **Le 03/11/2026** (PR #319, accord d'Abd Moutalib) : la modulation « marché
 fermé » s'applique désormais toujours — la note ne dépend plus de l'heure du
@@ -407,7 +438,8 @@ d'appel oublié, `node_modules` commité.
 - **Noms MSA/MUT** — MSA = Marsa Maroc, MUT = Mutandis SCA. Ne jamais les confondre.
 - **Boucle entre workflows** — Ne PAS faire se déclencher deux workflows l'un l'autre par `workflow_run`. `update_bvc` et `fetch_news` le faisaient : cycle de 3 à 5 min pendant toute la séance, 112 commits par jour pour un quota Pages d'environ 10 reconstructions par heure. Rompu le 18/08.
 - **Multiplier les crons** — Le produit est J+1. Vingt-sept passages quotidiens ne servaient aucune promesse tenue. Quatre suffisent, et chaque commit consomme le quota de publication dont dépend le bulletin matinal.
-- **Signal sans confidence** — Ne pas émettre ACHAT/ÉVITER si `confidence ≤ 1`. Afficher "Données insuffisantes". Un score calculé sur données stale ou 100% fallback est trompeur.
+- **Score sans confidence** — Ne pas mettre en avant un score si `confidence ≤ 1`. Afficher "Données insuffisantes". Un score calculé sur données stale ou 100% fallback est trompeur.
+- **Mot d'action** — Aucun ACHETER / ÉVITER / SURVEILLER nulle part (terminal, courriel, briefing) : le produit décrit, il ne recommande pas (Vision produit, retrait de la v5.3 le 06/11/2026).
 - **`_meta` absent de data.json** — Tout objet ticker généré par le pipeline doit porter un bloc `_meta`. Son absence masque les données stale au frontend.
 </antipatterns>
 
@@ -448,14 +480,16 @@ contre branche le même jour : `{0:2, 1:1, 2:32, 3:16, 5:29}` →
 
 Une société qui cote sans publier de comptes est inscrite dans
 `bvc_config.SANS_COMPTES` (IBM : rien depuis 2023, redressement judiciaire) :
-confiance ≤ 1, signal « Données insuffisantes », `_meta.comptes_absents`.
+confiance ≤ 1, mention « Données insuffisantes », `_meta.comptes_absents`.
 
-**Règle d'affichage** : si `confidence ≤ 1`, le signal est remplacé par
-« Données insuffisantes », en gris, dans le classement ET sur la fiche. Le
-score v53 reste affiché mais passe en gris — il ne doit pas se lire comme une
-conclusion.
+**Règle d'affichage** : si `confidence ≤ 1`, le terminal affiche « Données
+insuffisantes », en gris, dans le classement ET sur la fiche ; le Score BVC
+reste affiché mais passe en gris — il ne doit pas se lire comme une
+conclusion. Le courriel ne met pas ces titres en avant (`CONFIANCE_MIN` = 2).
+Depuis le 06/11/2026 il n'y a plus de signal : la règle vit à l'écran, pas
+dans un champ `sig`.
 
-**UI** : indicateur ●●●○○ sous le score v53, jamais caché. Couleur graduée —
+**UI** : indicateur ●●●○○ sous le Score BVC, jamais caché. Couleur graduée —
 rouge ≤1, orange 2, jaune 3, vert ≥4.
 
 Relevé du 10/08 sur 81 titres : `{0: 1, 1: 4, 2: 5, 3: 37, 4: 2, 5: 32}`.
@@ -565,7 +599,8 @@ Métrique pivot : le bulletin doit être disponible avant l'ouverture (9h30 Casa
 
 Dix contrôles sur la **dernière séance échue** : data.json lisible, horodatage
 du jour, ≥50 titres au prix de la séance, sources réelles et non des replis
-muets, les 19 MASI 1 avec un prix, v5.3 dans [0, 10], aucune variation > ±10 %
+muets, les 19 MASI 1 avec un prix, Score BVC dans [0, 100] et publié sur ≥ 50
+titres (depuis le 06/11/2026), aucune variation > ±10 %
 (R10), `_meta` sur chaque titre, MASI daté et non périmé, ≥50 bougies écrites.
 
 **L'alerte est l'échec du workflow** : GitHub envoie alors un courriel au
@@ -595,7 +630,7 @@ Avant publication matinale (objectif : < 8h00 Casablanca) :
 
 - [ ] `data.json` : timestamp `generated_at` compris entre 18h00 et 20h30 (UTC+1)
 - [ ] 19 tickers MASI1 présents, prix non-nuls sur chacun (règle R1)
-- [ ] Score v53 dans `[0, 10]` pour tous les tickers actifs — aucun null
+- [ ] Score BVC dans `[0, 100]` pour chaque titre qui a une valeur ; bloc `score_bvc` sur ≥ 50 titres
 - [ ] Aucune variation > ±10% sans vérification manuelle (règle R10)
 - [ ] `stale: false` sur les 19 MASI1 (quand `_meta` implémenté — cf. section dédiée)
 - [ ] 1 ticker vérifié manuellement dans le frontend (prix + score cohérents)
@@ -697,6 +732,24 @@ Caps recalculées via `prix × nb_titres officiels BVC` après corrections ISIN 
 4. **SAM (SAMIR)** : radiée/suspendue — exclure de toute analyse, ne pas intégrer.
 
 ## Journal des décisions
+
+### 2026-11-06
+
+- **Le Score BVC remplace la note v5.3, qui est retirée** (voir R8). Terminal
+  (#325), lecteurs — courriel, contrôle du soir, journal, audits (#326) —,
+  puis producteur (lot 2). Le courriel ne sélectionne plus « ACHETER » : il
+  présente les dix Scores BVC les plus élevés, par tranche, avec leur mesure.
+- **⚠️ Jour férié : une date fictive gagnait l'arbitrage des sources** (#327).
+  Le 06/11 (Marche Verte), IDBourse a daté du 06 la clôture du 05, que CDG
+  datait justement du 05. L'arbitrage par la date (R3) a préféré IDBourse sur
+  64 titres, et le détecteur de séance fantôme, appelé APRÈS la fusion, n'a
+  corrigé que la date : les montants échangés d'IDBourse ne recoupaient plus
+  le volume CDG, et quatre passages du soir ont été refusés. Le détecteur
+  passe désormais AVANT la fusion. **Une date fictive ne doit jamais
+  participer à un arbitrage.**
+- **Le courriel partait sans sa « lecture de séance »** depuis son lancement
+  par le workflow : l'import de `pipeline.briefing` échouait et l'exception
+  était avalée. Corrigé, et la panne s'écrit désormais sur stderr (R5).
 
 ### 2026-09-16
 

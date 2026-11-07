@@ -273,14 +273,18 @@ def test_le_releve_porte_la_version_du_score_bvc(journal):
 
 def test_le_backtest_reproductible_ecarte_une_ligne_sans_note_v53(journal):
     """Le lecteur du journal le plus exposé : une ligne du lot 2 (v53 et sig
-    vides) se relit et ne produit pas de palier — elle sera écartée
-    (`signal_sans_palier`), sans lever."""
+    vides) se relit sans lever. ⚠️ Lot 2 (06/11/2026) : elle est écartée DÈS LA
+    LECTURE — ce n'est pas une observation de la note v5.3 —, plutôt que
+    comptée « signal sans palier » dans les écarts du backtest. Une ligne
+    ancienne sans note (sig « Données insuffisantes ») reste lue."""
     sys.path.insert(0, str(RACINE / "pipeline"))
     import backtest_reproductible as br
     t = {"symbol": "ATW", "price": 694.6, "score_bvc": _bvc(90.0),
          "_meta": {"confidence": 5, "prix_asof": "2026-11-05"}}
     sh.enregistrer("2026-11-05", [t])
+    ancien = {"symbol": "IBM", "price": 10.0, "v53": None, "sig": "Données insuffisantes", "score_bvc": _bvc(40.0),
+              "_meta": {"confidence": 1, "prix_asof": "2026-11-04"}}
+    sh.enregistrer("2026-11-04", [ancien])
     notes, _ = br.notes_score_history(journal)
-    assert notes == [{"date": "2026-11-05", "t": "ATW", "v53": None, "sig": None,
-                      "conf": 5, "asof": "2026-11-05"}]
-    assert br.palier(notes[0]["sig"]) is None
+    assert [(n["date"], n["t"], n["sig"]) for n in notes] == [("2026-11-04", "IBM", "Données insuffisantes")]
+    assert br.palier(None) is None

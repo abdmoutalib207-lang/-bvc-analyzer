@@ -10,12 +10,11 @@ note, les alertes et la fiche lisent les MÊMES valeurs. Quatre maillons :
                   mêmes entrées que le moteur (PER = cours ÷ BPA 12 mois,
                   croissance sourcée, grandeurs contestées), puis comparé à
                   `note_fond` publié, composante par composante.
-  3. PUBLICATION  signal ↔ couverture ↔ confiance, `_meta.confidence` ↔
+  3. PUBLICATION  `_meta.non_comparable` ↔ sa condition, `_meta.confidence` ↔
                   `_meta.garanties`, alertes recalculées par la même porte
-                  (`ratio_effectif`) et recoupées avec les composantes, `v53`
-                  recomposé depuis `score_fond`, `score_tech` et `poids`
-                  (producteur v5.3, retiré au lot 2) ; depuis le 06/11/2026,
-                  le SCORE BVC publié : état ↔ valeur, bornes, recomposition
+                  (`ratio_effectif`) et recoupées avec les composantes
+                  (signal et `v53` retirés avec le producteur v5.3, lot 2 du
+                  06/11/2026) ; depuis le 06/11/2026, le SCORE BVC publié : état ↔ valeur, bornes, recomposition
                   depuis ses facteurs, version, recalcul depuis les chandelles.
   4. AFFICHAGE    ⚠️ STATIQUE seulement (aucun navigateur) : les composants du
                   terminal ne lisent que `note_fond`, `alertes`, `_meta` et les
@@ -53,7 +52,6 @@ if str(RACINE) not in sys.path:
 
 ERREUR, AVERT = "ERREUR", "AVERTISSEMENT"
 TOLERANCE_NOTE = 0.005          # arrondi à 2 décimales côté moteur
-TOLERANCE_V53 = 0.02            # v53 = fond×pf + tech×pt, arrondis de chaque côté
 COMPOSANTES = ("qualite", "croissance", "valorisation", "bilan")
 
 
@@ -204,17 +202,8 @@ def controler_note_fond(sym, t, attendu, contestes) -> list:
         out.append(_inc(sym, "note.sous_seuil", ERREUR,
                         f"note publiée alors que la couverture est sous COUVERTURE_MIN ({COUVERTURE_MIN})",
                         nf.get("couverture")))
-    # Ce que l'écran appelle « fondamental » doit être la note de la grille.
-    from bvc_config import NOTE_METIER_PUBLIEE
-    if NOTE_METIER_PUBLIEE:
-        ref = (t.get("note_fond_metier") or {}).get("note")
-        etiquette = "note_fond_metier.note"
-    else:
-        ref, etiquette = nf.get("note"), "note_fond.note"
-    if not _egal(t.get("score_fond"), ref):
-        out.append(_inc(sym, "note.score_fond", ERREUR,
-                        f"score_fond (affiché dans « Pourquoi cette note ? ») ≠ {etiquette}",
-                        t.get("score_fond"), ref))
+    # ⚠️ 06/11/2026 : `score_fond` (pilier fondamental de la note v5.3) n'est
+    # plus publié — le contrôle « score_fond = note_fond.note » part avec lui.
     # Grandeur contestée : jamais mesurée.
     if sym in contestes:
         for nom in ("qualite", "bilan"):
@@ -230,94 +219,50 @@ def controler_note_fond(sym, t, attendu, contestes) -> list:
     return out
 
 
-# ── maillon 3 : signal, confiance, alertes, v53 ────────────────────────────
-NON_COMPARABLE = "Non comparable (liquidité)"
+# ── maillon 3 : non-comparabilité, confiance, alertes ──────────────────────
+# ⚠️ 06/11/2026 — retrait de la note v5.3, lot 2 (décision d'Abd Moutalib :
+# « l'ancien scoring doit disparaître »). Le moteur ne publie plus `v53`,
+# `sig`, `score_fond`, `score_tech`, `poids`, `bonus`, `setup` ni
+# `verdict_plafonne` : les contrôles du signal (suspendu, données
+# insuffisantes, couverture partielle, signal ↔ confiance) et la
+# recomposition de `v53` sont retirés avec eux. Ce que le lecteur voit encore
+# — la confiance (`controler_confiance`), le Score BVC (`controler_score_bvc`)
+# et le champ `_meta.non_comparable` lu par la vue PER — reste contrôlé.
+NON_COMPARABLE = "Non comparable (liquidité)"     # libellé historique, plus publié
 
 
-def controler_signal(sym, t, contestes) -> list:
-    from bvc_config import COUVERTURE_VERDICT_MIN, SEUIL_NON_COMPARABLE_DH
+def controler_non_comparable(sym, t, contestes=None) -> list:
+    """`_meta.non_comparable` présent SI ET SEULEMENT SI la condition publiée le
+    veut (règle A, 27/10/2026) : technique neutralisée ET médiane sous le seuil,
+    sauf titre suspendu, sans comptes, en reprise récente ou sans note — les
+    priorités de `update_data.non_comparable_publie`."""
+    from bvc_config import SEUIL_NON_COMPARABLE_DH
+    del contestes
     out = []
-    m, nf, sig = t.get("_meta") or {}, t.get("note_fond") or {}, t.get("sig")
-    conf = m.get("confidence")
-    couv_app, note = nf.get("couverture_applicable"), nf.get("note")
-    partielle = note is not None and couv_app is not None and couv_app < COUVERTURE_VERDICT_MIN
-    # Règle B (27/10/2026) : foncière sans note par métier → « Couverture partielle ».
-    nfm = t.get("note_fond_metier") or {}
-    fonciere_sn = (nfm.get("famille") == "fonciere" and nfm.get("note") is None
-                   and not nfm.get("indisponible"))
-    # Règle A (27/10/2026, accord R8) : technique neutralisée ET médiane < seuil.
+    m, nf = t.get("_meta") or {}, t.get("note_fond") or {}
     tn = t.get("technique_neutralise") or None
     med = (tn or {}).get("montant_median_dh")
     peu_liquide = bool(tn) and (med if med is not None else 0) < SEUIL_NON_COMPARABLE_DH
-    if m.get("suspendu"):
-        if sig != "SUSPENDU":
-            out.append(_inc(sym, "signal.suspendu", ERREUR, "titre suspendu sans signal SUSPENDU", sig, "SUSPENDU"))
-        return out
-    if sig == "SUSPENDU":
-        out.append(_inc(sym, "signal.suspendu", ERREUR, "signal SUSPENDU sans suspension déclarée"))
-    sans_donnees = (note is None or bool(m.get("comptes_absents")) or bool(m.get("reprise_recente")))
-    if sans_donnees and sig != "Données insuffisantes":
-        out.append(_inc(sym, "signal.sans_donnees", ERREUR,
-                        "note absente / sans comptes / reprise récente, mais signal ≠ « Données insuffisantes »",
-                        sig, "Données insuffisantes"))
-    # Règle A : signal, champ `_meta.non_comparable` et condition vont ensemble.
-    non_comp = not sans_donnees and peu_liquide
-    if non_comp and sig != NON_COMPARABLE:
-        out.append(_inc(sym, "signal.non_comparable", ERREUR,
-                        f"technique neutralisée et médiane {med} DH < {SEUIL_NON_COMPARABLE_DH} DH, mais un verdict est émis",
-                        sig, NON_COMPARABLE))
-    if sig == NON_COMPARABLE and not non_comp:
-        out.append(_inc(sym, "signal.non_comparable", ERREUR,
-                        f"« {NON_COMPARABLE} » sans technique neutralisée sous {SEUIL_NON_COMPARABLE_DH} DH", sig))
+    sans_donnees = (nf.get("note") is None or bool(m.get("comptes_absents"))
+                    or bool(m.get("reprise_recente")))
+    attendu = peu_liquide and not m.get("suspendu") and not sans_donnees
     bloc = m.get("non_comparable")
-    if (sig == NON_COMPARABLE) != bool(bloc):
-        out.append(_inc(sym, "signal.non_comparable_meta", ERREUR,
-                        "_meta.non_comparable doit être présent si et seulement si le signal est "
-                        f"« {NON_COMPARABLE} »", bloc, sig))
+    if attendu != bool(bloc):
+        out.append(_inc(sym, "non_comparable.meta", ERREUR,
+                        "_meta.non_comparable doit être présent si et seulement si le titre est peu liquide "
+                        f"(technique neutralisée, médiane < {SEUIL_NON_COMPARABLE_DH} DH), coté, avec note "
+                        "et comptes", bloc, "présent" if attendu else "absent"))
     elif bloc and (bloc.get("seuil") != SEUIL_NON_COMPARABLE_DH or bloc.get("montant_median_dh") != med):
-        out.append(_inc(sym, "signal.non_comparable_meta", ERREUR,
+        out.append(_inc(sym, "non_comparable.meta", ERREUR,
                         "_meta.non_comparable ne reprend pas la médiane publiée et le seuil du moteur",
                         bloc, {"montant_median_dh": med, "seuil": SEUIL_NON_COMPARABLE_DH}))
-    if not sans_donnees and not non_comp and (partielle or fonciere_sn) and sig != "Couverture partielle":
-        motif = (f"couverture applicable {couv_app} < {COUVERTURE_VERDICT_MIN}" if partielle
-                 else "foncière sans note par métier")
-        out.append(_inc(sym, "signal.couverture", ERREUR, f"{motif} mais un verdict est émis",
-                        sig, "Couverture partielle"))
-    if sig == "Couverture partielle" and not (partielle or fonciere_sn):
-        out.append(_inc(sym, "signal.couverture", ERREUR,
-                        f"« Couverture partielle » alors que la couverture applicable ({couv_app}) "
-                        f"atteint le seuil {COUVERTURE_VERDICT_MIN}", sig))
-    if isinstance(conf, (int, float)) and conf <= 1 and sig != "Données insuffisantes":
-        out.append(_inc(sym, "signal.confiance", ERREUR,
-                        "confiance ≤ 1 mais le signal n'est pas « Données insuffisantes »",
-                        f"confiance {conf}, signal {sig}", "Données insuffisantes"))
-    if sig == "Données insuffisantes" and not sans_donnees and not (isinstance(conf, (int, float)) and conf <= 1):
-        out.append(_inc(sym, "signal.motif_absent", AVERT,
-                        "« Données insuffisantes » sans note absente, sans-comptes, reprise ni confiance ≤ 1", sig))
-    # v53 : recomposable depuis ce que « Pourquoi cette note ? » affiche.
-    sf, st, pw, v53 = _num(t.get("score_fond")), _num(t.get("score_tech")), t.get("poids") or {}, t.get("v53")
-    if sf is None:
-        if v53 is not None:
-            out.append(_inc(sym, "v53.sans_note", ERREUR, "v53 publié alors qu'il n'y a pas de note fondamentale", v53))
-    elif v53 is None:
-        out.append(_inc(sym, "v53.absent", ERREUR, "note fondamentale présente mais v53 absent", sf))
-    else:
-        if not (0 <= v53 <= 10):
-            out.append(_inc(sym, "v53.hors_bornes", ERREUR, "v53 hors de [0, 10]", v53))
-        pf, pt = _num(pw.get("f")), _num(pw.get("t"))
-        if st is not None and pf is not None and pt is not None and not (t.get("bonus") or []):
-            att = (sf * pf + st * pt) / 100
-            if abs(att - v53) > TOLERANCE_V53:
-                out.append(_inc(sym, "v53.recomposition", ERREUR,
-                                f"v53 ≠ fond {sf} × {pf} % + tech {st} × {pt} % (ce que la fiche affiche)",
-                                v53, round(att, 3)))
     return out
 
 
 # ── maillon 3 bis : le Score BVC publié — 06/11/2026 ───────────────────────
 # Lot 1 du retrait de la note v5.3 : le score publié est le Score BVC. Les
-# contrôles v53 / sig ci-dessus vérifient encore le PRODUCTEUR v5.3 ; ils
-# partiront avec lui au lot 2. Ceux-ci vérifient ce que le terminal affiche.
+# contrôles v53 / sig sont partis avec le producteur au lot 2. Ceux-ci
+# vérifient ce que le terminal affiche.
 #
 # Les règles de forme sont celles de `pipeline/coherence.py::controler_score_bvc`
 # — une seule écriture, lue par les deux contrôles. S'y ajoute ce que seul
@@ -501,7 +446,7 @@ def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict, bougies_de=N
         attendu = recalculer_note_fond(sym, t, fondamentaux, bpa, contestes)
         out += controler_note_fond(sym, t, attendu, contestes)
         out += controles_piece(sym, fondamentaux.get(sym), (faits or {}).get(sym), t.get("note_fond"))
-        out += controler_signal(sym, t, contestes)
+        out += controler_non_comparable(sym, t, contestes)
         out += controler_score_bvc(sym, t, bougies_de)
         out += controler_confiance(sym, t, contestes)
         out += controler_alertes(sym, t, fondamentaux.get(sym) or {}, contestes)
@@ -513,8 +458,9 @@ def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict, bougies_de=N
 # Moutalib) : le score unique est le Score BVC (`score_bvc`). « Pourquoi cette
 # note ? » et la pastille de palier v5.3 sont retirés ; la pastille de tranche
 # (PastilleBVC) et les mesures bancaires en données (MesuresBancaires) les
-# remplacent. Les contrôles du MOTEUR (maillons 1 à 3, v53 et sig compris)
-# sont inchangés : seul ce qui est vérifié À L'ÉCRAN suit l'écran.
+# remplacent. Seul ce qui est vérifié À L'ÉCRAN suit l'écran ; les champs
+# v5.3 ne sont plus publiés depuis le lot 2, et un composant qui les relirait
+# reste refusé ci-dessous.
 COMPOSANTS_AFFICHAGE = ("reservePrincipale", "ResumeNote", "DetailConfiance", "PastilleBVC", "MesuresBancaires")
 # Les seuls champs de la fiche `r` que ces composants peuvent lire.
 CHAMPS_AUTORISES = {"note_fond", "alertes", "_meta", "score_bvc", "risque"}
