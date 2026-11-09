@@ -185,9 +185,22 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
         pond25 = _ponderees(s, t, "2025-01-01", "2025-12-31")
         exercice = round(t["rnpg_exercice_2025"] * 1e6 / pond25["nombre"], 2)
         b = bpa.setdefault(s, {})
+        # ⚠️ DATE DE LOT EXPLICITE — 09/11/2026 (contre-vérification ms-screener).
+        # Les clés `bpa_avant_2026_09_29` et `bpa_12m_avant_2026_10_20` datent
+        # le lot qui les a introduites : une correction POSTÉRIEURE qui les
+        # posait par `setdefault` aurait étiqueté « avant le 29/09 » un BPA
+        # écrit en octobre. Une entrée qui porte `corrige_le` range l'ancienne
+        # valeur sous SA date (`bpa_avant_<date>`, `bpa_12m_avant_<date>`,
+        # `rnpg_12m_avant_<date>`), posée une fois, jamais réécrite.
+        lot = f"_avant_{t['corrige_le'].replace('-', '_')}" if t.get("corrige_le") else None
+        if lot:
+            for k, v in (("bpa", exercice), ("bpa_12m", m["bpa_12m"]), ("rnpg_12m", m["rnpg_12m"])):
+                if b.get(k) is not None and b[k] != v:
+                    b.setdefault(k + lot, b[k])
         # ⚠️ L'ancien BPA est conservé à côté du nouveau, jamais effacé.
         if b.get("bpa") is not None and abs(b["bpa"] - exercice) > 0.05:
-            b.setdefault("bpa_avant_2026_09_29", b["bpa"])
+            if not lot:
+                b.setdefault("bpa_avant_2026_09_29", b["bpa"])
             journal.append(f"{s} : BPA 2025 {b['bpa']} → {exercice} "
                            f"({t['rnpg_exercice_2025']} MDH ÷ {pond25['nombre']:,} actions)")
             b["bpa"] = exercice
@@ -216,7 +229,7 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             b.setdefault("source_avant_2026_10_05", b["source"])
             b["source"] = "resultats_officiels"
         b["rnpg_12m"] = m["rnpg_12m"]
-        if s in _historique() and b.get("bpa_12m") not in (None, m["bpa_12m"]):
+        if not lot and s in _historique() and b.get("bpa_12m") not in (None, m["bpa_12m"]):
             # Règle e (20/10/2026) : l'ancien BPA, sur le nombre actuel, est gardé.
             b.setdefault("bpa_12m_avant_2026_10_20", b["bpa_12m"])
         b["bpa_12m"] = m["bpa_12m"]
