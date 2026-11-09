@@ -176,12 +176,19 @@ def test_positif_les_anciens_seuils_absolus_auraient_echoue_sur_cette_chute():
 def test_positif_une_hausse_reelle_au_dela_des_anciens_plafonds_passe(t, facteur_hausse):
     """h52w de CIM au-dessus de 2 500 (ancien plafond) et de STK au-dessus de
     200 : une vraie hausse continue ne doit rien faire échouer."""
+    # ⚠️ 09/11/2026 : la cible était h52w × facteur. Le plus-haut de STK est
+    # retombé vers 125 DH (l'ancien sommet est sorti des 52 semaines), et
+    # 125 × 1,6 = 199,84 ne franchissait plus le plafond de 200 que le test
+    # doit dépasser — passage de 9h55 bloqué alors que le contrôle était sain.
+    # La cible vise désormais AU-DELÀ du plafond, quel que soit h52w du jour.
+    plafond = {"CIM": 2500, "STK": 200}[t]
     bougies = E.charger_bougies(t)
     h = E.cache_recalcule(bougies)["h52w"]
-    hausse = E.prolonger(bougies, round(h * facteur_hausse, 2))
+    cible = round(max(h * facteur_hausse, plafond * 1.05), 2)
+    hausse = E.prolonger(bougies, cible)
     cache = _verifier_sain(t, hausse)
-    assert cache["h52w"] >= h * facteur_hausse * 0.9999
-    assert cache["h52w"] > {"CIM": 2500, "STK": 200}[t], "ne dépasse pas l'ancien plafond"
+    assert cache["h52w"] >= cible * 0.9999
+    assert cache["h52w"] > plafond, "ne dépasse pas l'ancien plafond"
 
 
 # ── Les briques ────────────────────────────────────────────────────────────
