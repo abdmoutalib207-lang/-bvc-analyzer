@@ -297,10 +297,11 @@ def test_un_titre_cote_selon_cdg_n_est_jamais_redate(ud):
 
 def test_une_date_fictive_ne_gagne_pas_l_arbitrage(ud, monkeypatch):
     """Le 06/11/2026 (Marche Verte), IDBourse a daté du 06 la clôture du 05 ;
-    CDG la datait du 05. Sans correction préalable, la date fictive gagnait
-    l'arbitrage sur 64 titres et les montants d'IDBourse remplaçaient ceux de
-    CDG. Reproduit ici sur les vraies chandelles : clôtures identiques à la
-    dernière bougie, datées du lendemain par IDBourse."""
+    CDG la datait du 05. Si la fusion passe avant le détecteur, la date
+    fictive gagne l'arbitrage et les montants d'IDBourse remplacent ceux de
+    CDG. On joue la séquence de production (`arbitrer_cotations`) sur les
+    vraies chandelles : clôtures identiques à la dernière bougie, datées du
+    lendemain par IDBourse. Ce test échoue avec l'ancien ordre."""
     import json
     from datetime import date, timedelta
     from pathlib import Path
@@ -315,15 +316,41 @@ def test_une_date_fictive_ne_gagne_pas_l_arbitrage(ud, monkeypatch):
     assert len(syms) >= 20, "il faut au moins 20 titres pour le détecteur"
     fictif = (date.fromisoformat(veille) + timedelta(days=1)).isoformat()
     lp = {s: _idb(float(dernieres[s]["c"]), fictif) for s in syms}
-    cdg = {s: {**_ext(float(dernieres[s]["c"]), veille), "echange_dh": 1.0} for s in syms}
+    cdg = {s: _ext(float(dernieres[s]["c"]), veille) for s in syms}
     monkeypatch.setattr(ud, "IDB_ASOF", fictif)
-    assert ud._recaler_seance_fantome(lp) == fictif
-    r = ud.fusionner_cotations(lp, ud.IDB_ASOF, cdg=cdg, bmce={}, lignes_cdg=[])
-    assert r == veille
-    assert all(lp[s]["src"] == "cdg" for s in syms), "CDG doit l'emporter à égalité"
+    annoncee = ud.arbitrer_cotations(lp, cdg=cdg, bmce={}, lignes_cdg=[])
+    assert annoncee == fictif, "la séance fictive doit être signalée"
+    assert ud.IDB_ASOF == veille
+    perdants = [s for s in syms if lp[s]["src"] != "cdg"]
+    assert not perdants, f"la date fictive a gagné l'arbitrage sur {len(perdants)} titre(s)"
+
+
+def test_l_ancien_ordre_echoue(ud, monkeypatch):
+    """Contrôle négatif : le même scénario, fusion AVANT détecteur, donne la
+    main à IDBourse. Sans ce témoin, le test ci-dessus pourrait passer pour
+    une autre raison que l'ordre des appels."""
+    import json
+    from datetime import date, timedelta
+    from pathlib import Path
+    dossier = Path(ud.__file__).parent / "pipeline" / "candles"
+    dernieres = {}
+    for f in sorted(dossier.glob("*.json")):
+        serie = json.loads(f.read_text(encoding="utf-8"))
+        if serie and serie[-1].get("c"):
+            dernieres[f.stem] = serie[-1]
+    veille = max(b["d"] for b in dernieres.values())
+    syms = [s for s, b in dernieres.items() if b["d"] == veille][:30]
+    fictif = (date.fromisoformat(veille) + timedelta(days=1)).isoformat()
+    lp = {s: _idb(float(dernieres[s]["c"]), fictif) for s in syms}
+    cdg = {s: _ext(float(dernieres[s]["c"]), veille) for s in syms}
+    monkeypatch.setattr(ud, "IDB_ASOF", fictif)
+    ud.IDB_ASOF = ud.fusionner_cotations(lp, ud.IDB_ASOF, cdg=cdg, bmce={}, lignes_cdg=[])
+    ud._recaler_seance_fantome(lp)
+    assert all(lp[s]["src"] == "idbourse" for s in syms)
 
 
 def test_run_corrige_la_seance_fantome_avant_de_fusionner(ud):
     import inspect
     src = inspect.getsource(ud.run)
-    assert src.index("_recaler_seance_fantome(live_prices)") < src.index("fusionner_cotations(live_prices")
+    assert "arbitrer_cotations(live_prices)" in src
+    assert "fusionner_cotations(live_prices" not in src, "run() doit passer par arbitrer_cotations"
