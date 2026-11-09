@@ -1341,6 +1341,32 @@ def _recaler_seance_fantome(live_prices):
     return None
 
 
+def arbitrer_cotations(live_prices, cdg=None, bmce=None, lignes_cdg=None,
+                       derniere_bougie=None):
+    """Séance fantôme, puis fusion des sources, puis séances annulées.
+
+    Renvoie la date de séance fictive annoncée par la source, ou None. Met à
+    jour `IDB_ASOF` et `live_prices` sur place.
+
+    ⚠️ L'ORDRE EST LA RÈGLE (06/11/2026, Marche Verte). La date fictive d'une
+    rediffusion est corrigée AVANT l'arbitrage par la date : sinon IDBourse,
+    datée du jour férié, l'emportait sur CDG, datée de la vraie séance, et ses
+    montants échangés remplaçaient ceux de CDG — quatre passages du soir
+    refusés. Le second appel couvre une rediffusion venue d'une autre source.
+
+    Extraite de `run()` pour être testée sans réseau : `cdg`, `bmce`,
+    `lignes_cdg` et `derniere_bougie` sont transmis tels quels à
+    `fusionner_cotations`.
+    """
+    global IDB_ASOF
+    seance_fictive = _recaler_seance_fantome(live_prices)
+    IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF, cdg=cdg, bmce=bmce,
+                                   lignes_cdg=lignes_cdg,
+                                   derniere_bougie=derniere_bougie)
+    IDB_ASOF = _ecarter_seances_annulees(live_prices, IDB_ASOF)
+    return _recaler_seance_fantome(live_prices) or seance_fictive
+
+
 CDG_API = "https://www.cdgcapitalbourse.ma/api/"
 
 
@@ -4105,12 +4131,8 @@ def run(dry_run=False, push=False, token=""):
     # jamais gagner un arbitrage : on la corrige d'abord, CDG l'emporte alors à
     # égalité. Le second appel, après fusion, couvre une rediffusion qui
     # viendrait d'une autre source.
-    seance_fictive = _recaler_seance_fantome(live_prices)
-    IDB_ASOF = fusionner_cotations(live_prices, IDB_ASOF)
-    IDB_ASOF = _ecarter_seances_annulees(live_prices, IDB_ASOF)
+    seance_fictive = arbitrer_cotations(live_prices)
     _ecarter_masi_annule(masi)
-
-    seance_fictive = _recaler_seance_fantome(live_prices) or seance_fictive
     if seance_fictive:
         # La Bourse n'a pas coté : ni le calendrier des fériés à date fixe ni
         # l'horaire ne le savaient — le Mawlid suit le calendrier lunaire et
