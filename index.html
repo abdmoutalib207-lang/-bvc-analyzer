@@ -1454,6 +1454,8 @@ const lsEcrire = (k, v) => {
   } catch (e) {}
 };
 const fmt = (n, d = 2) => n == null || !isFinite(n) ? "—" : (+n).toFixed(d);
+let VERSION_PUB = "";
+const vpub = () => VERSION_PUB ? encodeURIComponent(VERSION_PUB) : String(Math.floor(Date.now() / 60000));
 const fr = (n, d = 2) => fmt(n, d).replace(".", ",");
 const tk = r => r && (r.code_bvc || r.symbol || r.ticker) || "";
 const CODES_BVC = {};
@@ -2920,7 +2922,7 @@ const GraphiqueMASI = () => {
 let REGIME_TECH = null;
 let FREQ_PUB = null,
   FREQ_PUB_P = null;
-const chargerFrequences = () => FREQ_PUB_P || (FREQ_PUB_P = fetch("datasets/frequences_publiees.json?t=" + Math.floor(Date.now() / 3600000)).then(x => x.ok ? x.json() : null).then(j => {
+const chargerFrequences = () => FREQ_PUB_P || (FREQ_PUB_P = fetch("datasets/frequences_publiees.json?t=" + vpub()).then(x => x.ok ? x.json() : null).then(j => {
   FREQ_PUB = j;
   return j;
 }).catch(() => null));
@@ -3154,7 +3156,7 @@ const LegendeSR = ({
 };
 let FIG_PUB = null,
   FIG_PUB_P = null;
-const chargerFigures = () => FIG_PUB_P || (FIG_PUB_P = fetch("datasets/figures_publiees.json?t=" + Math.floor(Date.now() / 3600000)).then(x => x.ok ? x.json() : null).then(j => {
+const chargerFigures = () => FIG_PUB_P || (FIG_PUB_P = fetch("datasets/figures_publiees.json?t=" + vpub()).then(x => x.ok ? x.json() : null).then(j => {
   FIG_PUB = j;
   if (!j) FIG_PUB_P = null;
   return j;
@@ -5327,12 +5329,12 @@ const Accueil = ({
 }) => {
   const [b, setB] = useState(undefined);
   useEffect(() => {
-    const t = Math.floor(Date.now() / 3600000);
+    const t = vpub();
     const lire = f => fetch(f + "?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null);
     Promise.all([lire("briefing.json"), lire("briefing_cloture.json")]).then(([j, c]) => {
       setB(c && (!j || (c.seance || "") >= (j.seance || "")) ? c : j);
     });
-  }, []);
+  }, [VERSION_PUB]);
   const par = Object.fromEntries(rows.map(r => [r.symbol, r]));
   const frais = rows.filter(r => !meta(r).stale && r.chg != null);
   const hausses = [...frais].filter(r => r.chg > 0).sort((a, b) => b.chg - a.chg).slice(0, 10);
@@ -9112,7 +9114,7 @@ const Briefing = ({
   const [arch, setArch] = useState(null);
   const [detail, setDetail] = useState(false);
   useEffect(() => {
-    const t = Math.floor(Date.now() / 3600000);
+    const t = vpub();
     const sn = r => r.ok ? r.json().then(sansNomCourtier) : null;
     Promise.all([fetch("briefing.json?t=" + t).then(sn).catch(() => null), fetch("briefing_hebdo.json?t=" + t).then(sn).catch(() => null), fetch("briefing_mijournee.json?t=" + t).then(sn).catch(() => null), fetch("briefing_cloture.json?t=" + t).then(sn).catch(() => null)]).then(([j, s, m, c]) => {
       setB(j);
@@ -9122,7 +9124,7 @@ const Briefing = ({
       setEtat(j ? "ok" : "absent");
     });
     fetch("briefings/index.json?t=" + t).then(r => r.ok ? r.json() : null).catch(() => null).then(x => setSeances(x && x.seances || []));
-  }, []);
+  }, [VERSION_PUB]);
   const choisir = d => {
     if (!d) {
       setChoix(null);
@@ -9132,7 +9134,7 @@ const Briefing = ({
     }
     setChoix(d);
     setArch(null);
-    fetch(`briefings/${d}.json?t=${Math.floor(Date.now() / 3600000)}`).then(r => r.ok ? r.json().then(sansNomCourtier) : null).catch(() => null).then(x => {
+    fetch(`briefings/${d}.json?t=${vpub()}`).then(r => r.ok ? r.json().then(sansNomCourtier) : null).catch(() => null).then(x => {
       setArch(x || {});
       setVue(x && x.cloture ? "cloture" : "mijournee");
     });
@@ -9904,7 +9906,7 @@ const TickerNews = ({
     let vivant = true;
     setArticles([]);
     setOk(false);
-    fetch("news.json?t=" + Math.floor(Date.now() / 3600000)).then(r => r.ok ? r.json() : null).then(d => {
+    fetch("news.json?t=" + vpub()).then(r => r.ok ? r.json() : null).then(d => {
       if (!vivant) return;
       if (d?.articles) setArticles((d.articles || []).filter(a => (a.tickers || []).includes(sym)).slice(0, 6));
       setOk(true);
@@ -11500,7 +11502,7 @@ const NewsFeed = () => {
   const [updated, setUpdated] = useState(null);
   const [total, setTotal] = useState(0);
   useEffect(() => {
-    fetch("news.json?t=" + Math.floor(Date.now() / 3600000)).then(r => r.ok ? r.json() : null).then(d => {
+    fetch("news.json?t=" + vpub()).then(r => r.ok ? r.json() : null).then(d => {
       if (d?.articles) {
         setAllNews(d.articles);
         setUpdated(d.updated || null);
@@ -11871,7 +11873,7 @@ const ChangementsFavoris = ({
   useEffect(() => {
     if (!avant || !avant.t) return;
     let vivant = true;
-    fetch("news.json?t=" + Math.floor(Date.now() / 3600000)).then(r => r.ok ? r.json() : null).then(d => {
+    fetch("news.json?t=" + vpub()).then(r => r.ok ? r.json() : null).then(d => {
       if (!vivant || !d) return;
       setPubs((d.articles || []).filter(a => /AMMC/.test(a.source || "") && (a.date || "") > avant.t.slice(0, 19) && (a.tickers || []).some(t => fav.includes(t))).slice(0, 8));
     }).catch(() => {});
@@ -12162,6 +12164,11 @@ function App() {
     let nLive = 0;
     try {
       const d = await fetch("data.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
+      if (d && d.updated && d.updated !== VERSION_PUB) {
+        VERSION_PUB = d.updated;
+        FREQ_PUB_P = null;
+        FIG_PUB_P = null;
+      }
       if (d?.tickers && d.tickers.length > 0) {
         const m = {};
         d.tickers.forEach(t => {

@@ -1080,6 +1080,16 @@ function calcSR(candles,price,min=SR_MIN_CONTACTS){
 const lsLire=(k,def=null)=>{try{const v=localStorage.getItem(k);return v==null?def:v;}catch(e){return def;}};
 const lsEcrire=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
+// ⚠️ UNE SEULE VERSION POUR TOUTES LES FENÊTRES — 09/11/2026. data.json
+// était relu à chaque ouverture (?t=Date.now()), mais le briefing, les
+// actualités, les figures et les fréquences portaient une clé à l'HEURE : le
+// navigateur les gardait jusqu'à une heure. Constaté le 09/11 à 10h55 : cours
+// de 10h46 à l'écran, lecture de clôture du 05/11 dans le briefing. La clé est
+// désormais l'horodatage de data.json : tout ce que le moteur a publié avec
+// lui est relu dès qu'il change, et reste en cache sinon. Avant le premier
+// chargement de data.json, une clé à la minute.
+let VERSION_PUB="";
+const vpub=()=>VERSION_PUB?encodeURIComponent(VERSION_PUB):String(Math.floor(Date.now()/60000));
   /* ⚠️ La virgule décimale. Le terminal écrit « 17 869,06 » dans son
      en-tête ; un « 3530.70 » trois blocs plus bas se lit comme une
      donnée venue d'ailleurs, et un chiffre qui dénote est le premier
@@ -1745,7 +1755,7 @@ const GraphiqueMASI=()=>{
    en rendement total, frais non inclus. */
 let REGIME_TECH=null;
 let FREQ_PUB=null, FREQ_PUB_P=null;
-const chargerFrequences=()=>FREQ_PUB_P||(FREQ_PUB_P=fetch("datasets/frequences_publiees.json?t="+Math.floor(Date.now()/3600000))
+const chargerFrequences=()=>FREQ_PUB_P||(FREQ_PUB_P=fetch("datasets/frequences_publiees.json?t="+vpub())
   .then(x=>x.ok?x.json():null).then(j=>{FREQ_PUB=j;return j;}).catch(()=>null));
 const periodeFreq=p=>p?`${p.debut.slice(0,7)} → ${p.fin_donnees.slice(0,7)}`:"";
 const SignauxTechniques=({r})=>{
@@ -1871,7 +1881,7 @@ const LegendeSR=({sr,candles,period})=>{
    pourcentage. Fonctions pures, exécutées sous node par
    tests/test_figures_graphique.py. */
 let FIG_PUB=null,FIG_PUB_P=null;
-const chargerFigures=()=>FIG_PUB_P||(FIG_PUB_P=fetch("datasets/figures_publiees.json?t="+Math.floor(Date.now()/3600000))
+const chargerFigures=()=>FIG_PUB_P||(FIG_PUB_P=fetch("datasets/figures_publiees.json?t="+vpub())
   .then(x=>x.ok?x.json():null).then(j=>{FIG_PUB=j;if(!j)FIG_PUB_P=null;return j;}).catch(()=>{FIG_PUB_P=null;return null;}));
 const FIG_COURT={double_creux:"2C",double_sommet:"2S",ete:"ETE",ete_inversee:"ETE inv.",tasse_anse:"Tasse",
   triangle_ascendant:"Tri. asc.",triangle_descendant:"Tri. desc.",triangle_sym:"Tri. sym.",
@@ -2912,12 +2922,12 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
   useEffect(()=>{
     // La lecture la plus récente ; à séance égale, celle de clôture, qui porte
     // la lecture rédigée.
-    const t=Math.floor(Date.now()/3600000);
+    const t=vpub();
     const lire=f=>fetch(f+"?t="+t).then(r=>r.ok?r.json():null).catch(()=>null);
     Promise.all([lire("briefing.json"),lire("briefing_cloture.json")]).then(([j,c])=>{
       setB(c&&(!j||(c.seance||"")>=(j.seance||""))?c:j);
     });
-  },[]);
+  },[VERSION_PUB]);  // relu quand data.json change (09/11/2026)
   const par=Object.fromEntries(rows.map(r=>[r.symbol,r]));
   const frais=rows.filter(r=>!meta(r).stale&&r.chg!=null);
   const hausses=[...frais].filter(r=>r.chg>0).sort((a,b)=>b.chg-a.chg).slice(0,10);
@@ -4273,7 +4283,7 @@ const Briefing=({rows,masi,ouvrir})=>{
   const [arch,setArch]=useState(null);
   const [detail,setDetail]=useState(false);
   useEffect(()=>{
-    const t=Math.floor(Date.now()/3600000);
+    const t=vpub();
     const sn=r=>r.ok?r.json().then(sansNomCourtier):null;
     Promise.all([
       fetch("briefing.json?t="+t).then(sn).catch(()=>null),
@@ -4283,11 +4293,11 @@ const Briefing=({rows,masi,ouvrir})=>{
     ]).then(([j,s,m,c])=>{setB(j);setH(s);setMj(m);setCl(c);setEtat(j?"ok":"absent");});
     fetch("briefings/index.json?t="+t).then(r=>r.ok?r.json():null).catch(()=>null)
       .then(x=>setSeances((x&&x.seances)||[]));
-  },[]);
+  },[VERSION_PUB]);  // relu quand data.json change (09/11/2026)
   const choisir=d=>{
     if(!d){setChoix(null);setArch(null);setVue("jour");return;}
     setChoix(d);setArch(null);
-    fetch(`briefings/${d}.json?t=${Math.floor(Date.now()/3600000)}`)
+    fetch(`briefings/${d}.json?t=${vpub()}`)
       .then(r=>r.ok?r.json().then(sansNomCourtier):null).catch(()=>null)
       .then(x=>{setArch(x||{});setVue(x&&x.cloture?"cloture":"mijournee");});
   };
@@ -4613,7 +4623,7 @@ const TickerNews=({sym})=>{
     // Changement de titre : on vide d'abord — « Actualités — CMT » ne doit
     // jamais coiffer un article d'Attijariwafa, même le temps d'un chargement.
     let vivant=true;setArticles([]);setOk(false);
-    fetch("news.json?t="+Math.floor(Date.now()/3600000))
+    fetch("news.json?t="+vpub())
       .then(r=>r.ok?r.json():null)
       .then(d=>{if(!vivant)return;if(d?.articles)setArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym)).slice(0,6));setOk(true);})
       .catch(()=>{if(vivant)setOk(true);});
@@ -5278,7 +5288,7 @@ const NewsFeed=()=>{
   const [total,setTotal]=useState(0);
 
   useEffect(()=>{
-    fetch("news.json?t="+Math.floor(Date.now()/3600000))
+    fetch("news.json?t="+vpub())
       .then(r=>r.ok?r.json():null)
       .then(d=>{if(d?.articles){setAllNews(d.articles);setUpdated(d.updated||null);setTotal(d.count||d.articles.length);}setLoading(false);})
       .catch(()=>setLoading(false));
@@ -5455,7 +5465,7 @@ const ChangementsFavoris=({rows,fav,ouvrir})=>{
     try{lsEcrire(CLE_FAV_VU,JSON.stringify(snap));}catch(e){}
   },[charges,cle]);
   useEffect(()=>{if(!avant||!avant.t)return;let vivant=true;
-    fetch("news.json?t="+Math.floor(Date.now()/3600000)).then(r=>r.ok?r.json():null).then(d=>{if(!vivant||!d)return;
+    fetch("news.json?t="+vpub()).then(r=>r.ok?r.json():null).then(d=>{if(!vivant||!d)return;
       setPubs((d.articles||[]).filter(a=>/AMMC/.test(a.source||"")&&(a.date||"")>avant.t.slice(0,19)
         &&(a.tickers||[]).some(t=>fav.includes(t))).slice(0,8));}).catch(()=>{});
     return()=>{vivant=false;};},[]);
@@ -5652,6 +5662,9 @@ function App(){
     let nLive=0;
     try{
       const d=await fetch("data.json?t="+Date.now()).then(r=>r.ok?r.json():null);
+      if(d&&d.updated&&d.updated!==VERSION_PUB){
+        VERSION_PUB=d.updated;FREQ_PUB_P=null;FIG_PUB_P=null;
+      }
       if(d?.tickers&&d.tickers.length>0){
         const m={};
         d.tickers.forEach(t=>{if(t.code_bvc)CODES_BVC[t.symbol]=t.code_bvc;});

@@ -143,9 +143,9 @@ def test_le_fichier_des_figures_n_est_lu_qu_au_premier_clic():
 def test_le_chargement_garde_le_meme_chemin_relatif_que_les_autres_jeux():
     src = _source()
     # Même convention que datasets/frequences_publiees.json : chemin relatif,
-    # cache rompu à l'heure (le fichier change au plus une fois par soir).
-    assert 'fetch("datasets/frequences_publiees.json?t="+Math.floor(Date.now()/3600000))' in src
-    assert 'fetch("datasets/figures_publiees.json?t="+Math.floor(Date.now()/3600000))' in src
+    # cache rompu par la version de data.json (09/11/2026, plus à l'heure).
+    assert 'fetch("datasets/frequences_publiees.json?t="+vpub())' in src
+    assert 'fetch("datasets/figures_publiees.json?t="+vpub())' in src
 
 
 # ── 3. Vision produit : ce que les phrases disent, et ne disent pas ──────────
@@ -694,3 +694,15 @@ def test_aucune_projection_d_objectif_dans_le_code_de_dessin():
     code = re.sub(r"/\*.*?\*/", "", dessin, flags=re.S)
     code = re.sub(r"(?m)^\s*//.*$", "", code)
     assert not re.search(r"objectif|cible|hauteur_tete|projection|report", code, re.I)
+
+
+def test_aucune_fenetre_ne_garde_un_fichier_publie_une_heure():
+    """09/11/2026, 10h55 : cours de 10h46 à l'écran, lecture de clôture du
+    05/11 dans le briefing — data.json était relu à chaque ouverture, le
+    briefing gardé une heure. Toutes les fenêtres suivent désormais la version
+    de data.json, et la relisent quand elle change."""
+    src = _source()
+    assert "Date.now()/3600000" not in src, "une clé de cache à l'heure subsiste"
+    assert "VERSION_PUB=d.updated" in src
+    assert src.count("vpub()") >= 8
+    assert src.count("},[VERSION_PUB]);") >= 2, "accueil et briefing doivent relire quand data.json change"
