@@ -4615,6 +4615,118 @@ const RisqueMesure=({q})=>{
     </div>);
 };
 
+// ── FICHE : « DERNIER SEMESTRE » ET « À SAVOIR » — 09/11/2026 ────────────────
+// Demande d'Abd Moutalib : enrichir la fiche sans rien en retirer. Les deux
+// blocs viennent de `comptes_s1` et `a_savoir`, publiés par
+// pipeline/fiche_comptes.py à partir de ce qui est DÉJÀ relevé sur pièce
+// (datasets/resultats_s1_2026.json, registres de bvc_config.py). Le composant
+// ne calcule rien : il range et met en forme (format français). Chaque chiffre
+// garde sa source ; les réserves du relevé sont montrées, jamais cachées. Un
+// titre sans relevé dit « non relevé », avec la raison quand elle existe.
+// Descriptif, hors score ; aucun mot d'action, aucune prévision.
+const httpLien=u=>typeof u==="string"&&/^https?:\/\//.test(u);
+const dateFait=d=>{const s=String(d||"");if(s.length===10)return s.split("-").reverse().join("/");return s||"sans date";};
+/* Texte de relevé parfois très long (motif d'écart, citation de page) : le
+   début reste lisible, la suite s'ouvre au toucher. Rien n'est tronqué. */
+const TexteLong=({t,n=240,style})=>{const s=String(t||"");
+  if(s.length<=n)return <span style={style}>{s}</span>;
+  return <details style={{display:"inline",...style}}><summary style={{cursor:"pointer",listStyle:"none",display:"inline"}}>
+    {s.slice(0,n).replace(/\s+\S*$/,"")} <span style={{color:"#4db8ff",whiteSpace:"nowrap"}}>… lire la suite</span></summary>{s}</details>;};
+const SourceLigne=({u,doc,pages,extra})=>(
+  <span style={{overflowWrap:"anywhere"}}>
+    {httpLien(u)?<a href={u} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff",textDecoration:"none"}}>{doc||u}</a>:<TexteLong t={doc||u||"source non citée"} n={180}/>}
+    {pages!=null&&pages!==""&&<> · {Array.isArray(pages)?`p. ${pages.join(", ")}`:<TexteLong t={pages} n={140}/>}</>}
+    {extra&&<> · {extra}</>}
+  </span>);
+const variationFr=l=>{
+  if(l.unite==="%"){const p=l.variation_pts;return p==null?null:`${p>0?"+":p<0?"−":""}${nfr(Math.abs(p),1)} pt`;}
+  const v=l.variation_pct;return v==null?null:`${v>0?"+":v<0?"−":""}${nfr(Math.abs(v),1)} %`;};
+const valeurS1=(l,x)=>x==null?"—":l.unite==="%"?`${nfr(x,1)} %`:nfr(x,1);
+
+const DernierSemestre=({c})=>{
+  if(!c) return null;
+  const releve=c.etat==="releve";
+  const plusieurs=(c.sources||[]).length>1;
+  return(
+    <div className="carte fiche-semestre" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Dernier semestre <span style={{color:"#4db8ff"}}>S1 2026</span></div>
+        <div style={{fontSize:10,color:"#8892a4"}}>{releve?"millions de DH · contre S1 2025":"contre S1 2025"}</div>
+      </div>
+      {!releve?<div style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.5}}>
+          <b style={{color:"#ff8f00"}}>Non relevé</b>{c.motif?<> — <TexteLong t={c.motif}/></>:<> — aucun relevé du premier semestre 2026 n'est inscrit pour ce titre.</>}
+          {c.motif_source&&<div style={{fontSize:10,color:"#5a6478",marginTop:4,overflowWrap:"anywhere"}}>Raison lue dans : {c.motif_source}</div>}
+        </div>
+      :<>
+        <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,fontVariantNumeric:"tabular-nums"}}>
+          <thead><tr style={{color:"#8892a4",fontSize:10}}>
+            <th style={{textAlign:"left",fontWeight:400,padding:"0 4px 5px 0"}}></th>
+            <th style={{textAlign:"right",fontWeight:400,padding:"0 4px 5px",whiteSpace:"nowrap"}}>S1 2025</th>
+            <th style={{textAlign:"right",fontWeight:400,padding:"0 4px 5px",whiteSpace:"nowrap"}}>S1 2026</th>
+            <th style={{textAlign:"right",fontWeight:400,padding:"0 0 5px 4px"}}>Variation</th>
+          </tr></thead>
+          <tbody>{(c.lignes||[]).map(l=>{const v=variationFr(l);const num=l.unite==="%"?l.variation_pts:l.variation_pct;
+            return(
+            <tr key={l.cle} style={{borderTop:"1px solid #1a2540"}} title={l.calcul||""}>
+              <td style={{padding:"6px 4px 6px 0",color:l.unite==="%"?"#8892a4":"#c8d3e8",lineHeight:1.3}}>{l.libelle}{plusieurs&&<sup style={{color:"#5a6478",marginLeft:2}}>{(l.source||0)+1}</sup>}</td>
+              <td style={{padding:"6px 4px",textAlign:"right",color:"#8892a4",whiteSpace:"nowrap"}}>{valeurS1(l,l.s1_2025)}</td>
+              <td style={{padding:"6px 4px",textAlign:"right",color:"#e8eef8",fontWeight:700,whiteSpace:"nowrap"}}>{valeurS1(l,l.s1_2026)}</td>
+              <td style={{padding:"6px 0 6px 4px",textAlign:"right",whiteSpace:"nowrap",color:v==null?"#5a6478":VC(num)}}
+                title={v==null?(l.variation_motif||"non calculable"):""}>{v==null?"n.s.":v}</td>
+            </tr>);})}</tbody>
+        </table>
+        {(c.lignes||[]).some(l=>l.variation_pct==null&&l.variation_motif&&l.unite!=="%")&&
+          <div style={{fontSize:10,color:"#5a6478",marginTop:4}}>n.s. : {[...new Set((c.lignes||[]).filter(l=>l.variation_pct==null&&l.variation_motif&&l.unite!=="%").map(l=>l.variation_motif))].join(" ; ")}.</div>}
+        {(c.reserves||[]).length>0&&<div style={{marginTop:9,display:"flex",flexDirection:"column",gap:6}}>
+          {c.reserves.map((x,i)=>(
+            <div key={"r"+i} style={{padding:"6px 8px",borderRadius:4,background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",fontSize:10.5,color:"#ffcc80",lineHeight:1.45}}>
+              <b style={{color:"#ffb74d"}}>⚠ {x.libelle}</b> — <TexteLong t={x.texte}/>
+              {(x.source||x.page)&&<div style={{fontSize:9.5,color:"#8892a4",marginTop:2}}>Source : <SourceLigne u={x.source} doc={httpLien(x.source)?null:x.source} pages={x.page!=null?[x.page]:null}/></div>}
+            </div>))}
+        </div>}
+        {(c.precisions||[]).length>0&&<details style={{marginTop:8,fontSize:10.5,color:"#8892a4",lineHeight:1.45}}>
+          <summary style={{cursor:"pointer",color:"#8892a4"}}>Précisions du relevé ({c.precisions.length})</summary>
+          {c.precisions.map((x,i)=><div key={"p"+i} style={{marginTop:4}}><b style={{color:"#c8d3e8",fontWeight:600}}>{x.libelle}</b> — <TexteLong t={x.texte}/></div>)}
+        </details>}
+        <div style={{fontSize:10,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
+          {(c.sources||[]).map((s,i)=>(
+            <div key={"s"+i} style={{marginTop:i?3:0}}>{plusieurs?<sup style={{marginRight:3}}>{i+1}</sup>:"Source : "}
+              <SourceLigne u={s.url} doc={s.document} pages={s.pages} extra={s.formule}/></div>))}
+          <div style={{color:"#5a6478",marginTop:4}}>Chiffres recopiés des comptes déposés ; variations et marges calculées ici, rien n'entre dans le Score BVC.</div>
+        </div>
+      </>}
+    </div>);
+};
+
+const ASavoir=({items})=>{
+  /* Champ absent (data.json antérieur au 09/11/2026) : rien plutôt qu'un
+     « rien à signaler » qui affirmerait une vérification non faite. */
+  if(!Array.isArray(items)) return null;
+  const liste=items;
+  return(
+    <div className="carte fiche-a-savoir" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:liste.length?8:6,gap:8,flexWrap:"wrap"}}>
+        <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>À savoir</div>
+        <div style={{fontSize:10,color:"#8892a4"}}>pour bien lire les chiffres{liste.length?` · ${liste.length} fait${liste.length>1?"s":""}`:""}</div>
+      </div>
+      {liste.length===0
+        ?<div style={{fontSize:11.5,color:"#8892a4"}}>Rien de particulier à signaler pour lire les comptes.</div>
+        :liste.map((f,i)=>(
+          <div key={i} className="fait-a-savoir" style={{display:"grid",gridTemplateColumns:"76px minmax(0,1fr)",columnGap:10,padding:"7px 0",borderTop:i?"1px solid #1a2540":"none"}}>
+            <div style={{fontSize:11,color:"#4db8ff",fontWeight:700,fontVariantNumeric:"tabular-nums",whiteSpace:"nowrap"}}>{dateFait(f.date)}</div>
+            <div style={{minWidth:0}}>
+              <div style={{fontSize:11.5,color:"#e8eef8",fontWeight:600,marginBottom:2}}>{f.titre}</div>
+              <div style={{fontSize:10.5,color:"#aab4c8",lineHeight:1.45}}><TexteLong t={f.texte} n={280}/></div>
+              <div style={{fontSize:9.5,color:"#6b7a99",marginTop:3,lineHeight:1.4}}>
+                Source : <SourceLigne u={f.url} doc={httpLien(f.url)?(f.source||null):f.source} pages={f.pages}/>
+                {f.piece&&<span style={{overflowWrap:"anywhere"}}> · pièce {f.piece}</span>}
+                {f.registre&&<span> · registre {f.registre}</span>}
+              </div>
+            </div>
+          </div>))}
+    </div>);
+};
+
 // ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
 const TickerNews=({sym})=>{
   const [articles,setArticles]=useState([]);
@@ -4934,6 +5046,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
         <div className="fiche-centre" style={{display:"flex",flexDirection:"column",gap:10}}>
           {/* Risque mesuré (1 an) — descriptif, hors score (14/10/2026). */}
           <RisqueMesure q={r.risque}/>
+
+          {/* « Dernier semestre » et « À savoir » (09/11/2026) : relevés sur
+              pièce, publiés par pipeline/fiche_comptes.py, hors score. */}
+          <DernierSemestre c={r.comptes_s1}/>
+          <ASavoir items={r.a_savoir}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
               pipeline/ratios_financiers.py à partir de deux termes sourcés
@@ -5683,6 +5800,8 @@ function App(){
           reference:t.reference,
           note_fond:t.note_fond,
           bear:t.bear,base:t.base,bull:t.bull,upside:t.upside,flags:t.flags,alertes:t.alertes,ratios_publies:t.ratios_publies,risque:t.risque,score_bvc:t.score_bvc,
+          /* 09/11/2026 : « Dernier semestre » et « À savoir » de la fiche. */
+          comptes_s1:t.comptes_s1,a_savoir:t.a_savoir,
           obv:t.obv,adx:t.adx,adx_pdi:t.adx_pdi,adx_mdi:t.adx_mdi,
           /* ⚠️ DEUX CHAMPS CALCULÉS QUI N'ARRIVAIENT PAS JUSQU'ICI — 25/09.
              `rang_secteur`, publié le 24/09, et `niveaux`, le 25/09 : les

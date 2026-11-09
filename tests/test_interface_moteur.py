@@ -68,6 +68,8 @@ CHAMPS_RACINE = [
     ("note_fond", "la note fondamentale et ses composantes (score_fond retiré le 06/11/2026)"),
     ("score_bvc", "le score affiché, avec ses facteurs"),
     ("note_fond_metier", "la note par famille, publiée à côté de la note actuelle (comparaison, 11/10)"),
+    ("comptes_s1", "le « Dernier semestre » de la fiche, relevé sur pièce (09/11/2026)"),
+    ("a_savoir", "les faits datés des registres, « À savoir » de la fiche (09/11/2026)"),
 ]
 
 
