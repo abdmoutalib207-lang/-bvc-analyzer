@@ -438,6 +438,9 @@ def test_etape_figures_non_bloquante_et_avant_les_controles_bloquants():
     assert "TZ=" not in run and "date " not in run                  # ni `TZ=`, ni `date` shell
     assert "python pipeline/figures_publiees.py" in run
     assert "pytest tests/test_figures_publiees.py" in run
+    # Les légendes lisent le même fichier : leur échec doit restaurer les
+    # figures, pas bloquer data.json (soir du 09/11/2026, runs 4514 et 4522).
+    assert "tests/test_figures_graphique.py" in run
     assert "git checkout -- datasets/figures_publiees.json" in run
     assert etapes[j].get("continue-on-error") is not True            # les contrôles restent bloquants
 

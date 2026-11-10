@@ -262,7 +262,10 @@ jobs:
         continue-on-error: true
         run: |
           pip install --quiet -r requirements_dev.txt
-          if python pipeline/figures_publiees.py && python -m pytest tests/test_figures_publiees.py -q; then
+          # ⚠️ 10/11/2026 : les légendes (test_figures_graphique) sont testées ICI
+          # aussi. Elles lisent le même fichier ; restées hors de cette étape,
+          # leur échec ne restaurait rien et bloquait data.json (runs 4514, 4522).
+          if python pipeline/figures_publiees.py && python -m pytest tests/test_figures_publiees.py tests/test_figures_graphique.py -q; then
             echo "Figures publiées : à jour."
           else
             echo "::warning::Figures publiées en échec — fichier commité restauré, data.json non concerné"
