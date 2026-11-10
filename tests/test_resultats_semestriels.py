@@ -296,8 +296,11 @@ def test_lot9_akdital_tgcc_lesieur():
     # d'exercice (celui de la note 13 du RFA) ; depuis le 27/10/2026, l'émission de
     # 3 034 482 actions constatée le 24/07/2025 (RFA p.64) est pondérée (IAS 33,
     # règle e) : 952 ÷ 32 978 348 = 28,87 sur 2025, 971 ÷ 34 483 118 = 28,16 sur douze mois.
+    # 09/11/2026 : montants lus à l'état et non plus au communiqué arrondi (TGCC_S1_26.pdf p.2,
+    # TGCC_RFA_2025.pdf p.96) : 952,053 ÷ 32 978 348 = 28,87 ; 952,053 + 434,840 − 416,623 =
+    # 970,270 ÷ 34 483 118 = 28,14.
     assert bpa["TGCC"]["bpa"] == 28.87 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
-    assert bpa["TGCC"]["bpa_12m"] == 28.16 and bpa["TGCC"]["actions_exercice_2025"] == 32978348
+    assert bpa["TGCC"]["bpa_12m"] == 28.14 and bpa["TGCC"]["actions_exercice_2025"] == 32978348
     # LES : 8 − 47 − 12 = −51 ÷ 27 631 510 = −1,85 — en perte
     assert bpa["LES"]["bpa_12m"] == -1.85 and bpa["LES"]["perte_documentee"]
 

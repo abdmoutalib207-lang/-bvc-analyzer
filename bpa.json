@@ -30,10 +30,10 @@
     "marge_nette": 15.4,
     "note": "BPA ajusté FY2025 confirmé",
     "bpa_avant_2026_09_29": 6.42,
-    "rnpg_12m": 5334.0,
+    "rnpg_12m": 5333.0,
     "bpa_12m": 6.07,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf communiqué S1 2026, tableau consolidé. ⚠️ Le S1 2025 contient une recette exceptionnelle (accord avec Wana Corporate) : la baisse apparente de 39,7 % n'est pas opérationnelle. Le calcul sur douze mois (exercice + S1 2026 − S1 2025) la retire, puisqu'elle est dans le S1 2025 soustrait. La croissance retenue est celle publiée hors exceptionnel (+8,1 %). ; base : résultat net part du groupe, consolidé (IFRS), en MDH arrondis",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf communiqué S1 2026, tableau consolidé. ⚠️ Le S1 2025 contient une recette exceptionnelle (accord avec Wana Corporate) : la baisse apparente de 39,7 % n'est pas opérationnelle. Le calcul sur douze mois (exercice + S1 2026 − S1 2025) la retire, puisqu'elle est dans le S1 2025 soustrait. La croissance publiée hors exceptionnel (+8,1 %) reste consignée (`croissance_bpa_publiee`) mais n'est PAS appliquée depuis le 20/10/2026 : la croissance se calcule sur le publié, −39,7 % (voir `croissance_bpa_note`). ; base : résultat net part du groupe, consolidé (IFRS), en MDH arrondis",
     "dividende_piece": {
       "dpa": 4.0,
       "ordinaire": 4.0,
@@ -43,7 +43,8 @@
       "source": "https://www.ammc.ma/sites/default/files/Avis_Maroc_Telecom_AGO_26_03_26.pdf p.1 : « L'Assemblée Générale fixe en conséquence le dividende à 4 dirhams pour chacune des actions ; Dividende ordinaire : 3516381360,00 »",
       "verifie": "verificateur-finance, 02/10/2026",
       "note": "Avis (projet de résolutions). 3 516 381 360 / 4 = 879 095 340 actions. Paiement : la pièce dit « à partir du 1er juin 2026 », IDBourse dit détachement 04/09 et paiement 15/09 : désaccord de date non tranché."
-    }
+    },
+    "rnpg_12m_avant_2026_11_09": 5334.0
   },
   "MNG": {
     "bpa": 25.3,
@@ -51,7 +52,7 @@
     "div_dh": 5.5,
     "roe": 26.2,
     "marge_nette": 21.9,
-    "note": "⚠️ AJUSTÉ DU SPLIT 10:1 du 27/07/2026. Valeurs précédentes — bpa 234,0 et div_dh 40,0 — étaient à l'échelle PRÉ-SPLIT : leur propre note citait « PER réel 64 (cours 14 998 DH) ». Le split a divisé le cours par dix, pas le BPA, d'où un PER affiché de 7,5 au lieu de 69. RNPG 3 002,0 MMAD (p.86) ÷ 118 646 760 actions = 25,30 DH. Dividendes versés 475 MMAD (p.88) ÷ 118 646 760 = 4,00 DH. ROE = 3 002,0 / 11 478,3 (capitaux propres part du groupe, p.86). Marge nette = 3 002,0 / 13 694 (CA, p.10).",
+    "note": "BPA 2025 À L'ÉCHELLE D'APRÈS LE SPLIT 10:1 du 27/07/2026 : RNPG 3 002,0 MMAD ÷ 118 646 760 actions = 25,30 DH. Le rapport publie 253,1 DH sur les 11 864 676 actions d'avant le split (RFA 2025 p.86 : « Nb d'actions - Mère 11 864 676 », « Calcul du résultat par action 253,1 ») : même bénéfice, dix fois moins d'actions. Dividende `div_dh` 5,50 DH = 55 DH par ancienne action au titre de 2025 (AG du 25/06/2026) ÷ 10 — à ne pas confondre avec les 475 MMAD « Dividendes distribués » du tableau de variation 2025 (RFA p.87), qui sont le dividende versé EN 2025 au titre de 2024 (40 DH par ancienne action, 4,00 DH après split). ROE = 3 002,0 ÷ 11 478,3 (capitaux propres part du groupe, p.86). Marge nette = 3 002,0 ÷ 13 694 (CA, p.10). Réécrite le 09/11/2026 : l'ancienne note (`note_avant_2026_11_09`) présentait 4,00 DH comme le dividende à côté d'un `div_dh` de 5,5.",
     "div_source": "Résolution d'assemblée générale déposée à l'AMMC — document primaire",
     "div_ref": "AG du 25/06/2026 : « dividende unitaire de 55 DH par action », total 652 557 180 DH sur 11 864 676 actions AVANT le split 10:1 du 27/07/2026 — soit 5,50 DH après",
     "div_exercice": 2025,
@@ -73,7 +74,8 @@
       "source": "https://www.ammc.ma/sites/default/files/CP_Managem_post_AGM_25_06_26.pdf p.1 : « distribuer des dividendes de 652 557 180,00 DH soit un dividende unitaire de 55 DH par action »",
       "verifie": "verificateur-finance, 02/10/2026",
       "note": "Post-AGM. 652 557 180 / 55 = 11 864 676 actions AVANT le split 10:1 effectif le 27/07/2026 (erratum de la 17e résolution : 118 646 760 actions de 10 DH, CP_Managem_erratum_resolution_AGM_25_06_26.pdf p.1). Les deux dates de paiement candidates précèdent le split : le dividende a été payé sur l'ancienne action. Par action actuelle : 55 / 10 = 5,50. IDBourse affiche 55, valeur avant split : la comparer telle quelle à un cours après split donnerait 3,4 % au lieu de 0,34 %."
-    }
+    },
+    "note_avant_2026_11_09": "⚠️ AJUSTÉ DU SPLIT 10:1 du 27/07/2026. Valeurs précédentes — bpa 234,0 et div_dh 40,0 — étaient à l'échelle PRÉ-SPLIT : leur propre note citait « PER réel 64 (cours 14 998 DH) ». Le split a divisé le cours par dix, pas le BPA, d'où un PER affiché de 7,5 au lieu de 69. RNPG 3 002,0 MMAD (p.86) ÷ 118 646 760 actions = 25,30 DH. Dividendes versés 475 MMAD (p.88) ÷ 118 646 760 = 4,00 DH. ROE = 3 002,0 / 11 478,3 (capitaux propres part du groupe, p.86). Marge nette = 3 002,0 / 13 694 (CA, p.10)."
   },
   "BCP": {
     "bpa": 22.15,
@@ -358,10 +360,10 @@
     "div_detachement": "01/07/26",
     "div_statut": "approuvé en assemblée ; deux sources secondaires concordantes, résolution AMMC non relue",
     "div_statut_source": "concordance IDBourse × Attijari",
-    "rnpg_12m": 406.526,
-    "bpa_12m": 10.61,
+    "rnpg_12m": 406.896,
+    "bpa_12m": 10.62,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_Sothema_S1_26.pdf p.1 ; base : résultat net part du groupe, consolidé",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_Sothema_S1_26.pdf https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf p.2, compte de résultat consolidé (KMAD) : « Part du groupe 215 072 193 702 » (30/06/2026, 30/06/2025) ; « Nombre d'actions 38 309 500 7 200 000 ». Le communiqué CP_Sothema_S1_26.pdf p.1 arrondit à 215 et 194. KMAD → MDH (÷ 1 000) ; base : résultat net part du groupe, consolidé",
     "dividende_piece": {
       "dpa": 6.6,
       "ordinaire": 6.6,
@@ -372,7 +374,9 @@
       "verifie": "verificateur-finance, 02/10/2026",
       "note": "Avis (OCR) + CP post-AGO (« dividende brut de 252,8 MMAD »). R11 : division du nominal par 5 votée par l'AGE du 25/03/2026 (CP_Sothema_post_AGE_25_03.pdf : 38 309 500 actions de 10 DH). Le CP résultats 2025 annonçait 33 DH par ANCIENNE action = 6,6 × 5. 252 842 700 / 38 309 500 = 6,6."
     },
-    "bpa_avant_2026_09_29": 10.14
+    "bpa_avant_2026_09_29": 10.14,
+    "bpa_12m_avant_2026_11_09": 10.61,
+    "rnpg_12m_avant_2026_11_09": 406.526
   },
   "WAF": {
     "bpa": 293.15,
@@ -1268,10 +1272,10 @@
     "div_statut_source": "concordance IDBourse × Attijari",
     "note": "Dividende porté de 11.5 à 15.0 le 10/09/2026.  Deux sources indépendantes concordent ; aucune résolution d'AG n'a été relue pour ce titre.",
     "bpa_avant_2026_09_29": 65,
-    "rnpg_12m": 971.0,
-    "bpa_12m": 28.16,
+    "rnpg_12m": 970.27,
+    "bpa_12m": 28.14,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; CA : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Chiffre d'affaires 4 266 944 5 071 093 » (KMAD → MMAD ÷ 1 000), soit −15,86 % ; base : résultat net part du groupe, consolidé, en M MAD",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf RNPG : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Dont part du groupe 434 840 416 623 » ; bilan passif consolidé, colonnes « 30/06/2026 31/12/2025 » : « Résultat consolidé 434 840 952 053 » (KMAD → MMAD ÷ 1 000). Le communiqué arrondit : tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; CA : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Chiffre d'affaires 4 266 944 5 071 093 » (KMAD → MMAD ÷ 1 000), soit −15,86 % ; base : résultat net part du groupe, consolidé, en M MAD (lu à l'état déposé, en KMAD, depuis le 09/11/2026)",
     "dividende_piece": {
       "dpa": 15.0,
       "ordinaire": 15.0,
@@ -1285,7 +1289,9 @@
     "bpa_12m_avant_2026_10_20": 28.0,
     "actions_12m": 34483118,
     "actions_exercice_2025": 32978348,
-    "methode_actions": "moyenne pondérée IAS 33 du 2025-07-01 au 2026-06-30 (365 jours)"
+    "methode_actions": "moyenne pondérée IAS 33 du 2025-07-01 au 2026-06-30 (365 jours)",
+    "bpa_12m_avant_2026_11_09": 28.16,
+    "rnpg_12m_avant_2026_11_09": 971.0
   },
   "AKD": {
     "bpa": 31.34,

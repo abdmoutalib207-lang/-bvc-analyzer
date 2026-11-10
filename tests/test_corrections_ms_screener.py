@@ -205,3 +205,55 @@ def test_registre_des_actions_coherent_avec_la_regle_e():
         # Le BPA publié se redéduit du résultat et du nombre pondéré.
         assert b["bpa"] == round(t["rnpg_exercice_2025"] * 1e6 / p25, 2), s
         assert b["bpa_12m"] == round(b["rnpg_12m"] * 1e6 / p12, 2), s
+
+
+# ── 5. Arrondis : les montants de l'état déposé, pas ceux du communiqué ──
+
+def test_tgcc_montants_exacts_de_l_etat():
+    t = JEU["titres"]["TGCC"]
+    # TGCC_S1_26.pdf p.2 : « Dont part du groupe 434 840 416 623 », « Résultat consolidé 434 840 952 053 ».
+    assert (t["rnpg_s1_2026"], t["rnpg_s1_2025"], t["rnpg_exercice_2025"]) == (434.84, 416.623, 952.053)
+    assert "Dont part du groupe 434 840 416 623" in t["pages"] and "TGCC_S1_26.pdf p.2" in t["pages"]
+    assert "952 053 521 810" in t["source_exercice_2025"] and "TGCC_RFA_2025.pdf p.96" in t["source_exercice_2025"]
+    b = BPA["TGCC"]
+    # 952 053 + 434 840 − 416 623 = 970 270 KMAD ; ÷ 34 483 118 = 28,137 ; exercice ÷ 32 978 348 = 28,869.
+    assert b["rnpg_12m"] == (952053 + 434840 - 416623) / 1000 == 970.27
+    assert (b["bpa_12m"], b["bpa"]) == (28.14, 28.87)
+    assert (b["bpa_12m_avant_2026_11_09"], b["rnpg_12m_avant_2026_11_09"]) == (28.16, 971.0)
+    assert FOND["TGCC"]["croissance_bpa"] == round((434.84 / 416.623 - 1) * 100, 1) == 4.4      # 4,6 sur 435 ÷ 416
+
+
+def test_sot_douze_mois_au_kmad_et_commentaire_du_split():
+    t = JEU["titres"]["SOT"]
+    # Sothema_S1_26.pdf p.2 : « Part du groupe 215 072 193 702 » ; exercice 385 526 (RFA p.53).
+    assert (t["rnpg_s1_2026"], t["rnpg_s1_2025"], t["rnpg_exercice_2025"]) == (215.072, 193.702, 385.526)
+    assert "Part du groupe 215 072 193 702" in t["pages"]
+    b = BPA["SOT"]
+    assert b["rnpg_12m"] == (385526 + 215072 - 193702) / 1000 == 406.896 and b["rnpg_12m_avant_2026_11_09"] == 406.526
+    assert b["bpa_12m"] == round(406.896e6 / 38309500, 2) == 10.62 and b["bpa"] == 10.06
+    # Le split ×5 donne 38 033 640 ; les 275 860 actions restantes sont une émission en numéraire.
+    assert 7606728 * 5 == 38033640 and 38033640 + 275860 == 38309500 == t["actions"]
+    config = (RACINE / "bvc_config.py").read_text(encoding="utf-8")
+    assert "7 606 728 → 38 033 640" in config and "38 033 640 + 275 860" in config
+    assert "Actions ×5 → 38 309 500." not in config
+    assert bvc_config.SPLITS["SOT"] == [{"date": "2026-05-05", "ratio": 5}]
+
+
+def test_mng_la_note_ne_presente_plus_4_dh_comme_le_dividende():
+    m = BPA["MNG"]
+    assert m["bpa"] == round(3002.0e6 / 118646760, 2) == 25.3 and m["div_dh"] == 5.5
+    assert "253,1" in m["note"] and "11 864 676" in m["note"] and "au titre de 2024" in m["note"]
+    assert "4,00 DH" in m["note_avant_2026_11_09"]                       # l'ancienne note est gardée
+
+
+def test_iam_exercice_de_l_etat_audite_et_croissance_non_appliquee():
+    t = JEU["titres"]["IAM"]
+    # Maroc_Telecom_RFA_2025.pdf p.24 : « Part du groupe 5 283 1 801 6 968 ».
+    assert t["rnpg_exercice_2025"] == 6968.0 and t["avant_2026_11_09"]["rnpg_exercice_2025"] == 6969.0
+    assert "Part du groupe 5 283 1 801 6 968" in t["source_exercice_2025"]
+    assert "La croissance retenue est celle publiée" not in t["pages"] and "n'est PAS appliquée" in t["pages"]
+    b = BPA["IAM"]
+    # 6 968 + 2 482 − 4 117 = 5 333 ; ÷ 879 095 340 = 6,07 ; 6 968 ÷ 879 095 340 = 7,93 : inchangés au centime.
+    assert (b["rnpg_12m"], b["bpa_12m"], b["bpa"]) == (5333.0, 6.07, 7.93)
+    assert "La croissance retenue est celle publiée" not in b["source_12m"]
+    assert FOND["IAM"]["croissance_bpa"] == -39.7

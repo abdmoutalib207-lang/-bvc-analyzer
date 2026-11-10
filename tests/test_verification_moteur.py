@@ -176,14 +176,30 @@ def test_le_registre_des_splits_n_est_pas_touche_et_c_est_dit():
     # Un contrôle qui interdit de toucher AU FICHIER quand la règle porte sur
     # UN REGISTRE finit par interdire des corrections légitimes — ou par être
     # désactivé, ce qui est pire. On compare donc le bloc `SPLITS`, et lui seul.
-    def _bloc_splits(texte):
-        m = re.search(r"^SPLITS[^=]*=\s*\{.*?^\}", texte, re.S | re.M)
-        assert m, "le registre SPLITS est introuvable"
-        return m.group(0)
+    #
+    # ⚠️ 09/11/2026 — MÊME DÉFAUT, UN CRAN PLUS BAS. Le test comparait le bloc
+    # au CARACTÈRE près : corriger un COMMENTAIRE faux du registre (Sothema,
+    # « ×5 → 38 309 500 » au lieu de 38 033 640) le faisait rougir, et toute
+    # opération nouvelle constatée sur pièce (R11) aussi. Ce que le lot HPS
+    # affirme tient en deux points, et ce sont eux qu'on vérifie : (1) HPS
+    # n'est pas au registre ; (2) aucune entrée DÉJÀ déclarée n'a changé de
+    # valeur. Une entrée nouvelle est admise si elle porte sa pièce (`source`).
+    import ast
 
+    def _registre(texte):
+        m = re.search(r"^SPLITS[^=]*=\s*(\{.*?^\})", texte, re.S | re.M)
+        assert m, "le registre SPLITS est introuvable"
+        return ast.literal_eval(m.group(1))
+
+    actuel = _registre((RACINE / "bvc_config.py").read_text(encoding="utf-8"))
+    assert "HPS" not in actuel, "HPS au registre : le lot HPS dit ne pas l'y inscrire"
     avant = subprocess.run(["git", "show", "origin/main:bvc_config.py"],
                            capture_output=True, text=True, cwd=RACINE)
     if avant.returncode == 0:
-        actuel = (RACINE / "bvc_config.py").read_text(encoding="utf-8")
-        assert _bloc_splits(avant.stdout) == _bloc_splits(actuel), (
-            "le registre des splits a changé : il est hors du périmètre de ce lot")
+        ancien = _registre(avant.stdout)
+        for t, entrees in ancien.items():
+            assert actuel.get(t) == entrees, (
+                f"{t} : une entrée déjà déclarée au registre des splits a changé")
+        for t in set(actuel) - set(ancien):
+            assert all(e.get("source") for e in actuel[t]), (
+                f"{t} : entrée nouvelle au registre des splits sans sa pièce (R11)")

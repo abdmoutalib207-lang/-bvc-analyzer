@@ -617,7 +617,14 @@ SPLITS: dict = {
     # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).
     "MNG": [{"date": "2026-07-27", "ratio": 10}],
 
-    # Sothema : VN 50 → VN 10 le 05/05/2026. Actions ×5 → 38 309 500.
+    # Sothema : VN 50 → VN 10 le 05/05/2026. Actions ×5 : 7 606 728 → 38 033 640
+    # (capital 380 336 400 DH, Sothema_RFA_2025.pdf p.66 et CP_Sothema_post_AGE_25_03.pdf).
+    # ⚠️ Corrigé le 09/11/2026 : ce commentaire écrivait « ×5 → 38 309 500 ». Les
+    # 38 309 500 actions d'aujourd'hui sont 38 033 640 + 275 860 actions d'une
+    # augmentation de capital de 80 MMAD au premier semestre 2026 (Sothema_S1_26.pdf
+    # p.2) — une émission en numéraire, PAS un effet du split ; le communiqué
+    # post-AGE mêle lui-même les deux nombres (38 309 500 actions pour un capital
+    # de 380 336 400 MAD).
     # AGE du 25/03/2026. Ajouté le 08/09/2026 — le split avait été appliqué à
     # la main dans `bpa.json` et dans les chandelles, mais JAMAIS déclaré ici.
     # ⚠️ Sans cette entrée, un re-téléchargement complet de l'historique
