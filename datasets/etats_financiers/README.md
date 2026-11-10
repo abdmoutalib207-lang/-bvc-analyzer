@@ -59,3 +59,13 @@ lot » signifient **non lu**, pas **non publié** ; seul « non publié » (cons
 dans la pièce) et « sans objet » ont un autre sens.
 
 Test : `tests/test_etats_financiers_schema.py` (toute valeur non nulle a document + page + citation).
+
+## Réserves connues de ce lot
+
+* IAM : l'EBITDA lu est celui du tableau « Résultats consolidés [ajustés] du Groupe » du rapport de gestion
+  (indicateur ajusté, non audité) ; l'EBE de ms-screener pour IAM n'y correspond pas (écarts consignés).
+* MNG : l'EBE est un indicateur « * » du rapport de gestion (MDH), pas une ligne des états IFRS.
+* ADI, LHM : EBE non lu (null) ; ATW : total « part du groupe » des capitaux propres (somme de lignes du bilan) et
+  dividende proposé non lus pour plusieurs exercices ; voir `raison_null` cellule par cellule.
+* `lu_dans_document_ulterieur_comparatif` : la pièce d'origine n'a pas été retrouvée par la recherche
+  automatique (fichier image, nom inattendu ou libellé différent) ; à relire pièce en main.
