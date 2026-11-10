@@ -1,0 +1,3748 @@
+{
+ "schema": "etats_financiers/1",
+ "ticker": "LHM",
+ "nom": "LafargeHolcim Maroc (Holcim Maroc)",
+ "emetteur_ammc_id": 2784,
+ "unite": "MDH",
+ "perimetre_principal": "consolide",
+ "archetype": "standard_nonfin",
+ "periodes": {
+  "FY2016": {
+   "type": "annuel",
+   "cloture": "2016-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 6667.725,
+     "unite_source": "MMAD",
+     "valeur_source": "6 667 725",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Chiffre d'affaires 6 667 725 5 187 735",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6667.725,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3323.599) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3323.599,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 2754.448,
+     "unite_source": "MMAD",
+     "valeur_source": "2 754 448",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Résultat d'exploitation courant 2 754 448 2 184 625 International Financial Reporting Standards (IFRS) endossés au Conformément aux dispositions de la norme IAS 36 –",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2754.448,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1634.365,
+     "unite_source": "MMAD",
+     "valeur_source": "1 634 365",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Résultat de l'ensemble consolidé 1 634 365 1 401 214",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1634.365,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1634.365,
+     "unite_source": "MMAD",
+     "valeur_source": "1 634 365",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Résultat net part du groupe 1 634 365 1 398 513 Trésorerie et équivalents de trésorerie net à la clôture (695 592) (121 397)",
+     "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1634.365,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.0,
+     "unite_source": "MMAD",
+     "valeur_source": "0",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Intérêts minoritaires 0 5 674",
+     "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 11594.088,
+     "unite_source": "MMAD",
+     "valeur_source": "11 594 088",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Capitaux propres (part du groupe) 11 594 088 4 849 025 VARIATION DE LA TRESORERIE ET EQUIVALENTS DE TRESORERIE (574 195) 26 286",
+     "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11594.088,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4695.592,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 4000.0,
+       "unite_source": "MMAD",
+       "valeur_source": "4 000 000",
+       "document": "Rapports consolidés 1er semestre_0.pdf",
+       "page": 1,
+       "citation": "Dettes financières non courantes 4 000 000 4 000 000 Incidence des variations de périmètre",
+       "entete_colonnes": "Etat de la situation financière au 30 juin 2017 Etat du résultat global consolidé au 30 juin 2017",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 4000.0,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 1132.052,
+       "unite_source": "MMAD",
+       "valeur_source": "1 132 052",
+       "document": "LHM_conso_2016.pdf",
+       "page": 1,
+       "citation": "Dettes financières courantes 1 132 052 424 111",
+       "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1132.052,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 436.46,
+       "unite_source": "MMAD",
+       "valeur_source": "436 460",
+       "document": "LHM_conso_2016.pdf",
+       "page": 1,
+       "citation": "Trésorerie et équivalent de trésorerie 436 460 302 667 Augmentation de capital",
+       "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 436.46,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4695.592
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2050.975,
+     "unite_source": "MMAD",
+     "valeur_source": "2 050 975",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Autres débiteurs non courants Flux net de trésorerie liés aux activités opérationnelles 2 050 975 1 679 896",
+     "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2050.975,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -1172.624,
+     "unite_source": "MMAD",
+     "valeur_source": "1 172 624",
+     "document": "LHM_conso_2016.pdf",
+     "page": 1,
+     "citation": "Autres débiteurs courants 336 344 173 534 Flux net de trésorerie liés aux activités d'investissement 1 172 624 201 156",
+     "entete_colonnes": "Etat de la situation financière au 31 décembre 2016 Etat de flux de trésorerie consolidé au 31 décembre 2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1172.624,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "signe_a_verifier": "valeur négative chez ms-screener, jetons non signés sur la ligne (charge ou colonne à relire)"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2017": {
+   "type": "annuel",
+   "cloture": "2017-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8083.489,
+     "unite_source": "MMAD",
+     "valeur_source": "8 083 489",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Chiffre d’affaires 7 887 303 8 083 489",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8083.489,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3859.04) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3859.04,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3150.423,
+     "unite_source": "MMAD",
+     "valeur_source": "3 150 423",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat d’exploitation courant 2 980 182 3 150 423 ,QWHUQDWLRQDO\u0003 )LQDQFLDO\u0003 5HSRUWLQJ\u0003 6WDQGDUGV\u0003 ,)56 \u0003 HQGRVV«V\u0003 DX\u0003 LQVWDOODWLRQV\u0003WHFKQLTXHV\u0003ȴ[HV\u0003 \u0003\u0015\u0018\u0003DQV\u000f\u0003PHQXLVHULH\u0014\u0018\u0003DQV\u0003",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3150.423,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1927.375,
+     "unite_source": "MMAD",
+     "valeur_source": "1 927 375",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat de l’ensemble consolidé 1 584 031 1 927 375",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1927.375,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1927.375,
+     "unite_source": "MMAD",
+     "valeur_source": "1 927 375",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat net - Part du Groupe 1 584 031 1 927 375",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1927.375,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.0,
+     "unite_source": "MMAD",
+     "valeur_source": "0",
+     "document": "Rapports consolidés 1er semestre_0.pdf",
+     "page": 1,
+     "citation": "Intérêts minoritaires 0 Incidence de la variation du BFR (804 412) (104 318)",
+     "entete_colonnes": "Etat de la situation financière au 30 juin 2017 Etat du résultat global consolidé au 30 juin 2017",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "total « part du groupe » non imprimé (somme de lignes du bilan) : non reconstitué dans ce lot ; valeur de ms-screener (9811.17) non vérifiée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 9811.17,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 7111.553,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 6200.0,
+       "unite_source": "MMAD",
+       "valeur_source": "6 200 000",
+       "document": "Lafarge_conso_S1_18.pdf",
+       "page": 1,
+       "citation": "Dettes financières non courantes 6 200 000 6 200 000 Cessions d'actifs financiers",
+       "entete_colonnes": "PASSIF 30-juin-2018 31-déc-2017 Résultats de cession et des pertes et profits de dilution 420 77",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6200.0,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 1136.444,
+       "unite_source": "MMAD",
+       "valeur_source": "1 136 444",
+       "document": "Lafarge_conso_S1_18.pdf",
+       "page": 1,
+       "citation": "Dettes financières courantes 1 463 494 1 136 444",
+       "entete_colonnes": "PASSIF 30-juin-2018 31-déc-2017 Résultats de cession et des pertes et profits de dilution 420 77",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1136.444,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "tresorerie": {
+       "valeur_mdh": 224.891,
+       "unite_source": "MMAD",
+       "valeur_source": "224 891",
+       "document": "Lafarge_conso_S1_18.pdf",
+       "page": 1,
+       "citation": "Trésorerie et équivalent de trésorerie 29 183 224 891",
+       "entete_colonnes": "30-juin-2018 30-juin-2017",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 224.891,
+        "ms_document": "États financiers 2017",
+        "ms_page": 1
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7111.553
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1748.458,
+     "unite_source": "MMAD",
+     "valeur_source": "1 748 458",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Actifs non-courants 18 372 639 18 270 872 Flux net de trésorerie liés aux activités opérationnelles 2 523 136 1 748 458",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1748.458,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -561.542,
+     "unite_source": "MMAD",
+     "valeur_source": "(561 542)",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Actifs non courants détenus en vue de la vente Flux net de trésorerie liés aux activités d’investissement (822 005) (561 542)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -561.542,
+      "ms_document": "États financiers 2017",
+      "ms_page": 1
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2018": {
+   "type": "annuel",
+   "cloture": "2018-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 7887.303,
+     "unite_source": "MMAD",
+     "valeur_source": "7 887 303",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Chiffre d’affaires 7 887 303 8 083 489",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7887.303,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3727.111) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3727.111,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 2980.182,
+     "unite_source": "MMAD",
+     "valeur_source": "2 980 182",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat d’exploitation courant 2 980 182 3 150 423 ,QWHUQDWLRQDO\u0003 )LQDQFLDO\u0003 5HSRUWLQJ\u0003 6WDQGDUGV\u0003 ,)56 \u0003 HQGRVV«V\u0003 DX\u0003 LQVWDOODWLRQV\u0003WHFKQLTXHV\u0003ȴ[HV\u0003 \u0003\u0015\u0018\u0003DQV\u000f\u0003PHQXLVHULH\u0014\u0018\u0003DQV\u0003",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2980.182,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1584.031,
+     "unite_source": "MMAD",
+     "valeur_source": "1 584 031",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat de l’ensemble consolidé 1 584 031 1 927 375",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1584.031,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1584.031,
+     "unite_source": "MMAD",
+     "valeur_source": "1 584 031",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat net - Part du Groupe 1 584 031 1 927 375",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1584.031,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 9815.954,
+     "unite_source": "MMAD",
+     "valeur_source": "9 815 954",
+     "document": "Lafrge_conso_2018.pdf",
+     "page": 1,
+     "citation": "9 815 954 9 811 170 Variation de la trésorerie et équivalents de trésorerie 162 038 (215 961)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9815.954,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 44
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 6949.515,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 6200.0,
+       "unite_source": "MMAD",
+       "valeur_source": "6 200 000",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Dettes financières non courantes 6 228 416 6 200 000",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6200.0,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 800.042,
+       "unite_source": "MMAD",
+       "valeur_source": "800 042",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Dettes financières courantes 664 889 800 042",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 800.042,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "tresorerie": {
+       "valeur_mdh": 50.527,
+       "unite_source": "MMAD",
+       "valeur_source": "50 527",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Trésorerie et équivalent de trésorerie 32 500 50 527",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 50.527,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6949.515
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23.431.240",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 54,
+     "citation": "- d’actions ordinaires émises 23.431.240 23.431.240",
+     "entete_colonnes": "Réserves de juste valeur 2019 2018",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 54
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2019": {
+   "type": "annuel",
+   "cloture": "2019-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 7855.199,
+     "unite_source": "MMAD",
+     "valeur_source": "7 855 199",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 45,
+     "citation": "Chiffre d’affaires 7 855 199 7 887 303 Résultat net de l’ensemble consolidé 1 700 718 1 584 031",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2019 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7855.199,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4001.066) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4001.066,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3154.565,
+     "unite_source": "MMAD",
+     "valeur_source": "3 154 565",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 45,
+     "citation": "Résultat d’exploitation courant 3 154 565 2 980 182 Incidence des variations de périmètre (5 122)",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2019 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3154.565,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1700.718,
+     "unite_source": "MMAD",
+     "valeur_source": "1 700 718",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 45,
+     "citation": "Résultat de l’ensemble consolidé 1 700 718 1 584 031",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2019 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1700.718,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1700.718,
+     "unite_source": "MMAD",
+     "valeur_source": "1 700 718",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 45,
+     "citation": "Résultat net - Part du Groupe 1 700 718 1 584 031",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2019 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1700.718,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.0,
+     "unite_source": "MMAD",
+     "valeur_source": "0",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Intérêts minoritaires 0 0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 9882.021,
+     "unite_source": "MMAD",
+     "valeur_source": "9 882 021",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 44,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 9 882 021 9 815 954",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9882.021,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 44
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 6860.805,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 6228.416,
+       "unite_source": "MMAD",
+       "valeur_source": "6 228 416",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Dettes financières non courantes 6 228 416 6 200 000",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6228.416,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 664.889,
+       "unite_source": "MMAD",
+       "valeur_source": "664 889",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Dettes financières courantes 664 889 800 042",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 664.889,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 32.5,
+       "unite_source": "MMAD",
+       "valeur_source": "32 500",
+       "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+       "page": 44,
+       "citation": "Trésorerie et équivalent de trésorerie 32 500 50 527",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 32.5,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 44
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6860.805
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2969.393,
+     "unite_source": "MMAD",
+     "valeur_source": "2 969 393",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 45,
+     "citation": "Charges d’exploitation courantes (4 700 634) (4 907 121) Flux net de trésorerie liés aux activités opérationnelles 2 969 393 2 694 150",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2019 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2969.393,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 45
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23.431.240",
+     "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+     "page": 54,
+     "citation": "- d’actions ordinaires émises 23.431.240 23.431.240",
+     "entete_colonnes": "Réserves de juste valeur 2019 2018",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 54
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2020": {
+   "type": "annuel",
+   "cloture": "2020-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 6980.066,
+     "unite_source": "MMAD",
+     "valeur_source": "6 980 066",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Chiffre d'affaires 6 980 066 7 855 199",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2020 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6980.066,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3863.469) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3863.469,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3076.373,
+     "unite_source": "MMAD",
+     "valeur_source": "3 076 373",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Résultat d'exploitation courant 3 076 373 3 154 565 Acquisition d'actifs financiers 0 (300)",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2020 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3076.373,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1492.227,
+     "unite_source": "MMAD",
+     "valeur_source": "1 492 227",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Résultat de l'ensemble consolidé 1 492 227 1 700 718",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1492.227,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1492.227,
+     "unite_source": "MMAD",
+     "valeur_source": "1 492 227",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Résultat net - Part du Groupe 1 492 227 1 700 718 Capital Primes Actions Réserves Résultat Total Part Intérêt Total",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1492.227,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.0,
+     "unite_source": "MMAD",
+     "valeur_source": "0",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Intérêts minoritaires 0 0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 10605.254,
+     "unite_source": "MMAD",
+     "valeur_source": "10 605 254",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 60,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 10 605 254 9 882 021",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10605.254,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 60
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5902.327,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5834.908,
+       "unite_source": "MMAD",
+       "valeur_source": "5 834 908",
+       "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+       "page": 60,
+       "citation": "Dettes financières non courantes 5 834 908 6 228 416",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5834.908,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 60
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 154.465,
+       "unite_source": "MMAD",
+       "valeur_source": "154 465",
+       "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+       "page": 60,
+       "citation": "Dettes financières courantes 154 465 664 889",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 154.465,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 60
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 87.046,
+       "unite_source": "MMAD",
+       "valeur_source": "87 046",
+       "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+       "page": 60,
+       "citation": "Trésorerie et équivalent de trésorerie 87 046 32 500",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 87.046,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 60
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5902.327
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2009.776,
+     "unite_source": "MMAD",
+     "valeur_source": "2 009 776",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 61,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 2 009 776 2 969 393",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2020 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2009.776,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 61
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+     "page": 70,
+     "citation": "- d'actions ordinaires émises 23 431 240 23 431 240",
+     "entete_colonnes": "2020 2019",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 70
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2021": {
+   "type": "annuel",
+   "cloture": "2021-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8194.57,
+     "unite_source": "MMAD",
+     "valeur_source": "8 194 570",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 63,
+     "citation": "Chiffre d’affaires 8 194 570 6 980 066 Résultat net de l’ensemble consolidé 2 010 486 1 492 227",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2021 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8194.57,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 63
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4146.497) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4146.497,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3496.363,
+     "unite_source": "MMAD",
+     "valeur_source": "3 496 363",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 63,
+     "citation": "Résultat d’exploitation courant 3 496 363 3 076 373",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2021 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3496.363,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 63
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2010.486,
+     "unite_source": "MMAD",
+     "valeur_source": "2 010 486",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 63,
+     "citation": "Résultat de l’ensemble consolidé 2 010 486 1 492 227",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2021 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2010.486,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 63
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2010.486,
+     "unite_source": "MMAD",
+     "valeur_source": "2 010 486",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 63,
+     "citation": "Résultat net - Part du Groupe 2 010 486 1 492 227 VARIATION DE LA TRÉSORERIE ET ÉQUIVALENTS DE TRÉSORERIE 433 636 563 476",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2021 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2010.486,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 63
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 11431.699,
+     "unite_source": "MMAD",
+     "valeur_source": "11 431 699",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 62,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 11 431 699 10 605 254",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11431.699,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 62
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5059.851,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5425.295,
+       "unite_source": "MMAD",
+       "valeur_source": "5 425 295",
+       "document": "LafargeHolcim_RFA_2021.pdf",
+       "page": 62,
+       "citation": "Dettes financières non courantes 5 425 295 5 834 908",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5425.295,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 62
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 166.724,
+       "unite_source": "MMAD",
+       "valeur_source": "166 724",
+       "document": "LafargeHolcim_RFA_2021.pdf",
+       "page": 62,
+       "citation": "Dettes financières courantes 166 724 154 465",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 166.724,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 62
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 532.168,
+       "unite_source": "MMAD",
+       "valeur_source": "532 168",
+       "document": "LafargeHolcim_RFA_2021.pdf",
+       "page": 62,
+       "citation": "Trésorerie et équivalent de trésorerie 532 168 87 046",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 532.168,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 62
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5059.851
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 3092.511,
+     "unite_source": "MMAD",
+     "valeur_source": "3 092 511",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 63,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 3 092 511 2 009 776",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2021 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3092.511,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 63
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "LafargeHolcim_RFA_2021.pdf",
+     "page": 71,
+     "citation": "- d'actions ordinaires émises 23 431 240 23 431 240 brevets Incorporel Autres immo Marques",
+     "entete_colonnes": "2021 2020",
+     "perimetre": "consolide_presume",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 71
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2022": {
+   "type": "annuel",
+   "cloture": "2022-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 7985.055,
+     "unite_source": "MMAD",
+     "valeur_source": "7 985 055",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 63,
+     "citation": "Chiffre d’affaires 7 985 055 8 194 570 Résultat net de l’ensemble consolidé 1 391 685 2 010 486",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2022 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7985.055,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 63
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3274.948) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3274.948,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 2695.77,
+     "unite_source": "MMAD",
+     "valeur_source": "2 695 770",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 63,
+     "citation": "Résultat d’exploitation courant 2 695 770 3 496 363",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2022 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2695.77,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 63
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1391.685,
+     "unite_source": "MMAD",
+     "valeur_source": "1 391 685",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 63,
+     "citation": "Résultat de l’ensemble consolidé 1 391 685 2 010 486",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2022 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1391.685,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 63
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1391.685,
+     "unite_source": "MMAD",
+     "valeur_source": "1 391 685",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 63,
+     "citation": "Résultat net - Part du Groupe 1 391 685 2 010 486",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2022 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1391.685,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 63
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 11340.575,
+     "unite_source": "MMAD",
+     "valeur_source": "11 340 575",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 62,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 11 340 575 11 431 699",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11340.575,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 62
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 5526.279,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": null,
+      "ms_libelle": null
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1664.064,
+     "unite_source": "MMAD",
+     "valeur_source": "1 664 064",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 63,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 1 664 064 3 092 511",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2022 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1664.064,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 63
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "lafargeholcim_Maroc_RFA_2022.pdf",
+     "page": 70,
+     "citation": "- d'actions ordinaires émises 23 431 240 23 431 240",
+     "entete_colonnes": "La charge d’impôt courant correspond aux montants payés ou restant à payer à court terme à l’administration fiscale au 2022 2021",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 70
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2023": {
+   "type": "annuel",
+   "cloture": "2023-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8212.021,
+     "unite_source": "MMAD",
+     "valeur_source": "8 212 021",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 67,
+     "citation": "Chiffre d’affaires 8 212 021 7 985 055 Résultat net de l’ensemble consolidé 1 547 820 1 391 685",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2023 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8212.021,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 67
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3692.603) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3692.603,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 2977.519,
+     "unite_source": "MMAD",
+     "valeur_source": "2 977 519",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 67,
+     "citation": "Résultat d’exploitation courant 2 977 519 2 695 770 Acquisition d'immobilisations corporelles, incorporelles et financières (367 658) (610 415)",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2023 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2977.519,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 67
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1547.82,
+     "unite_source": "MMAD",
+     "valeur_source": "1 547 820",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 67,
+     "citation": "Résultat de l’ensemble consolidé 1 547 820 1 391 685 Trésorerie et équivalents de trésorerie net à l’ouverture (325 972) 382 732",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2023 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1547.82,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 67
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1547.82,
+     "unite_source": "MMAD",
+     "valeur_source": "1 547 820",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 67,
+     "citation": "Résultat net - Part du Groupe 1 547 820 1 391 685",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2023 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1547.82,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 67
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 11417.059,
+     "unite_source": "MMAD",
+     "valeur_source": "11 417 059",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 66,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 11 417 059 11 340 575",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11417.059,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 66
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4990.76,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 4824.729,
+       "unite_source": "MMAD",
+       "valeur_source": "4 824 729",
+       "document": "LafargeHolcim_RFA_2023.pdf",
+       "page": 66,
+       "citation": "Dettes financières non courantes 4 824 729 5 186 200",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 4824.729,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 66
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 319.717,
+       "unite_source": "MMAD",
+       "valeur_source": "319 717",
+       "document": "LafargeHolcim_RFA_2023.pdf",
+       "page": 66,
+       "citation": "Dettes financières courantes 319 717 480 036",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 319.717,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 66
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 153.686,
+       "unite_source": "MMAD",
+       "valeur_source": "153 686",
+       "document": "LafargeHolcim_RFA_2023.pdf",
+       "page": 66,
+       "citation": "Trésorerie et équivalent de trésorerie 153 686 139 957",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 153.686,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 66
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4990.76
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2454.53,
+     "unite_source": "MMAD",
+     "valeur_source": "2 454 530",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 67,
+     "citation": "Autres produits et charges d’exploitation 44 056 (227 641) Flux net de trésorerie liés aux activités opérationnelles 2 454 530 1 664 064",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ au 31 décembre 2023 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ au 31 décembre 2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2454.53,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 67
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "LafargeHolcim_RFA_2023.pdf",
+     "page": 74,
+     "citation": "11.1.2. Impôts différés comptabilisés dans les capitaux propres - d'actions ordinaires émises 23 431 240 23 431 240",
+     "entete_colonnes": "titre de la période. 2023 2022",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 74
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2024": {
+   "type": "annuel",
+   "cloture": "2024-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8154.838,
+     "unite_source": "MMAD",
+     "valeur_source": "8 154 838",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 66,
+     "citation": "Chiffre d’affaires 8 154 838 8 212 021 Dotations aux amortissements et provisions, pertes de valeur 777 454 802 578",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2024 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8154.838,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 66
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4003.956) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4003.956,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3294.385,
+     "unite_source": "MMAD",
+     "valeur_source": "3 294 385",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 66,
+     "citation": "Résultat d’exploitation courant 3 294 385 2 977 519",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2024 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3294.385,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 66
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1825.688,
+     "unite_source": "MMAD",
+     "valeur_source": "1 825 688",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 66,
+     "citation": "Résultat de l’ensemble consolidé 1 825 688 1 547 820",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2024 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1825.688,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 66
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1825.688,
+     "unite_source": "MMAD",
+     "valeur_source": "1 825 688",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 66,
+     "citation": "Résultat net - Part du Groupe 1 825 688 1 547 820 ÉTAT DE VARIATION DES CAPITAUX PROPRES AU 31 DÉCEMBRE 2024",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2024 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1825.688,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 66
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "total « part du groupe » non imprimé (somme de lignes du bilan) : non reconstitué dans ce lot ; valeur de ms-screener (11665.123) non vérifiée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 11665.123,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 65
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4365.954,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 4335.073,
+       "unite_source": "MMAD",
+       "valeur_source": "4 335 073",
+       "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+       "page": 65,
+       "citation": "Dettes financières non courantes 4 335 073 4 824 729",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 4335.073,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 65
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 193.956,
+       "unite_source": "MMAD",
+       "valeur_source": "193 956",
+       "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+       "page": 65,
+       "citation": "Dettes financières courantes 193 956 319 717",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 193.956,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 65
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 163.075,
+       "unite_source": "MMAD",
+       "valeur_source": "163 075",
+       "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+       "page": 65,
+       "citation": "Trésorerie et équivalent de trésorerie 163 075 153 686",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 163.075,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 65
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4365.954
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2739.188,
+     "unite_source": "MMAD",
+     "valeur_source": "2 739 188",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 66,
+     "citation": "Impôts et taxes (60 167) (66 279) Flux net de trésorerie liés aux activités opérationnelles 2 739 188 2 454 530",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2024 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2739.188,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 66
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
+     "page": 73,
+     "citation": "11.1.2. Impôts différés comptabilisés dans les capitaux propres - d'actions ordinaires émises 23 431 240 23 431 240",
+     "entete_colonnes": "au titre de la période. 2024 2023",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 73
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2025": {
+   "type": "annuel",
+   "cloture": "2025-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8936.255,
+     "unite_source": "MMAD",
+     "valeur_source": "8 936 255",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 74,
+     "citation": "Chiffre d’affaires 8 936 255 8 154 838 Élimination des charges et produits sans incidence sur la trésorerie et/ou non liés à l’activité",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2025 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8936.255,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 74
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4502.742) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4502.742,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3814.563,
+     "unite_source": "MMAD",
+     "valeur_source": "3 814 563",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 74,
+     "citation": "Résultat d’exploitation courant 3 814 563 3 294 385 Acquisition d'actifs financiers",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2025 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3814.563,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 74
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2165.873,
+     "unite_source": "MMAD",
+     "valeur_source": "2 165 873",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 74,
+     "citation": "Résultat de l’ensemble consolidé 2 165 873 1 825 688 VARIATION DE LA TRÉSORERIE ET ÉQUIVALENTS DE TRÉSORERIE (28 270) 133 306",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2025 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2165.873,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 74
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2165.873,
+     "unite_source": "MMAD",
+     "valeur_source": "2 165 873",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 74,
+     "citation": "Résultat net - Part du Groupe 2 165 873 1 825 688",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2025 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2165.873,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 74
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 12156.299,
+     "unite_source": "MMAD",
+     "valeur_source": "12 156 299",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 73,
+     "citation": "12 156 299 11 665 123",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 12156.299,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 73
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 3569.803,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 3510.859,
+       "unite_source": "MMAD",
+       "valeur_source": "3 510 859",
+       "document": "LafargeHolcim_RFA_2025.pdf",
+       "page": 73,
+       "citation": "Dettes financières non courantes 3 510 859 4 335 073",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3510.859,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 73
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 177.044,
+       "unite_source": "MMAD",
+       "valeur_source": "177 044",
+       "document": "LafargeHolcim_RFA_2025.pdf",
+       "page": 73,
+       "citation": "Dettes financières courantes 177 044 193 956",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 177.044,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 73
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 118.1,
+       "unite_source": "MMAD",
+       "valeur_source": "118 100",
+       "document": "LafargeHolcim_RFA_2025.pdf",
+       "page": 73,
+       "citation": "Trésorerie et équivalent de trésorerie 118 100 163 075",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 118.1,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 73
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3569.803
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2817.143,
+     "unite_source": "MMAD",
+     "valeur_source": "2 817 143",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 74,
+     "citation": "Amortissements et provisions d’exploitation (688 179) (709 571) Flux net de trésorerie liés aux activités opérationnelles 2 817 143 2 739 188",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ AU 31 DÉCEMBRE 2025 ÉTAT DE FLUX DE TRÉSORERIE CONSOLIDÉ AU 31 DÉCEMBRE 2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2817.143,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 74
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 23431240.0,
+     "unite_source": "MMAD",
+     "valeur_source": "23 431 240",
+     "document": "LafargeHolcim_RFA_2025.pdf",
+     "page": 81,
+     "citation": "- d'actions ordinaires émises 23 431 240 23 431 240",
+     "entete_colonnes": "2025 2024",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 23431240.0,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 81
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2019": {
+   "type": "semestriel",
+   "cloture": "2019-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 3895.806,
+     "unite_source": "MMAD",
+     "valeur_source": "3 895 806",
+     "document": "Lafarge_RFS_2019.pdf",
+     "page": 12,
+     "citation": "Chiffre d’affaires 3 895 806 3 888 905",
+     "entete_colonnes": "Exercice clos 30.06.2019 30.06.2018",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3895.806,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2024.875) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2024.875,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1651.699,
+     "unite_source": "MMAD",
+     "valeur_source": "1 651 699",
+     "document": "Lafarge_RFS_2019.pdf",
+     "page": 12,
+     "citation": "Résultat d’exploitation courant 1 651 699 1 493 609",
+     "entete_colonnes": "Exercice clos 30.06.2019 30.06.2018",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1651.699,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 965.466,
+     "unite_source": "MMAD",
+     "valeur_source": "965 466",
+     "document": "Lafarge_RFS_2019.pdf",
+     "page": 12,
+     "citation": "Résultat de l’ensemble consolidé 965 466 888 948",
+     "entete_colonnes": "Exercice clos 30.06.2019 30.06.2018",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 965.466,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 965.466,
+     "unite_source": "MMAD",
+     "valeur_source": "965 466",
+     "document": "Lafarge_RFS_2019.pdf",
+     "page": 12,
+     "citation": "Résultat net part du Groupe 965 466 888 948",
+     "entete_colonnes": "Exercice clos 30.06.2019 30.06.2018",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 965.466,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2020": {
+   "type": "semestriel",
+   "cloture": "2020-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 3184.974,
+     "unite_source": "MMAD",
+     "valeur_source": "3 185",
+     "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+     "page": 4,
+     "citation": "Chiffre d’affaires 3 896 3 185 -18%",
+     "entete_colonnes": "En MDh S1 2019 S1 2020 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3184.974,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1781.138) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1781.138,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1411.133,
+     "unite_source": "MMAD",
+     "valeur_source": "1 411 133",
+     "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+     "page": 15,
+     "citation": "Résultat d’exploitation courant 1 411 133 1 651 699",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1411.133,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 431.015,
+     "unite_source": "MMAD",
+     "valeur_source": "431 015",
+     "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+     "page": 15,
+     "citation": "Résultat de l’ensemble consolidé 431 015 965 466",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 431.015,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 431.015,
+     "unite_source": "MMAD",
+     "valeur_source": "431 015",
+     "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+     "page": 15,
+     "citation": "Résultat net - Part du Groupe 431 015 965 466",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 431.015,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 9547.498,
+     "unite_source": "MMAD",
+     "valeur_source": "9 547 498",
+     "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+     "page": 14,
+     "citation": "9 547 498 9 882 021",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9547.498,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 6618.145,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 6035.043,
+       "unite_source": "MMAD",
+       "valeur_source": "6 035 043",
+       "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+       "page": 14,
+       "citation": "Dettes financières non courantes 6 035 043 6 228 416",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6035.043,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 590.856,
+       "unite_source": "MMAD",
+       "valeur_source": "590 856",
+       "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+       "page": 14,
+       "citation": "Dettes financières courantes 590 856 664 889",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 590.856,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 7.754,
+       "unite_source": "MMAD",
+       "valeur_source": "7 754",
+       "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+       "page": 14,
+       "citation": "Trésorerie et équivalent de trésorerie 7 754 32 500",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 7.754,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6618.145
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2021": {
+   "type": "semestriel",
+   "cloture": "2021-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 3999.863,
+     "unite_source": "MMAD",
+     "valeur_source": "3 999 863",
+     "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+     "page": 15,
+     "citation": "Chiffre d’affaires 3 999 863 3 184 974",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3999.863,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2092.608) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2092.608,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1758.178,
+     "unite_source": "MMAD",
+     "valeur_source": "1 758 178",
+     "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+     "page": 15,
+     "citation": "Résultat d’exploitation courant 1 758 178 1 411 133",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1758.178,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1038.674,
+     "unite_source": "MMAD",
+     "valeur_source": "1 038 674",
+     "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+     "page": 15,
+     "citation": "Résultat de l’ensemble consolidé 1 038 674 431 015",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1038.674,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1038.674,
+     "unite_source": "MMAD",
+     "valeur_source": "1 038 674",
+     "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+     "page": 15,
+     "citation": "Résultat net - Part du Groupe 1 038 674 431 015",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1038.674,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5622.279,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5635.424,
+       "unite_source": "MMAD",
+       "valeur_source": "5 635 424",
+       "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+       "page": 14,
+       "citation": "Dettes financières non courantes 5 635 424 5 834 908",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5635.424,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 41.165,
+       "unite_source": "MMAD",
+       "valeur_source": "41 165",
+       "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+       "page": 14,
+       "citation": "Dettes financières courantes 41 165 154 465",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 41.165,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 54.31,
+       "unite_source": "MMAD",
+       "valeur_source": "54 310",
+       "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+       "page": 14,
+       "citation": "Trésorerie et équivalent de trésorerie 54 310 87 046",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 54.31,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5622.279
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2022": {
+   "type": "semestriel",
+   "cloture": "2022-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4004.272,
+     "unite_source": "MMAD",
+     "valeur_source": "4 004 272",
+     "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+     "page": 14,
+     "citation": "Chiffre d’affaires 4 004 272 3 999 863",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4004.272,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1768.55) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1768.55,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1463.508,
+     "unite_source": "MMAD",
+     "valeur_source": "1 463 508",
+     "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+     "page": 14,
+     "citation": "Résultat d’exploitation courant 1 463 508 1 758 178",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1463.508,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 758.763,
+     "unite_source": "MMAD",
+     "valeur_source": "758 763",
+     "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+     "page": 14,
+     "citation": "Résultat de l’ensemble consolidé 758 763 1 038 674",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 758.763,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 758.763,
+     "unite_source": "MMAD",
+     "valeur_source": "758 763",
+     "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+     "page": 14,
+     "citation": "Résultat net - Part du Groupe 758 763 1 038 674",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 758.763,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5843.39,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5209.195,
+       "unite_source": "MMAD",
+       "valeur_source": "5 209 195",
+       "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+       "page": 13,
+       "citation": "Dettes financières non courantes 5 209 195 5 425 295",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5209.195,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 731.958,
+       "unite_source": "MMAD",
+       "valeur_source": "731 958",
+       "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+       "page": 13,
+       "citation": "Dettes financières courantes 731 958 166 724",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 731.958,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 97.763,
+       "unite_source": "MMAD",
+       "valeur_source": "97 763",
+       "document": "Lafarge_Holcim_RFS_juin_22.pdf",
+       "page": 13,
+       "citation": "Trésorerie et équivalent de trésorerie 97 763 532 168",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 97.763,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5843.39
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2023": {
+   "type": "semestriel",
+   "cloture": "2023-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4129.676,
+     "unite_source": "MMAD",
+     "valeur_source": "4.129.676",
+     "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+     "page": 14,
+     "citation": "Chiffre d’affaires 4.129.676 4.004.272",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4129.676,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1818.559) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1818.559,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1468.116,
+     "unite_source": "MMAD",
+     "valeur_source": "1.468.116",
+     "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+     "page": 14,
+     "citation": "Résultat d’exploitation courant 1.468.116 1.463.508",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1468.116,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 825.648,
+     "unite_source": "MMAD",
+     "valeur_source": "825.648",
+     "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+     "page": 14,
+     "citation": "Résultat de l’ensemble consolidé 825.648 758.764",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 825.648,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 825.648,
+     "unite_source": "MMAD",
+     "valeur_source": "825.648",
+     "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+     "page": 14,
+     "citation": "Résultat net - Part du Groupe 825.648 758.764",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 825.648,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4932.751,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5059.924,
+       "unite_source": "MMAD",
+       "valeur_source": "5.059.924",
+       "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+       "page": 13,
+       "citation": "Dettes financières non courantes 5.059.924 5.186.200",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5059.924,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 74.383,
+       "unite_source": "MMAD",
+       "valeur_source": "74.383",
+       "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+       "page": 13,
+       "citation": "Dettes financières courantes 74.383 480.036",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 74.383,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 201.556,
+       "unite_source": "MMAD",
+       "valeur_source": "201.556",
+       "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+       "page": 13,
+       "citation": "Trésorerie et équivalent de trésorerie 201.556 139.957",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 201.556,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4932.751
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2024": {
+   "type": "semestriel",
+   "cloture": "2024-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 3691.0,
+     "unite_source": "MMAD",
+     "valeur_source": "3 691",
+     "document": "LafargeHolcimMaroc-S1-2024.pdf",
+     "page": 4,
+     "citation": "Chiffre d’affaires 4 130 3 691 -10,6%",
+     "entete_colonnes": "En MDH S1 2023 S1 2024 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3691.0,
+      "ms_document": "Communiqué financier S1 2024",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1460.0,
+     "unite_source": "MMAD",
+     "valeur_source": "1 460",
+     "document": "LafargeHolcimMaroc-S1-2024.pdf",
+     "page": 4,
+     "citation": "Résultat d'exploitation courant 1 468 1 460 -0,5%",
+     "entete_colonnes": "En MDH S1 2023 S1 2024 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1460.0,
+      "ms_document": "Communiqué financier S1 2024",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 756.0,
+     "unite_source": "MMAD",
+     "valeur_source": "756",
+     "document": "LafargeHolcimMaroc-S1-2024.pdf",
+     "page": 4,
+     "citation": "Résultat net 826 756 -8,4%",
+     "entete_colonnes": "En MDH S1 2023 S1 2024 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 756.0,
+      "ms_document": "Communiqué financier S1 2024",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2025": {
+   "type": "semestriel",
+   "cloture": "2025-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4159.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4 159",
+     "document": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Chiffre d’affaires 3 691 4 159 + 12,7%",
+     "entete_colonnes": "En MDH S1 2024 S1 2025 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4159.0,
+      "ms_document": "Communiqué financier S1 2025",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1747.0,
+     "unite_source": "MMAD",
+     "valeur_source": "1 747",
+     "document": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Résultat d'exploitation courant 1 460 1 747 + 19,6%",
+     "entete_colonnes": "En MDH S1 2024 S1 2025 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1747.0,
+      "ms_document": "Communiqué financier S1 2025",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 918.0,
+     "unite_source": "MMAD",
+     "valeur_source": "918",
+     "document": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Résultat net 756 918 + 21,3%",
+     "entete_colonnes": "En MDH S1 2024 S1 2025 +/-",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 918.0,
+      "ms_document": "Communiqué financier S1 2025",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2026": {
+   "type": "semestriel",
+   "cloture": "2026-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  }
+ },
+ "documents": {
+  "LHM_conso_2016.pdf": {
+   "fichier": "LHM_conso_2016.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LHM_conso_2016.pdf",
+   "sha256": "cf3ad4ff156251c1d5e732b0286b14385b568f7c773724611b322929f8c7147c",
+   "octets": 1696150,
+   "pages": 2,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafarge-holcim-maroc-2",
+   "type": "FY",
+   "annee_nom_fichier": 2016
+  },
+  "Rapports consolidés 1er semestre_0.pdf": {
+   "fichier": "Rapports consolidés 1er semestre_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Rapports%20consolid%C3%A9s%201er%20semestre_0.pdf",
+   "sha256": "177dcb1908c3652f902c45df8fcb144282be7ac681fff93e063b4786af2fc910",
+   "octets": 1395548,
+   "pages": 2,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/rapports-consolides-1er-semestre-0",
+   "type": "H1",
+   "annee_nom_fichier": null
+  },
+  "Lafrge_conso_2018.pdf": {
+   "fichier": "Lafrge_conso_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Lafrge_conso_2018.pdf",
+   "sha256": "3f4fd94247de3596e1fb449764287f0fe98c2932ade7e1f61590f4a887cb7a5f",
+   "octets": 462587,
+   "pages": 2,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-2",
+   "type": "FY",
+   "annee_nom_fichier": 2018
+  },
+  "Lafarge_conso_S1_18.pdf": {
+   "fichier": "Lafarge_conso_S1_18.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Lafarge_conso_S1_18.pdf",
+   "sha256": "65fbae90459c47ec604c24f806ca638ca5d81a2654adb3be8f05304f539ca4c6",
+   "octets": 3191062,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc",
+   "type": "H1",
+   "annee_nom_fichier": 2018
+  },
+  "Lafarge_HolcimMaroc_RFA_2019.pdf": {
+   "fichier": "Lafarge_HolcimMaroc_RFA_2019.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Lafarge_HolcimMaroc_RFA_2019.pdf",
+   "sha256": "bb76446d233f3542a033070ea2d86aa2f8046c9f7a026bb884a362c857e0f84f",
+   "octets": 4414662,
+   "pages": 71,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2019",
+   "type": "FY",
+   "annee_nom_fichier": 2019
+  },
+  "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf": {
+   "fichier": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
+   "sha256": "be4bdec2ab09db724139434b47275dcda0735f9f56588872060104dfd93cb253",
+   "octets": 14030432,
+   "pages": 90,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafarge-holcim-maroc-rfa-2020",
+   "type": "FY",
+   "annee_nom_fichier": 2020
+  },
+  "LafargeHolcim_RFA_2021.pdf": {
+   "fichier": "LafargeHolcim_RFA_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_RFA_2021.pdf",
+   "sha256": "24d78b96fd3998771d52a96a01792ed8ff3b851a3a4ccef4a9eee32489cc5b51",
+   "octets": 9142997,
+   "pages": 88,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2021",
+   "type": "FY",
+   "annee_nom_fichier": 2021
+  },
+  "lafargeholcim_Maroc_RFA_2022.pdf": {
+   "fichier": "lafargeholcim_Maroc_RFA_2022.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/lafargeholcim_Maroc_RFA_2022.pdf",
+   "sha256": "721b4aad14b6d9fd215ef6b4a4c4c18b767b917bf3166f791d5ebb0fc2daed7b",
+   "octets": 13802002,
+   "pages": 88,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2022",
+   "type": "FY",
+   "annee_nom_fichier": 2022
+  },
+  "LafargeHolcim_RFA_2023.pdf": {
+   "fichier": "LafargeHolcim_RFA_2023.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_RFA_2023.pdf",
+   "sha256": "315ac8f1631a43cb30ad92bc1cd27172752b158bec144a66c1457fbfd7ae0896",
+   "octets": 9339425,
+   "pages": 93,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2023",
+   "type": "FY",
+   "annee_nom_fichier": 2023
+  },
+  "LafargeHolcim_Maroc_RFA_2024.pdf": {
+   "fichier": "LafargeHolcim_Maroc_RFA_2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_Maroc_RFA_2024.pdf",
+   "sha256": "f246c5d9357d6962afafbdeaf94c18b2329b20f5d2d4f8eca63de6ba7a4c6c1c",
+   "octets": 16804357,
+   "pages": 92,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2024",
+   "type": "FY",
+   "annee_nom_fichier": 2024
+  },
+  "LafargeHolcim_RFA_2025.pdf": {
+   "fichier": "LafargeHolcim_RFA_2025.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_RFA_2025.pdf",
+   "sha256": "889b39eaaa0a56050017a0c391395b991a9f7fcc330c579a4d598cd656b790bd",
+   "octets": 13866254,
+   "pages": 100,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfa-2025",
+   "type": "FY",
+   "annee_nom_fichier": 2025
+  },
+  "Lafarge_RFS_2019.pdf": {
+   "fichier": "Lafarge_RFS_2019.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Lafarge_RFS_2019.pdf",
+   "sha256": "54c394f9ffb3cd4689801df7ea0b8349d37976ddcf52d944058746d24c8d6ed8",
+   "octets": 4673907,
+   "pages": 25,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfs-2019",
+   "type": "H1",
+   "annee_nom_fichier": 2019
+  },
+  "LafargeHolcim_Maroc_RFS_S1_20.pdf": {
+   "fichier": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_Maroc_RFS_S1_20.pdf",
+   "sha256": "f344db762f17246d142108360112906228222347d2c46f56b7ad5fa87dc9b9ca",
+   "octets": 1390373,
+   "pages": 25,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfs-juin-2020",
+   "type": "H1",
+   "annee_nom_fichier": 2020
+  },
+  "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf": {
+   "fichier": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
+   "sha256": "2fc8f1644eda7c871f63ef828729799663c79da6904a5e08e061830f9036dc48",
+   "octets": 3899916,
+   "pages": 26,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafarge-holcim-maroc-rfs-juin-2021",
+   "type": "H1",
+   "annee_nom_fichier": 2021
+  },
+  "Lafarge_Holcim_RFS_juin_22.pdf": {
+   "fichier": "Lafarge_Holcim_RFS_juin_22.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Lafarge_Holcim_RFS_juin_22.pdf",
+   "sha256": "375e4ef095bcc048734f4065ee4c0dc820318c33e56cd0f4d9f49f9cc5e3dd45",
+   "octets": 6217007,
+   "pages": 24,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfs-juin-2022",
+   "type": "H1",
+   "annee_nom_fichier": 2022
+  },
+  "LafargeHolcimMaroc_RFS_S1_23.pdf": {
+   "fichier": "LafargeHolcimMaroc_RFS_S1_23.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcimMaroc_RFS_S1_23.pdf",
+   "sha256": "7ebf7018f200c3b393a3aea6388bf7fd4e01093a0116b0699f52540bf06dfd05",
+   "octets": 870208,
+   "pages": 24,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfs-juin-2023",
+   "type": "H1",
+   "annee_nom_fichier": 2023
+  },
+  "LafargeHolcimMaroc-S1-2024.pdf": {
+   "fichier": "LafargeHolcimMaroc-S1-2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcimMaroc-S1-2024.pdf",
+   "sha256": "cf25fb95cd457051cceb0d96289c205a0459205aa28f646c6bee5ce0a273db26",
+   "octets": 2132246,
+   "pages": 24,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafarge-holcim-maroc-rfs-juin-2024",
+   "type": "H1",
+   "annee_nom_fichier": 2024
+  },
+  "LafargeHolcim_Maroc_RFS_S1_25.pdf": {
+   "fichier": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/LafargeHolcim_Maroc_RFS_S1_25.pdf",
+   "sha256": "d7da61eaa8d84fc0b8219eefec5facf5418f94710d2c01127772a93de312f18b",
+   "octets": 4582520,
+   "pages": 24,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/lafargeholcim-maroc-rfs-juin-2025",
+   "type": "H1",
+   "annee_nom_fichier": 2025
+  }
+ },
+ "couverture": {
+  "remplies": 111,
+  "attendues": 216,
+  "ecarts": 0
+ }
+}

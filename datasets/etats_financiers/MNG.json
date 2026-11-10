@@ -1,0 +1,4350 @@
+{
+ "schema": "etats_financiers/1",
+ "ticker": "MNG",
+ "nom": "Managem",
+ "emetteur_ammc_id": 2796,
+ "unite": "MDH",
+ "perimetre_principal": "consolide",
+ "archetype": "standard_nonfin",
+ "periodes": {
+  "FY2016": {
+   "type": "annuel",
+   "cloture": "2016-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4376.94,
+     "unite_source": "MMAD",
+     "valeur_source": "4376,9",
+     "document": "Managem_conso_2016.pdf",
+     "page": 2,
+     "citation": "OHV\u0003OLJQHV\u0003LQVWUXPHQWV\u0003GpULYpV\u0003HQ\u0003DFWLIV\u0003½QDQFLHUV\u0003FRXUDQWV\u0003RX\u0003QRQ\u0003FRXUDQWV\u0003 Chiffre d’affaires 4376,9 4317,0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4376.94,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1558.58) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1558.58,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 675.22,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat d’exploitation courant"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 397.19,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat de l’ensemble consolidé"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 288.46,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat net - Part du groupe"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 108.72,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Intérêts minoritaires"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 3547.7,
+     "unite_source": "MMAD",
+     "valeur_source": "3 547,7",
+     "document": "Managem_conso_2016.pdf",
+     "page": 2,
+     "citation": "production et l’amélioration du niveau de sécurité, sont immobilisés. ordinaires de la société mére 3 547,7 3 433,1",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3547.7,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 3724.4,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 1988.4,
+       "unite_source": "MMAD",
+       "valeur_source": "1 988,4",
+       "document": "Managem_conso_2016.pdf",
+       "page": 2,
+       "citation": "Dettes financières non courantes 1 988,4 2 271,4",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1988.4,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 2238.5,
+       "unite_source": "MMAD",
+       "valeur_source": "2 238,5",
+       "document": "Managem_conso_S2_16.pdf",
+       "page": 2,
+       "citation": "Dettes financières courantes 2 238,5 1 741,1",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2238.5,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 502.5,
+       "unite_source": "MMAD",
+       "valeur_source": "502,5",
+       "document": "Managem_conso_2016.pdf",
+       "page": 2,
+       "citation": "Les provisions pour restructuration sont comptabilisées dès lors que le Trésorerie et équivalent de trésorerie 502,5 384,3",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 502.5,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3724.4
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1423.5,
+     "unite_source": "MMAD",
+     "valeur_source": "1 423,5",
+     "document": "Managem_conso_2016.pdf",
+     "page": 3,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 1 423,5 1 311,1 Dont Résultat global net - Part du Groupe 298,5 206,1",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1423.5,
+      "ms_document": "États financiers 2017",
+      "ms_page": 3
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -1123.9,
+     "unite_source": "MMAD",
+     "valeur_source": "(1 123,9)",
+     "document": "Managem_conso_S2_16.pdf",
+     "page": 3,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (1 123,9) (1 326,8)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1123.9,
+      "ms_document": "États financiers 2017",
+      "ms_page": 3
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9158699.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 158 699",
+     "document": "Managem_conso_2016.pdf",
+     "page": 2,
+     "citation": "FO{WXUH\u0003 GH\u0003 OµH[HUFLFH\u0003 HQ\u0003 IRQFWLRQ\u0003 GHV\u0003 MXULGLFWLRQV\u0003 ½VFDOHV\u0011 NB D'ACTIONS - MÈRE 9 158 699 9 158 699",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9158699.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2017": {
+   "type": "annuel",
+   "cloture": "2017-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 5199.52,
+     "unite_source": "MMAD",
+     "valeur_source": "5 199,5",
+     "document": "Managem_conso_S2_18.pdf",
+     "page": 2,
+     "citation": "Chiffre d'affaires 4 356,5 5 199,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5199.52,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1974.51) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1974.51,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 902.52,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat d’exploitation courant"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 924.57,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat de l’ensemble consolidé"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 879.11,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Résultat net - Part du groupe"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 45.46,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2,
+      "ms_libelle": "Intérêts minoritaires"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 5180.6,
+     "unite_source": "MMAD",
+     "valeur_source": "5 180,6",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "5 312,3 5 180,6",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5180.6,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "dette_nette": {
+     "valeur_mdh": 2207.6,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 2276.4,
+       "unite_source": "MMAD",
+       "valeur_source": "2 276,4",
+       "document": "Managem_conso_S2_18.pdf",
+       "page": 2,
+       "citation": "Charges d'exploitation courantes -3 952,5 -4 229,1 Dettes financières non courantes 1 565,0 2 276,4",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2276.4,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 1413.9,
+       "unite_source": "MMAD",
+       "valeur_source": "1 413,9",
+       "document": "Managem_conso_S2_18.pdf",
+       "page": 2,
+       "citation": "Résultat avant impôts des entreprises intégrées 439,1 1 140,5 Dettes financières courantes 1 849,8 1 413,9",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1413.9,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      },
+      "tresorerie": {
+       "valeur_mdh": 1482.7,
+       "unite_source": "MMAD",
+       "valeur_source": "1.482,7",
+       "document": "Managem_conso_2018.pdf",
+       "page": 2,
+       "citation": "Lorsqu’une obligation légale, contractuelle ou implicite rend nécessaire le réaménagement de sites, Trésorerie et équivalent de trésorerie 731,6 1.482,7",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1482.7,
+        "ms_document": "États financiers 2017",
+        "ms_page": 2
+       },
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2207.6
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1787.0,
+     "unite_source": "MMAD",
+     "valeur_source": "1 787,0",
+     "document": "Managem_conso_2018.pdf",
+     "page": 3,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 1 665,19 1 787,0 Dont Intérêts minoritaires -22,11 35,02",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1787.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": 3
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -741.9,
+     "unite_source": "MMAD",
+     "valeur_source": "(741,9)",
+     "document": "Managem_conso_2018.pdf",
+     "page": 3,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (1 919,8) (741,9)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -741.9,
+      "ms_document": "États financiers 2017",
+      "ms_page": 3
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_conso_S1_18.pdf",
+     "page": 2,
+     "citation": "NB D'ACTIONS - MERE 9 991 308 9 158 699",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": 2
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2018": {
+   "type": "annuel",
+   "cloture": "2018-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4356.5,
+     "unite_source": "MMAD",
+     "valeur_source": "4 356,5",
+     "document": "Managem_conso_S2_18.pdf",
+     "page": 2,
+     "citation": "Chiffre d'affaires 4 356,5 5 199,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4356.5,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1390.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1390.7,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 461.4,
+     "unite_source": "MMAD",
+     "valeur_source": "461,4",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "Résultat d'exploitation courant 461,4 902,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 461.4,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 345.3,
+     "unite_source": "MMAD",
+     "valeur_source": "345,3",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "Résultat de l'ensemble consolidé 345,3 924,6 Autres créditeurs courants 854,0 1 007,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 345.3,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 369.8,
+     "unite_source": "MMAD",
+     "valeur_source": "369,8",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "Autres produits de l'activité 57,4 -67,9 Résultat net part du groupe 369,8 879,1",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 369.8,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": -24.5,
+     "unite_source": "MMAD",
+     "valeur_source": "-24,5",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "Intérêts minoritaires -24,5 45,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -24.5,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 5312.3,
+     "unite_source": "MMAD",
+     "valeur_source": "5 312,3",
+     "document": "Managem_conso_2018.pdf",
+     "page": 2,
+     "citation": "5 312,3 5 180,6",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5312.3,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 80
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 2683.2,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 1565.0,
+       "unite_source": "MMAD",
+       "valeur_source": "1 565,0",
+       "document": "Managem_conso_S2_18.pdf",
+       "page": 2,
+       "citation": "Charges d'exploitation courantes -3 952,5 -4 229,1 Dettes financières non courantes 1 565,0 2 276,4",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1565.0,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 80
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 1849.8,
+       "unite_source": "MMAD",
+       "valeur_source": "1 849,8",
+       "document": "Managem_conso_S2_18.pdf",
+       "page": 2,
+       "citation": "Résultat avant impôts des entreprises intégrées 439,1 1 140,5 Dettes financières courantes 1 849,8 1 413,9",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1849.8,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 80
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 731.6,
+       "unite_source": "MMAD",
+       "valeur_source": "731,6",
+       "document": "Managem_conso_2018.pdf",
+       "page": 2,
+       "citation": "Lorsqu’une obligation légale, contractuelle ou implicite rend nécessaire le réaménagement de sites, Trésorerie et équivalent de trésorerie 731,6 1.482,7",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 731.6,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 79
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2683.2
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1665.2,
+     "unite_source": "MMAD",
+     "valeur_source": "1 665,2",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 82,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 1 038,40 1 665,2 Autres élements du résultat global -187,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1665.2,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 82
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -1919.8,
+     "unite_source": "MMAD",
+     "valeur_source": "(1 919,8)",
+     "document": "Managem_conso_2018.pdf",
+     "page": 3,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (1 919,8) (741,9)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1919.8,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 82
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 97,
+     "citation": "9 991 308 9 991 308 Pertes de valeur cumulées (507,0) (507,0)",
+     "entete_colonnes": "En Millions de MAD Décembre 2019 Décembre 2018",
+     "perimetre": "consolide_presume",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 97
+     },
+     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2019": {
+   "type": "annuel",
+   "cloture": "2019-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4553.3,
+     "unite_source": "MMAD",
+     "valeur_source": "4 553,3",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 79,
+     "citation": "Chiffre d'affaires 4 553,3 4 356,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4553.3,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1169.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1169.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 65.9,
+     "unite_source": "MMAD",
+     "valeur_source": "65,9",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 79,
+     "citation": "Résultat d'exploitation courant 65,9 461,4 - Actifs financiers disponibles à la vente 261,1 258,1",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 65.9,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": -389.8,
+     "unite_source": "MMAD",
+     "valeur_source": "-389,8",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 79,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ -389,8 345,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -389.8,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": -426.8,
+     "unite_source": "MMAD",
+     "valeur_source": "-426,8",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 79,
+     "citation": "RÉSULTAT NET - PART DU GROUPE -426,8 369,8",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -426.8,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 37.0,
+     "unite_source": "MMAD",
+     "valeur_source": "37,0",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 79,
+     "citation": "Intérêts minoritaires 37,0 -24,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 37.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 79
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 4470.9,
+     "unite_source": "MMAD",
+     "valeur_source": "4 470,9",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 80,
+     "citation": "4 470,9 5 312,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4470.9,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 80
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4454.9,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 2590.0,
+       "unite_source": "MMAD",
+       "valeur_source": "2 590,0",
+       "document": "Managem_RFA_2019.pdf",
+       "page": 80,
+       "citation": "Dettes financières non courantes 2 590,0 1 565,0",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2590.0,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 80
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 2703.0,
+       "unite_source": "MMAD",
+       "valeur_source": "2 703,0",
+       "document": "Managem_RFA_2019.pdf",
+       "page": 80,
+       "citation": "Dettes financières courantes 2 703,0 1 849,8",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2703.0,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 80
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 838.1,
+       "unite_source": "MMAD",
+       "valeur_source": "838,1",
+       "document": "Managem_RFA_2019.pdf",
+       "page": 79,
+       "citation": "Trésorerie et équivalent de trésorerie 838,1 731,6",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 838.1,
+        "ms_document": "Rapport financier annuel 2019",
+        "ms_page": 79
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4454.9
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1038.4,
+     "unite_source": "MMAD",
+     "valeur_source": "1 038,40",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 82,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 1 038,40 1 665,2 Autres élements du résultat global -187,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1038.4,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 82
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -2079.0,
+     "unite_source": "MMAD",
+     "valeur_source": "(2 079,0)",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 82,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (2 079,0) (1 919,8)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -2079.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 82
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 97,
+     "citation": "9 991 308 9 991 308 Pertes de valeur cumulées (507,0) (507,0)",
+     "entete_colonnes": "En Millions de MAD Décembre 2019 Décembre 2018",
+     "perimetre": "consolide_presume",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": 97
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2020": {
+   "type": "annuel",
+   "cloture": "2020-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4725.8,
+     "unite_source": "MMAD",
+     "valeur_source": "4 725,8",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 137,
+     "citation": "Chiffre d'affaires 4 725,8 4 553,3",
+     "entete_colonnes": "31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4725.8,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 137
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1647.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1647.6,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 522.1,
+     "unite_source": "MMAD",
+     "valeur_source": "522,1",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 137,
+     "citation": "RÉSULTAT D'EXPLOITATION COURANT 522,1 65,9",
+     "entete_colonnes": "31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 522.1,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 137
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 249.0,
+     "unite_source": "MMAD",
+     "valeur_source": "249,0",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 137,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 249,0 -389,8",
+     "entete_colonnes": "31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 249.0,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 137
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 224.8,
+     "unite_source": "MMAD",
+     "valeur_source": "224,8",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 137,
+     "citation": "RÉSULTAT NET - PART DU GROUPE 224,8 -426,8",
+     "entete_colonnes": "31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 224.8,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 137
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 24.1,
+     "unite_source": "MMAD",
+     "valeur_source": "24,1",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 137,
+     "citation": "Intérêts minoritaires 24,1 37,0",
+     "entete_colonnes": "31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 24.1,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 137
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 4214.9,
+     "unite_source": "MMAD",
+     "valeur_source": "4 214,9",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 139,
+     "citation": "CAPITAUX PROPRES ATTRIBUABLES AUX ACTIONNAIRES ORDINAIRES DE LA SOCIÉTÉ MÉRE 4 214,9 4 470,9",
+     "entete_colonnes": "PASSIF 31/12/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4214.9,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 139
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5739.4,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 3443.9,
+       "unite_source": "MMAD",
+       "valeur_source": "3 443,9",
+       "document": "Managem_RFA_2020.pdf",
+       "page": 139,
+       "citation": "Dettes financières non courantes 3 443,9 2 590,0",
+       "entete_colonnes": "PASSIF 31/12/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3443.9,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 139
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 3213.4,
+       "unite_source": "MMAD",
+       "valeur_source": "3 213,4",
+       "document": "Managem_RFA_2020.pdf",
+       "page": 139,
+       "citation": "Dettes financières courantes 3 213,4 2 703,0",
+       "entete_colonnes": "PASSIF 31/12/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3213.4,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 139
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 917.9,
+       "unite_source": "MMAD",
+       "valeur_source": "917,9",
+       "document": "Managem_RFA_2020.pdf",
+       "page": 138,
+       "citation": "TRÉSORERIE ET ÉQUIVALENT DE TRÉSORERIE 917,9 838,1",
+       "entete_colonnes": "ACTIFS 31/12/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 917.9,
+        "ms_document": "Rapport financier annuel 2020",
+        "ms_page": 138
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5739.4
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1766.6,
+     "unite_source": "MMAD",
+     "valeur_source": "1 766,6",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 142,
+     "citation": "FLUX NET DE TRÉSORERIE LIÉS AUX ACTIVITÉS OPÉRATIONNELLES 1 766,6 1 038,40",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1766.6,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 142
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -2536.1,
+     "unite_source": "MMAD",
+     "valeur_source": "(2 536,1)",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 142,
+     "citation": "FLUX NET DE TRÉSORERIE LIÉS AUX ACTIVITÉS D'INVESTISSEMENT (2 536,1) (2 079,0)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -2536.1,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 142
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 167,
+     "citation": "Nombre d'actions retenu pour le calcul du résultat de base par action 9 991 308 9 991 308",
+     "entete_colonnes": "EXERCICES CLOS LE 30 JUIN 2020 31 DÉC.- 2020 31-DÉC.-19",
+     "perimetre": "consolide_presume",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": 167
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2021": {
+   "type": "annuel",
+   "cloture": "2021-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 7422.8,
+     "unite_source": "MMAD",
+     "valeur_source": "7 422,8",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "Chiffre d'affaires 7 422,8 4 725,8 Immobilisations incorporelles, net 2 365,2 2 218,8",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7422.8,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 2724.1,
+     "unite_source": "MMAD",
+     "valeur_source": "2 724,1",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 76,
+     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
+     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 2770.1,
+      "ecart_relatif": 0.0169,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1317.3,
+     "unite_source": "MMAD",
+     "valeur_source": "1 317,3",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "Résultat d'exploitation courant 1 317,3 522,1 Créances clients, net 2 227,1 977,4",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1317.3,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 926.2,
+     "unite_source": "MMAD",
+     "valeur_source": "926,2",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 926,2 249,0 - Dettes représentées par un titre - -",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 926.2,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 861.5,
+     "unite_source": "MMAD",
+     "valeur_source": "861,5",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "Autres produits et charges d'exploitation -57,8 -78,4 Résultat net part du groupe 861,5 224,8",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 861.5,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 64.7,
+     "unite_source": "MMAD",
+     "valeur_source": "64,7",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "Intérêts minoritaires 64,7 24,1 - Autres dettes",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 64.7,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 5789.3,
+     "unite_source": "MMAD",
+     "valeur_source": "5 789,3",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 80,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 5 789,3 4 214,9",
+     "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5789.3,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 80
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4241.5,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5425.8,
+       "unite_source": "MMAD",
+       "valeur_source": "5 425,8",
+       "document": "Managem_RFA_2021.pdf",
+       "page": 80,
+       "citation": "Dettes financières non courantes 5 425,8 3 443,9",
+       "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5425.8,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 80
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 542.6,
+       "unite_source": "MMAD",
+       "valeur_source": "542,6",
+       "document": "Managem_RFA_2021.pdf",
+       "page": 80,
+       "citation": "Résultat net des activités poursuivies 926,2 249,0 Dettes financières courantes 542,6 3 213,4",
+       "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 542.6,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 80
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 1726.9,
+       "unite_source": "MMAD",
+       "valeur_source": "1 726,9",
+       "document": "Managem_RFA_2021.pdf",
+       "page": 80,
+       "citation": "Cessions d'actifs 1,0 1,3 Trésorerie et équivalent de trésorerie 1 726,9 917,9",
+       "entete_colonnes": "COMPTE DE RÉSULTAT CONSOLIDÉ Exercice Clos le 31.12.2021 ÉTAT DE LA SITUATION FINANCIÈRE Exercice Clos le 31.12.2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1726.9,
+        "ms_document": "Rapport financier annuel 2021",
+        "ms_page": 80
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4241.5
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 3044.0,
+     "unite_source": "MMAD",
+     "valeur_source": "3 044",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 82,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 3 044 1 767 Autres élements du résultat global 0,0 -27,0",
+     "entete_colonnes": "TABLEAU DE FLUX DE TRÉSORERIE CONSOLIDÉS Exercice Clos le 31.12.2021 ÉTAT DES AUTRES ÉLÉMENTS DU RÉSULTAT GLOBAL CONSOLIDÉ Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3044.0,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 82
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -2678.0,
+     "unite_source": "MMAD",
+     "valeur_source": "(2 678)",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 82,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (2 678) (2 536)",
+     "entete_colonnes": "TABLEAU DE FLUX DE TRÉSORERIE CONSOLIDÉS Exercice Clos le 31.12.2021 ÉTAT DES AUTRES ÉLÉMENTS DU RÉSULTAT GLOBAL CONSOLIDÉ Exercice Clos le 31.12.2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -2678.0,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 82
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2021.pdf",
+     "page": 95,
+     "citation": "Quote-part de résultat des S.M.E. 67,00 - 10,60 Nombre d'actions retenu pour le calcul du résultat par action 9 991 308 9 991 308",
+     "entete_colonnes": "Décembre 2021 .11 Décembre 2020 .12 Exercices clos le 31 Décembre 2021 31 déc. 2021 31 déc. 2020",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": 95
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2022": {
+   "type": "annuel",
+   "cloture": "2022-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 9645.2,
+     "unite_source": "MMAD",
+     "valeur_source": "9 645,2",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "Chiffre d'affaires 9 645,2 7 422,8 Autres actifs financiers 352,3 318,2",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9645.2,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 3349.3,
+     "unite_source": "MMAD",
+     "valeur_source": "3 349,3",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 76,
+     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
+     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 3439.8,
+      "ecart_relatif": 0.027,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1993.0,
+     "unite_source": "MMAD",
+     "valeur_source": "1 993,0",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "Résultat d'exploitation courant 1 993,0 1 317,3 Autres débiteurs courants,net 2 051,1 1 536,4",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1993.0,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1751.3,
+     "unite_source": "MMAD",
+     "valeur_source": "1 751,3",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 1 751,3 926,2 - Dettes représentées par un titre - -",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1751.3,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1614.5,
+     "unite_source": "MMAD",
+     "valeur_source": "1 614,5",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "Autres produits et charges d'exploitation - 23,5 - 57,8 Résultat net part du groupe 1 614,5 861,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1614.5,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 136.7,
+     "unite_source": "MMAD",
+     "valeur_source": "136,7",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "Intérêts minoritaires 136,7 64,7 - Autres dettes",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 136.7,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 7576.9,
+     "unite_source": "MMAD",
+     "valeur_source": "7 576,9",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 94,
+     "citation": "Résultat des activités opérationnelles 1 969,6 1 259,6 Capitaux propres attribuables aux actionnaires ordinaires de la société mère 7 576,9 5 789,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7576.9,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 94
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 3844.7,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5440.2,
+       "unite_source": "MMAD",
+       "valeur_source": "5 440,2",
+       "document": "Managem_RFA_2022.pdf",
+       "page": 94,
+       "citation": "Autres produits et charges financiers 94,4 24,5 Dettes financières non courantes 5 440,2 5 425,8",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5440.2,
+        "ms_document": "Rapport financier annuel 2022",
+        "ms_page": 94
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 900.6,
+       "unite_source": "MMAD",
+       "valeur_source": "900,6",
+       "document": "Managem_RFA_2022.pdf",
+       "page": 94,
+       "citation": "Résultat net des activités poursuivies 1 751,3 926,2 Dettes financières courantes 900,6 542,6",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 900.6,
+        "ms_document": "Rapport financier annuel 2022",
+        "ms_page": 94
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 2496.1,
+       "unite_source": "MMAD",
+       "valeur_source": "2 496,1",
+       "document": "Managem_RFA_2022.pdf",
+       "page": 94,
+       "citation": "Cessions d'actifs - 0,3 1,0 Trésorerie et équivalent de trésorerie 2 496,1 1 726,9",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2496.1,
+        "ms_document": "Rapport financier annuel 2022",
+        "ms_page": 94
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3844.7
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2514.9,
+     "unite_source": "MMAD",
+     "valeur_source": "2 514,9",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 96,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 2 514,9 3 044,5 Autres élements du résultat global 0,0 0,0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2514.9,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 96
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -2465.5,
+     "unite_source": "MMAD",
+     "valeur_source": "(2 465,5)",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 96,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (2 465,5) (2 678,3)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -2465.5,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 96
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 109,
+     "citation": "Nombre d'actions retenu pour le calcul du résultat de base par action 9 991 308 9 991 308",
+     "entete_colonnes": "Exercices clos le 31 Décembre 2022 31 déc.-2022 31-déc.-2021",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": 109
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2023": {
+   "type": "annuel",
+   "cloture": "2023-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 7507.6,
+     "unite_source": "MMAD",
+     "valeur_source": "7 507,6",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Chiffre d'affaires 5 7 507,6 9 645,2 Participations dans les entreprises associées 150,1 312,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7507.6,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 2395.3,
+     "unite_source": "MMAD",
+     "valeur_source": "2 395,3",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 64,
+     "citation": "Excédent Brut d'exploitation MMAD 2 395,3 3 349,3 -954,0 -28,5% 1 358,9  || même colonne que : Chiffre d’affaires MMAD 7 507,6 9 645,2 -2 137,6 -22,2% 4 181,5",
+     "entete_colonnes": "L’effet prix de vente moyen2 des métaux est de -354,5 MMAD, rationnalisé comme suit : 2023 2022 En MMAD En % 2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 2441.7,
+      "ecart_relatif": 0.0194,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1044.7,
+     "unite_source": "MMAD",
+     "valeur_source": "1 044,7",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Résultat d'exploitation courant 1 044,7 1 993,0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1044.7,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 541.0,
+     "unite_source": "MMAD",
+     "valeur_source": "541,0",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Résultat de l'ensemble consolidé 541,0 1 751,3 Passif non courant 7 400,6 5 984,4",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 541.0,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 514.4,
+     "unite_source": "MMAD",
+     "valeur_source": "514,4",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Résultat net part du groupe 514,4 1 614,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 514.4,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 26.6,
+     "unite_source": "MMAD",
+     "valeur_source": "26,6",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Intérêts minoritaires 26,6 136,7",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 26.6,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "total « part du groupe » non imprimé (somme de lignes du bilan) : non reconstitué dans ce lot ; valeur de ms-screener (7565.0) non vérifiée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 7565.0,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 7101.6,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 6832.1,
+       "unite_source": "MMAD",
+       "valeur_source": "6 832,1",
+       "document": "Managem_RFA_2023.pdf",
+       "page": 84,
+       "citation": "Impôts différés 11 95,8 (165,5) Dettes financières non courantes 25 6 832,1 5 440,2",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6832.1,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 84
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 3010.0,
+       "unite_source": "MMAD",
+       "valeur_source": "3 010,0",
+       "document": "Managem_RFA_2023.pdf",
+       "page": 84,
+       "citation": "Dettes financières courantes 25 3 010,0 900,6",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3010.0,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 84
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 2740.5,
+       "unite_source": "MMAD",
+       "valeur_source": "2 740,5",
+       "document": "Managem_RFA_2023.pdf",
+       "page": 84,
+       "citation": "Trésorerie et équivalent de trésorerie 20 2 740,5 2 496,1",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2740.5,
+        "ms_document": "Rapport financier annuel 2023",
+        "ms_page": 84
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7101.6
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2432.1,
+     "unite_source": "MMAD",
+     "valeur_source": "2 432,1",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 86,
+     "citation": "Flux net de trésorerie liés aux activités opérationnelles 2 432,1 2 484,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2432.1,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 86
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -3799.6,
+     "unite_source": "MMAD",
+     "valeur_source": "(3 799,6)",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 86,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (3 799,6) (2 408,6)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -3799.6,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 86
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 9991308.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 991 308",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 84,
+     "citation": "Nb d'actions – mère 36 9 991 308 9 991 308 Dettes fournisseurs courantes 24 1 924,5 1 553,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9991308.0,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": 84
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2024": {
+   "type": "annuel",
+   "cloture": "2024-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8859.4,
+     "unite_source": "MMAD",
+     "valeur_source": "8 859,4",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Chiffre d’affaires 5 8 859,4 7 507,6 Goodwill 14 305,4 305,4",
+     "entete_colonnes": "(En millions de dirhams) Note 31/12/2024 31/12/2023 ACTIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8859.4,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2621.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2621.2,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1252.3,
+     "unite_source": "MMAD",
+     "valeur_source": "1 252,3",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Résultat d’exploitation courant 1 252,3 1 044,7",
+     "entete_colonnes": "(En millions de dirhams) Note 31/12/2024 31/12/2023 ACTIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1252.3,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 787.5,
+     "unite_source": "MMAD",
+     "valeur_source": "787,5",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Résultat de l’ensemble consolidé 787,5 541,0 Avantages du personnel 23 261,0 252,7",
+     "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 787.5,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 619.8,
+     "unite_source": "MMAD",
+     "valeur_source": "619,8",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Résultat net des entreprises intégrées 775,0 636,8 Résultat net part du groupe 619,8 514,4",
+     "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 619.8,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 167.6,
+     "unite_source": "MMAD",
+     "valeur_source": "167,6",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Intérêts minoritaires 167,6 26,6",
+     "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 167.6,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 10687.8,
+     "unite_source": "MMAD",
+     "valeur_source": "10 687,8",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 21 10 687,8 7 565,0",
+     "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10687.8,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 10390.8,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 7951.6,
+       "unite_source": "MMAD",
+       "valeur_source": "7 951,6",
+       "document": "Managem_RFA_2024.pdf",
+       "page": 82,
+       "citation": "Dettes financières non courantes 25 7 951,6 6 832,1",
+       "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 7951.6,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 82
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 5028.3,
+       "unite_source": "MMAD",
+       "valeur_source": "5 028,3",
+       "document": "Managem_RFA_2024.pdf",
+       "page": 82,
+       "citation": "Dettes financières courantes 25 5 028,3 3 010,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5028.3,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 82
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 2589.1,
+       "unite_source": "MMAD",
+       "valeur_source": "2 589,1",
+       "document": "Managem_RFA_2024.pdf",
+       "page": 82,
+       "citation": "Trésorerie et équivalent de trésorerie 20 2 589,1 2 740,5",
+       "entete_colonnes": "(En millions de dirhams) Note 31/12/2024 31/12/2023 ACTIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2589.1,
+        "ms_document": "Rapport financier annuel 2024",
+        "ms_page": 82
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10390.8
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 3121.9,
+     "unite_source": "MMAD",
+     "valeur_source": "3 121,9",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 84,
+     "citation": "Dont Résultat global net - Part du Groupe 492,7 288,0 Flux net de trésorerie liés aux activités opérationnelles 3 121,9 2 432,1",
+     "entete_colonnes": "(En millions de dirhams) 31-déc -24 31-déc -23 (En millions de dirhams) 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3121.9,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 84
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -7893.5,
+     "unite_source": "MMAD",
+     "valeur_source": "(7 893,5)",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 84,
+     "citation": "Flux net de trésorerie liés aux activités d'investissement (7 893,5) (3 799,6)",
+     "entete_colonnes": "(En millions de dirhams) 31-déc -24 31-déc -23 (En millions de dirhams) 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -7893.5,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 84
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 11864676.0,
+     "unite_source": "MMAD",
+     "valeur_source": "11 864 676",
+     "document": "Managem_RFA_2024.pdf",
+     "page": 82,
+     "citation": "Nb d’actions - Mère 36 11 864 676 9 991 308 - Dettes représentées par un titre 2 000,0 2 000,0",
+     "entete_colonnes": "PASSIF (En millions de dirhams) Note 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11864676.0,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": 82
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2025": {
+   "type": "annuel",
+   "cloture": "2025-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 13693.6,
+     "unite_source": "MMAD",
+     "valeur_source": "13 693,6",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Chiffre d'affaires 5 13 693,6 8 859,4",
+     "entete_colonnes": "ACTIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 13693.6,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6009.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 6009.6,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3997.2,
+     "unite_source": "MMAD",
+     "valeur_source": "3 997,2",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Résultat d'exploitation courant 3 997,2 1 252,3 Dont Actifs financiers à la juste valeur 261,3 267,9",
+     "entete_colonnes": "ACTIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3997.2,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3470.4,
+     "unite_source": "MMAD",
+     "valeur_source": "3 470,4",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Résultat de l'ensemble consolidé 3 470,4 787,5 Capital 1 186,5 1 186,5",
+     "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3470.4,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 3002.0,
+     "unite_source": "MMAD",
+     "valeur_source": "3 002,0",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Résultat net - Part du groupe 3 002,0 619,8 Réserves 2 835,6 4 019,7",
+     "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3002.0,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 468.4,
+     "unite_source": "MMAD",
+     "valeur_source": "468,4",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Intérêts minoritaires 468,4 167,6 Primes d'émission et de fusion 4 449,4 4 449,4",
+     "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 468.4,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 11478.3,
+     "unite_source": "MMAD",
+     "valeur_source": "11 478,3",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 21 11 478,3 10 687,8",
+     "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11478.3,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 12641.1,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 10544.2,
+       "unite_source": "MMAD",
+       "valeur_source": "10 544,2",
+       "document": "Managem_RFA_2025.pdf",
+       "page": 86,
+       "citation": "Dettes financières non courantes 25 10 544,2 7 951,6",
+       "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 10544.2,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 86
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 6487.2,
+       "unite_source": "MMAD",
+       "valeur_source": "6 487,2",
+       "document": "Managem_RFA_2025.pdf",
+       "page": 86,
+       "citation": "Dettes financières courantes 25 6 487,2 5 028,3",
+       "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6487.2,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 86
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 4390.3,
+       "unite_source": "MMAD",
+       "valeur_source": "4 390,3",
+       "document": "Managem_RFA_2025.pdf",
+       "page": 86,
+       "citation": "Produits d'intérêts 96,6 58,8 Trésorerie et équivalent de trésorerie 20 4 390,3 2 589,1",
+       "entete_colonnes": "ACTIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 4390.3,
+        "ms_document": "Rapport financier annuel 2025",
+        "ms_page": 86
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 12641.1
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 5483.0,
+     "unite_source": "MMAD",
+     "valeur_source": "5 483",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 88,
+     "citation": "Dont Résultat global net - Part du Groupe 1 255,1 492,7 Flux de trésorerie liés aux activités opérationnelles 5 483 3 122",
+     "entete_colonnes": "(En millions de dirhams) 31/12/2025 31/12/2024 (En millions de dirhams) 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5483.0,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 88
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -6467.0,
+     "unite_source": "MMAD",
+     "valeur_source": "-6 467",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 88,
+     "citation": "Flux de trésorerie liés aux activités d'investissement -6 467 -7 894",
+     "entete_colonnes": "(En millions de dirhams) 31/12/2025 31/12/2024 (En millions de dirhams) 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -6467.0,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 88
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 11864676.0,
+     "unite_source": "MMAD",
+     "valeur_source": "11 864 676",
+     "document": "Managem_RFA_2025.pdf",
+     "page": 86,
+     "citation": "Nb d'actions - Mère 36 11 864 676 11 864 676 Écarts de conversion 4,9 412,4",
+     "entete_colonnes": "Résultat net des activités abandonnées 0,0 0,0 PASSIF (En millions de dirhams) Note 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11864676.0,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": 86
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2019": {
+   "type": "semestriel",
+   "cloture": "2019-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 2160.3,
+     "unite_source": "MMAD",
+     "valeur_source": "2 160,3",
+     "document": "Managem_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "Chiﬀre d'aﬀaires 2 160,3 2 474,2 Capital 999 999",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2160.3,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (446.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 446.2,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": -99.3,
+     "unite_source": "MMAD",
+     "valeur_source": "-99,3",
+     "document": "Managem_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "Résultat d'exploitation courant -99,3 398,5",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -99.3,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": -142.8,
+     "unite_source": "MMAD",
+     "valeur_source": "-142,8",
+     "document": "Managem_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "Résultat de l'ensemble consolidé -142,8 236,0",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -142.8,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": -138.8,
+     "unite_source": "MMAD",
+     "valeur_source": "-138,8",
+     "document": "Managem_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "RÉSULTAT NET PART DU GROUPE -138,8 230,7 Passif courant 4 029 3 703",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -138.8,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": -4.0,
+     "unite_source": "MMAD",
+     "valeur_source": "-4,0",
+     "document": "Managem_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "Intérêts minoritaires -4,0 5,3",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -4.0,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2020": {
+   "type": "semestriel",
+   "cloture": "2020-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 2378.5,
+     "unite_source": "MMAD",
+     "valeur_source": "2.378,5",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 13,
+     "citation": "Chiffre d’affaires 2.378,5 2.160,3",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2020 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2378.5,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (870.1) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 870.1,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 303.0,
+     "unite_source": "MMAD",
+     "valeur_source": "303,0",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT D’EXPLOITATION COURANT 303,0 -99,3",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2020 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 303.0,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 111.2,
+     "unite_source": "MMAD",
+     "valeur_source": "111,2",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT DE L’ENSEMBLE CONSOLIDÉ 111,2 -142,8",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2020 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 111.2,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 98.3,
+     "unite_source": "MMAD",
+     "valeur_source": "98,3",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT NET - PART DU GROUPE 98,3 -138,8",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2020 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 98.3,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 12.9,
+     "unite_source": "MMAD",
+     "valeur_source": "12,9",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 12,9 -4,0",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2020 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 12.9,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 4374.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4.374",
+     "document": "Manage_RFS_juin_2020.pdf",
+     "page": 15,
+     "citation": "CAPITAUX PROPRES ATTRIBUABLES AUX ACTIONNAIRES ORDINAIRES DE LA SOCIÉTÉ MÈRE 4.374 4.471",
+     "entete_colonnes": "PASSIF 30/06/2020 31/12/2019",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4374.0,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": 1
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4865.0,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 3229.0,
+       "unite_source": "MMAD",
+       "valeur_source": "3.229",
+       "document": "Manage_RFS_juin_2020.pdf",
+       "page": 15,
+       "citation": "Dettes financières non courantes 3.229 2.590",
+       "entete_colonnes": "PASSIF 30/06/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3229.0,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 1
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 2263.0,
+       "unite_source": "MMAD",
+       "valeur_source": "2.263",
+       "document": "Manage_RFS_juin_2020.pdf",
+       "page": 15,
+       "citation": "Dettes financières courantes 2.263 2.703",
+       "entete_colonnes": "PASSIF 30/06/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2263.0,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 1
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 627.0,
+       "unite_source": "MMAD",
+       "valeur_source": "627",
+       "document": "Manage_RFS_juin_2020.pdf",
+       "page": 14,
+       "citation": "Trésorerie et équivalent de trésorerie 627 838",
+       "entete_colonnes": "ACTIFS 30/06/2020 31/12/2019",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 627.0,
+        "ms_document": "États financiers S1 2020",
+        "ms_page": 1
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4865.0
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2021": {
+   "type": "semestriel",
+   "cloture": "2021-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 3011.2,
+     "unite_source": "MMAD",
+     "valeur_source": "3.011,2",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 13,
+     "citation": "Chiffre d’affaires 3.011,2 2.378,5",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2021 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3011.2,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (808.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 808.6,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 189.6,
+     "unite_source": "MMAD",
+     "valeur_source": "189,6",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT D’EXPLOITATION COURANT 189,6 303,0",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2021 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 189.6,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 169.8,
+     "unite_source": "MMAD",
+     "valeur_source": "169,8",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT DE L’ENSEMBLE CONSOLIDÉ 169,8 111,2",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2021 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 169.8,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 184.8,
+     "unite_source": "MMAD",
+     "valeur_source": "184,8",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT NET - PART DU GROUPE 184,8 98,3",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2021 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 184.8,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": -15.0,
+     "unite_source": "MMAD",
+     "valeur_source": "-15,0",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires -15,0 12,9",
+     "entete_colonnes": "(EN MILLIONS DE DIRHAMS) 30/06/2021 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -15.0,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 5035.0,
+     "unite_source": "MMAD",
+     "valeur_source": "5.035,0",
+     "document": "MANAGEM_RFS_JUIN_2021.pdf",
+     "page": 15,
+     "citation": "CAPITAUX PROPRES ATTRIBUABLES AUX ACTIONNAIRES ORDINAIRES DE LA SOCIÉTÉ MÈRE 5.035,0 4.214,9",
+     "entete_colonnes": "PASSIF 30/06/2021 31/12/2020",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5035.0,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": 1
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 5656.4,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 4120.8,
+       "unite_source": "MMAD",
+       "valeur_source": "4.120,8",
+       "document": "MANAGEM_RFS_JUIN_2021.pdf",
+       "page": 15,
+       "citation": "Dettes financières non courantes 4.120,8 3.443,9",
+       "entete_colonnes": "PASSIF 30/06/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 4120.8,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 1
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 2670.7,
+       "unite_source": "MMAD",
+       "valeur_source": "2.670,7",
+       "document": "MANAGEM_RFS_JUIN_2021.pdf",
+       "page": 15,
+       "citation": "Dettes financières courantes 2.670,7 3.213,4",
+       "entete_colonnes": "PASSIF 30/06/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2670.7,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 1
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 1135.1,
+       "unite_source": "MMAD",
+       "valeur_source": "1.135,1",
+       "document": "MANAGEM_RFS_JUIN_2021.pdf",
+       "page": 14,
+       "citation": "Trésorerie et équivalent de trésorerie 1.135,1 917,9",
+       "entete_colonnes": "ACTIFS 30/06/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1135.1,
+        "ms_document": "États financiers S1 2021",
+        "ms_page": 1
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5656.4
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2022": {
+   "type": "semestriel",
+   "cloture": "2022-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 5466.0,
+     "unite_source": "MMAD",
+     "valeur_source": "5 466",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 4,
+     "citation": "Chiffre d’affaires 3 011 5 466 + 2 455",
+     "entete_colonnes": "En MDH S1-2021 S1-2022 Variation en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5466.0,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 2140.0,
+     "unite_source": "MMAD",
+     "valeur_source": "2 140",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 4,
+     "citation": "Excédent brut d’exploitation 788 2 140 + 1 352  || même colonne que : Chiffre d’affaires 3 011 5 466 + 2 455",
+     "entete_colonnes": "En MDH S1-2021 S1-2022 Variation en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2155.8
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1291.7,
+     "unite_source": "MMAD",
+     "valeur_source": "1 291,7",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 12,
+     "citation": "Résultat d'exploitation courant 1 291,7 189,6",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2022 30/06/2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1291.7,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1323.1,
+     "unite_source": "MMAD",
+     "valeur_source": "1 323,1",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 12,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 1 323,1 169,8",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2022 30/06/2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1323.1,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1209.7,
+     "unite_source": "MMAD",
+     "valeur_source": "1 209,7",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 11,
+     "citation": "Résultat net part du groupe 1 209,7 861,5",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2022 31/12/2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1209.7,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 113.4,
+     "unite_source": "MMAD",
+     "valeur_source": "113,4",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 12,
+     "citation": "Intérêts minoritaires 113,4 -15,0",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2022 30/06/2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 113.4,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 7116.5,
+     "unite_source": "MMAD",
+     "valeur_source": "7 116,5",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 11,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 7 116,5 5 789,3",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2022 31/12/2021",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7116.5,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 4158.2,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5930.4,
+       "unite_source": "MMAD",
+       "valeur_source": "5 930,4",
+       "document": "Managem_RFS_juin_22.pdf",
+       "page": 11,
+       "citation": "Dettes financières non courantes 5 930,4 5 425,8",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2022 31/12/2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5930.4,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 555.5,
+       "unite_source": "MMAD",
+       "valeur_source": "555,5",
+       "document": "Managem_RFS_juin_22.pdf",
+       "page": 11,
+       "citation": "Dettes financières courantes 555,5 542,6",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2022 31/12/2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 555.5,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 2327.7,
+       "unite_source": "MMAD",
+       "valeur_source": "2 327,7",
+       "document": "Managem_RFS_juin_22.pdf",
+       "page": 11,
+       "citation": "Trésorerie et équivalent de trésorerie 2 327,7 1 726,9",
+       "entete_colonnes": "ACTIF (En millions de dirhams) 30/06/2022 31/12/2021",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2327.7,
+        "ms_document": "États financiers S1 2022",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4158.2
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2023": {
+   "type": "semestriel",
+   "cloture": "2023-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4181.5,
+     "unite_source": "MMAD",
+     "valeur_source": "4 181,5",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 13,
+     "citation": "Chiffre d'affaires 4 181,5 5 466,0",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2023 30/06/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4181.5,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1379.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1379.7,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 642.9,
+     "unite_source": "MMAD",
+     "valeur_source": "642,9",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 13,
+     "citation": "Résultat d'exploitation courant 642,9 1 291,7",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2023 30/06/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 642.9,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 323.6,
+     "unite_source": "MMAD",
+     "valeur_source": "323,6",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT DE L'ENSEMBLE CONSOLIDÉ 323,6 1 323,1",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2023 30/06/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 323.6,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 304.9,
+     "unite_source": "MMAD",
+     "valeur_source": "304,9",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 12,
+     "citation": "Résultat net part du groupe 304,9 1 614,5",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2023 31/12/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 304.9,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 18.8,
+     "unite_source": "MMAD",
+     "valeur_source": "18,8",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 18,8 113,4",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2023 30/06/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 18.8,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 7400.4,
+     "unite_source": "MMAD",
+     "valeur_source": "7 400,4",
+     "document": "Managem_RFS_S1_23.pdf",
+     "page": 12,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 7 400,4 7 576,9",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2023 31/12/2022",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7400.4,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 6035.2,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 7142.2,
+       "unite_source": "MMAD",
+       "valeur_source": "7 142,2",
+       "document": "Managem_RFS_S1_23.pdf",
+       "page": 12,
+       "citation": "Dettes financières non courantes 7 142,2 5 440,2",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2023 31/12/2022",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 7142.2,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 1525.1,
+       "unite_source": "MMAD",
+       "valeur_source": "1 525,1",
+       "document": "Managem_RFS_S1_23.pdf",
+       "page": 12,
+       "citation": "Dettes financières courantes 1 525,1 900,6",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2023 31/12/2022",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1525.1,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 2632.1,
+       "unite_source": "MMAD",
+       "valeur_source": "2 632,1",
+       "document": "Managem_RFS_S1_23.pdf",
+       "page": 11,
+       "citation": "Trésorerie et équivalent de trésorerie 2 632,1 2 496,1",
+       "entete_colonnes": "ACTIF (En millions de dirhams) 30/06/2023 31/12/2022",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 2632.1,
+        "ms_document": "États financiers S1 2023",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6035.2
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2024": {
+   "type": "semestriel",
+   "cloture": "2024-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4408.09,
+     "unite_source": "MMAD",
+     "valeur_source": "4 408,09",
+     "document": "Managem -S1-2024.pdf",
+     "page": 13,
+     "citation": "Chiffre d'affaires 4 408,09 4 181,50",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2024 30/06/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4408.09,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1359.61) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1359.61,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 671.25,
+     "unite_source": "MMAD",
+     "valeur_source": "671,25",
+     "document": "Managem -S1-2024.pdf",
+     "page": 13,
+     "citation": "Résultat d'exploitation courant 671,25 642,90",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2024 30/06/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 671.25,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 354.3,
+     "unite_source": "MMAD",
+     "valeur_source": "354,30",
+     "document": "Managem -S1-2024.pdf",
+     "page": 13,
+     "citation": "Résultat de l'ensemble consolidé 354,30 323,60",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2024 30/06/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 354.3,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 258.63,
+     "unite_source": "MMAD",
+     "valeur_source": "258,63",
+     "document": "Managem -S1-2024.pdf",
+     "page": 13,
+     "citation": "Résultat net - Part du groupe 258,63 304,87",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2024 30/06/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 258.63,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 95.67,
+     "unite_source": "MMAD",
+     "valeur_source": "95,67",
+     "document": "Managem -S1-2024.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 95,67 18,80",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2024 30/06/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 95.67,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 10322.9,
+     "unite_source": "MMAD",
+     "valeur_source": "10 322,9",
+     "document": "Managem -S1-2024.pdf",
+     "page": 12,
+     "citation": "Capitaux propres attribuables aux actionnaires ordinaires de la société mère 10 322,9 7 565,0",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10322.9,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 7598.2,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 5743.2,
+       "unite_source": "MMAD",
+       "valeur_source": "5 743,2",
+       "document": "Managem -S1-2024.pdf",
+       "page": 12,
+       "citation": "Dettes financières non courantes 5 743,2 6 832,1",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 5743.2,
+        "ms_document": "États financiers S1 2024",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 3304.9,
+       "unite_source": "MMAD",
+       "valeur_source": "3 304,9",
+       "document": "Managem -S1-2024.pdf",
+       "page": 12,
+       "citation": "Dettes financières courantes 3 304,9 3 010,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 3304.9,
+        "ms_document": "États financiers S1 2024",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 1449.9,
+       "unite_source": "MMAD",
+       "valeur_source": "1 449,9",
+       "document": "Managem -S1-2024.pdf",
+       "page": 11,
+       "citation": "Trésorerie et équivalent de trésorerie 1 449,9 2 740,5",
+       "entete_colonnes": "ACTIF (En millions de dirhams) 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1449.9,
+        "ms_document": "États financiers S1 2024",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7598.2
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2025": {
+   "type": "semestriel",
+   "cloture": "2025-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4422.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4 422",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Chiffre d’affaires 4 408 4 422 +14",
+     "entete_colonnes": "Principaux Indicateurs (En MDH) S1- 2024 S1- 2025 Var en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4422.0,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 1442.0,
+     "unite_source": "MMAD",
+     "valeur_source": "1 442",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Excédent brut d'exploitation 1 422 1 442 +19  || même colonne que : Chiffre d’affaires 4 408 4 422 +14",
+     "entete_colonnes": "Principaux Indicateurs (En MDH) S1- 2024 S1- 2025 Var en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 1469.6,
+      "ecart_relatif": 0.0191,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 738.4,
+     "unite_source": "MMAD",
+     "valeur_source": "738,4",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 13,
+     "citation": "Résultat d'exploitation courant 738,4 671,2",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 738.4,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 515.4,
+     "unite_source": "MMAD",
+     "valeur_source": "515,4",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 13,
+     "citation": "Résultat de l'ensemble consolidé 515,4 354,3",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 515.4,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 380.5,
+     "unite_source": "MMAD",
+     "valeur_source": "380,5",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 12,
+     "citation": "Résultat net part du groupe 380,5 619,8",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 380.5,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 134.9,
+     "unite_source": "MMAD",
+     "valeur_source": "134,9",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 134,9 95,7",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 134.9,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 9313.1,
+     "unite_source": "MMAD",
+     "valeur_source": "9 313,1",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 12,
+     "citation": "CAPITAUX PROPRES ATTRIBUABLES AUX ACTIONNAIRES ORDINAIRES DE LA SOCIÉTÉ MÈRE 9 313,1 10 687,8",
+     "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9313.1,
+      "ms_document": "États financiers S1 2025",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 14570.3,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "composantes": {
+      "dettes_financieres_nc": {
+       "valeur_mdh": 9842.4,
+       "unite_source": "MMAD",
+       "valeur_source": "9 842,4",
+       "document": "Managem_RFS_S1_25.pdf",
+       "page": 12,
+       "citation": "Dettes financières non courantes 9 842,4 7 951,6",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 9842.4,
+        "ms_document": "États financiers S1 2025",
+        "ms_page": 2
+       }
+      },
+      "dettes_financieres_c": {
+       "valeur_mdh": 6608.0,
+       "unite_source": "MMAD",
+       "valeur_source": "6 608,0",
+       "document": "Managem_RFS_S1_25.pdf",
+       "page": 12,
+       "citation": "Dettes financières courantes 6 608,0 5 028,3",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 6608.0,
+        "ms_document": "États financiers S1 2025",
+        "ms_page": 2
+       }
+      },
+      "tresorerie": {
+       "valeur_mdh": 1880.1,
+       "unite_source": "MMAD",
+       "valeur_source": "1 880,1",
+       "document": "Managem_RFS_S1_25.pdf",
+       "page": 11,
+       "citation": "Trésorerie et équivalent de trésorerie 1 880,1 2 589,1",
+       "entete_colonnes": "ACTIF (En millions de dirhams) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": null,
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "concordant",
+        "ms_valeur": 1880.1,
+        "ms_document": "États financiers S1 2025",
+        "ms_page": 2
+       }
+      }
+     },
+     "perimetre": "consolide",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 14570.3
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2026": {
+   "type": "semestriel",
+   "cloture": "2026-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 11764.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2,
+      "ms_libelle": "Chiﬀ re d’aﬀ aires"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6206.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 6206.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": null
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4840.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4 840",
+     "document": "Managem_RFS_S1_26.pdf",
+     "page": 13,
+     "citation": "Résultat d’exploitation courant 4 840 738",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4840.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 4223.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4 223",
+     "document": "Managem_RFS_S1_26.pdf",
+     "page": 13,
+     "citation": "Résultat de l’ensemble consolidé 4 223 515",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4223.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 3778.0,
+     "unite_source": "MMAD",
+     "valeur_source": "3778",
+     "document": "Managem_RFS_S1_26.pdf",
+     "page": 4,
+     "citation": "• \u0007Résultat net part du groupe en forte hausse à 3778mdh porté par la bonne performance des nouvelles",
+     "entete_colonnes": "vs 4 422 MDH au S1 2025 +20 pts vs 33 % au S1 2025 vs 380 MDH au S1 2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3778.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 446.0,
+     "unite_source": "MMAD",
+     "valeur_source": "446",
+     "document": "Managem_RFS_S1_26.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 446 135",
+     "entete_colonnes": "(En millions de dirhams) 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 446.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 15439.0,
+     "unite_source": "MMAD",
+     "valeur_source": "15 439",
+     "document": "Managem_RFS_S1_26.pdf",
+     "page": 12,
+     "citation": "CAPITAUX PROPRES ATTRIBUABLES AUX ACTIONNAIRES ORDINAIRES DE LA SOCIÉTÉ MÈRE 15 439 11 478",
+     "entete_colonnes": "PASSIF\b (En millions de dirhams) 30/06/2026 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 15439.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": 2
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "valeur de ms-screener non retrouvée dans les pièces téléchargées (pièce non lue, libellé différent ou valeur dérivée)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 9951.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": null,
+      "ms_libelle": null
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non publié (constat de ms-screener ; non recherché dans la pièce, à confirmer)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  }
+ },
+ "documents": {
+  "Managem_conso_2016.pdf": {
+   "fichier": "Managem_conso_2016.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_2016.pdf",
+   "sha256": "1c63459e85adaabffa74ba6ba2828482a71619d0a7a40caa9bd0a81ed8e16bcc",
+   "octets": 149093,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-34",
+   "type": "FY",
+   "annee_nom_fichier": 2016
+  },
+  "Managem_conso_S2_16.pdf": {
+   "fichier": "Managem_conso_S2_16.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_S2_16.pdf",
+   "sha256": "b2670c4276031a4442183d6ac7687d0811f54fc24e9ef0b5ce3ba0a313b95a5b",
+   "octets": 288442,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-32",
+   "type": "FY",
+   "annee_nom_fichier": 2016
+  },
+  "Managem_conso_S2_18.pdf": {
+   "fichier": "Managem_conso_S2_18.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_S2_18.pdf",
+   "sha256": "38a325a97fc47ae93a87035faa7da01d1b56e9e55806d9775722824b2ed40351",
+   "octets": 1358687,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-41",
+   "type": "FY",
+   "annee_nom_fichier": 2018
+  },
+  "Managem_conso_2018.pdf": {
+   "fichier": "Managem_conso_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_2018.pdf",
+   "sha256": "2c25ea6da2cba4f412aa768e3a488f1457638d624bb3c52e2577e716c726f541",
+   "octets": 137829,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-42",
+   "type": "FY",
+   "annee_nom_fichier": 2018
+  },
+  "Managem_conso_S1_18.pdf": {
+   "fichier": "Managem_conso_S1_18.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_S1_18.pdf",
+   "sha256": "d5a8be1ffb0c50b544c0987c94a660ff65c8cfd31a77c0ae0d69adc509e3e4a3",
+   "octets": 812930,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-37",
+   "type": "H1",
+   "annee_nom_fichier": 2018
+  },
+  "Managem_RFA_2019.pdf": {
+   "fichier": "Managem_RFA_2019.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2019.pdf",
+   "sha256": "7d93d82c28bc2b685155fbb556eed5d115e571531a6804ae4dd8c8c7d2ab5c5f",
+   "octets": 7198474,
+   "pages": 117,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2019",
+   "type": "FY",
+   "annee_nom_fichier": 2019
+  },
+  "Managem_RFA_2020.pdf": {
+   "fichier": "Managem_RFA_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2020.pdf",
+   "sha256": "c6196cce9bb5d2d4bf4e9805c4d9daa1e1ed7b4d4389fedf30d6585d0f5b3d50",
+   "octets": 10921921,
+   "pages": 204,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2020",
+   "type": "FY",
+   "annee_nom_fichier": 2020
+  },
+  "Managem_RFA_2021.pdf": {
+   "fichier": "Managem_RFA_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2021.pdf",
+   "sha256": "5e99bbb57dac2f936b2fd7c8e7bfa89d2ed77685afe5f2f312843b2c4c10b70e",
+   "octets": 8849308,
+   "pages": 116,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2021",
+   "type": "FY",
+   "annee_nom_fichier": 2021
+  },
+  "Managem_RFA_2022.pdf": {
+   "fichier": "Managem_RFA_2022.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2022.pdf",
+   "sha256": "c158d5b0097fe329cfa7d9ba79e5a00fda0e9e45fbb2ee24c0a6cbe878420f0c",
+   "octets": 8171016,
+   "pages": 132,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2022",
+   "type": "FY",
+   "annee_nom_fichier": 2022
+  },
+  "Managem_RFA_2023.pdf": {
+   "fichier": "Managem_RFA_2023.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2023.pdf",
+   "sha256": "0a1db645858d0c22ecf11467816d15c257b520f13e9f7a44aff0f32b1f035c56",
+   "octets": 13697208,
+   "pages": 123,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2023",
+   "type": "FY",
+   "annee_nom_fichier": 2023
+  },
+  "Managem_RFA_2024.pdf": {
+   "fichier": "Managem_RFA_2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2024.pdf",
+   "sha256": "66faa7db8f82d5bd2f03f8fa1e7dcd2a841c7384e9897fbbdec6caa12779e6b9",
+   "octets": 13769171,
+   "pages": 117,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2024",
+   "type": "FY",
+   "annee_nom_fichier": 2024
+  },
+  "Managem_RFA_2025.pdf": {
+   "fichier": "Managem_RFA_2025.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFA_2025.pdf",
+   "sha256": "c55a5149908f04488db23af43ff3e952dbeb72126a7ec00836f7b7452f648506",
+   "octets": 22306109,
+   "pages": 121,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfa-2025",
+   "type": "FY",
+   "annee_nom_fichier": 2025
+  },
+  "Managem_conso_S1_19.pdf": {
+   "fichier": "Managem_conso_S1_19.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_conso_S1_19.pdf",
+   "sha256": "4ae2d990906255a774748d6cc06c0690ae6676fe339d7becdbaf05c5644d21af",
+   "octets": 228769,
+   "pages": 2,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-44",
+   "type": "H1",
+   "annee_nom_fichier": 2019
+  },
+  "Manage_RFS_juin_2020.pdf": {
+   "fichier": "Manage_RFS_juin_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Manage_RFS_juin_2020.pdf",
+   "sha256": "08e2c0ba330a44089ba39ba381c0e75d8bebe946ace2d35720ad468d52bd26cf",
+   "octets": 2239010,
+   "pages": 22,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2020",
+   "type": "H1",
+   "annee_nom_fichier": 2020
+  },
+  "MANAGEM_RFS_JUIN_2021.pdf": {
+   "fichier": "MANAGEM_RFS_JUIN_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/MANAGEM_RFS_JUIN_2021.pdf",
+   "sha256": "8efd5ca5fb2a68d6f013bfe49e74a57191710425450ca4729ce822c7b06c374b",
+   "octets": 2375853,
+   "pages": 23,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2021",
+   "type": "H1",
+   "annee_nom_fichier": 2021
+  },
+  "Managem_RFS_juin_22.pdf": {
+   "fichier": "Managem_RFS_juin_22.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFS_juin_22.pdf",
+   "sha256": "912dbde3db6b0254b02496c2598ba7c57a4c124aca8ce749bd65c72ef39c2e3b",
+   "octets": 4199795,
+   "pages": 18,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2022",
+   "type": "H1",
+   "annee_nom_fichier": 2022
+  },
+  "Managem_RFS_S1_23.pdf": {
+   "fichier": "Managem_RFS_S1_23.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFS_S1_23.pdf",
+   "sha256": "760735cf0e681bfe45222189d12b2d112132f2c52f96a1fe34f54ec3524272d2",
+   "octets": 1040699,
+   "pages": 22,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2023",
+   "type": "H1",
+   "annee_nom_fichier": 2023
+  },
+  "Managem -S1-2024.pdf": {
+   "fichier": "Managem -S1-2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem%20-S1-2024.pdf",
+   "sha256": "fdac1250e56636a72991d06caa28f6702fd6649990816e2ee6444664f090f65b",
+   "octets": 1955930,
+   "pages": 22,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2024",
+   "type": "H1",
+   "annee_nom_fichier": 2024
+  },
+  "Managem_RFS_S1_25.pdf": {
+   "fichier": "Managem_RFS_S1_25.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFS_S1_25.pdf",
+   "sha256": "a8e5a79405540770f1e62d1354ee1ce256c8017b9bedb887849bb92b3ebb8a28",
+   "octets": 7974402,
+   "pages": 22,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2025",
+   "type": "H1",
+   "annee_nom_fichier": 2025
+  },
+  "Managem_RFS_S1_26.pdf": {
+   "fichier": "Managem_RFS_S1_26.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_RFS_S1_26.pdf",
+   "sha256": "030896a558fa5b36799236533c39560820a5e74b2775babcf07c3ec3b9b88951",
+   "octets": 3913045,
+   "pages": 23,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2026",
+   "type": "H1",
+   "annee_nom_fichier": 2026
+  }
+ },
+ "couverture": {
+  "remplies": 148,
+  "attendues": 216,
+  "ecarts": 4
+ }
+}
