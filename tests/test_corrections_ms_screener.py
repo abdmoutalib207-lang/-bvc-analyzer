@@ -257,3 +257,15 @@ def test_iam_exercice_de_l_etat_audite_et_croissance_non_appliquee():
     assert (b["rnpg_12m"], b["bpa_12m"], b["bpa"]) == (5333.0, 6.07, 7.93)
     assert "La croissance retenue est celle publiée" not in b["source_12m"]
     assert FOND["IAM"]["croissance_bpa"] == -39.7
+
+
+# ── 6. CIH et CFG Bank : le BPA publié est CONSIGNÉ, pas appliqué (définitions différentes) ──
+
+def test_cih_et_cfg_bpa_publie_consigne_sans_toucher_au_notre():
+    cih, cfg = JEU["titres"]["CIH"]["bpa_publie_emetteur"], JEU["titres"]["CFGB"]["bpa_publie_emetteur"]
+    assert (cih["valeur"], cih["page"]) == (30.6, 25) and "30,6 27,8" in cih["citation"]
+    assert round(1089.362e6 / 35605624, 1) == 30.6 and "FIN d'exercice" in cih["note"]       # sa définition
+    assert (cfg["valeur"], cfg["page"]) == (10.89, 44) and "10,89 7,95" in cfg["citation"]
+    assert "dénominateur n'est pas publié" in cfg["note"]
+    # Nos valeurs ne bougent pas.
+    assert (BPA["CIH"]["bpa"], BPA["CIH"]["bpa_12m"], BPA["CFGB"]["bpa"]) == (32.78, 30.93, 10.58)
