@@ -113,8 +113,9 @@ def test_fichier_publie():
     assert bpa["PPM"]["bpa"] == 59.91
     # REB : 1,054255 + 0,017407 − 0,399198 = 0,672 MDH ; ÷ 176 456 = 3,81
     assert bpa["REB"]["bpa"] == 5.97 and bpa["REB"]["bpa_12m"] == 3.81
-    # T2S : 204,576 + 91,307 − 108,864 = 187,019 MDH (états de synthèse du 05/10) ; ÷ 21 785 174 = 8,58
-    assert bpa["T2S"]["bpa"] == 9.39 and bpa["T2S"]["bpa_12m"] == 8.58
+    # T2S : 204,576 + 91,307 − 108,864 = 187,019 MDH (états de synthèse du 05/10) ; ÷ 22 584 118 = 8,28
+    # (09/11/2026 : 21 785 174 + 798 944 actions de l'augmentation réservée au dirigeant ; 9,39 et 8,58 avant)
+    assert bpa["T2S"]["bpa"] == 9.06 and bpa["T2S"]["bpa_12m"] == 8.28
 
 
 def test_lot_bpa_sources_primaires_05_10():
@@ -159,4 +160,4 @@ def test_t2s_ne_cree_pas_de_fiche_fondamentaux():
     bpa, fond = {}, {}
     app_s1({"fin_periode": "2026-06-30", "titres": {"T2S": S1["titres"]["T2S"]}}, bpa, fond)
     assert "T2S" not in fond
-    assert bpa["T2S"]["bpa_12m"] == 8.58
+    assert bpa["T2S"]["bpa_12m"] == 8.28                      # 187,019 ÷ 22 584 118 (09/11/2026)

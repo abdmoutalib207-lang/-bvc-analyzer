@@ -1380,7 +1380,12 @@ HISTORIQUE_ACTIONS: dict = {
                    "l'émetteur est donc inférieur à celui d'IAS 33.19-21 ; la règle e (20/10/2026) prime."},
     ]},
     "T2S": {"denominateur_ambigu": True, "mouvements": [],
-            "reserve": "BPA sur le nombre d'actions ACTUEL (21 785 174), faute de pouvoir trancher IAS 33. "
+            "reserve": "BPA sur le nombre d'actions ACTUEL (22 584 118 depuis le 09/11/2026 : 21 785 174 + "
+                       "798 944 actions de l'augmentation réservée au dirigeant, autorisée par l'AMMC le "
+                       "23/09/2026, souscription du 30/09 au 02/10/2026, "
+                       "https://www.ammc.ma/sites/default/files/CP_T2S_group_augmentation_capital_reservee_"
+                       "dirigeant.pdf p.1 ; note d'opération T2S_IPO_NO_021_2026.pdf p.45), faute de pouvoir "
+                       "trancher IAS 33 ; cette émission, postérieure à la clôture, en serait elle aussi exclue. "
                        "Lu le 20/10/2026 dans T2S_IPO_DR_010_2026.pdf : les 1 239 actions de priorité A et "
                        "1 239 B (« assorties de droits financiers particuliers », p.26 note 6) étaient le plan "
                        "d'intéressement du management (MIP, p.152 : « actions ordinaires gratuites » « en "
@@ -1392,7 +1397,7 @@ HISTORIQUE_ACTIONS: dict = {
                        "ajustée (IAS 33.28 : 20 215 668 actions, BPA 12 mois 9,25) ou actions à émission "
                        "conditionnelle comptées du 08/06/2026 (IAS 33.24 et 52 : ≈ 18,64 M, ≈ 10,03). Dans les "
                        "deux, les actions de l'introduction, postérieures à la clôture, seraient exclues : le "
-                       "BPA publié ici (sur 21,79 M) est donc un PLANCHER."},
+                       "BPA publié ici (sur 22,58 M) est donc un PLANCHER."},
 }
 
 
