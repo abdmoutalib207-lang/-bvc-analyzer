@@ -262,9 +262,11 @@ def test_lot7_communiques_lus_et_recoupes():
 
 def test_lot8_fnb_uni_inv_hal():
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # HAL : 99,832 + 64,8 − 47,3 = 117,332 ÷ 54 140 578 = 2,17 ; ROE 2025
-    # 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
-    assert bpa["HAL"]["bpa_12m"] == 2.17
+    # HAL, 09/11/2026 : montants lus à l'état (Auto_Hall_S1_26.pdf p.5) et nombre d'actions de la
+    # PÉRIODE (règle e) : 99,832377 + 64,812881 − 47,305263 = 117,339995 ÷ 50 294 528 = 2,33.
+    # L'ancien 2,17 divisait 117,332 par les 54 140 578 actions d'APRÈS l'émission constatée le
+    # 02/09/2026. ROE 2025 : 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
+    assert bpa["HAL"]["bpa_12m"] == 2.33 and bpa["HAL"]["bpa_12m_avant_2026_11_09"] == 2.17
     # UNI, PART DU GROUPE depuis le 02/10 (verificateur-finance ; les anciens
     # 11 / 29 / −40 étaient l'ensemble consolidé, et donnaient 7,01) :
     # −31,940 + (−10,489) − (−64,251) = 21,822 ÷ 11 413 880 = 1,91

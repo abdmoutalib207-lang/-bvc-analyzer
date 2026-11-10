@@ -58,3 +58,28 @@ def test_t2s_bpa_sur_22_584_118_actions_et_sa_piece():
         assert "798 944" in texte and "p.45" in texte
     # Le traitement IAS 33 n'est toujours pas tranché : nombre ACTUEL et réserve publiée.
     assert bvc_config.HISTORIQUE_ACTIONS["T2S"]["denominateur_ambigu"] and "PLANCHER" in b["reserve_bpa"]
+
+
+# ── 2. HAL (Auto Hall) : l'émission de septembre 2026 est postérieure aux deux périodes ──
+
+def test_hal_bpa_sur_les_50_294_528_actions_de_la_periode():
+    t = JEU["titres"]["HAL"]
+    # Auto_Hall_S1_26.pdf p.5 : 64 812 881,31 et 47 305 263,28 DH ; avis AGO p.7 : 99 832 376,79 DH.
+    assert (t["rnpg_s1_2026"], t["rnpg_s1_2025"], t["rnpg_exercice_2025"]) == (64.812881, 47.305263, 99.832377)
+    assert "64 812 881,31 47 305 263,28" in t["pages"] and "99 832 376,79" in t["source_exercice_2025"]
+    assert t["actions"] == 54140578                                # le nombre ACTUEL reste celui de la capitalisation
+    (m,) = bvc_config.HISTORIQUE_ACTIONS["HAL"]["mouvements"]
+    assert (m["date"], m["nature"], m["avant"], m["apres"]) == ("2026-09-02", "numeraire", 50294528, 54140578)
+    assert m["apres"] - m["avant"] == 3846050
+    assert "CP_Auto_Hall_rsultats_augmentation_capital.pdf" in m["source"] and "2 septembre 2026" in m["source"]
+    assert "NO_AutoHall_025_2026.pdf" in m["source"] and "22/07/2026" in m["source"] and "03/09/2026" in m["source"]
+    # Émission postérieure au 30/06/2026 : exclue des deux périodes (IAS 33.21).
+    for debut, fin in (("2025-01-01", "2025-12-31"), ("2025-07-01", "2026-06-30")):
+        assert bvc_config.actions_ponderees("HAL", debut, fin, 54140578)["nombre"] == 50294528
+    b = BPA["HAL"]
+    # 99 832 377 ÷ 50 294 528 = 1,985 ; 117 339 995 ÷ 50 294 528 = 2,333
+    assert (b["bpa"], b["bpa_12m"], b["rnpg_12m"]) == (1.98, 2.33, 117.34)
+    assert b["rnpg_12m"] == round((99832377 + 64812881 - 47305263) / 1e6, 3)
+    assert (b["bpa_avant_2026_11_09"], b["bpa_12m_avant_2026_11_09"], b["rnpg_12m_avant_2026_11_09"]) == \
+        (1.84, 2.17, 117.332)
+    assert b["actions_12m"] == b["actions_exercice_2025"] == 50294528

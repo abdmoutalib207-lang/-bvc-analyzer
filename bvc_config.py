@@ -1379,6 +1379,25 @@ HISTORIQUE_ACTIONS: dict = {
                    "résultat de base par action 27,46, non le nombre pondéré : le BPA 2025 publié par "
                    "l'émetteur est donc inférieur à celui d'IAS 33.19-21 ; la règle e (20/10/2026) prime."},
     ]},
+    # HAL (Auto Hall) — inscrit le 09/11/2026 (contre-vérification ms-screener). Le BPA divisait le
+    # résultat 2025 et le douze mois au 30/06/2026 par les 54 140 578 actions d'APRÈS l'émission de
+    # septembre 2026 : 1,84 au lieu de 1,98.
+    "HAL": {"mouvements": [
+        {"date": "2026-09-02", "nature": "numeraire", "avant": 50294528, "apres": 54140578,
+         "source": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_rsultats_augmentation_capital.pdf p.1 "
+                   "(communiqué du 04/09/2026, sha256 18ec6729…) : « le Conseil d'administration a tenu une "
+                   "réunion le mercredi 2 septembre 2026 […] pour constater la réalisation de l'opération "
+                   "d'augmentation de capital » ; « Nombre d'actions attribuées 3 846 050 actions » ; « cotées "
+                   "depuis le 3 septembre 2026 ». Nombres : note d'opération NO_AutoHall_025_2026.pdf p.25-26 "
+                   "(« Nombre d'actions (unités) 50 294 528 3 846 050 54 140 578 », situation avant au "
+                   "31.12.2025) et calendrier p.28 (détachement des droits de souscription 22/07/2026, "
+                   "livraison 03/09/2026) ; capital social 502 945 280 DH au 31/12/2025 ET au 30/06/2026 "
+                   "(Auto_Hall_S1_26.pdf p.5), soit 50 294 528 actions de 10 DH. Après la clôture du "
+                   "30/06/2026 : exclu de l'exercice 2025 et du douze mois. Élément de bonification de "
+                   "l'émission à droits (IAS 33.26-27 et A2) MESURÉ : dernier cours avant détachement 65,00 "
+                   "(21/07/2026, nos chandelles) = prix de souscription 65 DH, cours théorique ex-droit "
+                   "(170 × 65 + 13 × 65) ÷ 183 = 65,00, facteur 1,000 : aucun rétro-ajustement."},
+    ]},
     "T2S": {"denominateur_ambigu": True, "mouvements": [],
             "reserve": "BPA sur le nombre d'actions ACTUEL (22 584 118 depuis le 09/11/2026 : 21 785 174 + "
                        "798 944 actions de l'augmentation réservée au dirigeant, autorisée par l'AMMC le "
