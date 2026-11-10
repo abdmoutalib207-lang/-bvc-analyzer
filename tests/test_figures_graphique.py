@@ -88,7 +88,7 @@ for(const [t,v] of Object.entries(FP.titres)){
   const liq=!!v.liquide;
   (v.figures||[]).forEach(e=>out.push({t,k:'figures',type:e.type,statut:e.statut,liq,txt:figLegende(e,FP,liq,an)}));
   (v.lignes||[]).forEach(e=>out.push({t,k:'lignes',type:e.type,statut:e.statut,liq,txt:ligneLegende(e,FP,liq,an)}));
-  (v.gaps||[]).forEach(e=>out.push({t,k:'gaps',type:e.type,statut:e.statut,liq,txt:gapLegende(e,FP,liq,an)}));
+  (v.gaps||[]).forEach((e,i)=>out.push({t,k:'gaps',i,type:e.type,statut:e.statut,liq,txt:gapLegende(e,FP,liq,an)}));
 }
 console.log(JSON.stringify(out));
 """))
@@ -236,16 +236,47 @@ def figure_txt_ok(e, p):
     return e["libelle"] in p["txt"]
 
 
-def test_la_phrase_d_un_gap_ouvert(publie, phrases):
+def _controler_gaps_ouverts(publie, phrases):
+    """Chaque phrase est comparée à SON gap (rang `i` dans la liste publiée).
+
+    ⚠️ 09/11/2026 : l'appariement prenait le PREMIER gap ouvert du même type.
+    Addoha portait deux gaps haussiers ouverts (13/10, 18 séances ; 09/11,
+    0 séance) : la phrase du second, juste, était comparée à l'âge du premier,
+    et la suite — bloquante — a refusé deux passages du soir (runs 4514, 4522).
+    """
     ouverts = [p for p in phrases if p["k"] == "gaps" and p["statut"] == "ouvert"]
     assert ouverts
     for p in ouverts:
-        g = next(g for g in publie["titres"][p["t"]]["gaps"] if g["statut"] == "ouvert" and g["type"] == p["type"])
+        g = publie["titres"][p["t"]]["gaps"][p["i"]]
+        assert g["statut"] == "ouvert" and g["type"] == p["type"], (p["t"], p["i"])
         c = publie["frequences"][p["type"]]["univers"]["liquides" if p["liq"] else "tous"]["h20"]["toutes_periodes"]
         s = "s" if g["age_seances"] > 1 else ""
         assert f"ouvert depuis {g['age_seances']} séance{s}" in p["txt"], p["txt"]
         if g["age_seances"] < 20:
             assert f"des {'gaps baissiers' if p['type'] == 'gap_baissier' else 'gaps haussiers'} ont été comblés en 20 séances ({c['n']} cas" in p["txt"], p["txt"]
+
+
+def test_la_phrase_d_un_gap_ouvert(publie, phrases):
+    _controler_gaps_ouverts(publie, phrases)
+
+
+def test_deux_gaps_ouverts_du_meme_type_sur_un_titre(publie):
+    """Le cas d'Addoha au soir du 09/11/2026, reconstruit : deux gaps haussiers
+    ouverts sur le même titre. Chacun doit être jugé sur son propre âge."""
+    def g(date, age, bas, haut):
+        return {"type": "gap_haussier", "libelle": "Gap haussier", "date": date, "statut": "ouvert",
+                "zone_haute": haut, "zone_basse": bas, "date_retour_dans_la_zone": None,
+                "date_comblement": None, "age_seances": age, "frequence_ref": ["gap_haussier"]}
+    gaps = [g("2026-10-13", 18, 31.2, 32.01), g("2026-11-09", 0, 38.7, 39.1)]
+    txts = _node(_harnais(f"console.log(JSON.stringify({json.dumps(gaps)}.map(e=>gapLegende(e,FP,true,'2026'))));"))
+    assert "ouvert depuis 18 séances" in txts[0] and "ouvert depuis 0 séance " in txts[1], txts
+    faux = {"titres": {"XXX": {"gaps": gaps}}, "frequences": publie["frequences"]}
+    lignes = [{"t": "XXX", "k": "gaps", "i": i, "type": "gap_haussier", "statut": "ouvert", "liq": True, "txt": x}
+              for i, x in enumerate(txts)]
+    _controler_gaps_ouverts(faux, lignes)
+    # Témoin négatif : la phrase du second gap, rapprochée du premier, doit être refusée.
+    with pytest.raises(AssertionError):
+        _controler_gaps_ouverts(faux, [dict(lignes[1], i=0)])
 
 
 # Horizon selon l'âge du gap (décision du 21/10/2026) : < 20 séances, taux à
