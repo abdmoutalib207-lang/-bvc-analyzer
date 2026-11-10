@@ -86,12 +86,43 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
         if ex and s1 and ex != s1:
             return None
     rn = t["rnpg_exercice_2025"] + t["rnpg_s1_2026"] - t["rnpg_s1_2025"]
+    # ⚠️ EXCEPTION DÉCLARÉE À LA RÈGLE c — 09/11/2026 (contre-vérification
+    # ms-screener). La règle c veut un douze mois sur le résultat PUBLIÉ. Une
+    # entrée peut y déroger, mais seulement par un champ EXPLICITE
+    # (`exception_regle_c` : exercice hors éléments non courants, sa pièce, le
+    # motif, la réserve) : le douze mois additionne alors TROIS termes de la
+    # même base. Sans ce champ, RIS additionnait un exercice PUBLIÉ (269,622) à
+    # des semestres hors exceptionnels (144 − 118) : deux bases dans une somme.
+    # L'exception est rendue avec le calcul (`exception_regle_c`), portée dans
+    # bpa.json, publiée dans data.json (`pe_exception`) et affichée sur la
+    # fiche ; le douze mois PUBLIÉ reste consigné à côté quand il se calcule.
+    exc = t.get("exception_regle_c") if isinstance(t.get("exception_regle_c"), dict) else None
+    if exc:
+        rn = exc["rnpg_exercice_2025_hors_non_courants"] + t["rnpg_s1_2026"] - t["rnpg_s1_2025"]
     pond = _ponderees(sym, t, DEBUT_12M, FIN_12M)
     out = {"rnpg_12m": round(rn, 3),
            "bpa_12m": round(rn * 1e6 / pond["nombre"], 2),
            "actions_12m": pond["nombre"], "methode_actions_12m": pond["methode"]}
     if pond.get("reserve"):
         out["reserve_bpa"] = pond["reserve"]
+    if exc:
+        def fr(x):
+            return f"{x:g}".replace(".", ",")
+        e = {"base": "hors éléments non courants",
+             "formule": (f"{fr(exc['rnpg_exercice_2025_hors_non_courants'])} + {fr(t['rnpg_s1_2026'])} − "
+                         f"{fr(t['rnpg_s1_2025'])} = {fr(round(rn, 3))} MDH"),
+             "motif": exc.get("motif"), "reserve": exc.get("reserve"), "source": exc.get("source")}
+        if t.get("rnpg_publie_s1_2026") is not None and t.get("rnpg_publie_s1_2025") is not None:
+            pub = round(t["rnpg_exercice_2025"] + t["rnpg_publie_s1_2026"] - t["rnpg_publie_s1_2025"], 3)
+            e["rnpg_12m_publie"] = pub
+            e["bpa_12m_publie"] = round(pub * 1e6 / pond["nombre"], 2)
+        out["exception_regle_c"] = e
+        texte = (f"Exception déclarée à la règle c : résultat 12 mois {e['base']} ({e['formule']}), "
+                 "et non le résultat publié"
+                 + (f" ({fr(e['rnpg_12m_publie'])} MDH, BPA {fr(e['bpa_12m_publie'])})"
+                    if "rnpg_12m_publie" in e else "")
+                 + f". Motif : {e['motif']} Réserve : {e['reserve']}")
+        out["reserve_bpa"] = (out["reserve_bpa"] + " " + texte) if out.get("reserve_bpa") else texte
     # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : il n'y
     # a alors PAS de croissance du BPA — 22/10/2026, accord R8 d'Abd Moutalib
     # (audit verificateur-finance, lot B2). Le code reprenait jusqu'ici la
@@ -133,8 +164,13 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
             and rx["rnpg_ajuste_s1_2025"] > 0:
         out["croissance_bpa"] = round((rx["rnpg_ajuste_s1_2026"] / rx["rnpg_ajuste_s1_2025"] - 1) * 100, 1)
         out["croissance_bpa_retraitee"] = rx.get("motif")
-        if t["rnpg_s1_2025"] > 0:
-            out["croissance_bpa_publiee_brute"] = round((t["rnpg_s1_2026"] / t["rnpg_s1_2025"] - 1) * 100, 1)
+        # « Brute » = sur le PUBLIÉ. Quand l'entrée retient une autre base pour
+        # `rnpg_s1_*` (RIS : hors exceptionnels), le publié est dans
+        # `rnpg_publie_s1_*` (09/11/2026).
+        p26 = t.get("rnpg_publie_s1_2026", t["rnpg_s1_2026"])
+        p25 = t.get("rnpg_publie_s1_2025", t["rnpg_s1_2025"])
+        if p25 > 0:
+            out["croissance_bpa_publiee_brute"] = round((p26 / p25 - 1) * 100, 1)
     elif pf.get("rnpg") and pf["rnpg"] > 0:
         out["croissance_bpa"] = round((t["rnpg_s1_2026"] / pf["rnpg"] - 1) * 100, 1)
         perim.append(f"résultat à périmètre constant ({t['rnpg_s1_2026']} ÷ {pf['rnpg']} pro forma)")
@@ -241,6 +277,10 @@ def appliquer(jeu: dict, bpa: dict, fond: dict) -> list[str]:
             b["reserve_bpa"] = m["reserve_bpa"]
         else:
             b.pop("reserve_bpa", None)
+        if m.get("exception_regle_c"):
+            b["exception_regle_c"] = m["exception_regle_c"]
+        else:
+            b.pop("exception_regle_c", None)
         b["fin_12m"] = jeu["fin_periode"]
         b["source_12m"] = (f"exercice 2025 + S1 2026 − S1 2025 ; S1 : {t['url']} "
                            f"{t['pages']} ; base : {t['base']}")

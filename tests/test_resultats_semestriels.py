@@ -43,8 +43,14 @@ def test_cosumar_recule():
 
 def test_risma_hors_elements_exceptionnels():
     """Les +169 MDH de cessions ne doivent pas entrer dans le résultat
-    récurrent : 269,622 + 144 − 118 = 295,622, pas 269,622 + 313 − 135."""
-    assert douze_mois(JEU["titres"]["RIS"])["rnpg_12m"] == 295.622
+    récurrent. ⚠️ 09/11/2026 : l'ancien 295,622 additionnait un exercice
+    PUBLIÉ (269,622) à des semestres hors exceptionnels (144 − 118). Les trois
+    termes sont désormais de la même base, par exception DÉCLARÉE à la règle
+    c : 254 + 144 − 118 = 280 (et le publié, 269,622 + 313 − 117 = 465,622,
+    reste consigné — l'ancien test écrivait « 313 − 135 » : 135 est la
+    colonne « Comparable », pas le publié)."""
+    m = douze_mois(JEU["titres"]["RIS"])
+    assert m["rnpg_12m"] == 280.0 and m["exception_regle_c"]["rnpg_12m_publie"] == 465.622
 
 
 def test_une_valeur_manquante_ne_se_comble_pas():

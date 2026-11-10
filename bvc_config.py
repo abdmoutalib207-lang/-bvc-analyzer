@@ -1398,6 +1398,39 @@ HISTORIQUE_ACTIONS: dict = {
                    "(21/07/2026, nos chandelles) = prix de souscription 65 DH, cours théorique ex-droit "
                    "(170 × 65 + 13 × 65) ÷ 183 = 65,00, facteur 1,000 : aucun rétro-ajustement."},
     ]},
+    # RIS (Risma) — inscrit le 09/11/2026 (contre-vérification ms-screener). Deux émissions en numéraire
+    # au premier trimestre 2026 : le capital de TOUT l'exercice 2025 est de 14 326 947 actions, et le BPA
+    # 2025 publié par l'émetteur (RFA p.45 : « Nombre moyen d'actions en circulation 14 326 947 ») est
+    # 269 622 000 ÷ 14 326 947 = 18,82 — pas 16,84 sur les 16 012 132 actions d'aujourd'hui (règle e).
+    # ⚠️ `date_previsionnelle` : la pièce ne publie pas la date où l'organe social a CONSTATÉ la
+    # réalisation ; la date retenue est celle du calendrier ou de la clôture de souscription, et c'est dit.
+    "RIS": {"mouvements": [
+        {"date": "2026-02-05", "date_previsionnelle": True, "nature": "numeraire",
+         "avant": 14326947, "apres": 15826947,
+         "source": "https://www.ammc.ma/sites/default/files/NO_RISMA_01_2026.pdf p.31, calendrier de "
+                   "l'opération, étape 11 : « Tenue de la réunion de l'instance de l'Emetteur devant constater "
+                   "la réalisation définitive de l'Opération 05/02/2026 » — date PRÉVISIONNELLE (étape 15 : "
+                   "règlement / livraison 13/02/2026) ; p.27-28 : « Nombre d'actions (unités) 14 326 947 "
+                   "1 500 000 15 826 947 ». Réalisation confirmée par "
+                   "https://www.ammc.ma/sites/default/files/CP_Risma_resultats_augmentation_capital.pdf p.2 "
+                   "(publié par l'AMMC le 12/02/2026, sha256 193a4228… : « Actions attribuées 1 500 000 », "
+                   "souscription du 26/01 au 30/01/2026), qui ne donne pas la date du constat. Dans le douze "
+                   "mois au 30/06/2026 à partir de cette date ; hors de l'exercice 2025."},
+        {"date": "2026-03-06", "date_previsionnelle": True, "nature": "numeraire",
+         "avant": 15826947, "apres": 16012132,
+         "source": "https://www.ammc.ma/sites/default/files/CP_Risma_cloture_augmentation_capital_dirigeants_"
+                   "eligibles.pdf p.1 (publié par l'AMMC le 18/03/2026, sha256 be87e078…) : augmentation "
+                   "réservée aux dirigeants éligibles, « émission de 185 185 nouvelles actions », « Période de "
+                   "souscription Du 02/03/2026 au 06/03/2026 », « Nombre de titres avant opération 15 826 947 "
+                   "actions », « Nombre de titres après opération 16 012 132 actions », capital 1 601 213 200 "
+                   "MAD (autorisation AMMC du 23/02/2026, CP_Risma_Augmentation_capital_dirigeants.pdf). La "
+                   "date du constat n'est PAS publiée : retenue = clôture de la souscription, 06/03/2026 "
+                   "(IAS 33.21(a), numéraire à recevoir), date PRÉVISIONNELLE bornée par la publication du "
+                   "18/03/2026. Sensibilité MESURÉE sur le douze mois au 30/06/2026 (280 MDH) : dates "
+                   "retenues, 14 986 308 actions pondérées, BPA 18,68 ; second mouvement au 18/03, "
+                   "14 980 219 (−6 089, 0,04 %), BPA 18,69 ; premier mouvement à la livraison du 13/02 et "
+                   "second au 18/03, 14 947 343, BPA 18,73."},
+    ]},
     "T2S": {"denominateur_ambigu": True, "mouvements": [],
             "reserve": "BPA sur le nombre d'actions ACTUEL (22 584 118 depuis le 09/11/2026 : 21 785 174 + "
                        "798 944 actions de l'augmentation réservée au dirigeant, autorisée par l'AMMC le "

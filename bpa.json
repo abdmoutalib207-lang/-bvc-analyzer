@@ -243,21 +243,21 @@
     }
   },
   "RIS": {
-    "bpa": 16.84,
-    "source": "Rapport Financier Annuel 2025 déposé à l'AMMC",
+    "bpa": 18.82,
+    "source": "Rapport Financier Annuel 2025 déposé à l'AMMC (Risma_RFA_2025.pdf p.35 et p.45)",
     "div_dh": 9.0,
     "roe": 8.0,
     "marge_nette": 7.0,
-    "note": "CORRIGÉ une seconde fois le 09/09/2026. Le 08/09 j'avais retenu 18,82, le BPA publié p.45 sur la MOYENNE PONDÉRÉE de 14 326 947 actions. La résolution d'AG du 02/06/2026 établit le nombre EXISTANT : 144 109 188 DH ÷ 9 DH = 16 012 132 actions, que le marché confirme à 16 012 461 (0,002 %). Pour un ratio par action d'aujourd'hui, c'est celui-là qui vaut : 269,622 MMAD ÷ 16 012 132 = 16,84, PER 19,1 au cours de 321,0. Attijari donne 19,0. Le rapport n'avait pas tort — il répondait à une autre question.",
+    "note": "CORRIGÉ le 09/11/2026 (contre-vérification ms-screener). BPA 2025 = 269 622 000 ÷ 14 326 947 = 18,82 : c'est le résultat par action de l'exercice, sur le nombre MOYEN d'actions de l'exercice (RFA 2025 p.45, « Nombre moyen d'actions en circulation 14 326 947 » ; règle e du 20/10/2026, IAS 33.19-20). Le 16,84 du 09/09/2026 divisait le résultat 2025 par les 16 012 132 actions d'APRÈS les deux augmentations de capital du premier trimestre 2026 (1 500 000 puis 185 185 actions, bvc_config.HISTORIQUE_ACTIONS) : le ratio « par action d'aujourd'hui » se lit sur la capitalisation (`pe_capitalisation`), pas dans le BPA. Ancienne note : `note_avant_2026_11_09`.",
     "div_source": "Résolution d'assemblée générale déposée à l'AMMC — document primaire",
     "div_ref": "AG du 02/06/2026 : « A titre de dividendes, soit 9 DH / action… 144.109.188,00 », paiement au plus tard le 30/09/2026",
     "div_exercice": 2025,
     "div_statut": "approuvé en assemblée",
     "div_statut_source": "résolution d'assemblée générale déposée à l'AMMC",
-    "rnpg_12m": 295.622,
-    "bpa_12m": 18.46,
+    "rnpg_12m": 280.0,
+    "bpa_12m": 18.68,
     "fin_12m": "2026-06-30",
-    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf p.1 (CA, RNPG publié) ; p.2 (RNPG hors éléments exceptionnels) ; base : résultat net part du groupe HORS éléments exceptionnels",
+    "source_12m": "exercice 2025 + S1 2026 − S1 2025 ; S1 : https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf p.1, tableau « En MDH » à trois colonnes « Au 30 juin 2025 Publié / Au 30 juin 2025 Comparable* (2) / Au 30 juin 2026 (1) » : « CA 653 754 863 15% », « RNPG 117 135 313 132% » ; p.2 : « Hors éléments exceptionnels et à périmètre comparable*, le résultat net part du Groupe atteint 144 MDH, contre 118 MDH au premier semestre 2025 ». Recoupé à l'état : https://www.ammc.ma/sites/default/files/Risma_S1_26.pdf p.4, compte de résultat consolidé, colonnes « Publié / Pro forma / 30/06/26 » : « Chiffre d'affaires 653 764 863 », « Résultat Net part du Groupe 117 131 313 ». ⚠️ `rnpg_s1_*` (144 / 118) et `ca_s1_2025` (754) portent la base RETENUE ; le publié est dans `rnpg_publie_s1_*` (313 / 117) et `ca_publie_s1_2025` (653) ; base : résultat net part du groupe HORS éléments exceptionnels (S1 2025 : hors exceptionnels ET à périmètre comparable) — base retenue par EXCEPTION DÉCLARÉE à la règle c, voir `exception_regle_c`",
     "dividende_piece": {
       "dpa": 9.0,
       "ordinaire": 9.0,
@@ -267,6 +267,23 @@
       "source": "https://www.ammc.ma/sites/default/files/Avis_Risma_AGO_02_06_26.pdf p.5 : « A titre de dividendes, soit 9 DH / action………………… 144.109.188,00 »",
       "verifie": "verificateur-finance, 02/10/2026",
       "note": "Avis (projet). 144 109 188 / 9 = 16 012 132 actions. IDBourse date l'AG au 19/06 : la pièce dit 02/06."
+    },
+    "note_avant_2026_11_09": "CORRIGÉ une seconde fois le 09/09/2026. Le 08/09 j'avais retenu 18,82, le BPA publié p.45 sur la MOYENNE PONDÉRÉE de 14 326 947 actions. La résolution d'AG du 02/06/2026 établit le nombre EXISTANT : 144 109 188 DH ÷ 9 DH = 16 012 132 actions, que le marché confirme à 16 012 461 (0,002 %). Pour un ratio par action d'aujourd'hui, c'est celui-là qui vaut : 269,622 MMAD ÷ 16 012 132 = 16,84, PER 19,1 au cours de 321,0. Attijari donne 19,0. Le rapport n'avait pas tort — il répondait à une autre question.",
+    "bpa_avant_2026_11_09": 16.84,
+    "bpa_12m_avant_2026_11_09": 18.46,
+    "rnpg_12m_avant_2026_11_09": 295.622,
+    "actions_12m": 14986308,
+    "actions_exercice_2025": 14326947,
+    "methode_actions": "moyenne pondérée IAS 33 du 2025-07-01 au 2026-06-30 (365 jours)",
+    "reserve_bpa": "Exception déclarée à la règle c : résultat 12 mois hors éléments non courants (254 + 144 − 118 = 280 MDH), et non le résultat publié (465,622 MDH, BPA 31,07). Motif : plus-value de cession du Sofitel Casablanca Tour Blanche dans le S1 2026 (+169 MDH liés aux cessions, CP_Risma_S1_26.pdf p.2) : le résultat publié (313) doublerait le bénéfice sur la foi d'une vente d'actif. Réserve : les trois termes sont des agrégats de l'émetteur, arrondis au MDH et non audités ; le 118 du S1 2025 est « hors éléments exceptionnels ET à périmètre comparable » : il inclut CMG, que l'exercice 2025 hors non-courants (254) ne compte qu'à partir de son entrée dans le périmètre.",
+    "exception_regle_c": {
+      "base": "hors éléments non courants",
+      "formule": "254 + 144 − 118 = 280 MDH",
+      "motif": "plus-value de cession du Sofitel Casablanca Tour Blanche dans le S1 2026 (+169 MDH liés aux cessions, CP_Risma_S1_26.pdf p.2) : le résultat publié (313) doublerait le bénéfice sur la foi d'une vente d'actif.",
+      "reserve": "les trois termes sont des agrégats de l'émetteur, arrondis au MDH et non audités ; le 118 du S1 2025 est « hors éléments exceptionnels ET à périmètre comparable » : il inclut CMG, que l'exercice 2025 hors non-courants (254) ne compte qu'à partir de son entrée dans le périmètre.",
+      "source": "https://www.ammc.ma/sites/default/files/CP_Risma_2025.pdf p.2 : « Le Résultat Net Part du Groupe s'élève à 270 Mdh. Hors éléments non courants, le RNPG est de 254 Mdh » ; S1 : https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf p.2 (144 et 118, hors éléments exceptionnels)",
+      "rnpg_12m_publie": 465.622,
+      "bpa_12m_publie": 31.07
     }
   },
   "SMI": {

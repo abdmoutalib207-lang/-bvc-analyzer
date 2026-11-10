@@ -91,19 +91,68 @@
     },
     "RIS": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
-      "base": "résultat net part du groupe HORS éléments exceptionnels",
+      "base": "résultat net part du groupe HORS éléments exceptionnels (S1 2025 : hors exceptionnels ET à périmètre comparable) — base retenue par EXCEPTION DÉCLARÉE à la règle c, voir `exception_regle_c`",
       "rnpg_s1_2026": 144,
       "rnpg_s1_2025": 118,
       "rnpg_publie_s1_2026": 313,
-      "rnpg_publie_s1_2025": 135,
+      "rnpg_publie_s1_2025": 117,
       "ca_s1_2026": 863,
       "ca_s1_2025": 754,
-      "pages": "p.1 (CA, RNPG publié) ; p.2 (RNPG hors éléments exceptionnels)",
-      "note": "Le RNPG publié (313) contient +169 MDH de plus-values de cession, non récurrentes. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même.",
+      "pages": "p.1, tableau « En MDH » à trois colonnes « Au 30 juin 2025 Publié / Au 30 juin 2025 Comparable* (2) / Au 30 juin 2026 (1) » : « CA 653 754 863 15% », « RNPG 117 135 313 132% » ; p.2 : « Hors éléments exceptionnels et à périmètre comparable*, le résultat net part du Groupe atteint 144 MDH, contre 118 MDH au premier semestre 2025 ». Recoupé à l'état : https://www.ammc.ma/sites/default/files/Risma_S1_26.pdf p.4, compte de résultat consolidé, colonnes « Publié / Pro forma / 30/06/26 » : « Chiffre d'affaires 653 764 863 », « Résultat Net part du Groupe 117 131 313 ». ⚠️ `rnpg_s1_*` (144 / 118) et `ca_s1_2025` (754) portent la base RETENUE ; le publié est dans `rnpg_publie_s1_*` (313 / 117) et `ca_publie_s1_2025` (653)",
+      "note": "Le RNPG publié (313) contient +169 MDH liés aux cessions (Sofitel Casablanca Tour Blanche), non récurrents. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même — par exception DÉCLARÉE à la règle c (`exception_regle_c`). 09/11/2026 (contre-vérification ms-screener) : `rnpg_publie_s1_2025` portait 135, qui est la colonne « Comparable » et non le publié (117) ; le douze mois additionnait un exercice PUBLIÉ (269,622) à des semestres hors exceptionnels (295,622) : il se calcule désormais sur trois termes de la même base (254 + 144 − 118 = 280).",
       "rnpg_exercice_2025": 269.622,
-      "source_exercice_2025": "RFA 2025 déposé à l'AMMC (repris de bpa.json)",
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf p.35, compte de résultat consolidé (KMAD) : « Résultat Net Part du Groupe 183 024 269 622 » (31/12/2024, 31/12/2025) ; p.45, résultat par action : « Résultat net part du Groupe 183 024 269 622 », « Nombre moyen d'actions en circulation 14 326 947 14 326 947 », « Résultat net par action (en MAD) 13 19 » — soit 269 622 000 ÷ 14 326 947 = 18,82",
       "actions": 16012132,
-      "source_actions": "résolution d'AG du 02/06/2026 (dividende total ÷ 9 DH) ; marché 16 012 461"
+      "source_actions": "16 012 132 actions ACTUELLES : résolution d'AG du 02/06/2026 (dividende total 144 109 188 ÷ 9 DH) et https://www.ammc.ma/sites/default/files/CP_Risma_cloture_augmentation_capital_dirigeants_eligibles.pdf p.1 (« Nombre de titres après opération 16 012 132 actions ») ; marché 16 012 461. Le BPA se calcule sur le nombre de la PÉRIODE (règle e, IAS 33.19-21) : 14 326 947 sur tout 2025, puis 15 826 947 et 16 012 132 après les deux émissions du premier trimestre 2026 — voir bvc_config.HISTORIQUE_ACTIONS",
+      "avant_2026_11_09": {
+        "rnpg_publie_s1_2025": 135,
+        "pages": "p.1 (CA, RNPG publié) ; p.2 (RNPG hors éléments exceptionnels)",
+        "note": "Le RNPG publié (313) contient +169 MDH de plus-values de cession, non récurrentes. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même.",
+        "source_exercice_2025": "RFA 2025 déposé à l'AMMC (repris de bpa.json)",
+        "source_actions": "résolution d'AG du 02/06/2026 (dividende total ÷ 9 DH) ; marché 16 012 461",
+        "rnpg_12m": 295.622,
+        "formule_rnpg_12m": "269,622 (publié) + 144 − 118 (hors exceptionnels)"
+      },
+      "corrige_le": "2026-11-09",
+      "ca_publie_s1_2025": 653,
+      "proforma_s1_2025": {
+        "ca": 754,
+        "rnpg": 135,
+        "libelle": "Comparable",
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
+        "page": 1,
+        "citation": "Au 30 juin 2025 Publié / Au 30 juin 2025 Comparable* (2) / Au 30 juin 2026 (1) — CA 653 754 863 15% ; RNPG 117 135 313 132% — *Données incluant CMG (société qui porte l'hôtel Radisson Blu de Marrakech et le centre commercial Carré Eden) et excluant le Sofitel Casablanca Tour Blanche du 8 mai 2025 au 30 juin 2025",
+        "motif": "périmètre comparable de l'émetteur : CMG incluse, Sofitel Casablanca Tour Blanche exclu du 8 mai au 30 juin 2025 (cession effective au 7 mai 2026)",
+        "autre_base_publiee": {
+          "libelle": "Pro forma",
+          "ca": 764,
+          "rnpg": 131,
+          "source": "https://www.ammc.ma/sites/default/files/Risma_S1_26.pdf",
+          "page": 4,
+          "citation": "Publié / Pro forma / 30/06/26 — Chiffre d'affaires 653 764 863 ; Résultat Net part du Groupe 117 131 313",
+          "note": "seconde base à périmètre retraité, au compte de résultat consolidé ; non retenue pour la croissance : la base « Comparable » est celle sur laquelle l'émetteur publie ses variations (CA +15 %) et son RNPG hors exceptionnels (118)"
+        },
+        "regle": "règle d du 20/10/2026 (IFRS 3.B64(q))",
+        "lu_le": "2026-11-09"
+      },
+      "retraitement_exceptionnel": {
+        "rnpg_ajuste_s1_2026": 144,
+        "rnpg_ajuste_s1_2025": 118,
+        "unite": "MDH arrondis (texte du communiqué)",
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
+        "page": 2,
+        "citation": "Hors éléments exceptionnels et à périmètre comparable*, le résultat net part du Groupe atteint 144 MDH, contre 118 MDH au premier semestre 2025, soit une progression de 22%. […] le RNPG publié atteint 313 MDH, contre 135 MDH. Sa progression reflète +44 MDH liés à l'activité, +169 MDH liés aux cessions et un impact de -35 MDH au titre des impôts.",
+        "motif": "éléments exceptionnels chiffrés EN MONTANT par l'émetteur (S1 2026 : +169 MDH liés aux cessions, Sofitel Casablanca Tour Blanche ; RNPG hors exceptionnels 144 contre 313 publiés) ; croissance recalculée sur ses montants, à périmètre comparable : 144 ÷ 118 − 1 = +22,0 %",
+        "regle": "règle c du 20/10/2026 (IAS 33, IAS 1.87 et 1.97)",
+        "lu_le": "2026-11-09"
+      },
+      "exception_regle_c": {
+        "rnpg_exercice_2025_hors_non_courants": 254.0,
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_2025.pdf p.2 : « Le Résultat Net Part du Groupe s'élève à 270 Mdh. Hors éléments non courants, le RNPG est de 254 Mdh » ; S1 : https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf p.2 (144 et 118, hors éléments exceptionnels)",
+        "motif": "plus-value de cession du Sofitel Casablanca Tour Blanche dans le S1 2026 (+169 MDH liés aux cessions, CP_Risma_S1_26.pdf p.2) : le résultat publié (313) doublerait le bénéfice sur la foi d'une vente d'actif.",
+        "reserve": "les trois termes sont des agrégats de l'émetteur, arrondis au MDH et non audités ; le 118 du S1 2025 est « hors éléments exceptionnels ET à périmètre comparable » : il inclut CMG, que l'exercice 2025 hors non-courants (254) ne compte qu'à partir de son entrée dans le périmètre.",
+        "decision": "09/11/2026, contre-vérification ms-screener : exception déclarée à la règle c du 20/10/2026 (la valorisation lit en principe le résultat PUBLIÉ)"
+      }
     },
     "CMT": {
       "url": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf",

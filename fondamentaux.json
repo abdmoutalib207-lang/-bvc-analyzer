@@ -3514,7 +3514,7 @@
         "date": "2025-12-31",
         "formule": "269.622 ÷ 1687.9 (MMAD)",
         "sources": {
-          "resultat": "RFA 2025 déposé à l'AMMC (repris de bpa.json)",
+          "resultat": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf p.35, compte de résultat consolidé (KMAD) : « Résultat Net Part du Groupe 183 024 269 622 » (31/12/2024, 31/12/2025) ; p.45, résultat par action : « Résultat net part du Groupe 183 024 269 622 », « Nombre moyen d'actions en circulation 14 326 947 14 326 947 », « Résultat net par action (en MAD) 13 19 » — soit 269 622 000 ÷ 14 326 947 = 18,82",
           "capitaux_propres": "Rapport Financier Annuel 2025 — https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf, p. 36"
         }
       },
@@ -3587,6 +3587,18 @@
         "unite": "%"
       },
       "calcule_le": "2026-09-30"
+    },
+    "croissance_perimetre": {
+      "constant": [
+        "chiffre d'affaires à périmètre constant (863 ÷ 754 pro forma)"
+      ],
+      "reserve": null,
+      "source": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
+      "page": 1
+    },
+    "croissance_bpa_retraitee": {
+      "motif": "éléments exceptionnels chiffrés EN MONTANT par l'émetteur (S1 2026 : +169 MDH liés aux cessions, Sofitel Casablanca Tour Blanche ; RNPG hors exceptionnels 144 contre 313 publiés) ; croissance recalculée sur ses montants, à périmètre comparable : 144 ÷ 118 − 1 = +22,0 %",
+      "croissance_publiee_brute": 167.5
     }
   },
   "SAF": {

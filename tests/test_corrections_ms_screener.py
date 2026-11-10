@@ -83,3 +83,125 @@ def test_hal_bpa_sur_les_50_294_528_actions_de_la_periode():
     assert (b["bpa_avant_2026_11_09"], b["bpa_12m_avant_2026_11_09"], b["rnpg_12m_avant_2026_11_09"]) == \
         (1.84, 2.17, 117.332)
     assert b["actions_12m"] == b["actions_exercice_2025"] == 50294528
+
+
+# ── 3. RIS (Risma) : capital 2026, BPA 2025 publié, bases S1, exception à la règle c ──
+
+def test_ris_registre_des_deux_emissions_de_2026():
+    a, b = bvc_config.HISTORIQUE_ACTIONS["RIS"]["mouvements"]
+    assert (a["date"], a["avant"], a["apres"]) == ("2026-02-05", 14326947, 15826947)     # 1 500 000 actions, public
+    assert (b["date"], b["avant"], b["apres"]) == ("2026-03-06", 15826947, 16012132)     # 185 185, dirigeants
+    assert a["apres"] - a["avant"] == 1500000 and b["apres"] - b["avant"] == 185185
+    assert "NO_RISMA_01_2026.pdf p.31" in a["source"] and "CP_Risma_resultats_augmentation_capital.pdf" in a["source"]
+    assert "CP_Risma_cloture_augmentation_capital_dirigeants_eligibles.pdf" in b["source"]
+    assert "15 826 947" in b["source"] and "16 012 132" in b["source"]
+    # Aucune des deux pièces ne publie la date du constat : c'est dit, et la sensibilité est chiffrée.
+    for m in (a, b):
+        assert m["date_previsionnelle"] is True and "PRÉVISIONNELLE" in m["source"]
+    assert "18,68" in b["source"] and "18,69" in b["source"] and "18,73" in b["source"]
+    # Exercice 2025 : capital constant. Douze mois : 219 j à 14 326 947 (01/07 → 04/02),
+    # 29 j à 15 826 947 (05/02 → 05/03), 117 j à 16 012 132 (06/03 → 30/06).
+    assert bvc_config.actions_ponderees("RIS", "2025-01-01", "2025-12-31", 16012132)["nombre"] == 14326947
+    assert bvc_config.actions_ponderees("RIS", "2025-07-01", "2026-06-30", 16012132)["nombre"] == \
+        round((219 * 14326947 + 29 * 15826947 + 117 * 16012132) / 365) == 14986308
+
+
+def test_ris_bpa_2025_est_celui_du_rapport_p45():
+    b = BPA["RIS"]
+    # RFA 2025 p.45 : RNPG 269 622 KMAD, « Nombre moyen d'actions en circulation 14 326 947 ».
+    assert b["bpa"] == round(269622000 / 14326947, 2) == 18.82 and b["bpa_avant_2026_11_09"] == 16.84
+    assert b["actions_exercice_2025"] == 14326947 and "p.45" in b["source"] and "AMMC" in b["source"]
+    assert "14 326 947" in JEU["titres"]["RIS"]["source_exercice_2025"]
+    assert "16,84" in b["note_avant_2026_11_09"]                     # l'ancienne note est gardée, pas effacée
+
+
+def test_ris_publie_comparable_et_pro_forma_ne_se_confondent_plus():
+    t = JEU["titres"]["RIS"]
+    # CP_Risma_S1_26 p.1 : « RNPG 117 135 313 » = Publié / Comparable / 30 juin 2026 ; « CA 653 754 863 ».
+    assert (t["rnpg_publie_s1_2025"], t["rnpg_publie_s1_2026"], t["ca_publie_s1_2025"]) == (117, 313, 653)
+    assert t["avant_2026_11_09"]["rnpg_publie_s1_2025"] == 135
+    pf = t["proforma_s1_2025"]
+    assert (pf["ca"], pf["rnpg"], pf["page"], pf["libelle"]) == (754, 135, 1, "Comparable")
+    assert "RNPG 117 135 313" in pf["citation"] and "CP_Risma_S1_26.pdf" in pf["source"]
+    # Risma_S1_26 p.4 : seconde base, « Pro forma » — consignée, non retenue.
+    autre = pf["autre_base_publiee"]
+    assert (autre["ca"], autre["rnpg"], autre["page"]) == (764, 131, 4) and "Risma_S1_26.pdf" in autre["source"]
+    # Croissances INCHANGÉES : 144 ÷ 118 − 1 = 22,0 % (règle c, montants de l'émetteur) ;
+    # 863 ÷ 754 − 1 = 14,5 % (règle d, périmètre comparable) ; la brute se lit sur le publié.
+    m = douze_mois(t, "RIS")
+    assert (m["croissance_bpa"], m["croissance_ca"]) == (22.0, 14.5) == \
+        (FOND["RIS"]["croissance_bpa"], FOND["RIS"]["croissance_ca"])
+    assert m["croissance_bpa_publiee_brute"] == round((313 / 117 - 1) * 100, 1) == 167.5
+    assert m["perimetre"]["page"] == 1 and m["perimetre"]["reserve"] is None
+
+
+def test_ris_douze_mois_hors_non_courants_exception_declaree():
+    t = JEU["titres"]["RIS"]
+    e = t["exception_regle_c"]
+    assert e["rnpg_exercice_2025_hors_non_courants"] == 254.0
+    assert "CP_Risma_2025.pdf p.2" in e["source"] and "254 Mdh" in e["source"]
+    assert "Sofitel Casablanca Tour Blanche" in e["motif"] and "+169 MDH" in e["motif"]
+    assert "CMG" in e["reserve"]
+    b = BPA["RIS"]
+    # 254 + 144 − 118 = 280 MDH ; ÷ 14 986 308 actions pondérées = 18,68.
+    assert (b["rnpg_12m"], b["bpa_12m"], b["actions_12m"]) == (280.0, 18.68, 14986308)
+    assert (b["rnpg_12m_avant_2026_11_09"], b["bpa_12m_avant_2026_11_09"]) == (295.622, 18.46)
+    x = b["exception_regle_c"]
+    assert x["base"] == "hors éléments non courants" and x["formule"] == "254 + 144 − 118 = 280 MDH"
+    # Le publié reste consigné : 269,622 + 313 − 117 = 465,622 MDH.
+    assert x["rnpg_12m_publie"] == 465.622 and x["bpa_12m_publie"] == round(465.622e6 / 14986308, 2) == 31.07
+    assert b["reserve_bpa"].startswith("Exception déclarée à la règle c") and "465,622" in b["reserve_bpa"]
+
+
+def test_l_exception_a_la_regle_c_ne_s_applique_qu_a_qui_la_declare():
+    """Sans le champ explicite, le douze mois reste sur les montants de l'entrée."""
+    t = {k: v for k, v in JEU["titres"]["RIS"].items() if k != "exception_regle_c"}
+    m = douze_mois(t, "RIS")
+    assert m["rnpg_12m"] == 295.622 and "exception_regle_c" not in m and "reserve_bpa" not in m
+    declares = sorted(s for s, v in JEU["titres"].items() if v.get("exception_regle_c"))
+    assert declares == ["RIS"] == sorted(s for s, v in BPA.items() if v.get("exception_regle_c"))
+
+
+def test_l_exception_est_publiee_et_affichee_sur_la_fiche():
+    moteur = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    assert '"pe_exception": (BPA_DATA.get(ticker) or {}).get("exception_regle_c")' in moteur
+    src = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
+    assert "pe_exception:t.pe_exception" in src                       # la ligne la reçoit de data.json
+    assert 'ratio==="pe"&&r.pe_exception&&' in src and "exception : {r.pe_exception.base}" in src
+    assert "r.bpa_reserve?`\\n⚠ ${r.bpa_reserve}`" in src            # l'explication du PER porte la réserve
+
+
+# ── registre HISTORIQUE_ACTIONS : cohérence avec la règle e (IAS 33.19-20) ──
+
+def test_registre_des_actions_coherent_avec_la_regle_e():
+    from datetime import date
+    for s, e in bvc_config.HISTORIQUE_ACTIONS.items():
+        mvts = e["mouvements"]
+        assert [m["date"] for m in mvts] == sorted(m["date"] for m in mvts), s
+        num = [m for m in mvts if m["nature"] == "numeraire"]
+        for m in num:
+            date.fromisoformat(m["date"])
+            assert 0 < m["avant"] < m["apres"], (s, m["date"])            # une émission AJOUTE des actions
+            assert m["source"].count("«") >= 1, (s, m["date"])            # la pièce est citée
+            if m.get("date_previsionnelle"):
+                assert "PRÉVISIONNELLE" in m["source"], (s, m["date"])
+        for a, b in zip(num, num[1:]):
+            assert a["apres"] == b["avant"], (s, a["date"], b["date"])    # la chaîne ne saute aucune action
+        t, b = JEU["titres"].get(s), BPA.get(s)
+        if e.get("denominateur_ambigu") or not t or not num:
+            continue
+        actuel = t["actions"]
+        assert num[-1]["apres"] == actuel, s                              # le dernier nombre est le nombre ACTUEL
+        # bpa.json porte le nombre pondéré de CHAQUE période, recalculé ici.
+        p25 = bvc_config.actions_ponderees(s, "2025-01-01", "2025-12-31", actuel)["nombre"]
+        p12 = bvc_config.actions_ponderees(s, "2025-07-01", "2026-06-30", actuel)["nombre"]
+        assert (b["actions_exercice_2025"], b["actions_12m"]) == (p25, p12), s
+        # IAS 33.21 : une émission postérieure à la clôture n'entre pas dans la période.
+        if num[0]["date"] > "2026-06-30":
+            assert p25 == p12 == num[0]["avant"], s
+        if num[0]["date"] > "2025-12-31":
+            assert p25 == num[0]["avant"], s
+        assert num[0]["avant"] <= p25 <= actuel and num[0]["avant"] <= p12 <= actuel, s
+        # Le BPA publié se redéduit du résultat et du nombre pondéré.
+        assert b["bpa"] == round(t["rnpg_exercice_2025"] * 1e6 / p25, 2), s
+        assert b["bpa_12m"] == round(b["rnpg_12m"] * 1e6 / p12, 2), s
