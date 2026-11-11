@@ -10659,7 +10659,12 @@ const EtatsFinanciers = ({
       padding: "6px 0",
       minHeight: 28
     }
-  }, "voir la source")), React.createElement("svg", {
+  }, "voir la source"), lu.pendant && React.createElement("div", {
+    className: "ef-pendant",
+    style: {
+      color: "#aab4c8"
+    }
+  }, lu.pendant)), React.createElement("svg", {
     width: "100%",
     height: T + H + 32,
     role: "group",

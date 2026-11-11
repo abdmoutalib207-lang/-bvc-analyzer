@@ -4879,6 +4879,9 @@ const EtatsFinanciers=({sym})=>{
           {efVar(gc[bi].g)&&<span style={{color:gc[bi].g==="ns"?"#5a6478":VC(gc[bi].g),marginLeft:6}}>{efVar(gc[bi].g)} sur un an</span>}
           <span> · {lu.statut.split(" — ")[0]} · </span>
           <button type="button" onClick={()=>setSel({cle:g.cle,i:bi})} style={{border:0,background:"none",color:"#4db8ff",font:"inherit",cursor:"pointer",padding:"6px 0",minHeight:28}}>voir la source</button>
+          {/* Règle : la dette nette calculée ne s'affiche jamais seule quand
+              l'émetteur publie la sienne — l'autre valeur, même période, à côté. */}
+          {lu.pendant&&<div className="ef-pendant" style={{color:"#aab4c8"}}>{lu.pendant}</div>}
         </div>
         <svg width="100%" height={T+H+32} role="group" aria-label={`${g.libelle}, ${P[0].libelle} à ${P[n-1].libelle}, en millions de DH`} style={{display:"block",overflow:"visible"}}>
           <line x1="0" x2="100%" y1={T+b.zero} y2={T+b.zero} stroke="#2a3a5c"/>

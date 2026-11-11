@@ -246,3 +246,24 @@ def test_index_compile_contient_la_carte():
     idx = (RACINE / "index.html").read_text(encoding="utf-8")
     assert "Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC." in idx
     assert "datasets/etats_publies/index.json?t=" in idx and "EtatsFinanciers" in idx
+
+
+def test_dette_nette_calculee_jamais_seule_dans_la_lecture_du_graphique(details):
+    """Règle (relecture du 11/11/2026) : la dette nette calculée ne s'affiche
+    jamais seule quand l'émetteur publie la sienne. La ligne de lecture du
+    graphique porte l'autre valeur de la même période, ou « non relevée »."""
+    lecture = _entre('<div aria-live="polite" style={{fontSize:11', "<svg")
+    assert "{lu.pendant&&" in lecture and "lu=bi>=0?efDetail(e,vue,g.cle,bi)" in CARTE
+    vus = {"chiffre": 0, "non_relevee": 0}
+    for x in details:
+        if x["cle"] not in ("dette_nette", "dette_nette_publiee") or x["d"]["vide"]:
+            continue
+        if not any(l["cle"] == "dette_nette_publiee" for l in _publie(x["t"])["lignes"]):
+            continue
+        autre = ("Dette nette publiée par l'émetteur" if x["cle"] == "dette_nette"
+                 else "Dette nette calculée par BVC Analyzer")
+        pend = x["d"].get("pendant") or ""
+        assert pend.startswith(autre + ", même période : "), (x["t"], x["vue"], x["i"], pend)
+        assert pend.endswith(" MDH.") or pend.endswith("non relevée."), pend
+        vus["non_relevee" if pend.endswith("non relevée.") else "chiffre"] += 1
+    assert vus["chiffre"] >= 20 and vus["non_relevee"] >= 5, vus
