@@ -170,8 +170,10 @@ def test_banques_et_assureurs_sur_piece():
     assert bpa["ATL"]["bpa_12m"] == 7.96 and bpa["ATL"]["bpa_avant_2026_09_29"] == 1.99
     # Wafa Assurance : 1 026,036 ÷ 3 500 000 = 293,15 (l'ancien divisait par 4,18 M)
     assert bpa["WAF"]["bpa"] == 293.15
-    # BOA : 3 813,552 ÷ 220 281 881 = 17,31
-    assert bpa["BOA"]["bpa"] == 17.31
+    # BOA : 3 813,552 ÷ 220 281 881 = 17,31 jusqu'au 09/11/2026 ; depuis, retraité de
+    # l'attribution gratuite d'1 pour 43 détachée le 22/10/2026 (IAS 33.64, avis de la
+    # Bourse AV-2026-131 et AV-2026-136) : 3 813,552 ÷ 225 404 715 = 16,92.
+    assert bpa["BOA"]["bpa"] == 16.92 and bpa["BOA"]["bpa_avant_2026_11_09"] == 17.31
     # BCP, résultat S1 IMPRIMÉ depuis le 02/10 : 4 503,361 + 3 218,498 −
     # 2 915,647 = 4 806,212 ÷ 203 312 473 = 23,64
     assert bpa["BCP"]["bpa_12m"] == 23.64

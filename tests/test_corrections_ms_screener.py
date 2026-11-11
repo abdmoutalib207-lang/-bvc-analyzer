@@ -269,3 +269,41 @@ def test_cih_et_cfg_bpa_publie_consigne_sans_toucher_au_notre():
     assert "dénominateur n'est pas publié" in cfg["note"]
     # Nos valeurs ne bougent pas.
     assert (BPA["CIH"]["bpa"], BPA["CIH"]["bpa_12m"], BPA["CFGB"]["bpa"]) == (32.78, 30.93, 10.58)
+
+
+# ── 4. BOA : attribution gratuite d'1 pour 43, détachée le 22/10/2026 — partie comptable ──
+
+def test_boa_les_avis_de_la_bourse_sont_consignes():
+    pieces = {p["fichier"]: p for p in json.loads(
+        (RACINE / "datasets/pieces/BOA/index.json").read_text(encoding="utf-8"))["pieces"]}
+    assert pieces["av-2026-131_fr.pdf"]["sha256"].startswith("e3759db6")      # 15/10 : détachement le 22/10/2026
+    assert pieces["av-2026-136_fr.pdf"]["sha256"].startswith("f53d28f2")      # 29/10 : 220.281.881 → 225.404.715
+    src = JEU["titres"]["BOA"]["source_actions"]
+    for morceau in ("AV-2026-131", "22/10/2026", "AV-2026-136", "225.404.715", "IAS 33"):
+        assert morceau in src, morceau
+    # Pas d'entrée au registre des actions : le nombre actuel EST le nombre rétro-ajusté (IAS 33.64).
+    assert "BOA" not in bvc_config.HISTORIQUE_ACTIONS
+    assert bvc_config.actions_ponderees("BOA", "2025-01-01", "2025-12-31", 225404715)["nombre"] == 225404715
+
+
+def test_boa_bpa_dividende_et_nombre_d_actions_par_action_actuelle():
+    t, b = JEU["titres"]["BOA"], BPA["BOA"]
+    assert t["actions"] == 225404715 == FOND["BOA"]["nb_actions"] and t["actions_avant_2026_11_09"] == 220281881
+    assert 225404715 - 220281881 == 5122834
+    # 3 813,552 ÷ 225,404715 = 16,919 ; (3 813,552 + 2 481,492 − 2 251,235) = 4 043,809 ÷ 225,404715 = 17,940
+    assert (b["bpa"], b["bpa_12m"], b["rnpg_12m"]) == (16.92, 17.94, 4043.809)
+    assert (b["bpa_avant_2026_11_09"], b["bpa_12m_avant_2026_11_09"]) == (17.31, 18.36)
+    # 5 DH votés par ancienne action × 220 281 881 ÷ 225 404 715 = 4,886
+    assert b["div_dh"] == round(5 * 220281881 / 225404715, 3) == 4.886 and b["div_dh_avant_2026_11_09"] == 5.0
+    assert b["dividende_piece"]["dpa"] == 4.886 and b["dividende_piece"]["dpa_vote"] == 5.0
+
+
+def test_boa_la_serie_de_cours_n_est_pas_ajustee_dans_ce_lot_et_c_est_dit():
+    """Le rétro-ajustement des cours (R11) est un lot à part : il régénère des artefacts
+    publiés. Tant qu'il n'est pas fait, ni le registre ni les chandelles ne bougent — les
+    deux ensemble, ou aucun (sinon un téléchargement frais diviserait une série non ajustée)."""
+    config = (RACINE / "bvc_config.py").read_text(encoding="utf-8")
+    assert "AV-2026-131" in config and "PAS ENCORE DÉCLARÉE ICI" in config
+    c = {k["d"]: k for k in json.loads((RACINE / "pipeline/candles/BOA.json").read_text(encoding="utf-8"))}
+    ajustee = c["2026-10-21"]["c"] != 180.0
+    assert ("BOA" in bvc_config.SPLITS) == ajustee

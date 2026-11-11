@@ -639,6 +639,24 @@ SPLITS: dict = {
     # actives, relevé le 05/09, donne MA0000012502. Les deux ne peuvent pas
     # être vrais. Ne rien changer sans recoupement — R2.
     "SOT": [{"date": "2026-05-05", "ratio": 5}],
+
+    # ⚠️ Bank of Africa — ATTRIBUTION GRATUITE d'1 action pour 43, droit détaché
+    # le 22/10/2026 : ÉTABLIE SUR PIÈCE le 09/11/2026, PAS ENCORE DÉCLARÉE ICI.
+    # Pièces (Bourse de Casablanca, datasets/pieces/BOA/index.json) : avis
+    # AV-2026-131 du 15/10/2026 (« Date de détachement 22/10/2026 », « ajustement
+    # du cours de l'instrument ») et AV-2026-136 du 29/10/2026 (220.281.881 titres
+    # avant, 225.404.715 après). Au sens de R11 c'est un fait de même nature qu'un
+    # split : la série DOIT être rétro-ajustée (cours antérieurs au 22/10 ÷
+    # 225 404 715/220 281 881 = 1,0232558119 ; 180,00 la veille → 175,91, la
+    # référence servie le 22/10 : 175,90).
+    # Elle ne l'est pas dans ce lot, MESURÉ le 10/11/2026 : l'inscrire ici et
+    # ajuster les chandelles change le RSI, les moyennes et le Score BVC de BOA,
+    # les figures publiées qui traversent le 22/10 et l'artefact de comblement des
+    # gaps (712 → 711 événements) — une régénération d'artefacts publiés qui se
+    # mesure à part. D'ici là la série de BOA porte une fausse marche de −2,27 %
+    # au 22/10/2026 (variation publiée ce jour-là : +2,67 % au lieu de +5,06 %).
+    # Le BPA, le dividende par action et le nombre d'actions, eux, sont à jour
+    # (datasets/resultats_s1_2026.json, bpa.json).
 }
 
 
