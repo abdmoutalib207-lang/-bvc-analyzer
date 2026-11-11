@@ -46,13 +46,16 @@ FORMAT (`etats_publies/1`) — clés courtes, tables factorisées
              m calculé (marge)
   lignes     [{cle, libelle, groupe, unite, graphique?, calcul?, pendant?}]
   vues       {annuel|semestriel: {periodes: [{cle, libelle, cloture}],
-              cellules: {<cle de ligne>: [cellule, …]}, couverture}}
+              cellules: {<cle de ligne>: [cellule, …]},
+              couverture: {relevees, cellules, documents} — hors marges}}
   cellule    v valeur · s statut · d document (indice) · p page · c citation
              i jeton imprimé · u unité imprimée (seulement si elle diffère de
              celle du document) · rf référentiel lu sur la page
-             r [indices de textes] réserves · g variation en % ou "ns"
+             r [indices de textes] réserves (ce qui rend la valeur incertaine)
+             o [indices de textes] précisions (ce qu'est le chiffre)
+             g variation en % ou "ns"
              f formule (indice de texte) · k composantes [{l (indice de
-             texte), sg, v, i, d, p, c}]
+             texte), sg, v, i, d, p, c, r, o}]
              n raison de la cellule vide (indice de texte)
 """
 
@@ -281,18 +284,26 @@ def _source(c: dict, t: _Tables, ou: str) -> dict:
     return out
 
 
-def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, ou: str) -> list[int]:
+def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, ou: str) -> dict:
+    """{"r": réserves, "o": précisions} — indices de textes ; clés absentes si vides.
+
+    Réserve = ce qui rend la valeur incertaine (lue dans un comparatif, périmètre
+    présumé, signe ou unité à relire, arrondi, division du nominal). Précision =
+    ce qui dit ce qu'est le chiffre (nature de l'indicateur, convention de signe,
+    façon dont la colonne a été identifiée)."""
     r: list[str] = []
-    if c.get("statut") == "lu_dans_document_ulterieur_comparatif" and not c.get("note"):
+    o: list[str] = []
+    comparatif = c.get("statut") == "lu_dans_document_ulterieur_comparatif"
+    if comparatif and not c.get("note"):
         r.append(R_COMPARATIF)
     if c.get("note"):
         n = _public(c["note"], ou)
         if cle not in ("ebitda_ajuste", "ebe"):       # note recopiée de l'EBITDA sur une autre ligne
             n = n.replace(" (EBITDA / EBE)", "")
-        r.append(n[0].upper() + n[1:] + ("" if n.endswith(".") else "."))
+        (r if comparatif else o).append(n[0].upper() + n[1:] + ("" if n.endswith(".") else "."))
     if c.get("nature"):
         n = _public(c["nature"], ou)
-        r.append("Nature : " + n + ".")
+        o.append("Nature : " + n + ".")
     if c.get("perimetre") == "consolide_presume":
         r.append(R_PRESUME)
     elif c.get("perimetre") == "social":
@@ -302,7 +313,7 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
     if c.get("unite_note"):
         r.append("Unité à relire (réserve du relevé) : " + _public(c["unite_note"], ou) + ".")
     if c.get("convention_signe"):
-        r.append("Convention de signe : " + _public(c["convention_signe"], ou) + ".")
+        o.append("Convention de signe : " + _public(c["convention_signe"], ou) + ".")
     # La valeur du relevé doit se lire sur la ligne citée, à l'unité près.
     f = _VERS_MDH.get(c.get("unite_source"))
     j = _jeton(c["valeur_source"]) if c.get("valeur_source") is not None else None
@@ -318,7 +329,7 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
             d = s["date"].split("-")
             r.append(f"Avant la division du nominal du {d[2]}/{d[1]}/{d[0]} (1 action → {s['ratio']}, "
                      "registre SPLITS) : à ajuster avant tout rapprochement avec un cours postérieur.")
-    return [t.txt(x) for x in r]
+    return {k: [t.txt(x) for x in xs] for k, xs in (("r", r), ("o", o)) if xs}
 
 
 def _formule(c: dict) -> tuple[str, dict[str, str]]:
@@ -366,9 +377,7 @@ def _cellule(cle: str, c: dict | None, t: _Tables, ticker: str, cloture: str | N
             if unite_ligne == "MDH":
                 comp["v"] = _nombre(cv["valeur_mdh"])
             comp.update(_source(cv, t, f"{ou}/{k}"))
-            rr = _reserves(k, cv, t, ticker, cloture, f"{ou}/{k}")
-            if rr:
-                comp["r"] = rr
+            comp.update(_reserves(k, cv, t, ticker, cloture, f"{ou}/{k}"))
             out["k"].append(comp)
     else:
         out.update(_source(c, t, ou))
@@ -378,9 +387,7 @@ def _cellule(cle: str, c: dict | None, t: _Tables, ticker: str, cloture: str | N
             out["u"] = c["unite_source"]
         if c.get("referentiel") and not c.get("referentiel_source"):
             out["rf"] = c["referentiel"]
-    r = _reserves(cle, c, t, ticker, cloture, ou)
-    if r:
-        out["r"] = r
+    out.update(_reserves(cle, c, t, ticker, cloture, ou))
     return out
 
 
@@ -447,7 +454,9 @@ def construire(releve: dict) -> dict | None:
                         cel[cle][i]["g"] = _nombre(g)
         v["cellules"] = {l[0]: cel[l[0]] for l in LIGNES if l[0] in cel}      # ordre d'affichage
         vals = [c for cle, cs in cel.items() if cle not in MARGES for c in cs]
-        v["couverture"] = {"relevees": sum("v" in c for c in vals), "cellules": len(vals)}
+        docs = {s["d"] for c in vals for s in [c, *c.get("k", [])] if "d" in s}
+        v["couverture"] = {"relevees": sum("v" in c for c in vals), "cellules": len(vals),
+                           "documents": len(docs)}
 
     if not any(v["couverture"]["relevees"] for v in vues.values()):
         return None

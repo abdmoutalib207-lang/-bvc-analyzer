@@ -90,7 +90,7 @@ def test_chaque_valeur_a_document_page_citation(t):
     n = 0
     for vue, cle, i, per, c in _cellules(pub):
         ou = f"{t} {per['cle']} {cle}"
-        for j in c.get("r", []) + ([c["n"]] if "n" in c else []) + ([c["f"]] if "f" in c else []):
+        for j in c.get("r", []) + c.get("o", []) + ([c["n"]] if "n" in c else []) + ([c["f"]] if "f" in c else []):
             assert 0 <= j < len(textes), f"{ou} : texte"
         if "v" not in c:
             assert set(c) == {"n"}, f"{ou} : cellule vide = sa raison, rien d'autre"
