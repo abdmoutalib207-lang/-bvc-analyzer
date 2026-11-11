@@ -182,6 +182,39 @@
     .carte{box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 18px rgba(0,0,0,.28);
       animation:apparition var(--t-moyen) var(--ease) both;}
     @keyframes apparition{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+    /* Fiche — « États financiers » (11/11/2026). Le tableau défile DANS la
+       carte (jamais la page) ; la colonne des grandeurs reste en place. */
+    .ef-b{font:inherit;font-size:11px;min-height:32px;padding:5px 10px;border-radius:4px;border:1px solid #1a2540;background:#0a1220;color:#8892a4;cursor:pointer}
+    .ef-b[aria-pressed="true"]{border-color:#4db8ff;color:#e8eef8;background:rgba(77,184,255,.12)}
+    /* ⚠️ width:0 + min-width:100% : sans cela le tableau impose sa largeur
+       minimale à toute la colonne de la fiche (mesuré : 1 036 px à 390 px). */
+    .ef-defile{width:0;min-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+    /* ⚠️ 11/11/2026 — un chiffre à moitié caché sous la colonne figée se lit
+       comme un autre (« 16 373 » lu « 6 373 »). Les colonnes de période ont
+       une largeur ÉGALE, calculée (efColonnes) pour que la zone visible en
+       contienne un nombre entier ; le défilement s'accroche par colonne et
+       s'ouvre calé à droite sur une limite de colonne. L'ombre dit qu'il y a
+       des périodes cachées à gauche. */
+    .ef-ombre .ef-lib{box-shadow:1px 0 0 #1a2540,8px 0 9px -5px rgba(0,0,0,.9)!important}
+    .ef-t{border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+    .ef-t th,.ef-t td{border-top:1px solid #1a2540;padding:0;text-align:right;white-space:nowrap;font-weight:400}
+    .ef-t thead th{border-top:0;padding:0 6px 5px;font-size:10px;color:#8892a4}
+    .ef-t .ef-lib{position:sticky;left:0;z-index:1;background:#0d1829;box-shadow:1px 0 0 #1a2540;text-align:left;white-space:normal;
+      padding:6px 8px 6px 0;color:#c8d3e8;line-height:1.3;overflow-wrap:anywhere}
+    .ef-t .ef-grp{color:#8892a4;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding-top:9px}
+    .ef-c{display:block;width:100%;min-height:36px;padding:3px 3px;border:0;border-radius:3px;background:none;color:#e8eef8;font:inherit;text-align:right;cursor:pointer}
+    /* La zone de toucher élargie des boutons (button::after, écran tactile)
+       ne sort pas de la case : elle allongeait le défilement de 2 px, et le
+       calage à droite coupait d'autant la première colonne visible. */
+    .ef-c::after{inset:0!important}
+    .ef-c[aria-pressed="true"]{background:rgba(77,184,255,.14);box-shadow:inset 0 0 0 1px #4db8ff!important}
+    .ef-c small{display:block;font-size:10px;line-height:1.25}
+    .ef-val{display:none}
+    /* Le détail d'une case s'arrête au-dessus du bouton MENU du téléphone. */
+    .ef-detail{scroll-margin:12px 0 84px}
+    .ef-choix{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    @media(max-width:767px){.ef-choix{flex-wrap:nowrap;width:0;min-width:100%;overflow-x:auto;padding-bottom:2px}.ef-choix .ef-b{flex:0 0 auto;white-space:nowrap}}
+    @media(min-width:768px){.ef-val{display:inline}}
     html{scroll-behavior:smooth;}
     @media (prefers-reduced-motion:reduce){
       *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
@@ -4727,6 +4760,195 @@ const ASavoir=({items})=>{
     </div>);
 };
 
+// ── FICHE : « ÉTATS FINANCIERS » — 11/11/2026 ────────────────────────────────
+// Demande d'Abd Moutalib (étape 2) : l'historique des états financiers, annuel
+// et semestriel, chaque chiffre avec sa source. Le fichier compact d'un titre
+// (datasets/etats_publies/<TICKER>.json, produit par pipeline/etats_publies.py
+// à partir des relevés sur pièce) est lu À LA DEMANDE, à l'ouverture de la
+// fiche ; l'index dit quels titres en ont un, pour ne jamais demander un
+// fichier absent. Rien n'est calculé ici : marges et variations viennent du
+// fichier, étiquetées. Une case vide reste « — », avec sa raison au toucher.
+// Descriptif, hors Score BVC ; aucun mot d'action, aucune prévision.
+let ETATS_IDX=null,ETATS_IDX_P=null;const ETATS_P={};
+const chargerEtats=sym=>(ETATS_IDX_P||(ETATS_IDX_P=fetch("datasets/etats_publies/index.json?t="+vpub())
+    .then(x=>x.ok?x.json():null).then(j=>{ETATS_IDX=j;if(!j)ETATS_IDX_P=null;return j;}).catch(()=>{ETATS_IDX_P=null;return null;})))
+  .then(ix=>!efCouvert(ix,sym)?null:(ETATS_P[sym]||(ETATS_P[sym]=fetch(`datasets/etats_publies/${sym}.json?t=`+vpub())
+    .then(x=>x.ok?x.json():null).then(j=>{if(!j)delete ETATS_P[sym];return j;}).catch(()=>{delete ETATS_P[sym];return null;}))));
+/* Fonctions pures, exécutées sous node par tests/test_etats_terminal.py. */
+const efCouvert=(ix,sym)=>!!(ix&&Array.isArray(ix.titres)&&ix.titres.includes(sym));
+const efA=v=>typeof v==="number"&&isFinite(v);
+/* Format français par formateurs GARDÉS : la carte écrit ~500 nombres, et
+   toLocaleString en recrée un à chaque appel (mesuré dans Chromium bridé ×4,
+   510 nombres : 42,8 ms contre 1,6 ms). */
+const EF_NF={};
+const efFr=(x,d)=>(EF_NF[d]||(EF_NF[d]=new Intl.NumberFormat("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d}))).format(x).replace(/\u202f|\u00a0/g," ");
+const efSigne=(v,d)=>(v<0?"−":"")+efFr(Math.abs(v),d);
+const efNombre=(v,u)=>!efA(v)?"—":u==="%"?efSigne(v,1)+" %":u==="DH"?efSigne(v,2):u==="actions"?efSigne(v,0):efSigne(v,Math.abs(v)>=1000?0:1);
+/* Dans le tableau, le nombre d'actions se lit en millions (le nombre exact est au toucher). */
+const efCase=(v,u)=>u==="actions"&&efA(v)?efSigne(v/1e6,2):efNombre(v,u);
+const efAvecUnite=(v,u)=>efNombre(v,u)+(!efA(v)||u==="%"?"":" "+u);
+const efCourt=v=>!efA(v)?"":Math.abs(v)>=10000?efSigne(v/1000,1)+" Md":efSigne(v,0);
+const efVar=g=>g==="ns"?"n.s.":efA(g)?(g>0?"+":g<0?"−":"")+efFr(Math.abs(g),1)+" %":null;
+const efTextes=(e,l)=>(l||[]).map(i=>e.textes[i]).filter(Boolean);
+/* [marque, couleur] d'une case : ° lue dans un comparatif, ∑ calculée depuis
+   composantes, ⚠ réserve. Un état incertain se voit dans le tableau même. */
+const efMarque=c=>c.s==="c"?["°","#ffb74d"]:(c.r||[]).length?["⚠","#ffb74d"]:c.s==="k"?["∑","#4db8ff"]:null;
+const efSrc=(e,c,unite)=>{const d=(e.documents||[])[c.d];if(!d)return null;
+  let f=d.f;if(!f){try{f=decodeURIComponent(d.u.split("/").pop());}catch(x){f=d.u;}}
+  const u=unite?(e.unites||{})[c.u||d.un]:null;
+  return{u:d.u,f,page:c.p,citation:c.c,imprime:c.i==null?null:c.i+(u?` (${u})`:"")};};
+/* Géométrie des barres : zéro toujours dans le cadre, valeurs négatives sous
+   la ligne, période non relevée = pas de barre (jamais une barre à zéro). */
+const efBarres=(cs,H)=>{const vs=cs.map(c=>c&&efA(c.v)?c.v:null),nn=vs.filter(v=>v!=null);if(!nn.length)return null;
+  const max=Math.max(0,...nn),min=Math.min(0,...nn),amp=(max-min)||1,zero=H*max/amp;
+  return{zero,dernier:vs.reduce((a,v,i)=>v!=null?i:a,-1),barres:vs.map(v=>v==null?null:{y:v>=0?zero-H*v/amp:zero,h:Math.max(1,H*Math.abs(v)/amp),neg:v<0})};};
+/* Géométrie du tableau : C = largeur du cadre défilant, n = nombre de périodes.
+   Colonnes de période de largeur égale W (≥ EF_WMIN : la case la plus large
+   mesurée, « −11 624° » d'ATW, fait 55,1 px + 6 px de marge), k visibles
+   ENTIÈRES ; la colonne figée L prend le reste. Donc L + k·W = C exactement,
+   toute position d'accroche (multiple de W) tombe sur une limite de colonne,
+   et le défilement maximal (n − k)·W aussi. */
+const EF_WMIN=62,EF_LMIN=120;
+const efColonnes=(C,n)=>{const L0=C<480?124:164;let k,W;
+  if(C-EF_LMIN>=n*EF_WMIN){const L=Math.max(EF_LMIN,Math.min(L0,C-n*EF_WMIN));k=n;W=Math.floor((C-L)/n);}
+  else{k=Math.max(1,Math.min(n,Math.floor((C-L0)/EF_WMIN)));W=Math.floor((C-L0)/k);}
+  return{k,W,L:C-k*W};};
+/* Tout ce que la case dit au toucher : valeur, statut, source, réserves. */
+const efDetail=(e,vue,cle,i)=>{const v=e.vues[vue],L=k=>e.lignes.find(x=>x.cle===k),l=L(cle),cs=v.cellules[cle],c=cs[i],p=v.periodes[i];
+  const d={titre:`${l.libelle} · ${p.libelle}`,valeur:efAvecUnite(c.v,l.unite),vide:!efA(c.v),raison:c.n!=null?e.textes[c.n]:null,
+    statut:c.s?e.statuts[c.s]:null,reserves:efTextes(e,c.r),precisions:efTextes(e,c.o),composantes:[]};
+  if(c.rf)d.precisions.push(`Référentiel lu sur la page : ${c.rf}.`);
+  if(c.g!=null){const j=v.periodes.findIndex(q=>+q.cle.slice(-4)===+p.cle.slice(-4)-1),a=efAvecUnite(cs[j].v,l.unite);
+    d.variation=`Variation par rapport à ${v.periodes[j].libelle} : `+(c.g==="ns"?`n.s. — base nulle ou négative (${a}).`:`${efVar(c.g)} — calculé : ${efAvecUnite(c.v,l.unite)} contre ${a}.`);}
+  if(l.calcul){const a=v.cellules[l.calcul.num][i].v,b=v.cellules[l.calcul.den][i].v;
+    d.calcul=`${L(l.calcul.num).libelle} ÷ ${L(l.calcul.den).libelle} × 100`+(efA(c.v)?` = ${efNombre(a,"MDH")} ÷ ${efNombre(b,"MDH")}`:"");}
+  if(c.d!=null)d.source=efSrc(e,c,true);
+  if(c.f!=null)d.formule=e.textes[c.f];
+  (c.k||[]).forEach(k=>d.composantes.push({libelle:e.textes[k.l],signe:k.sg||"",valeur:efA(k.v)?efAvecUnite(k.v,"MDH"):null,
+    source:efSrc(e,k,false),reserves:efTextes(e,k.r).concat(efTextes(e,k.o))}));
+  if(l.pendant){const o=v.cellules[l.pendant][i];d.pendant=`${L(l.pendant).libelle}, même période : ${efA(o.v)?efAvecUnite(o.v,"MDH"):"non relevée"}.`;}
+  return d;};
+
+const EfSource=({s})=>!s?null:(
+  <div style={{marginTop:3}}>Source : <SourceLigne u={s.u} doc={s.f} pages={[s.page]}/>
+    <div style={{color:"#aab4c8",overflowWrap:"anywhere"}}>« {s.citation} »{s.imprime&&<span style={{color:"#8892a4"}}> — imprimé : {s.imprime}</span>}</div>
+  </div>);
+const EF_TITRE={fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"};
+const EtatsFinanciers=({sym})=>{
+  const [charge,setCharge]=useState(null);
+  const [vue,setVue]=useState("annuel");
+  const [grandeur,setGrandeur]=useState(null);
+  const [barre,setBarre]=useState(null);
+  const [sel,setSel]=useState(null);
+  const panneau=useRef(null),defile=useRef(null);
+  const [C,setC]=useState(0),[ombre,setOmbre]=useState(false);
+  /* startTransition : la carte (~170 cases) se rend par tranches, sans retenir
+     le graphique de la fiche, qui attend ses bougies au même moment. */
+  useEffect(()=>{let vivant=true;setSel(null);setBarre(null);
+    chargerEtats(sym).then(j=>{if(vivant)React.startTransition(()=>setCharge(j));});return()=>{vivant=false;};},[sym]);
+  const e=charge&&charge.ticker===sym?charge:null;   // jamais les chiffres du titre précédent
+  useEffect(()=>{if(sel&&panneau.current)panneau.current.scrollIntoView({block:"nearest"});},[sel]);
+  /* Largeur du cadre lue AVANT le premier affichage, puis suivie. */
+  React.useLayoutEffect(()=>{const el=defile.current;if(!el)return;setC(el.clientWidth);
+    if(typeof ResizeObserver==="undefined")return;const ro=new ResizeObserver(()=>setC(el.clientWidth));ro.observe(el);return()=>ro.disconnect();},[!!e]);
+  /* Calé à droite (période la plus récente) sur une limite de colonne, avant affichage. */
+  React.useLayoutEffect(()=>{const el=defile.current;if(!el||!C)return;const m=e.vues[vue].periodes.length,g=efColonnes(C,m);el.scrollLeft=(m-g.k)*g.W;setOmbre(el.scrollLeft>0.5);},[C,vue,e]);
+  const cadre={background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10,minWidth:0};
+  if(!e) return efCouvert(ETATS_IDX,sym)?<div className="carte fiche-etats" style={{...cadre,minHeight:420}}><div style={EF_TITRE}>États financiers</div>
+    <div style={{fontSize:11,color:"#5a6478",marginTop:10}}>Chargement des chiffres relevés…</div></div>:null;
+  const v=e.vues[vue],P=v.periodes,n=P.length,H=104,T=16,geo=C>0?efColonnes(C,n):null;
+  const avec=l=>v.cellules[l.cle].some(c=>efA(c.v));
+  const lignes=e.lignes.filter(avec),vides=e.lignes.filter(l=>!avec(l));
+  const choix=lignes.filter(l=>l.graphique),g=choix.find(l=>l.cle===grandeur)||choix[0];
+  const gc=g?v.cellules[g.cle]:[],b=g?efBarres(gc,H):null;
+  const bi=b?(barre!=null&&b.barres[barre]?barre:b.dernier):-1,lu=bi>=0?efDetail(e,vue,g.cle,bi):null;
+  const dt=sel&&v.cellules[sel.cle]&&sel.i<n?efDetail(e,vue,sel.cle,sel.i):null;
+  const changer=x=>{setVue(x);setSel(null);setBarre(null);};
+  return(
+    <div className="carte fiche-etats" style={cadre}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,gap:8,flexWrap:"wrap"}}>
+        <div style={EF_TITRE}>États financiers <span style={{color:"#4db8ff"}}>{P[0].libelle} → {P[n-1].libelle}</span></div>
+        <div style={{display:"flex",gap:6}}>{[["annuel","Annuel"],["semestriel","Semestriel"]].map(([k,t])=>
+          <button key={k} type="button" className="ef-b" aria-pressed={vue===k} onClick={()=>changer(k)}>{t}</button>)}</div>
+      </div>
+      {b&&<div className="ef-trajectoire" style={{background:"#0a1220",borderRadius:6,padding:"8px 8px 2px",marginBottom:10}}>
+        <div className="ef-choix">{choix.map(l=>
+          <button key={l.cle} type="button" className="ef-b" aria-pressed={l.cle===g.cle} onClick={()=>{setGrandeur(l.cle);setBarre(null);}}>{l.graphique}</button>)}</div>
+        <div aria-live="polite" style={{fontSize:11,color:"#8892a4",lineHeight:1.5,minHeight:34}}>
+          <b style={{color:"#4db8ff"}}>{P[bi].libelle}</b> · <span style={{color:"#e8eef8",fontSize:14,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{lu.valeur}</span>
+          {efVar(gc[bi].g)&&<span style={{color:gc[bi].g==="ns"?"#5a6478":VC(gc[bi].g),marginLeft:6}}>{efVar(gc[bi].g)} sur un an</span>}
+          <span> · {lu.statut.split(" — ")[0]} · </span>
+          <button type="button" onClick={()=>setSel({cle:g.cle,i:bi})} style={{border:0,background:"none",color:"#4db8ff",font:"inherit",cursor:"pointer",padding:"6px 0",minHeight:28}}>voir la source</button>
+          {/* Règle : la dette nette calculée ne s'affiche jamais seule quand
+              l'émetteur publie la sienne — l'autre valeur, même période, à côté. */}
+          {lu.pendant&&<div className="ef-pendant" style={{color:"#aab4c8"}}>{lu.pendant}</div>}
+        </div>
+        <svg width="100%" height={T+H+32} role="group" aria-label={`${g.libelle}, ${P[0].libelle} à ${P[n-1].libelle}, en millions de DH`} style={{display:"block",overflow:"visible"}}>
+          <line x1="0" x2="100%" y1={T+b.zero} y2={T+b.zero} stroke="#2a3a5c"/>
+          {gc.map((c,i)=>{const B=b.barres[i],on=i===bi,x=`${(i+.5)*100/n}%`,coul=B&&B.neg?"#7d8aa5":"#4db8ff";
+            return(
+            <g key={i} role="button" tabIndex={B?0:-1} aria-label={`${P[i].libelle} : ${efAvecUnite(c.v,g.unite)}`} style={{cursor:B?"pointer":"default",outline:"none"}}
+              onClick={()=>B&&setBarre(i)} onKeyDown={ev=>{if(B&&ev.key==="Enter")setBarre(i);}}>
+              <rect x={`${i*100/n}%`} width={`${100/n}%`} y="0" height={T+H+32} fill="transparent"/>
+              {B?<rect x={`${(i+.19)*100/n}%`} width={`${62/n}%`} y={T+B.y} height={B.h} rx="2" fill={coul} fillOpacity={c.s==="p"?(on?1:.78):.4}
+                  stroke={on?"#e8eef8":coul} strokeWidth={on?1.5:1} strokeDasharray={c.s==="p"?"none":"3 2"}/>
+                :<text x={x} y={T+b.zero-5} textAnchor="middle" fontSize="11" fill="#5a6478">—</text>}
+              {B&&<text className={on?"":"ef-val"} x={x} y={B.neg?T+B.y+B.h+11:T+B.y-4} textAnchor="middle" fontSize="10" fill={on?"#e8eef8":"#8892a4"}>{efCourt(c.v)}</text>}
+              <text x={x} y={T+H+27} textAnchor="middle" fontSize="10" fill={on?"#e8eef8":"#8892a4"} fontWeight={on?700:400}>{P[i].libelle.replace(" 20"," ")}</text>
+            </g>);})}
+        </svg>
+      </div>}
+      <div className={"ef-defile"+(ombre?" ef-ombre":"")} ref={defile} tabIndex={0} role="group" aria-label="Tableau des états financiers, défilement horizontal"
+        onScroll={ev=>{const o=ev.currentTarget.scrollLeft>0.5;if(o!==ombre)setOmbre(o);}}
+        style={geo?{scrollSnapType:"x mandatory",scrollPaddingLeft:geo.L}:null}>
+        <table className="ef-t" style={geo?{tableLayout:"fixed",width:geo.L+n*geo.W}:null}>
+          {geo&&<colgroup><col style={{width:geo.L}}/>{P.map(p=><col key={p.cle} style={{width:geo.W}}/>)}</colgroup>}
+          <thead><tr><th className="ef-lib" style={{fontSize:10,color:"#8892a4"}}>millions de DH{e.perimetre==="consolide"?" · consolidé":""}</th>
+            {P.map(p=><th key={p.cle} scope="col" style={{scrollSnapAlign:"start"}}>{p.libelle}</th>)}</tr></thead>
+          <tbody>{lignes.flatMap((l,k)=>[
+            (k===0||lignes[k-1].groupe!==l.groupe)&&<tr key={"g"+l.groupe}><th className="ef-lib ef-grp">{l.groupe}</th><td colSpan={n}></td></tr>,
+            <tr key={l.cle}>
+              <th scope="row" className="ef-lib" style={l.calcul?{color:"#8892a4"}:null}>{l.libelle}{l.unite==="DH"?" (DH)":l.unite==="actions"?" (millions)":""}</th>
+              {v.cellules[l.cle].map((c,i)=>{const on=!!sel&&sel.cle===l.cle&&sel.i===i,m=efMarque(c),vg=efVar(c.g);
+                return <td key={i}><button type="button" className="ef-c" aria-pressed={on} onClick={()=>setSel(on?null:{cle:l.cle,i})}
+                    aria-label={`${l.libelle}, ${P[i].libelle} : ${efAvecUnite(c.v,l.unite)} — source et statut`}>
+                  <span style={{color:!efA(c.v)?"#5a6478":l.calcul?"#aab4c8":null}}>{efCase(c.v,l.unite)}</span>{m&&<sup style={{color:m[1],marginLeft:1}}>{m[0]}</sup>}
+                  {vg&&<small style={{color:c.g==="ns"?"#5a6478":VC(c.g)}}>{vg}</small>}
+                </button></td>;})}
+            </tr>])}</tbody>
+        </table>
+      </div>
+      <div style={{fontSize:10,color:"#8892a4",marginTop:6,lineHeight:1.5}}>
+        Touchez une case : source, statut, réserves. <span style={{color:"#ffb74d"}}>°</span> lu dans un document ultérieur · <span style={{color:"#4db8ff"}}>∑</span> calculé depuis composantes publiées · <span style={{color:"#ffb74d"}}>⚠</span> réserve · — non relevé. Sous la valeur : variation sur un an, calculée.
+      </div>
+      {dt&&<div ref={panneau} className="ef-detail" aria-live="polite" style={{marginTop:8,padding:"8px 10px",borderRadius:6,background:"#0a1220",border:"1px solid #2a3a5c",fontSize:11,color:"#c8d3e8",lineHeight:1.5}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+          <b style={{color:"#e8eef8"}}>{dt.titre}</b>
+          <button type="button" aria-label="Fermer le détail" onClick={()=>setSel(null)} style={{border:0,background:"none",color:"#8892a4",fontSize:14,cursor:"pointer",minWidth:32,minHeight:28,padding:0}}>✕</button>
+        </div>
+        <div style={{fontSize:15,fontWeight:700,color:dt.vide?"#8892a4":"#e8eef8",fontVariantNumeric:"tabular-nums"}}>{dt.vide?"— case vide":dt.valeur}</div>
+        {dt.raison&&<div>{dt.raison}</div>}
+        {dt.statut&&<div><span style={{color:"#8892a4"}}>Statut :</span> {dt.statut}.</div>}
+        {dt.calcul&&<div><span style={{color:"#8892a4"}}>Calcul :</span> {dt.calcul}.</div>}
+        {dt.formule&&<div><span style={{color:"#8892a4"}}>Formule :</span> <TexteLong t={dt.formule}/></div>}
+        {dt.source&&<EfSource s={dt.source}/>}
+        {dt.composantes.map((k,i)=><div key={i} style={{marginTop:5,paddingLeft:8,borderLeft:"2px solid #1a2540"}}>
+          <b style={{fontWeight:600}}>{k.signe} {k.libelle}</b>{k.valeur&&<> : {k.valeur}</>}<EfSource s={k.source}/>
+          {k.reserves.map((x,j)=><div key={j} style={{color:"#ffcc80"}}>⚠ {x}</div>)}</div>)}
+        {dt.variation&&<div style={{marginTop:3}}>{dt.variation}</div>}
+        {dt.pendant&&<div style={{marginTop:3,color:"#aab4c8"}}>{dt.pendant}</div>}
+        {dt.reserves.map((x,i)=><div key={"r"+i} style={{marginTop:5,padding:"5px 8px",borderRadius:4,background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",color:"#ffcc80"}}>⚠ {x}</div>)}
+        {dt.precisions.map((x,i)=><div key={"o"+i} style={{marginTop:3,color:"#8892a4"}}>{x}</div>)}
+      </div>}
+      <div style={{fontSize:10,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
+        {v.couverture.relevees} valeurs relevées sur {v.couverture.cellules} cases, dans {v.couverture.documents} documents — une case non lue reste vide, jamais estimée.
+        {vides.length>0&&<details style={{marginTop:3}}><summary style={{cursor:"pointer",minHeight:24}}>Sans valeur relevée sur ces périodes ({vides.length})</summary>
+          {vides.map(l=><div key={l.cle} style={{marginTop:3}}><b style={{color:"#c8d3e8",fontWeight:600}}>{l.libelle}</b> — {[...new Set(efTextes(e,v.cellules[l.cle].map(c=>c.n)))].join(" ")}</div>)}</details>}
+        <div style={{color:"#5a6478",marginTop:4}}>Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.</div>
+      </div>
+    </div>);
+};
+
 // ── TICKER NEWS (inline dans Detail) ─────────────────────────────────────────
 const TickerNews=({sym})=>{
   const [articles,setArticles]=useState([]);
@@ -5056,6 +5278,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           {/* « Dernier semestre » et « À savoir » (09/11/2026) : relevés sur
               pièce, publiés par pipeline/fiche_comptes.py, hors score. */}
           <DernierSemestre c={r.comptes_s1}/>
+          {/* « États financiers » (11/11/2026) : historique relevé sur pièce,
+              lu à la demande (datasets/etats_publies/), hors score. */}
+          <EtatsFinanciers sym={sym}/>
           <ASavoir items={r.a_savoir}/>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
