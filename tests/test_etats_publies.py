@@ -163,7 +163,8 @@ def test_fidelite_au_releve_cellule_par_cellule(t):
             if "rf" in c:                                      # référentiel : seulement s'il est relu
                 assert c["rf"] == d["referentiel"] and not d.get("referentiel_source"), ou
         if d["statut"] == "lu_dans_document_ulterieur_comparatif":
-            assert c.get("r"), f"{ou} : valeur d'un comparatif sans réserve"
+            assert any("comparati" in textes[j].lower() for j in c.get("r", [])), \
+                f"{ou} : valeur d'un comparatif sans réserve qui le dise"
     # Rien d'oublié : toute cellule du relevé est publiée, sauf une ligne « sans objet » partout.
     for k, p in rel["periodes"].items():
         for cle, d in p["donnees"].items():

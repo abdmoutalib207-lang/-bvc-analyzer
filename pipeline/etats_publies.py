@@ -293,14 +293,14 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
     façon dont la colonne a été identifiée)."""
     r: list[str] = []
     o: list[str] = []
-    comparatif = c.get("statut") == "lu_dans_document_ulterieur_comparatif"
-    if comparatif and not c.get("note"):
+    # Une valeur lue dans un comparatif le dit toujours : par la note du relevé
+    # quand elle en parle, sinon par la réserve générique.
+    n = _public(c["note"], ou) if c.get("note") else ""
+    dit_comparatif = "comparati" in n.lower()
+    if c.get("statut") == "lu_dans_document_ulterieur_comparatif" and not dit_comparatif:
         r.append(R_COMPARATIF)
-    if c.get("note"):
-        n = _public(c["note"], ou)
-        if cle not in ("ebitda_ajuste", "ebe"):       # note recopiée de l'EBITDA sur une autre ligne
-            n = n.replace(" (EBITDA / EBE)", "")
-        (r if comparatif else o).append(n[0].upper() + n[1:] + ("" if n.endswith(".") else "."))
+    if n:
+        (r if dit_comparatif else o).append(n[0].upper() + n[1:] + ("" if n.endswith(".") else "."))
     if c.get("nature"):
         n = _public(c["nature"], ou)
         o.append("Nature : " + n + ".")
