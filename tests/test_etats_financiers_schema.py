@@ -12,7 +12,7 @@ import pytest
 DOSSIER = Path(__file__).resolve().parent.parent / "datasets" / "etats_financiers"
 FICHIERS = sorted(DOSSIER.glob("*.json"))
 PERIODES = [f"FY{y}" for y in range(2016, 2026)] + [f"H1-{y}" for y in range(2019, 2027)]
-CLES = {"chiffre_affaires", "ebe", "resultat_exploitation", "resultat_net_ensemble", "resultat_net_part_groupe",
+CLES = {"chiffre_affaires", "ebe", "ebitda_ajuste", "resultat_exploitation_courant", "dette_nette_publiee", "resultat_exploitation", "resultat_net_ensemble", "resultat_net_part_groupe",
         "interets_minoritaires", "capitaux_propres_part_groupe", "dette_nette", "flux_exploitation",
         "flux_investissement", "nombre_actions", "dividende_par_action_propose"}
 CONTROLES = {"concordant", "ecart", "non_verifie", "absent_ms", "ms_indique_non_publie"}
