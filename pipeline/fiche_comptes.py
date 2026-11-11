@@ -42,6 +42,7 @@ chiffres publiés et leurs rapports, rien sur ce que le cours « va » faire.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
@@ -74,6 +75,54 @@ _TOUJOURS_RESERVE = {"note", "perimetre_elargi", "reserve_cac", "proforma_s1_202
 # Mots qui font d'une précision une réserve (texte du relevé, insensible à la casse).
 _MOTS_RESERVE = ("⚠", "réserve", "exceptionnel", "non récurrent", "reprise", "plus-value",
                  "proforma", "pro forma", "périmètre")
+
+# ⚠️ NOMS DE CHAMP → PHRASES (11/11/2026). Les relevés renvoient entre accents
+# graves à leurs propres champs (« voir `exception_regle_c` ») : utile au
+# relecteur, illisible à l'écran. Le relevé n'est pas réécrit ; la fiche reçoit
+# une phrase. Un nom absent de cette table devient « une donnée du relevé » —
+# jamais d'arrêt du run — et tests/test_fiche_comptes.py exige que la table
+# couvre tous les textes publiés.
+CHAMPS_LISIBLES = {
+    "exception_regle_c": "l'exception sous le PER",
+    "croissance_bpa_publiee": "la croissance publiée, gardée au relevé",
+    "croissance_bpa_note": "la note de croissance du relevé",
+    "avant_2026_10_20": "le relevé (état d'avant le 20/10/2026)",
+    "reserve_cac": "la réserve des commissaires aux comptes",
+    "rnpg_s1_*": "les RNPG semestriels retenus",
+    "rnpg_publie_s1_*": "les RNPG semestriels publiés",
+    "rnpg_publie_s1_2025": "le RNPG publié du S1 2025",
+    "ca_s1_2025": "le chiffre d'affaires S1 2025 retenu",
+    "ca_publie_s1_2025": "le chiffre d'affaires S1 2025 publié",
+    "bpa": "le BPA",
+    "bpa_retire": "la note de retrait du BPA",
+    "source": "la source",
+    "_comptes_deposes()": "le contrôle des comptes déposés",
+    "fp <= 0": "fonds propres ≤ 0",
+}
+CHAMP_INCONNU = "une donnée du relevé"
+_ENTRE_GRAVES = re.compile(r"(\(\s*)?`([^`]{1,80})`(\s*\))?")
+
+
+def lisible(texte):
+    """« voir `exception_regle_c` » → « voir l'exception sous le PER » ;
+    « (`reserve_cac`) » → « (voir la réserve des commissaires aux comptes) »."""
+    if not isinstance(texte, str) or "`" not in texte:
+        return texte
+
+    def _phrase(m):
+        ph = CHAMPS_LISIBLES.get(m.group(2).strip(), CHAMP_INCONNU)
+        if m.group(1) is not None and m.group(3) is not None:
+            return f"(voir {ph})"
+        return (m.group(1) or "") + ph + (m.group(3) or "")
+    return _ENTRE_GRAVES.sub(_phrase, texte).replace("`", "")
+
+
+def _lisible_partout(x):
+    if isinstance(x, dict):
+        return {k: _lisible_partout(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_lisible_partout(v) for v in x]
+    return lisible(x)
 
 
 # ─────────────────────────── utilitaires ───────────────────────────
@@ -452,12 +501,12 @@ def annexer_fiche(tickers: list, racine: Path | None = None, jour: str | None = 
     calcul = {}
     for x in tickers:
         sym = x["symbol"]
-        calcul[sym] = {
+        calcul[sym] = _lisible_partout({
             "comptes_s1": comptes_s1(sym, titres_s1.get(sym), ecartes=s1.get("_ecartes", {}),
                                      ebitda=jeux["ebitda"].get(sym), exercice=jeux["exercice"],
                                      fin_periode=s1.get("fin_periode", "2026-06-30")),
             "a_savoir": a_savoir(sym, x.get("_meta") or {}, jour),
-        }
+        })
     for x in tickers:
         x["comptes_s1"] = calcul[x["symbol"]]["comptes_s1"]
         x["a_savoir"] = calcul[x["symbol"]]["a_savoir"]

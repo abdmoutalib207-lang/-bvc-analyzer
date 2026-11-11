@@ -160,6 +160,32 @@ def test_annexer_ne_pose_que_ses_deux_champs():
     assert len(avant) == len(data["tickers"])
 
 
+def test_noms_de_champ_remplaces_par_des_phrases():
+    """11/11/2026 : la réserve de Risma affichait « voir `exception_regle_c` ».
+    Les relevés gardent leurs renvois ; l'écran reçoit une phrase."""
+    assert F.lisible("base retenue par EXCEPTION DÉCLARÉE à la règle c, voir `exception_regle_c`") \
+        == "base retenue par EXCEPTION DÉCLARÉE à la règle c, voir l'exception sous le PER"
+    assert F.lisible("quatre situations (voir `reserve_cac`) ;") \
+        == "quatre situations (voir la réserve des commissaires aux comptes) ;"
+    assert F.lisible("à la règle c (`exception_regle_c`).") == "à la règle c (voir l'exception sous le PER)."
+    assert F.lisible("dans `champ_jamais_vu`.") == f"dans {F.CHAMP_INCONNU}."
+    assert F.lisible("sans accent grave") == "sans accent grave" and F.lisible(None) is None
+    # Le relevé lui-même n'est pas réécrit.
+    assert "`exception_regle_c`" in S1["titres"]["RIS"]["base"]
+
+
+def test_aucun_nom_de_champ_entre_accents_graves_dans_la_fiche():
+    """Tout le texte publié pour la fiche, sur les 80 titres : pas un accent
+    grave, et aucun renvoi tombé sur la formule neutre (la table couvre tout)."""
+    data = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
+    calcul = F.annexer_fiche(data["tickers"], jour="2026-11-09")
+    texte = json.dumps(calcul, ensure_ascii=False)
+    assert "`" not in texte
+    assert F.CHAMP_INCONNU not in texte, "nom de champ à ajouter à CHAMPS_LISIBLES"
+    ris = {r["libelle"]: r["texte"] for r in calcul["RIS"]["comptes_s1"]["reserves"]}
+    assert ris["Base retenue"].endswith("voir l'exception sous le PER")
+
+
 def test_annexer_tout_ou_rien(monkeypatch):
     lignes = [{"symbol": "ADI", "_meta": {}}, {"symbol": "CMT", "_meta": {}}]
 
