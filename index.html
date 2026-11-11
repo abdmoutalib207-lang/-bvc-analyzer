@@ -182,6 +182,30 @@
     .carte{box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 6px 18px rgba(0,0,0,.28);
       animation:apparition var(--t-moyen) var(--ease) both;}
     @keyframes apparition{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+    /* Fiche — « États financiers » (11/11/2026). Le tableau défile DANS la
+       carte (jamais la page) ; la colonne des grandeurs reste en place. */
+    .ef-b{font:inherit;font-size:11px;min-height:32px;padding:5px 10px;border-radius:4px;border:1px solid #1a2540;background:#0a1220;color:#8892a4;cursor:pointer}
+    .ef-b[aria-pressed="true"]{border-color:#4db8ff;color:#e8eef8;background:rgba(77,184,255,.12)}
+    /* ⚠️ width:0 + min-width:100% : sans cela le tableau impose sa largeur
+       minimale à toute la colonne de la fiche (mesuré : 1 036 px à 390 px). */
+    .ef-defile{width:0;min-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;direction:rtl}
+    /* direction:rtl sur le cadre seul : il s'ouvre calé à DROITE, période la
+       plus récente visible d'abord, sans script et quelle que soit la largeur. */
+    .ef-t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+    .ef-t th,.ef-t td{border-top:1px solid #1a2540;padding:0;text-align:right;white-space:nowrap;font-weight:400}
+    .ef-t thead th{border-top:0;padding:0 6px 5px;font-size:10px;color:#8892a4}
+    .ef-t .ef-lib{position:sticky;left:0;z-index:1;background:#0d1829;box-shadow:1px 0 0 #1a2540;text-align:left;white-space:normal;
+      width:124px;min-width:124px;max-width:124px;padding:6px 8px 6px 0;color:#c8d3e8;line-height:1.3;overflow-wrap:anywhere}
+    .ef-t .ef-grp{color:#8892a4;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding-top:9px}
+    .ef-c{display:block;width:100%;min-width:56px;min-height:36px;padding:3px 4px;border:0;border-radius:3px;background:none;color:#e8eef8;font:inherit;text-align:right;cursor:pointer}
+    .ef-c[aria-pressed="true"]{background:rgba(77,184,255,.14);box-shadow:inset 0 0 0 1px #4db8ff!important}
+    .ef-c small{display:block;font-size:10px;line-height:1.25}
+    .ef-val{display:none}
+    /* Le détail d'une case s'arrête au-dessus du bouton MENU du téléphone. */
+    .ef-detail{scroll-margin:12px 0 84px}
+    .ef-choix{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    @media(max-width:767px){.ef-choix{flex-wrap:nowrap;width:0;min-width:100%;overflow-x:auto;padding-bottom:2px}.ef-choix .ef-b{flex:0 0 auto;white-space:nowrap}}
+    @media(min-width:768px){.ef-t .ef-lib{width:164px;min-width:164px;max-width:164px}.ef-val{display:inline}}
     html{scroll-behavior:smooth;}
     @media (prefers-reduced-motion:reduce){
       *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
@@ -10291,6 +10315,589 @@ const ASavoir = ({
     }
   }, " \xB7 pi\xE8ce ", f.piece), f.registre && React.createElement("span", null, " \xB7 registre ", f.registre))))));
 };
+let ETATS_IDX = null,
+  ETATS_IDX_P = null;
+const ETATS_P = {};
+const chargerEtats = sym => (ETATS_IDX_P || (ETATS_IDX_P = fetch("datasets/etats_publies/index.json?t=" + vpub()).then(x => x.ok ? x.json() : null).then(j => {
+  ETATS_IDX = j;
+  if (!j) ETATS_IDX_P = null;
+  return j;
+}).catch(() => {
+  ETATS_IDX_P = null;
+  return null;
+}))).then(ix => !efCouvert(ix, sym) ? null : ETATS_P[sym] || (ETATS_P[sym] = fetch(`datasets/etats_publies/${sym}.json?t=` + vpub()).then(x => x.ok ? x.json() : null).then(j => {
+  if (!j) delete ETATS_P[sym];
+  return j;
+}).catch(() => {
+  delete ETATS_P[sym];
+  return null;
+})));
+const efCouvert = (ix, sym) => !!(ix && Array.isArray(ix.titres) && ix.titres.includes(sym));
+const efA = v => typeof v === "number" && isFinite(v);
+const EF_NF = {};
+const efFr = (x, d) => (EF_NF[d] || (EF_NF[d] = new Intl.NumberFormat("fr-FR", {
+  minimumFractionDigits: d,
+  maximumFractionDigits: d
+}))).format(x).replace(/\u202f|\u00a0/g, " ");
+const efSigne = (v, d) => (v < 0 ? "−" : "") + efFr(Math.abs(v), d);
+const efNombre = (v, u) => !efA(v) ? "—" : u === "%" ? efSigne(v, 1) + " %" : u === "DH" ? efSigne(v, 2) : u === "actions" ? efSigne(v, 0) : efSigne(v, Math.abs(v) >= 1000 ? 0 : 1);
+const efCase = (v, u) => u === "actions" && efA(v) ? efSigne(v / 1e6, 2) : efNombre(v, u);
+const efAvecUnite = (v, u) => efNombre(v, u) + (!efA(v) || u === "%" ? "" : " " + u);
+const efCourt = v => !efA(v) ? "" : Math.abs(v) >= 10000 ? efSigne(v / 1000, 1) + " Md" : efSigne(v, 0);
+const efVar = g => g === "ns" ? "n.s." : efA(g) ? (g > 0 ? "+" : g < 0 ? "−" : "") + efFr(Math.abs(g), 1) + " %" : null;
+const efTextes = (e, l) => (l || []).map(i => e.textes[i]).filter(Boolean);
+const efMarque = c => c.s === "c" ? ["°", "#ffb74d"] : (c.r || []).length ? ["⚠", "#ffb74d"] : c.s === "k" ? ["∑", "#4db8ff"] : null;
+const efSrc = (e, c, unite) => {
+  const d = (e.documents || [])[c.d];
+  if (!d) return null;
+  let f = d.f;
+  if (!f) {
+    try {
+      f = decodeURIComponent(d.u.split("/").pop());
+    } catch (x) {
+      f = d.u;
+    }
+  }
+  const u = unite ? (e.unites || {})[c.u || d.un] : null;
+  return {
+    u: d.u,
+    f,
+    page: c.p,
+    citation: c.c,
+    imprime: c.i == null ? null : c.i + (u ? ` (${u})` : "")
+  };
+};
+const efBarres = (cs, H) => {
+  const vs = cs.map(c => c && efA(c.v) ? c.v : null),
+    nn = vs.filter(v => v != null);
+  if (!nn.length) return null;
+  const max = Math.max(0, ...nn),
+    min = Math.min(0, ...nn),
+    amp = max - min || 1,
+    zero = H * max / amp;
+  return {
+    zero,
+    dernier: vs.reduce((a, v, i) => v != null ? i : a, -1),
+    barres: vs.map(v => v == null ? null : {
+      y: v >= 0 ? zero - H * v / amp : zero,
+      h: Math.max(1, H * Math.abs(v) / amp),
+      neg: v < 0
+    })
+  };
+};
+const efDetail = (e, vue, cle, i) => {
+  const v = e.vues[vue],
+    L = k => e.lignes.find(x => x.cle === k),
+    l = L(cle),
+    cs = v.cellules[cle],
+    c = cs[i],
+    p = v.periodes[i];
+  const d = {
+    titre: `${l.libelle} · ${p.libelle}`,
+    valeur: efAvecUnite(c.v, l.unite),
+    vide: !efA(c.v),
+    raison: c.n != null ? e.textes[c.n] : null,
+    statut: c.s ? e.statuts[c.s] : null,
+    reserves: efTextes(e, c.r),
+    precisions: efTextes(e, c.o),
+    composantes: []
+  };
+  if (c.rf) d.precisions.push(`Référentiel lu sur la page : ${c.rf}.`);
+  if (c.g != null) {
+    const j = v.periodes.findIndex(q => +q.cle.slice(-4) === +p.cle.slice(-4) - 1),
+      a = efAvecUnite(cs[j].v, l.unite);
+    d.variation = `Variation par rapport à ${v.periodes[j].libelle} : ` + (c.g === "ns" ? `n.s. — base nulle ou négative (${a}).` : `${efVar(c.g)} — calculé : ${efAvecUnite(c.v, l.unite)} contre ${a}.`);
+  }
+  if (l.calcul) {
+    const a = v.cellules[l.calcul.num][i].v,
+      b = v.cellules[l.calcul.den][i].v;
+    d.calcul = `${L(l.calcul.num).libelle} ÷ ${L(l.calcul.den).libelle} × 100` + (efA(c.v) ? ` = ${efNombre(a, "MDH")} ÷ ${efNombre(b, "MDH")}` : "");
+  }
+  if (c.d != null) d.source = efSrc(e, c, true);
+  if (c.f != null) d.formule = e.textes[c.f];
+  (c.k || []).forEach(k => d.composantes.push({
+    libelle: e.textes[k.l],
+    signe: k.sg || "",
+    valeur: efA(k.v) ? efAvecUnite(k.v, "MDH") : null,
+    source: efSrc(e, k, false),
+    reserves: efTextes(e, k.r).concat(efTextes(e, k.o))
+  }));
+  if (l.pendant) {
+    const o = v.cellules[l.pendant][i];
+    d.pendant = `${L(l.pendant).libelle}, même période : ${efA(o.v) ? efAvecUnite(o.v, "MDH") : "non relevée"}.`;
+  }
+  return d;
+};
+const EfSource = ({
+  s
+}) => !s ? null : React.createElement("div", {
+  style: {
+    marginTop: 3
+  }
+}, "Source : ", React.createElement(SourceLigne, {
+  u: s.u,
+  doc: s.f,
+  pages: [s.page]
+}), React.createElement("div", {
+  style: {
+    color: "#aab4c8",
+    overflowWrap: "anywhere"
+  }
+}, "\xAB ", s.citation, " \xBB", s.imprime && React.createElement("span", {
+  style: {
+    color: "#8892a4"
+  }
+}, " \u2014 imprim\xE9 : ", s.imprime)));
+const EF_TITRE = {
+  fontSize: 10,
+  color: "#8892a4",
+  letterSpacing: 1,
+  textTransform: "uppercase"
+};
+const EtatsFinanciers = ({
+  sym
+}) => {
+  const [charge, setCharge] = useState(null);
+  const [vue, setVue] = useState("annuel");
+  const [grandeur, setGrandeur] = useState(null);
+  const [barre, setBarre] = useState(null);
+  const [sel, setSel] = useState(null);
+  const panneau = useRef(null);
+  useEffect(() => {
+    let vivant = true;
+    setSel(null);
+    setBarre(null);
+    chargerEtats(sym).then(j => {
+      if (vivant) React.startTransition(() => setCharge(j));
+    });
+    return () => {
+      vivant = false;
+    };
+  }, [sym]);
+  const e = charge && charge.ticker === sym ? charge : null;
+  useEffect(() => {
+    if (sel && panneau.current) panneau.current.scrollIntoView({
+      block: "nearest"
+    });
+  }, [sel]);
+  const cadre = {
+    background: "#0d1829",
+    border: "1px solid #1a2540",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+    minWidth: 0
+  };
+  if (!e) return efCouvert(ETATS_IDX, sym) ? React.createElement("div", {
+    className: "carte fiche-etats",
+    style: {
+      ...cadre,
+      minHeight: 420
+    }
+  }, React.createElement("div", {
+    style: EF_TITRE
+  }, "\xC9tats financiers"), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#5a6478",
+      marginTop: 10
+    }
+  }, "Chargement des chiffres relev\xE9s\u2026")) : null;
+  const v = e.vues[vue],
+    P = v.periodes,
+    n = P.length,
+    H = 104,
+    T = 16;
+  const avec = l => v.cellules[l.cle].some(c => efA(c.v));
+  const lignes = e.lignes.filter(avec),
+    vides = e.lignes.filter(l => !avec(l));
+  const choix = lignes.filter(l => l.graphique),
+    g = choix.find(l => l.cle === grandeur) || choix[0];
+  const gc = g ? v.cellules[g.cle] : [],
+    b = g ? efBarres(gc, H) : null;
+  const bi = b ? barre != null && b.barres[barre] ? barre : b.dernier : -1,
+    lu = bi >= 0 ? efDetail(e, vue, g.cle, bi) : null;
+  const dt = sel && v.cellules[sel.cle] && sel.i < n ? efDetail(e, vue, sel.cle, sel.i) : null;
+  const changer = x => {
+    setVue(x);
+    setSel(null);
+    setBarre(null);
+  };
+  return React.createElement("div", {
+    className: "carte fiche-etats",
+    style: cadre
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: EF_TITRE
+  }, "\xC9tats financiers ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, P[0].libelle, " \u2192 ", P[n - 1].libelle)), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6
+    }
+  }, [["annuel", "Annuel"], ["semestriel", "Semestriel"]].map(([k, t]) => React.createElement("button", {
+    key: k,
+    type: "button",
+    className: "ef-b",
+    "aria-pressed": vue === k,
+    onClick: () => changer(k)
+  }, t)))), b && React.createElement("div", {
+    className: "ef-trajectoire",
+    style: {
+      background: "#0a1220",
+      borderRadius: 6,
+      padding: "8px 8px 2px",
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    className: "ef-choix"
+  }, choix.map(l => React.createElement("button", {
+    key: l.cle,
+    type: "button",
+    className: "ef-b",
+    "aria-pressed": l.cle === g.cle,
+    onClick: () => {
+      setGrandeur(l.cle);
+      setBarre(null);
+    }
+  }, l.graphique))), React.createElement("div", {
+    "aria-live": "polite",
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      lineHeight: 1.5,
+      minHeight: 34
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, P[bi].libelle), " \xB7 ", React.createElement("span", {
+    style: {
+      color: "#e8eef8",
+      fontSize: 14,
+      fontWeight: 700,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, lu.valeur), efVar(gc[bi].g) && React.createElement("span", {
+    style: {
+      color: gc[bi].g === "ns" ? "#5a6478" : VC(gc[bi].g),
+      marginLeft: 6
+    }
+  }, efVar(gc[bi].g), " sur un an"), React.createElement("span", null, " \xB7 ", lu.statut.split(" — ")[0], " \xB7 "), React.createElement("button", {
+    type: "button",
+    onClick: () => setSel({
+      cle: g.cle,
+      i: bi
+    }),
+    style: {
+      border: 0,
+      background: "none",
+      color: "#4db8ff",
+      font: "inherit",
+      cursor: "pointer",
+      padding: "6px 0",
+      minHeight: 28
+    }
+  }, "voir la source")), React.createElement("svg", {
+    width: "100%",
+    height: T + H + 32,
+    role: "group",
+    "aria-label": `${g.libelle}, ${P[0].libelle} à ${P[n - 1].libelle}, en millions de DH`,
+    style: {
+      display: "block",
+      overflow: "visible"
+    }
+  }, React.createElement("line", {
+    x1: "0",
+    x2: "100%",
+    y1: T + b.zero,
+    y2: T + b.zero,
+    stroke: "#2a3a5c"
+  }), gc.map((c, i) => {
+    const B = b.barres[i],
+      on = i === bi,
+      x = `${(i + .5) * 100 / n}%`,
+      coul = B && B.neg ? "#7d8aa5" : "#4db8ff";
+    return React.createElement("g", {
+      key: i,
+      role: "button",
+      tabIndex: B ? 0 : -1,
+      "aria-label": `${P[i].libelle} : ${efAvecUnite(c.v, g.unite)}`,
+      style: {
+        cursor: B ? "pointer" : "default",
+        outline: "none"
+      },
+      onClick: () => B && setBarre(i),
+      onKeyDown: ev => {
+        if (B && ev.key === "Enter") setBarre(i);
+      }
+    }, React.createElement("rect", {
+      x: `${i * 100 / n}%`,
+      width: `${100 / n}%`,
+      y: "0",
+      height: T + H + 32,
+      fill: "transparent"
+    }), B ? React.createElement("rect", {
+      x: `${(i + .19) * 100 / n}%`,
+      width: `${62 / n}%`,
+      y: T + B.y,
+      height: B.h,
+      rx: "2",
+      fill: coul,
+      fillOpacity: c.s === "p" ? on ? 1 : .78 : .4,
+      stroke: on ? "#e8eef8" : coul,
+      strokeWidth: on ? 1.5 : 1,
+      strokeDasharray: c.s === "p" ? "none" : "3 2"
+    }) : React.createElement("text", {
+      x: x,
+      y: T + b.zero - 5,
+      textAnchor: "middle",
+      fontSize: "11",
+      fill: "#5a6478"
+    }, "\u2014"), B && React.createElement("text", {
+      className: on ? "" : "ef-val",
+      x: x,
+      y: B.neg ? T + B.y + B.h + 11 : T + B.y - 4,
+      textAnchor: "middle",
+      fontSize: "10",
+      fill: on ? "#e8eef8" : "#8892a4"
+    }, efCourt(c.v)), React.createElement("text", {
+      x: x,
+      y: T + H + 27,
+      textAnchor: "middle",
+      fontSize: "10",
+      fill: on ? "#e8eef8" : "#8892a4",
+      fontWeight: on ? 700 : 400
+    }, P[i].libelle.replace(" 20", " ")));
+  }))), React.createElement("div", {
+    className: "ef-defile",
+    key: vue,
+    tabIndex: 0,
+    role: "group",
+    "aria-label": "Tableau des \xE9tats financiers, d\xE9filement horizontal"
+  }, React.createElement("table", {
+    className: "ef-t"
+  }, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", {
+    className: "ef-lib",
+    style: {
+      fontSize: 10,
+      color: "#8892a4"
+    }
+  }, "millions de DH", e.perimetre === "consolide" ? " · consolidé" : ""), P.map(p => React.createElement("th", {
+    key: p.cle,
+    scope: "col"
+  }, p.libelle)))), React.createElement("tbody", null, lignes.flatMap((l, k) => [(k === 0 || lignes[k - 1].groupe !== l.groupe) && React.createElement("tr", {
+    key: "g" + l.groupe
+  }, React.createElement("th", {
+    className: "ef-lib ef-grp"
+  }, l.groupe), React.createElement("td", {
+    colSpan: n
+  })), React.createElement("tr", {
+    key: l.cle
+  }, React.createElement("th", {
+    scope: "row",
+    className: "ef-lib",
+    style: l.calcul ? {
+      color: "#8892a4"
+    } : null
+  }, l.libelle, l.unite === "DH" ? " (DH)" : l.unite === "actions" ? " (millions)" : ""), v.cellules[l.cle].map((c, i) => {
+    const on = !!sel && sel.cle === l.cle && sel.i === i,
+      m = efMarque(c),
+      vg = efVar(c.g);
+    return React.createElement("td", {
+      key: i
+    }, React.createElement("button", {
+      type: "button",
+      className: "ef-c",
+      "aria-pressed": on,
+      onClick: () => setSel(on ? null : {
+        cle: l.cle,
+        i
+      }),
+      "aria-label": `${l.libelle}, ${P[i].libelle} : ${efAvecUnite(c.v, l.unite)} — source et statut`
+    }, React.createElement("span", {
+      style: {
+        color: !efA(c.v) ? "#5a6478" : l.calcul ? "#aab4c8" : null
+      }
+    }, efCase(c.v, l.unite)), m && React.createElement("sup", {
+      style: {
+        color: m[1],
+        marginLeft: 1
+      }
+    }, m[0]), vg && React.createElement("small", {
+      style: {
+        color: c.g === "ns" ? "#5a6478" : VC(c.g)
+      }
+    }, vg)));
+  }))])))), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      marginTop: 6,
+      lineHeight: 1.5
+    }
+  }, "Touchez une case : source, statut, r\xE9serves. ", React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\xB0"), " lu dans un document ult\xE9rieur \xB7 ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "\u2211"), " calcul\xE9 depuis composantes publi\xE9es \xB7 ", React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\u26A0"), " r\xE9serve \xB7 \u2014 non relev\xE9. Sous la valeur : variation sur un an, calcul\xE9e."), dt && React.createElement("div", {
+    ref: panneau,
+    className: "ef-detail",
+    "aria-live": "polite",
+    style: {
+      marginTop: 8,
+      padding: "8px 10px",
+      borderRadius: 6,
+      background: "#0a1220",
+      border: "1px solid #2a3a5c",
+      fontSize: 11,
+      color: "#c8d3e8",
+      lineHeight: 1.5
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      gap: 8
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#e8eef8"
+    }
+  }, dt.titre), React.createElement("button", {
+    type: "button",
+    "aria-label": "Fermer le d\xE9tail",
+    onClick: () => setSel(null),
+    style: {
+      border: 0,
+      background: "none",
+      color: "#8892a4",
+      fontSize: 14,
+      cursor: "pointer",
+      minWidth: 32,
+      minHeight: 28,
+      padding: 0
+    }
+  }, "\u2715")), React.createElement("div", {
+    style: {
+      fontSize: 15,
+      fontWeight: 700,
+      color: dt.vide ? "#8892a4" : "#e8eef8",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, dt.vide ? "— case vide" : dt.valeur), dt.raison && React.createElement("div", null, dt.raison), dt.statut && React.createElement("div", null, React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Statut :"), " ", dt.statut, "."), dt.calcul && React.createElement("div", null, React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Calcul :"), " ", dt.calcul, "."), dt.formule && React.createElement("div", null, React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, "Formule :"), " ", React.createElement(TexteLong, {
+    t: dt.formule
+  })), dt.source && React.createElement(EfSource, {
+    s: dt.source
+  }), dt.composantes.map((k, i) => React.createElement("div", {
+    key: i,
+    style: {
+      marginTop: 5,
+      paddingLeft: 8,
+      borderLeft: "2px solid #1a2540"
+    }
+  }, React.createElement("b", {
+    style: {
+      fontWeight: 600
+    }
+  }, k.signe, " ", k.libelle), k.valeur && React.createElement(React.Fragment, null, " : ", k.valeur), React.createElement(EfSource, {
+    s: k.source
+  }), k.reserves.map((x, j) => React.createElement("div", {
+    key: j,
+    style: {
+      color: "#ffcc80"
+    }
+  }, "\u26A0 ", x)))), dt.variation && React.createElement("div", {
+    style: {
+      marginTop: 3
+    }
+  }, dt.variation), dt.pendant && React.createElement("div", {
+    style: {
+      marginTop: 3,
+      color: "#aab4c8"
+    }
+  }, dt.pendant), dt.reserves.map((x, i) => React.createElement("div", {
+    key: "r" + i,
+    style: {
+      marginTop: 5,
+      padding: "5px 8px",
+      borderRadius: 4,
+      background: "rgba(255,143,0,.08)",
+      border: "1px solid rgba(255,143,0,.3)",
+      color: "#ffcc80"
+    }
+  }, "\u26A0 ", x)), dt.precisions.map((x, i) => React.createElement("div", {
+    key: "o" + i,
+    style: {
+      marginTop: 3,
+      color: "#8892a4"
+    }
+  }, x))), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      marginTop: 9,
+      lineHeight: 1.5
+    }
+  }, v.couverture.relevees, " valeurs relev\xE9es sur ", v.couverture.cellules, " cases, dans ", v.couverture.documents, " documents \u2014 une case non lue reste vide, jamais estim\xE9e.", vides.length > 0 && React.createElement("details", {
+    style: {
+      marginTop: 3
+    }
+  }, React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      minHeight: 24
+    }
+  }, "Sans valeur relev\xE9e sur ces p\xE9riodes (", vides.length, ")"), vides.map(l => React.createElement("div", {
+    key: l.cle,
+    style: {
+      marginTop: 3
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#c8d3e8",
+      fontWeight: 600
+    }
+  }, l.libelle), " \u2014 ", [...new Set(efTextes(e, v.cellules[l.cle].map(c => c.n)))].join(" ")))), React.createElement("div", {
+    style: {
+      color: "#5a6478",
+      marginTop: 4
+    }
+  }, "Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.")));
+};
 const TickerNews = ({
   sym
 }) => {
@@ -10946,6 +11553,8 @@ const Detail = ({
     q: r.risque
   }), React.createElement(DernierSemestre, {
     c: r.comptes_s1
+  }), React.createElement(EtatsFinanciers, {
+    sym: sym
   }), React.createElement(ASavoir, {
     items: r.a_savoir
   }), r.ratios_publies && React.createElement("div", {
