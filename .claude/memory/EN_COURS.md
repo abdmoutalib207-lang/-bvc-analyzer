@@ -12,6 +12,22 @@ historique** — cela recréerait une référence exposée.
 
 # En cours — à lire au démarrage de chaque session
 
+## ▶ 10/11/2026 — BOA : série de cours à rétro-ajuster (lot à part)
+
+Attribution gratuite d'1 action pour 43, droit détaché le **22/10/2026** (Bourse de
+Casablanca, avis AV-2026-131 du 15/10 et AV-2026-136 du 29/10 ; sha256 dans
+`datasets/pieces/BOA/index.json`). Fait le 09-10/11 (branche
+`donnees/corrections-ms-screener`) : BPA 16,92 / 17,94, dividende 4,886, 225 404 715
+actions. **Reste** : inscrire `SPLITS["BOA"]` (ratio 225 404 715 ÷ 220 281 881) ET
+ajuster `pipeline/candles/BOA.json` ensemble, `montant_ajuste_split` de
+`dividendes_bvc.json`, rafraîchir `datasets/bourse_emetteurs.json` (capitalisation
+encore sur 220 281 881), puis régénérer les artefacts publiés touchés — mesuré :
+RSI et Score BVC de BOA, figures publiées traversant le 22/10, comblement des gaps
+(712 → 711 événements). Les avis de la Bourse se lisent avec Playwright
+(`/marches-produits/avis-et-instructions/avis`), pas avec curl (TLS).
+⚠️ L'attribution de 2025 (1 pour 48) n'est pas déclarée non plus : date de
+détachement non lue.
+
 ## ▶ 28-29/10/2026 — le NLP est SUPPRIMÉ
 
 Décision d'Abd Moutalib du 28/10 : « supprimer le corpus et tout ce qui est
