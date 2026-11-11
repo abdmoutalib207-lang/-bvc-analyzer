@@ -1300,3 +1300,61 @@ il donne des **statistiques et des probabilités** pour aider à décider.
 période, recalcul possible) et sur leur pouvoir de distinguer des situations,
 jamais sur une promesse de prévision. Inscrit en tête de la Vision Produit du
 CLAUDE.md.
+
+## Famille 28 — Un test de données qui apparie au premier venu (09/11/2026)
+
+**Symptôme.** Passages du soir du 09/11 (18h55, 23h51) refusés : la suite
+bloquante échouait sur `test_la_phrase_d_un_gap_ouvert`. Le terminal est resté
+sur 16h56 jusqu'à 01h27.
+
+**Cause.** Addoha portait DEUX gaps haussiers ouverts (13/10 et 09/11). Le
+test rapprochait chaque légende du PREMIER gap ouvert du même type : la phrase
+du second, juste, était jugée sur l'âge du premier. Le code était juste, le
+test faux — et comme il bloque la publication, un test faux coûte autant
+qu'un moteur cassé.
+
+**Correctif (#333).** Appariement par le rang ; cas reconstruit avec témoin
+négatif ; l'étape « Figures publiées » teste aussi les légendes, de sorte
+qu'un échec restaure les figures au lieu de bloquer `data.json`.
+
+**Signal.** Un `next(x for x in … if x["type"] == …)` dans un test de
+données : il suppose l'unicité sans la vérifier.
+
+## Famille 29 — Lire un relevé en partant de la valeur d'un tiers (10-11/11/2026)
+
+**Symptôme.** Lot 1 des états financiers : 3 erreurs sur 67 cellules tirées au
+hasard. LHM et MNG portaient le « résultat d'exploitation COURANT » sous le nom
+« résultat d'exploitation » ; MNG 2019 changeait même de signe (65,9 au lieu
+de −344,6). Les 33 cellules de ces deux titres citaient la mauvaise ligne.
+
+**Cause.** Le relevé partait de la valeur d'un screener tiers et cherchait,
+dans le PDF, la ligne qui portait ce nombre. Cette méthode confirme une valeur
+présente dans la pièce ; elle ne voit pas qu'elle est sur la MAUVAISE ligne.
+Défauts associés : unité étiquetée « MMAD » sur 345 cellules lues en milliers,
+EBITDA de gestion rangé comme EBE comptable.
+
+**Correctif.** Relecture des 33 cellules, ligne courante conservée à part,
+`ebitda_ajuste` distinct, unité contrôlée par test ; second contrôle 40/40.
+La méthode corrigée est dans le skill `releve-etats-financiers`.
+
+**Signal.** Une citation de `resultat_exploitation` qui contient « courant » ;
+un relevé dont la provenance première est un tiers.
+
+## Famille 30 — Une correction à moitié appliquée crée une incohérence publiée (11/11/2026)
+
+**Symptôme.** BOA : BPA passé sur 225 404 715 actions (attribution gratuite),
+capitalisation restée sur le relevé du 20/10 (220 281 881). Les deux PER
+publiés (cours ÷ BPA, capitalisation ÷ résultat), égaux avant, divergeaient
+de 2,3 % sans que l'écran le dise. Vu par le relecteur, pas par les tests.
+
+**Cause.** Le rétro-ajustement de la série (R11) a été reporté à juste titre —
+il déplace le RSI et les moyennes mobiles du Score BVC — mais l'état
+intermédiaire n'était écrit que dans un commentaire de code.
+
+**Correctif (#336).** Réserve chiffrée affichée sous le PER (`reserve_titre`
+du jeu de pièces → `reserve_bpa`), et un test qui l'exige tant que la
+capitalisation n'est pas alignée.
+
+**Règle.** Une correction qu'on ne peut pas appliquer en entier se publie avec
+sa réserve À L'ÉCRAN, jamais seulement dans le code.
+

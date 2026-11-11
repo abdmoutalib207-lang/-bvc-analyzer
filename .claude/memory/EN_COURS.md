@@ -12,6 +12,42 @@ historique** — cela recréerait une référence exposée.
 
 # En cours — à lire au démarrage de chaque session
 
+## ▶ ÉTAT AU 11/11/2026, 13h45 — LIRE EN PREMIER
+
+**Fusionné du 09 au 11/11** : #333 (test des gaps : deux passages du soir
+refusés le 09/11), #334 (fiche : cartes « Dernier semestre » et « À savoir »),
+#335 (états financiers sur 10 ans, lot 1 : ATW, IAM, ADI, LHM, MNG — données
+seulement, `datasets/etats_financiers/`), #336 (BPA et nombre d'actions
+corrigés sur pièce : T2S, HAL, RIS, BOA, arrondis).
+
+**En cours** :
+- carte « États financiers » de la fiche, branche `vitrine/fiche-etats-financiers`
+  (fichiers compacts `datasets/etats_publies/`, chargés à l'ouverture de la fiche) ;
+- états financiers des 14 autres valeurs du MASI 1, au format du lot 1 — par
+  la méthode du skill `releve-etats-financiers`, PAS en partant d'un screener.
+
+**À faire, dans l'ordre** :
+1. élargir `pipeline/file_attente_comptes.py` à tout type de publication
+   (indicateurs trimestriels, semestriels, annuels) et aux fichiers
+   `datasets/etats_financiers/` ; la file ne connaît aujourd'hui que le S1 2026
+   (9 indicateurs du T3 déposés depuis le 15/10, non suivis) ;
+2. tâche planifiée du soir : file non vide ⇒ lecture par `lecteur-comptes`,
+   contre-vérification par `verificateur-finance`, PR ouverte, JAMAIS fusionnée
+   sans relecture ;
+3. BOA : rétro-ajustement de la série (bloc ci-dessous).
+
+**Règles de conduite fixées le 11/11** (vidéo « Claude 2.0 » transmise par
+Abd Moutalib, comparée à notre pratique) :
+- chaque chantier confié à un agent porte une **définition de terminé**
+  vérifiable (fichiers, tests, contrôle) écrite dans la consigne ;
+- **deux chantiers en parallèle au plus**, jamais deux sur les mêmes fichiers ;
+  un agent n'écrit jamais dans le dépôt principal, seulement dans son arbre ;
+- **modèle selon la tâche** : relevé et extraction sur le modèle courant,
+  contre-vérification et relecture sur le modèle le plus solide ; la limite
+  d'usage a coupé les agents quatre fois entre le 09 et le 11/11 ;
+- **toute erreur trouvée devient une consigne** : famille dans `ERRORS.md`,
+  piège dans le skill concerné, le jour même.
+
 ## ▶ 10/11/2026 — BOA : série de cours à rétro-ajuster (lot à part)
 
 Attribution gratuite d'1 action pour 43, droit détaché le **22/10/2026** (Bourse de
