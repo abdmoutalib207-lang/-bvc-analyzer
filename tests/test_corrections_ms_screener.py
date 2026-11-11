@@ -307,3 +307,25 @@ def test_boa_la_serie_de_cours_n_est_pas_ajustee_dans_ce_lot_et_c_est_dit():
     c = {k["d"]: k for k in json.loads((RACINE / "pipeline/candles/BOA.json").read_text(encoding="utf-8"))}
     ajustee = c["2026-10-21"]["c"] != 180.0
     assert ("BOA" in bvc_config.SPLITS) == ajustee
+
+
+def test_boa_l_etat_intermediaire_est_dit_a_l_ecran_tant_que_la_capitalisation_n_est_pas_alignee():
+    """Relecture du 11/11/2026 : BPA sur 225 404 715 actions, capitalisation
+    encore sur le relevé du 20/10 (220 281 881). Les deux PER publiés
+    (cours ÷ BPA, capitalisation ÷ résultat) divergent alors de ~2,3 %.
+    Tant que le registre SPLITS ne porte pas BOA (série et capitalisation non
+    alignées), la réserve affichée sous le PER doit le dire, chiffres compris."""
+    emetteurs = json.loads((RACINE / "datasets" / "bourse_emetteurs.json").read_text(encoding="utf-8"))
+    texte = json.dumps(emetteurs, ensure_ascii=False)
+    capitalisation_alignee = "BOA" in bvc_config.SPLITS or "225404715" in texte.replace(" ", "")
+    reserve = BPA["BOA"].get("reserve_bpa") or ""
+    if capitalisation_alignee:
+        return
+    assert "225 404 715" in reserve and "220 281 881" in reserve and "2,3 %" in reserve, reserve
+    assert "capitalisation" in reserve
+
+
+def test_boa_reserve_affichee_par_le_moteur():
+    """La réserve passe par `bpa_reserve` (update_data.py), seul canal affiché sous le PER."""
+    src = (RACINE / "update_data.py").read_text(encoding="utf-8")
+    assert '"bpa_reserve": (BPA_DATA.get(ticker) or {}).get("reserve_bpa")' in src

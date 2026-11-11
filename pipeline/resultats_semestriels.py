@@ -123,6 +123,11 @@ def douze_mois(t: dict, sym: str | None = None) -> dict | None:
                     if "rnpg_12m_publie" in e else "")
                  + f". Motif : {e['motif']} Réserve : {e['reserve']}")
         out["reserve_bpa"] = (out["reserve_bpa"] + " " + texte) if out.get("reserve_bpa") else texte
+    # Réserve propre au titre, écrite dans le jeu (`reserve_titre`) : un état
+    # que ni le registre ni l'exception ne décrivent — BOA, 11/11/2026 : BPA sur
+    # le nombre d'actions actuel, capitalisation encore sur l'ancien relevé.
+    if t.get("reserve_titre"):
+        out["reserve_bpa"] = (out["reserve_bpa"] + " " + t["reserve_titre"]) if out.get("reserve_bpa") else t["reserve_titre"]
     # ⚠️ Une croissance rapportée à une base NÉGATIVE n'a pas de sens : il n'y
     # a alors PAS de croissance du BPA — 22/10/2026, accord R8 d'Abd Moutalib
     # (audit verificateur-finance, lot B2). Le code reprenait jusqu'ici la
