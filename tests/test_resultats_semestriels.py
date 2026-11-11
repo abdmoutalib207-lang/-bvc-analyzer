@@ -43,8 +43,14 @@ def test_cosumar_recule():
 
 def test_risma_hors_elements_exceptionnels():
     """Les +169 MDH de cessions ne doivent pas entrer dans le résultat
-    récurrent : 269,622 + 144 − 118 = 295,622, pas 269,622 + 313 − 135."""
-    assert douze_mois(JEU["titres"]["RIS"])["rnpg_12m"] == 295.622
+    récurrent. ⚠️ 09/11/2026 : l'ancien 295,622 additionnait un exercice
+    PUBLIÉ (269,622) à des semestres hors exceptionnels (144 − 118). Les trois
+    termes sont désormais de la même base, par exception DÉCLARÉE à la règle
+    c : 254 + 144 − 118 = 280 (et le publié, 269,622 + 313 − 117 = 465,622,
+    reste consigné — l'ancien test écrivait « 313 − 135 » : 135 est la
+    colonne « Comparable », pas le publié)."""
+    m = douze_mois(JEU["titres"]["RIS"])
+    assert m["rnpg_12m"] == 280.0 and m["exception_regle_c"]["rnpg_12m_publie"] == 465.622
 
 
 def test_une_valeur_manquante_ne_se_comble_pas():
@@ -164,8 +170,10 @@ def test_banques_et_assureurs_sur_piece():
     assert bpa["ATL"]["bpa_12m"] == 7.96 and bpa["ATL"]["bpa_avant_2026_09_29"] == 1.99
     # Wafa Assurance : 1 026,036 ÷ 3 500 000 = 293,15 (l'ancien divisait par 4,18 M)
     assert bpa["WAF"]["bpa"] == 293.15
-    # BOA : 3 813,552 ÷ 220 281 881 = 17,31
-    assert bpa["BOA"]["bpa"] == 17.31
+    # BOA : 3 813,552 ÷ 220 281 881 = 17,31 jusqu'au 09/11/2026 ; depuis, retraité de
+    # l'attribution gratuite d'1 pour 43 détachée le 22/10/2026 (IAS 33.64, avis de la
+    # Bourse AV-2026-131 et AV-2026-136) : 3 813,552 ÷ 225 404 715 = 16,92.
+    assert bpa["BOA"]["bpa"] == 16.92 and bpa["BOA"]["bpa_avant_2026_11_09"] == 17.31
     # BCP, résultat S1 IMPRIMÉ depuis le 02/10 : 4 503,361 + 3 218,498 −
     # 2 915,647 = 4 806,212 ÷ 203 312 473 = 23,64
     assert bpa["BCP"]["bpa_12m"] == 23.64
@@ -262,9 +270,11 @@ def test_lot7_communiques_lus_et_recoupes():
 
 def test_lot8_fnb_uni_inv_hal():
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))
-    # HAL : 99,832 + 64,8 − 47,3 = 117,332 ÷ 54 140 578 = 2,17 ; ROE 2025
-    # 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
-    assert bpa["HAL"]["bpa_12m"] == 2.17
+    # HAL, 09/11/2026 : montants lus à l'état (Auto_Hall_S1_26.pdf p.5) et nombre d'actions de la
+    # PÉRIODE (règle e) : 99,832377 + 64,812881 − 47,305263 = 117,339995 ÷ 50 294 528 = 2,33.
+    # L'ancien 2,17 divisait 117,332 par les 54 140 578 actions d'APRÈS l'émission constatée le
+    # 02/09/2026. ROE 2025 : 99,832 ÷ 1 445,976 = 6,9 % (yuna : 6,9)
+    assert bpa["HAL"]["bpa_12m"] == 2.33 and bpa["HAL"]["bpa_12m_avant_2026_11_09"] == 2.17
     # UNI, PART DU GROUPE depuis le 02/10 (verificateur-finance ; les anciens
     # 11 / 29 / −40 étaient l'ensemble consolidé, et donnaient 7,01) :
     # −31,940 + (−10,489) − (−64,251) = 21,822 ÷ 11 413 880 = 1,91
@@ -288,8 +298,11 @@ def test_lot9_akdital_tgcc_lesieur():
     # d'exercice (celui de la note 13 du RFA) ; depuis le 27/10/2026, l'émission de
     # 3 034 482 actions constatée le 24/07/2025 (RFA p.64) est pondérée (IAS 33,
     # règle e) : 952 ÷ 32 978 348 = 28,87 sur 2025, 971 ÷ 34 483 118 = 28,16 sur douze mois.
+    # 09/11/2026 : montants lus à l'état et non plus au communiqué arrondi (TGCC_S1_26.pdf p.2,
+    # TGCC_RFA_2025.pdf p.96) : 952,053 ÷ 32 978 348 = 28,87 ; 952,053 + 434,840 − 416,623 =
+    # 970,270 ÷ 34 483 118 = 28,14.
     assert bpa["TGCC"]["bpa"] == 28.87 and bpa["TGCC"]["bpa_avant_2026_09_29"] == 65
-    assert bpa["TGCC"]["bpa_12m"] == 28.16 and bpa["TGCC"]["actions_exercice_2025"] == 32978348
+    assert bpa["TGCC"]["bpa_12m"] == 28.14 and bpa["TGCC"]["actions_exercice_2025"] == 32978348
     # LES : 8 − 47 − 12 = −51 ÷ 27 631 510 = −1,85 — en perte
     assert bpa["LES"]["bpa_12m"] == -1.85 and bpa["LES"]["perte_documentee"]
 

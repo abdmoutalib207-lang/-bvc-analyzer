@@ -10919,7 +10919,15 @@ const Detail = ({
       color: "#5a6478",
       marginTop: 1
     }
-  }, "exercice 2025 : ", fmt(r.pe_annuel, 1)), (() => {
+  }, "exercice 2025 : ", fmt(r.pe_annuel, 1)), ratio === "pe" && r.pe_exception && React.createElement("div", {
+    title: `Exception déclarée : résultat 12 mois ${r.pe_exception.base} (${r.pe_exception.formule}) au lieu du résultat publié${r.pe_exception.rnpg_12m_publie != null ? ` (${fmt(r.pe_exception.rnpg_12m_publie, 1)} MDH)` : ""}. Motif : ${r.pe_exception.motif || "—"} Réserve : ${r.pe_exception.reserve || "—"}`,
+    style: {
+      fontSize: 9,
+      color: "#ff8f00",
+      marginTop: 1,
+      cursor: "help"
+    }
+  }, "exception : ", r.pe_exception.base), (() => {
     const e = (r.rang_secteur || {})[ratio];
     if (!e) return null;
     const cher = ratio === "div" ? e.ecart_pct < 0 : e.ecart_pct > 0;
@@ -12587,6 +12595,7 @@ function App() {
             pe_annuel: t.pe_annuel,
             pe_capitalisation: t.pe_capitalisation,
             bpa_reserve: t.bpa_reserve,
+            pe_exception: t.pe_exception,
             bpa: t.bpa,
             bpa_12m: t.bpa_12m,
             div_dh: t.div_dh,

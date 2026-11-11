@@ -151,17 +151,23 @@ def test_ecart_avec_la_valeur_servie(ud):
 
 # ── T2S (R11) ──────────────────────────────────────────────────────────────
 
-def test_t2s_capitalisation_sur_la_bourse_bpa_inchange(ud):
+def test_t2s_capitalisation_sur_la_bourse_bpa_aligne(ud):
     """22 584 118 = 21 785 174 + 798 944 (Augmentation de Capital Dirigeant,
     DR p.37 et p.258). Admises à la cote selon la liste de l'opérateur :
-    la capitalisation les compte. Le P/B et le BPA (IAS 33) n'y touchent pas."""
+    la capitalisation les compte.
+
+    ⚠️ 09/11/2026 (contre-vérification ms-screener). Ce test exigeait que le
+    BPA NE porte PAS 22 584 118, faute de pièce datée. La pièce est lue :
+    autorisation AMMC du 23/09/2026, souscription du 30/09 au 02/10/2026
+    (CP_T2S_group_augmentation_capital_reservee_dirigeant.pdf). Le BPA, la
+    capitalisation et le P/B lisent désormais LE MÊME nombre ; l'export de
+    l'opérateur (`_actions_sourcees`), antérieur, reste à 21 785 174."""
     assert ud.ACTIONS_BOURSE["T2S"] == 22_584_118 == 21_785_174 + 798_944
     assert ud._capitalisation("T2S", 211.8, None, "cdg") == (ud._arrondi_cap(211.8 * 22_584_118 / 1e6),
                                                              "calculee_bourse_officielle")
     assert ud._actions_sourcees("T2S") != 22_584_118
     bpa = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8")).get("T2S") or {}
-    texte = json.dumps(bpa, ensure_ascii=False)
-    assert "22584118" not in texte and "22 584 118" not in texte
+    assert bpa["actions_12m"] == bpa["actions_exercice_2025"] == ud.ACTIONS_BOURSE["T2S"]
 
 
 # ── Le contrôle du soir ────────────────────────────────────────────────────

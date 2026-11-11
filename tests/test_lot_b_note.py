@@ -125,9 +125,16 @@ def test_b3_t2s_la_reserve_dit_que_l_introduction_n_est_pas_dans_les_fonds_propr
     assert "introduction en bourse" in r and "fonds propres" in r
 
 
-def test_b3_le_bpa_reste_sur_le_nombre_pondere():
+def test_b3_le_bpa_lit_le_meme_nombre_depuis_le_09_11():
+    """⚠️ Ce test exigeait que le BPA de T2S NE lise PAS 22 584 118 (lot B3,
+    22/10/2026 : nombre moyen pondéré, pièce de l'augmentation « Dirigeant »
+    non datée). 09/11/2026, contre-vérification ms-screener : la pièce est lue
+    (autorisation AMMC du 23/09/2026, souscription du 30/09 au 02/10/2026,
+    CP_T2S_group_augmentation_capital_reservee_dirigeant.pdf) et le titre reste
+    « dénominateur ambigu » — donc sur le nombre ACTUEL, qui est désormais
+    22 584 118 pour le BPA comme pour la capitalisation et le P/B."""
     b = json.loads((RACINE / "bpa.json").read_text(encoding="utf-8"))["T2S"]
-    assert b.get("actions_12m") != 22_584_118
+    assert b.get("actions_12m") == 22_584_118 and "IAS 33" in b["reserve_bpa"]
 
 
 def test_b3_le_seul_titre_dont_le_nombre_change_est_t2s(moteur):
