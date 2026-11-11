@@ -31,7 +31,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1558.58) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1558.58,
@@ -104,7 +104,7 @@
     "dette_nette": {
      "valeur_mdh": 3724.4,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 1988.4,
@@ -166,7 +166,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 3724.4
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1423.5,
@@ -206,7 +219,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9158699.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 158 699",
      "document": "Managem_conso_2016.pdf",
      "page": 2,
@@ -227,6 +240,16 @@
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
      "controle_ms": {
       "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1558.58) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1558.58,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
      }
     }
    }
@@ -256,7 +279,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1974.51) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1974.51,
@@ -330,7 +353,7 @@
     "dette_nette": {
      "valeur_mdh": 2207.6,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 2276.4,
@@ -387,7 +410,8 @@
         "ms_document": "États financiers 2017",
         "ms_page": 2
        },
-       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+       "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)",
+       "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
       }
      },
      "perimetre": "consolide",
@@ -395,7 +419,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 2207.6
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1787.0,
@@ -438,29 +475,78 @@
      "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
     },
     "nombre_actions": {
-     "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 991 308",
-     "document": "Managem_conso_S1_18.pdf",
-     "page": 2,
-     "citation": "NB D'ACTIONS - MERE 9 991 308 9 158 699",
-     "entete_colonnes": null,
+     "valeur_mdh": 9991308,
+     "mode": "calcul_sur_composantes_publiees",
+     "statut": "calcule_depuis_composantes_publiees",
+     "formule": "capital social exact au 31/12/2017 (999 130 800 DH) ÷ nominal (100 DH) ; capital consolidé 999,1 MDH au 31/12/2017 cité en recoupement",
+     "composantes": {
+      "capital_social_dh_31_12_2017": {
+       "perimetre": "consolide_presume",
+       "referentiel": "CNC",
+       "referentiel_source": "états sociaux marocains (CNC), non relu mot à mot",
+       "statut": "publie",
+       "valeur_mdh": 999.1308,
+       "valeur_source": "999 130 800,00",
+       "unite_source": "DH",
+       "document": "Managem_2018.pdf",
+       "page": 1,
+       "citation": "• Capital social ou personnel (1) 999 130 800,00 999 130 800,00",
+       "entete_colonnes": "TRESORERIE-ACTIF 202 189 052,90 202 189 052,90 10 254 752,86 COMPTE DE PRODUITS ET CHARGES (HORS TAXES) Exercice du 01/01/2018 au 31/12/2018",
+       "controle_ms": {
+        "resultat": "absent_ms"
+       }
+      },
+      "nominal_dh": {
+       "valeur_mdh": 100.0,
+       "unite_source": "MDH",
+       "valeur_source": "100",
+       "document": "Managem_RFA_2019.pdf",
+       "page": 61,
+       "citation": ">90 >90 9 991 308 actions d’une seule catégorie de 100 dirhams",
+       "perimetre": "sans_objet",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "absent_ms"
+       }
+      },
+      "capital_consolide_mdh_recoupement": {
+       "valeur_mdh": 999.1,
+       "unite_source": "MMAD",
+       "valeur_source": "999,1",
+       "document": "Managem_conso_2018.pdf",
+       "page": 3,
+       "citation": "Au 31 décembre 2017 999,1 3 196,6 105,9 879,0 5 180,5 453,9 5 634,6 (tableau de variation des capitaux propres consolidés, colonne Capital)",
+       "perimetre": "consolide",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "absent_ms"
+       }
+      }
+     },
      "perimetre": "sans_objet (titres / dividende de la société mère)",
-     "referentiel": "IFRS",
-     "statut": "lu_dans_document_ulterieur_comparatif",
+     "referentiel": "CNC",
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 9991308.0,
-      "ms_document": "États financiers 2017",
-      "ms_page": 2
+      "arbitrage": "ms-screener citait Managem_conso_S1_18 p2 (colonne 30/06/2018, nombre de titres 9 991 308) ; aucune pièce lue n'imprime le nombre de titres au 31/12/2017 : il est déduit du capital exact et du nominal"
      },
-     "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)"
     },
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
      "controle_ms": {
       "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1974.51) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1974.51,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
      }
     }
    }
@@ -489,7 +575,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1390.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1390.7,
@@ -589,7 +675,7 @@
     "dette_nette": {
      "valeur_mdh": 2683.2,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 1565.0,
@@ -651,7 +737,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 2683.2
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1665.2,
@@ -694,7 +793,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2019.pdf",
      "page": 97,
@@ -736,6 +835,32 @@
       "ms_document": "Rapport financier annuel 2019",
       "ms_page": 79
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1390.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1390.7,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 2792.0,
+     "unite_source": "MMAD",
+     "valeur_source": "2 792",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 16,
+     "citation": "Endettement net consolidé 2 792 4 164 1 372 +49%",
+     "entete_colonnes": "2018 2019 (en M MAD, évolution)",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "nature": "endettement net publié par l'émetteur (sa définition, non recalculée)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -764,7 +889,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1169.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1169.0,
@@ -869,7 +994,7 @@
     "dette_nette": {
      "valeur_mdh": 4454.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 2590.0,
@@ -934,7 +1059,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4454.9
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1038.4,
@@ -976,7 +1114,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2019.pdf",
      "page": 97,
@@ -1018,6 +1156,32 @@
       "ms_page": 79
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1169.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1169.0,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 4164.0,
+     "unite_source": "MMAD",
+     "valeur_source": "4 164",
+     "document": "Managem_RFA_2019.pdf",
+     "page": 16,
+     "citation": "Endettement net consolidé 2 792 4 164 1 372 +49%",
+     "entete_colonnes": "2018 2019 (en M MAD, évolution)",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "nature": "endettement net publié par l'émetteur (sa définition, non recalculée)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -1046,7 +1210,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1647.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1647.6,
@@ -1151,7 +1315,7 @@
     "dette_nette": {
      "valeur_mdh": 5739.4,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3443.9,
@@ -1216,7 +1380,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5739.4
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1766.6,
@@ -1258,7 +1435,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2020.pdf",
      "page": 167,
@@ -1300,6 +1477,32 @@
       "ms_page": 137
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1647.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1647.6,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": null
+     }
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 5503.0,
+     "unite_source": "MMAD",
+     "valeur_source": "5 503",
+     "document": "Managem_RFA_2020.pdf",
+     "page": 32,
+     "citation": "Endettement net consolidé 5 503 4 164 1 338 32,1%",
+     "entete_colonnes": "2020 2019 Évolution en MAD Évolution en %",
+     "perimetre": "consolide",
+     "referentiel": null,
+     "statut": "publie",
+     "nature": "endettement net publié par l'émetteur (sa définition, non recalculée)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -1327,23 +1530,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 2724.1,
-     "unite_source": "MMAD",
-     "valeur_source": "2 724,1",
-     "document": "Managem_RFA_2022.pdf",
-     "page": 76,
-     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
-     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "lu_dans_document_ulterieur_comparatif",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 2770.1,
-      "ecart_relatif": 0.0169,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 2770.1
      }
     },
     "resultat_exploitation": {
@@ -1443,7 +1634,7 @@
     "dette_nette": {
      "valeur_mdh": 4241.5,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5425.8,
@@ -1508,7 +1699,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4241.5
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 3044.0,
@@ -1550,7 +1754,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2021.pdf",
      "page": 95,
@@ -1591,6 +1795,27 @@
       "ms_page": 80
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 2724.1,
+     "unite_source": "MDH",
+     "valeur_source": "2 724,1",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 76,
+     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
+     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 2770.1,
+      "ecart_relatif": 0.0169,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
     }
    }
   },
@@ -1618,23 +1843,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 3349.3,
-     "unite_source": "MMAD",
-     "valeur_source": "3 349,3",
-     "document": "Managem_RFA_2022.pdf",
-     "page": 76,
-     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
-     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 3439.8,
-      "ecart_relatif": 0.027,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 3439.8
      }
     },
     "resultat_exploitation": {
@@ -1734,7 +1947,7 @@
     "dette_nette": {
      "valeur_mdh": 3844.7,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5440.2,
@@ -1799,7 +2012,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 3844.7
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2514.9,
@@ -1841,7 +2067,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2022.pdf",
      "page": 109,
@@ -1882,6 +2108,27 @@
       "ms_page": 94
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 3349.3,
+     "unite_source": "MDH",
+     "valeur_source": "3 349,3",
+     "document": "Managem_RFA_2022.pdf",
+     "page": 76,
+     "citation": "Excédent Brut d'exploitation * MDH 3 349,3 2 724,1 625,2 22,9% 2 139,5  || même colonne que : batteries recyclées au sein des unités hydro métallurgiques du site de Guemassa; Chiffre d’affaires MDH 9 645,2 7 422,8 2 222,4 29,9% 5 466,",
+     "entete_colonnes": "S 2022 2021 En MDH En % S1-2022",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 3439.8,
+      "ecart_relatif": 0.027,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
     }
    }
   },
@@ -1909,23 +2156,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 2395.3,
-     "unite_source": "MMAD",
-     "valeur_source": "2 395,3",
-     "document": "Managem_RFA_2023.pdf",
-     "page": 64,
-     "citation": "Excédent Brut d'exploitation MMAD 2 395,3 3 349,3 -954,0 -28,5% 1 358,9  || même colonne que : Chiffre d’affaires MMAD 7 507,6 9 645,2 -2 137,6 -22,2% 4 181,5",
-     "entete_colonnes": "L’effet prix de vente moyen2 des métaux est de -354,5 MMAD, rationnalisé comme suit : 2023 2022 En MMAD En % 2023",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 2441.7,
-      "ecart_relatif": 0.0194,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 2441.7
      }
     },
     "resultat_exploitation": {
@@ -2016,7 +2251,7 @@
     "dette_nette": {
      "valeur_mdh": 7101.6,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 6832.1,
@@ -2081,7 +2316,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 7101.6
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2432.1,
@@ -2123,7 +2371,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 9991308.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "9 991 308",
      "document": "Managem_RFA_2023.pdf",
      "page": 84,
@@ -2165,6 +2413,27 @@
       "ms_page": 84
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 2395.3,
+     "unite_source": "MMAD",
+     "valeur_source": "2 395,3",
+     "document": "Managem_RFA_2023.pdf",
+     "page": 64,
+     "citation": "Excédent Brut d'exploitation MMAD 2 395,3 3 349,3 -954,0 -28,5% 1 358,9  || même colonne que : Chiffre d’affaires MMAD 7 507,6 9 645,2 -2 137,6 -22,2% 4 181,5",
+     "entete_colonnes": "L’effet prix de vente moyen2 des métaux est de -354,5 MMAD, rationnalisé comme suit : 2023 2022 En MMAD En % 2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 2441.7,
+      "ecart_relatif": 0.0194,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
     }
    }
   },
@@ -2193,7 +2462,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2621.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 2621.2,
@@ -2298,7 +2567,7 @@
     "dette_nette": {
      "valeur_mdh": 10390.8,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 7951.6,
@@ -2363,7 +2632,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 10390.8
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 3121.9,
@@ -2405,7 +2687,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 11864676.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "11 864 676",
      "document": "Managem_RFA_2024.pdf",
      "page": 82,
@@ -2447,6 +2729,16 @@
       "ms_page": 82
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2621.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2621.2,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2475,7 +2767,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6009.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 6009.6,
@@ -2580,7 +2872,7 @@
     "dette_nette": {
      "valeur_mdh": 12641.1,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 10544.2,
@@ -2645,7 +2937,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 12641.1
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 5483.0,
@@ -2687,7 +2992,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 11864676.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "11 864 676",
      "document": "Managem_RFA_2025.pdf",
      "page": 86,
@@ -2729,6 +3034,16 @@
       "ms_page": 86
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6009.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 6009.6,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2757,7 +3072,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (446.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 446.2,
@@ -2900,6 +3215,16 @@
       "ms_page": 1
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (446.2) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 446.2,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2924,11 +3249,12 @@
       "ms_document": "États financiers S1 2020",
       "ms_page": 1
      },
-     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+     "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (870.1) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 870.1,
@@ -3033,7 +3359,7 @@
     "dette_nette": {
      "valeur_mdh": 4865.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3229.0,
@@ -3098,7 +3424,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4865.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3146,6 +3485,16 @@
       "ms_page": 1
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (870.1) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 870.1,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3170,11 +3519,12 @@
       "ms_document": "États financiers S1 2021",
       "ms_page": 1
      },
-     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+     "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (808.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 808.6,
@@ -3274,12 +3624,13 @@
       "ms_document": "États financiers S1 2021",
       "ms_page": 1
      },
-     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+     "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+     "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
     },
     "dette_nette": {
      "valeur_mdh": 5656.4,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4120.8,
@@ -3298,7 +3649,8 @@
         "ms_document": "États financiers S1 2021",
         "ms_page": 1
        },
-       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+       "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
       },
       "dettes_financieres_c": {
        "valeur_mdh": 2670.7,
@@ -3317,7 +3669,8 @@
         "ms_document": "États financiers S1 2021",
         "ms_page": 1
        },
-       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+       "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
       },
       "tresorerie": {
        "valeur_mdh": 1135.1,
@@ -3336,7 +3689,8 @@
         "ms_document": "États financiers S1 2021",
         "ms_page": 1
        },
-       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+       "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
+       "unite_note": "rapport jeton/valeur différent de 1, 10^3 ou 10^6 : unité à relire"
       }
      },
      "perimetre": "consolide",
@@ -3344,7 +3698,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5656.4
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3392,6 +3759,16 @@
       "ms_page": 1
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (808.6) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 808.6,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3401,7 +3778,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 5466.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "5 466",
      "document": "Managem_RFS_juin_22.pdf",
      "page": 4,
@@ -3418,20 +3795,10 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 2140.0,
-     "unite_source": "MMAD",
-     "valeur_source": "2 140",
-     "document": "Managem_RFS_juin_22.pdf",
-     "page": 4,
-     "citation": "Excédent brut d’exploitation 788 2 140 + 1 352  || même colonne que : Chiffre d’affaires 3 011 5 466 + 2 455",
-     "entete_colonnes": "En MDH S1-2021 S1-2022 Variation en MDH",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "concordant",
+      "resultat": "non_verifie",
       "ms_valeur": 2155.8
      }
     },
@@ -3532,7 +3899,7 @@
     "dette_nette": {
      "valeur_mdh": 4158.2,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5930.4,
@@ -3597,7 +3964,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4158.2
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3645,6 +4025,27 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 2140.0,
+     "unite_source": "MDH",
+     "valeur_source": "2 140",
+     "document": "Managem_RFS_juin_22.pdf",
+     "page": 4,
+     "citation": "Excédent brut d’exploitation 788 2 140 + 1 352  || même colonne que : Chiffre d’affaires 3 011 5 466 + 2 455",
+     "entete_colonnes": "En MDH S1-2021 S1-2022 Variation en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 2155.8,
+      "ecart_relatif": 0.0074,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
     }
    }
   },
@@ -3673,7 +4074,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1379.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1379.7,
@@ -3778,7 +4179,7 @@
     "dette_nette": {
      "valeur_mdh": 6035.2,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 7142.2,
@@ -3843,7 +4244,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 6035.2
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3891,6 +4305,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1379.7) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1379.7,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3919,7 +4343,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1359.61) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1359.61,
@@ -4024,7 +4448,7 @@
     "dette_nette": {
      "valeur_mdh": 7598.2,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5743.2,
@@ -4089,7 +4513,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 7598.2
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -4137,6 +4574,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1359.61) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1359.61,
+      "ms_document": "États financiers S1 2024",
+      "ms_page": null
+     }
     }
    }
   },
@@ -4146,7 +4593,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 4422.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "4 422",
      "document": "Managem_RFS_S1_25.pdf",
      "page": 4,
@@ -4163,23 +4610,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 1442.0,
-     "unite_source": "MMAD",
-     "valeur_source": "1 442",
-     "document": "Managem_RFS_S1_25.pdf",
-     "page": 4,
-     "citation": "Excédent brut d'exploitation 1 422 1 442 +19  || même colonne que : Chiffre d’affaires 4 408 4 422 +14",
-     "entete_colonnes": "Principaux Indicateurs (En MDH) S1- 2024 S1- 2025 Var en MDH",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 1469.6,
-      "ecart_relatif": 0.0191,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 1469.6
      }
     },
     "resultat_exploitation": {
@@ -4279,7 +4714,7 @@
     "dette_nette": {
      "valeur_mdh": 14570.3,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP, actifs financiers à la juste valeur par résultat (268,8) non déduits. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 9842.4,
@@ -4344,7 +4779,21 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 14570.3
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP",
+      "actifs financiers à la juste valeur par résultat (268,8) non déduits"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -4392,6 +4841,27 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 1442.0,
+     "unite_source": "MDH",
+     "valeur_source": "1 442",
+     "document": "Managem_RFS_S1_25.pdf",
+     "page": 4,
+     "citation": "Excédent brut d'exploitation 1 422 1 442 +19  || même colonne que : Chiffre d’affaires 4 408 4 422 +14",
+     "entete_colonnes": "Principaux Indicateurs (En MDH) S1- 2024 S1- 2025 Var en MDH",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 1469.6,
+      "ecart_relatif": 0.0191,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
     }
    }
   },
@@ -4412,7 +4882,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6206.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 6206.0,
@@ -4459,7 +4929,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 3778.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "3778",
      "document": "Managem_RFS_S1_26.pdf",
      "page": 4,
@@ -4570,6 +5040,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (6206.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 6206.0,
+      "ms_document": "États financiers S1 2026",
+      "ms_page": null
+     }
     }
    }
   }
@@ -4774,11 +5254,23 @@
    "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-rfs-juin-2026",
    "type": "H1",
    "annee_nom_fichier": 2026
+  },
+  "Managem_2018.pdf": {
+   "fichier": "Managem_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Managem_2018.pdf",
+   "sha256": "763208063fa6203955df399dece0d5e6de76d1f8e4a2b5565400bdcc6476da3b",
+   "octets": 219959,
+   "pages": 3,
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers//fr/espace-emetteurs/etats-financiers/managem-39",
+   "type": "FY",
+   "annee_nom_fichier": 2018
   }
  },
  "couverture": {
-  "remplies": 148,
   "attendues": 216,
-  "ecarts": 4
+  "remplies": 143,
+  "supplementaires_remplis": 24,
+  "ecarts_ms_screener": 21,
+  "note": "attendues = 12 métriques demandées × 18 périodes (dette nette sans objet pour ATW) ; supplémentaires = resultat_exploitation_courant, ebitda_ajuste, dette_nette_publiee"
  }
 }

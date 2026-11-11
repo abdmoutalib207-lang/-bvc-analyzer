@@ -13,7 +13,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 6667.725,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "6 667 725",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -31,7 +31,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3323.599) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3323.599,
@@ -41,7 +41,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2418.814,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 418 814",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -58,7 +58,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1634.365,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 634 365",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -76,7 +76,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1634.365,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 634 365",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -112,7 +112,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 11594.088,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "11 594 088",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -131,11 +131,11 @@
     "dette_nette": {
      "valeur_mdh": 4695.592,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP, dette non courante lue au comparatif 31/12/2016 du S1-2017, recoupée par différence du passif non courant. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4000.0,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "4 000 000",
        "document": "Rapports consolidés 1er semestre_0.pdf",
        "page": 1,
@@ -155,7 +155,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 1132.052,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "1 132 052",
        "document": "LHM_conso_2016.pdf",
        "page": 1,
@@ -173,7 +173,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 436.46,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "436 460",
        "document": "LHM_conso_2016.pdf",
        "page": 1,
@@ -195,11 +195,25 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4695.592
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP",
+      "dette non courante lue au comparatif 31/12/2016 du S1-2017, recoupée par différence du passif non courant"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2050.975,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 050 975",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -217,7 +231,7 @@
     },
     "flux_investissement": {
      "valeur_mdh": -1172.624,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 172 624",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -250,7 +264,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 2754.448,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 754 448",
      "document": "LHM_conso_2016.pdf",
      "page": 1,
@@ -265,6 +279,16 @@
       "ms_document": "États financiers 2017",
       "ms_page": 1
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3323.599) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3323.599,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
     }
    }
   },
@@ -274,7 +298,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 8083.489,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "8 083 489",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -294,7 +318,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3859.04) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3859.04,
@@ -304,7 +328,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2986.229,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 986 229",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -323,7 +347,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1927.375,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 927 375",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -343,7 +367,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1927.375,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 927 375",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -394,11 +418,11 @@
     "dette_nette": {
      "valeur_mdh": 7111.553,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 6200.0,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "6 200 000",
        "document": "Lafarge_conso_S1_18.pdf",
        "page": 1,
@@ -418,7 +442,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 1136.444,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "1 136 444",
        "document": "Lafarge_conso_S1_18.pdf",
        "page": 1,
@@ -438,7 +462,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 224.891,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "224 891",
        "document": "Lafarge_conso_S1_18.pdf",
        "page": 1,
@@ -462,11 +486,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 7111.553
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 1748.458,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 748 458",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -486,7 +523,7 @@
     },
     "flux_investissement": {
      "valeur_mdh": -561.542,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "(561 542)",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -520,7 +557,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3150.423,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 150 423",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -537,6 +574,16 @@
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce",
      "note": "pièce d'origine de la période non retrouvée par la recherche automatique : valeur lue dans un document ultérieur (colonne comparative)"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3859.04) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3859.04,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
     }
    }
   },
@@ -546,7 +593,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 7887.303,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "7 887 303",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -565,7 +612,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3727.111) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3727.111,
@@ -575,7 +622,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2783.659,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 783 659",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -593,7 +640,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1584.031,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 584 031",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -612,7 +659,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1584.031,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 584 031",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -638,7 +685,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 9815.954,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "9 815 954",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -658,11 +705,11 @@
     "dette_nette": {
      "valeur_mdh": 6949.515,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 6200.0,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "6 200 000",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -682,7 +729,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 800.042,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "800 042",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -702,7 +749,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 50.527,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "50 527",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -726,7 +773,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 6949.515
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -744,7 +804,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23.431.240",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 54,
@@ -770,7 +830,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 2980.182,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 980 182",
      "document": "Lafrge_conso_2018.pdf",
      "page": 1,
@@ -786,6 +846,16 @@
       "ms_page": 45
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3727.111) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3727.111,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
     }
    }
   },
@@ -795,7 +865,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 7855.199,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "7 855 199",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -814,7 +884,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4001.066) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 4001.066,
@@ -824,7 +894,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2872.017,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 872 017",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -842,7 +912,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1700.718,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 700 718",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -861,7 +931,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1700.718,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 700 718",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -900,7 +970,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 9882.021,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "9 882 021",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 44,
@@ -920,11 +990,11 @@
     "dette_nette": {
      "valeur_mdh": 6860.805,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 6228.416,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "6 228 416",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -943,7 +1013,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 664.889,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "664 889",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -962,7 +1032,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 32.5,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "32 500",
        "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
        "page": 44,
@@ -985,11 +1055,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 6860.805
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2969.393,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 969 393",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -1015,7 +1098,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23.431.240",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 54,
@@ -1040,7 +1123,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3154.565,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 154 565",
      "document": "Lafarge_HolcimMaroc_RFA_2019.pdf",
      "page": 45,
@@ -1056,6 +1139,16 @@
       "ms_page": 45
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4001.066) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4001.066,
+      "ms_document": "Rapport financier annuel 2019",
+      "ms_page": null
+     }
     }
    }
   },
@@ -1065,7 +1158,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 6980.066,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "6 980 066",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1084,7 +1177,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3863.469) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3863.469,
@@ -1094,7 +1187,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2440.449,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 440 449",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1112,7 +1205,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1492.227,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 492 227",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1131,7 +1224,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1492.227,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 492 227",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1169,7 +1262,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 10605.254,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "10 605 254",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 60,
@@ -1189,11 +1282,11 @@
     "dette_nette": {
      "valeur_mdh": 5902.327,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5834.908,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "5 834 908",
        "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
        "page": 60,
@@ -1212,7 +1305,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 154.465,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "154 465",
        "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
        "page": 60,
@@ -1231,7 +1324,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 87.046,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "87 046",
        "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
        "page": 60,
@@ -1254,11 +1347,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5902.327
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2009.776,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 009 776",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1284,7 +1390,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 70,
@@ -1309,7 +1415,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3076.373,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 076 373",
      "document": "LAFARGE_HOLCIM_MAROC_RFA_2020.pdf",
      "page": 61,
@@ -1325,6 +1431,16 @@
       "ms_page": 61
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3863.469) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3863.469,
+      "ms_document": "Rapport financier annuel 2020",
+      "ms_page": null
+     }
     }
    }
   },
@@ -1334,7 +1450,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 8194.57,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "8 194 570",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1353,7 +1469,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4146.497) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 4146.497,
@@ -1363,7 +1479,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 3203.705,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 203 705",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1381,7 +1497,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 2010.486,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 010 486",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1400,7 +1516,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 2010.486,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 010 486",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1426,7 +1542,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 11431.699,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "11 431 699",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 62,
@@ -1446,11 +1562,11 @@
     "dette_nette": {
      "valeur_mdh": 5059.851,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5425.295,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "5 425 295",
        "document": "LafargeHolcim_RFA_2021.pdf",
        "page": 62,
@@ -1469,7 +1585,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 166.724,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "166 724",
        "document": "LafargeHolcim_RFA_2021.pdf",
        "page": 62,
@@ -1488,7 +1604,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 532.168,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "532 168",
        "document": "LafargeHolcim_RFA_2021.pdf",
        "page": 62,
@@ -1511,11 +1627,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5059.851
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 3092.511,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 092 511",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1541,7 +1670,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 71,
@@ -1567,7 +1696,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3496.363,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 496 363",
      "document": "LafargeHolcim_RFA_2021.pdf",
      "page": 63,
@@ -1583,6 +1712,16 @@
       "ms_page": 63
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4146.497) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4146.497,
+      "ms_document": "Rapport financier annuel 2021",
+      "ms_page": null
+     }
     }
    }
   },
@@ -1592,7 +1731,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 7985.055,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "7 985 055",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1611,7 +1750,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3274.948) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3274.948,
@@ -1621,7 +1760,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2506.045,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 506 045",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1639,7 +1778,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1391.685,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 391 685",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1658,7 +1797,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1391.685,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 391 685",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1684,7 +1823,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 11340.575,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "11 340 575",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 62,
@@ -1714,7 +1853,7 @@
     },
     "flux_exploitation": {
      "valeur_mdh": 1664.064,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 664 064",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1740,7 +1879,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 70,
@@ -1765,7 +1904,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 2695.77,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 695 770",
      "document": "lafargeholcim_Maroc_RFA_2022.pdf",
      "page": 63,
@@ -1781,6 +1920,16 @@
       "ms_page": 63
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3274.948) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3274.948,
+      "ms_document": "Rapport financier annuel 2022",
+      "ms_page": null
+     }
     }
    }
   },
@@ -1790,7 +1939,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 8212.021,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "8 212 021",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -1809,7 +1958,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3692.603) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 3692.603,
@@ -1819,7 +1968,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 2585.4,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 585 400",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -1837,7 +1986,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1547.82,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 547 820",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -1856,7 +2005,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1547.82,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 547 820",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -1882,7 +2031,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 11417.059,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "11 417 059",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 66,
@@ -1902,11 +2051,11 @@
     "dette_nette": {
      "valeur_mdh": 4990.76,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4824.729,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "4 824 729",
        "document": "LafargeHolcim_RFA_2023.pdf",
        "page": 66,
@@ -1925,7 +2074,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 319.717,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "319 717",
        "document": "LafargeHolcim_RFA_2023.pdf",
        "page": 66,
@@ -1944,7 +2093,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 153.686,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "153 686",
        "document": "LafargeHolcim_RFA_2023.pdf",
        "page": 66,
@@ -1967,11 +2116,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4990.76
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2454.53,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 454 530",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -1997,7 +2159,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 74,
@@ -2022,7 +2184,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 2977.519,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 977 519",
      "document": "LafargeHolcim_RFA_2023.pdf",
      "page": 67,
@@ -2038,6 +2200,16 @@
       "ms_page": 67
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (3692.603) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 3692.603,
+      "ms_document": "Rapport financier annuel 2023",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2047,7 +2219,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 8154.838,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "8 154 838",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2066,7 +2238,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4003.956) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 4003.956,
@@ -2076,7 +2248,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 3094.353,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 094 353",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2094,7 +2266,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1825.688,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 825 688",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2113,7 +2285,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1825.688,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 825 688",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2150,11 +2322,11 @@
     "dette_nette": {
      "valeur_mdh": 4365.954,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4335.073,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "4 335 073",
        "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
        "page": 65,
@@ -2173,7 +2345,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 193.956,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "193 956",
        "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
        "page": 65,
@@ -2192,7 +2364,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 163.075,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "163 075",
        "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
        "page": 65,
@@ -2215,11 +2387,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4365.954
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2739.188,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 739 188",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2245,7 +2430,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 73,
@@ -2270,7 +2455,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3294.385,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 294 385",
      "document": "LafargeHolcim_Maroc_RFA_2024.pdf",
      "page": 66,
@@ -2286,6 +2471,16 @@
       "ms_page": 66
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4003.956) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4003.956,
+      "ms_document": "Rapport financier annuel 2024",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2295,7 +2490,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 8936.255,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "8 936 255",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2314,7 +2509,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4502.742) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 4502.742,
@@ -2324,7 +2519,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 3596.538,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 596 538",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2342,7 +2537,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 2165.873,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 165 873",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2361,7 +2556,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 2165.873,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 165 873",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2387,7 +2582,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 12156.299,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "12 156 299",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 73,
@@ -2407,11 +2602,11 @@
     "dette_nette": {
      "valeur_mdh": 3569.803,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3510.859,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "3 510 859",
        "document": "LafargeHolcim_RFA_2025.pdf",
        "page": 73,
@@ -2430,7 +2625,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 177.044,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "177 044",
        "document": "LafargeHolcim_RFA_2025.pdf",
        "page": 73,
@@ -2449,7 +2644,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 118.1,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "118 100",
        "document": "LafargeHolcim_RFA_2025.pdf",
        "page": 73,
@@ -2472,11 +2667,24 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 3569.803
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 2817.143,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "2 817 143",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2502,7 +2710,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 23431240.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "23 431 240",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 81,
@@ -2527,7 +2735,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 3814.563,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 814 563",
      "document": "LafargeHolcim_RFA_2025.pdf",
      "page": 74,
@@ -2543,6 +2751,16 @@
       "ms_page": 74
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (4502.742) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 4502.742,
+      "ms_document": "Rapport financier annuel 2025",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2552,7 +2770,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 3895.806,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 895 806",
      "document": "Lafarge_RFS_2019.pdf",
      "page": 12,
@@ -2571,7 +2789,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2024.875) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 2024.875,
@@ -2581,7 +2799,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 1580.817,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 580 817",
      "document": "Lafarge_RFS_2019.pdf",
      "page": 12,
@@ -2599,7 +2817,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 965.466,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "965 466",
      "document": "Lafarge_RFS_2019.pdf",
      "page": 12,
@@ -2618,7 +2836,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 965.466,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "965 466",
      "document": "Lafarge_RFS_2019.pdf",
      "page": 12,
@@ -2686,7 +2904,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 1651.699,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 651 699",
      "document": "Lafarge_RFS_2019.pdf",
      "page": 12,
@@ -2702,6 +2920,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2024.875) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2024.875,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2711,7 +2939,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 3184.974,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "3 185",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 4,
@@ -2729,7 +2957,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1781.138) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1781.138,
@@ -2739,7 +2967,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 813.124,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "813 124",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 15,
@@ -2757,7 +2985,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 431.015,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "431 015",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 15,
@@ -2776,7 +3004,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 431.015,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "431 015",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 15,
@@ -2802,7 +3030,7 @@
     },
     "capitaux_propres_part_groupe": {
      "valeur_mdh": 9547.498,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "9 547 498",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 14,
@@ -2822,11 +3050,11 @@
     "dette_nette": {
      "valeur_mdh": 6618.145,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 6035.043,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "6 035 043",
        "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
        "page": 14,
@@ -2845,7 +3073,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 590.856,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "590 856",
        "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
        "page": 14,
@@ -2864,7 +3092,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 7.754,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "7 754",
        "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
        "page": 14,
@@ -2887,7 +3115,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 6618.145
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -2919,7 +3160,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 1411.133,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 411 133",
      "document": "LafargeHolcim_Maroc_RFS_S1_20.pdf",
      "page": 15,
@@ -2935,6 +3176,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1781.138) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1781.138,
+      "ms_document": "États financiers S1 2020",
+      "ms_page": null
+     }
     }
    }
   },
@@ -2944,7 +3195,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 3999.863,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "3 999 863",
      "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
      "page": 15,
@@ -2963,7 +3214,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2092.608) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 2092.608,
@@ -2973,7 +3224,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 1649.824,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 649 824",
      "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
      "page": 15,
@@ -2991,7 +3242,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 1038.674,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 038 674",
      "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
      "page": 15,
@@ -3010,7 +3261,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 1038.674,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 038 674",
      "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
      "page": 15,
@@ -3044,11 +3295,11 @@
     "dette_nette": {
      "valeur_mdh": 5622.279,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5635.424,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "5 635 424",
        "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
        "page": 14,
@@ -3067,7 +3318,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 41.165,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "41 165",
        "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
        "page": 14,
@@ -3086,7 +3337,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 54.31,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "54 310",
        "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
        "page": 14,
@@ -3109,7 +3360,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5622.279
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3141,7 +3405,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 1758.178,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 758 178",
      "document": "LAFARGE_HOLCIM_MAROC_RFS_2021.pdf",
      "page": 15,
@@ -3157,6 +3421,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (2092.608) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 2092.608,
+      "ms_document": "États financiers S1 2021",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3166,7 +3440,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 4004.272,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "4 004 272",
      "document": "Lafarge_Holcim_RFS_juin_22.pdf",
      "page": 14,
@@ -3185,7 +3459,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1768.55) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1768.55,
@@ -3195,7 +3469,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 1292.499,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 292 499",
      "document": "Lafarge_Holcim_RFS_juin_22.pdf",
      "page": 14,
@@ -3213,7 +3487,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 758.763,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "758 763",
      "document": "Lafarge_Holcim_RFS_juin_22.pdf",
      "page": 14,
@@ -3232,7 +3506,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 758.763,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "758 763",
      "document": "Lafarge_Holcim_RFS_juin_22.pdf",
      "page": 14,
@@ -3266,11 +3540,11 @@
     "dette_nette": {
      "valeur_mdh": 5843.39,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5209.195,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "5 209 195",
        "document": "Lafarge_Holcim_RFS_juin_22.pdf",
        "page": 13,
@@ -3289,7 +3563,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 731.958,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "731 958",
        "document": "Lafarge_Holcim_RFS_juin_22.pdf",
        "page": 13,
@@ -3308,7 +3582,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 97.763,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "97 763",
        "document": "Lafarge_Holcim_RFS_juin_22.pdf",
        "page": 13,
@@ -3331,7 +3605,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 5843.39
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3363,7 +3650,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 1463.508,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1 463 508",
      "document": "Lafarge_Holcim_RFS_juin_22.pdf",
      "page": 14,
@@ -3379,6 +3666,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1768.55) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1768.55,
+      "ms_document": "États financiers S1 2022",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3388,7 +3685,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 4129.676,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "4.129.676",
      "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
      "page": 14,
@@ -3407,7 +3704,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1818.559) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 1818.559,
@@ -3417,7 +3714,7 @@
     },
     "resultat_exploitation": {
      "valeur_mdh": 1344.797,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1.344.797",
      "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
      "page": 14,
@@ -3435,7 +3732,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 825.648,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "825.648",
      "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
      "page": 14,
@@ -3454,7 +3751,7 @@
     },
     "resultat_net_part_groupe": {
      "valeur_mdh": 825.648,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "825.648",
      "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
      "page": 14,
@@ -3488,11 +3785,11 @@
     "dette_nette": {
      "valeur_mdh": 4932.751,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5059.924,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "5.059.924",
        "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
        "page": 13,
@@ -3511,7 +3808,7 @@
       },
       "dettes_financieres_c": {
        "valeur_mdh": 74.383,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "74.383",
        "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
        "page": 13,
@@ -3530,7 +3827,7 @@
       },
       "tresorerie": {
        "valeur_mdh": 201.556,
-       "unite_source": "MMAD",
+       "unite_source": "KMAD",
        "valeur_source": "201.556",
        "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
        "page": 13,
@@ -3553,7 +3850,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 4932.751
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -3585,7 +3895,7 @@
     },
     "resultat_exploitation_courant": {
      "valeur_mdh": 1468.116,
-     "unite_source": "MMAD",
+     "unite_source": "KMAD",
      "valeur_source": "1.468.116",
      "document": "LafargeHolcimMaroc_RFS_S1_23.pdf",
      "page": 14,
@@ -3601,6 +3911,16 @@
       "ms_page": 2
      },
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (1818.559) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1818.559,
+      "ms_document": "États financiers S1 2023",
+      "ms_page": null
+     }
     }
    }
   },
@@ -3610,7 +3930,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 3691.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "3 691",
      "document": "LafargeHolcimMaroc-S1-2024.pdf",
      "page": 4,
@@ -3628,7 +3948,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3652,7 +3972,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 756.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "756",
      "document": "LafargeHolcimMaroc-S1-2024.pdf",
      "page": 4,
@@ -3739,6 +4059,13 @@
       "resultat": "absent_ms",
       "note": "ligne « courant » du compte de résultat consolidé ; ms-screener l'a prise comme résultat d'exploitation (valeur arrondie 1460.0)"
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -3748,7 +4075,7 @@
    "donnees": {
     "chiffre_affaires": {
      "valeur_mdh": 4159.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "4 159",
      "document": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
      "page": 4,
@@ -3766,7 +4093,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3790,7 +4117,7 @@
     },
     "resultat_net_ensemble": {
      "valeur_mdh": 918.0,
-     "unite_source": "MMAD",
+     "unite_source": "MDH",
      "valeur_source": "918",
      "document": "LafargeHolcim_Maroc_RFS_S1_25.pdf",
      "page": 4,
@@ -3877,6 +4204,13 @@
       "resultat": "absent_ms",
       "note": "ligne « courant » du compte de résultat consolidé ; ms-screener l'a prise comme résultat d'exploitation (valeur arrondie 1747.0)"
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -3893,7 +4227,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3962,6 +4296,13 @@
      }
     },
     "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
      "controle_ms": {
@@ -4154,8 +4495,10 @@
   }
  },
  "couverture": {
-  "remplies": 111,
   "attendues": 216,
-  "ecarts": 0
+  "remplies": 111,
+  "supplementaires_remplis": 17,
+  "ecarts_ms_screener": 17,
+  "note": "attendues = 12 métriques demandées × 18 périodes (dette nette sans objet pour ATW) ; supplémentaires = resultat_exploitation_courant, ebitda_ajuste, dette_nette_publiee"
  }
 }

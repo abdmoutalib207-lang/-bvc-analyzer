@@ -31,7 +31,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (17313.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 17313.0,
@@ -132,7 +132,7 @@
     "dette_nette": {
      "valeur_mdh": 12338.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4666.0,
@@ -194,7 +194,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 12338.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 13483.0,
@@ -234,7 +247,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "IAM_conso_2016.pdf",
      "page": 1,
@@ -253,6 +266,23 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (17313.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 17313.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "ligne « Dette nette » du tableau consolidé non retrouvée dans la même colonne que le chiffre d'affaires",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -284,7 +314,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (16867.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "non_verifie",
       "ms_valeur": 16867.0,
@@ -390,7 +420,7 @@
     "dette_nette": {
      "valeur_mdh": 13080.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4200.0,
@@ -455,7 +485,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 13080.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 14911.0,
@@ -497,7 +540,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "IAM_conso_2017_1.pdf",
      "page": 1,
@@ -517,6 +560,23 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "EBITDA/EBE publié non lu dans ce lot ; la valeur de ms-screener (16867.0) est un dérivé qui ne correspond pas à une ligne publiée retrouvée",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 16867.0,
+      "ms_document": "États financiers 2017",
+      "ms_page": null
+     }
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "ligne « Dette nette » du tableau consolidé non retrouvée dans la même colonne que le chiffre d'affaires",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -547,23 +607,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 17856.0,
-     "unite_source": "MMAD",
-     "valeur_source": "17 856",
-     "document": "IAM_RFA_2019.pdf",
-     "page": 9,
-     "citation": "EBITDA 4 381 4 525 +3,3% -1,2% 17 856 18 922 +6,0% +3,4%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
-     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "lu_dans_document_ulterieur_comparatif",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 18389.0,
-      "ecart_relatif": 0.0298,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 18389.0
      }
     },
     "resultat_exploitation": {
@@ -664,7 +712,7 @@
     "dette_nette": {
      "valeur_mdh": 13904.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3475.0,
@@ -729,7 +777,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 13904.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 14520.0,
@@ -771,7 +832,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "IAM_conso_2018.pdf",
      "page": 1,
@@ -791,6 +852,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 17856.0,
+     "unite_source": "MMAD",
+     "valeur_source": "17 856",
+     "document": "IAM_RFA_2019.pdf",
+     "page": 9,
+     "citation": "EBITDA 4 381 4 525 +3,3% -1,2% 17 856 18 922 +6,0% +3,4%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
+     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 18389.0,
+      "ecart_relatif": 0.0298,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 13872.0,
+     "unite_source": "MMAD",
+     "valeur_source": "13 872",
+     "document": "IAM_RFA_2019.pdf",
+     "page": 9,
+     "citation": "Dette Nette 13 872 17 350 +25,1% +11,2% 13 872 17 350 +25,1% +11,2%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
+     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -821,20 +921,10 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 18922.0,
-     "unite_source": "MMAD",
-     "valeur_source": "18 922",
-     "document": "IAM_RFA_2019.pdf",
-     "page": 9,
-     "citation": "EBITDA 4 381 4 525 +3,3% -1,2% 17 856 18 922 +6,0% +3,4%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
-     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "concordant",
+      "resultat": "non_verifie",
       "ms_valeur": 18955.0
      }
     },
@@ -935,7 +1025,7 @@
     "dette_nette": {
      "valeur_mdh": 17443.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4178.0,
@@ -997,7 +1087,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 17443.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 15281.0,
@@ -1039,7 +1142,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_doc_enregistrement_universel_2020.pdf",
      "page": 155,
@@ -1060,6 +1163,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 18922.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 922",
+     "document": "IAM_RFA_2019.pdf",
+     "page": 9,
+     "citation": "EBITDA 4 381 4 525 +3,3% -1,2% 17 856 18 922 +6,0% +3,4%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
+     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 18955.0,
+      "ecart_relatif": 0.0017,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 17350.0,
+     "unite_source": "MMAD",
+     "valeur_source": "17 350",
+     "document": "IAM_RFA_2019.pdf",
+     "page": 9,
+     "citation": "Dette Nette 13 872 17 350 +25,1% +11,2% 13 872 17 350 +25,1% +11,2%  || même colonne que : Chiffre d'affaires 8 895 9 209 +3,5% +1,0% 36 032 36 517 +1,3% +0,9%",
+     "entete_colonnes": "T4-2018 T4-2019 Variation 2018 2019 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -1090,23 +1232,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 19100.0,
-     "unite_source": "MMAD",
-     "valeur_source": "19 100",
-     "document": "Maroc_Telecom_doc_enregistrement_universel_2020.pdf",
-     "page": 142,
-     "citation": "EBITDA ajusté 4 740 4 525 + 4,8 % + 4,6 % 19 100 18 922 + 0,9 % + 0,5 %  || même colonne que : Chiffre d’affaires 9 271 9 209 + 0,7 % + 0,4 % 36 769 36 517 + 0,7 % - 0,8 %",
-     "entete_colonnes": "IFRS (en millions de MAD) T4-2020 T4-2019 Variation comparable (1) 2020 2019 Variation comparable (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 16258.0,
-      "ecart_relatif": -0.1488,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 16258.0
      }
     },
     "resultat_exploitation": {
@@ -1207,7 +1337,7 @@
     "dette_nette": {
      "valeur_mdh": 17670.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4748.0,
@@ -1272,7 +1402,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 17670.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 11088.0,
@@ -1315,7 +1458,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_doc_enregistrement_universel_2020.pdf",
      "page": 155,
@@ -1341,6 +1484,45 @@
       "ms_document": "Communiqué financier 2020",
       "ms_page": 3,
       "ms_libelle": "Dividende proposé par action"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 19100.0,
+     "unite_source": "MMAD",
+     "valeur_source": "19 100",
+     "document": "Maroc_Telecom_doc_enregistrement_universel_2020.pdf",
+     "page": 142,
+     "citation": "EBITDA ajusté 4 740 4 525 + 4,8 % + 4,6 % 19 100 18 922 + 0,9 % + 0,5 %  || même colonne que : Chiffre d’affaires 9 271 9 209 + 0,7 % + 0,4 % 36 769 36 517 + 0,7 % - 0,8 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4-2020 T4-2019 Variation comparable (1) 2020 2019 Variation comparable (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 16258.0,
+      "ecart_relatif": -0.1488,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 17619.0,
+     "unite_source": "MMAD",
+     "valeur_source": "17 619",
+     "document": "Maroc_Telecom_doc_enregistrement_universel_2020.pdf",
+     "page": 142,
+     "citation": "Dette Nette 17 619 17 350 + 1,6 % + 2,4 % 17 619 17 350 + 1,6 % + 2,4 %  || même colonne que : Chiffre d’affaires 9 271 9 209 + 0,7 % + 0,4 % 36 769 36 517 + 0,7 % - 0,8 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4-2020 T4-2019 Variation comparable (1) 2020 2019 Variation comparable (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
      }
     }
    }
@@ -1369,23 +1551,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 18589.0,
-     "unite_source": "MMAD",
-     "valeur_source": "18 589",
-     "document": "Maroc_Telecom_Document_Enregistrement_universel_2021.pdf",
-     "page": 142,
-     "citation": "EBITDA ajusté 4 760 4 740 0,4 % 1,3 % 18 589 19 100 - 2,7 % - 2,2 %  || même colonne que : Chiffre d’affaires 9 004 9 271 - 2,9 % - 1,8 % 35 790 36 769 - 2,7 % - 2,0 %",
-     "entete_colonnes": "IFRS (en millions de MAD) T4 2021 T4 2020 Variation constant (1) 2021 2020 Variation constant (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 19050.0,
-      "ecart_relatif": 0.0248,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 19050.0
      }
     },
     "resultat_exploitation": {
@@ -1486,7 +1656,7 @@
     "dette_nette": {
      "valeur_mdh": 14420.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3767.0,
@@ -1551,7 +1721,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 14420.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 13554.0,
@@ -1594,7 +1777,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_Document_Enregistrement_universel_2021.pdf",
      "page": 155,
@@ -1620,6 +1803,45 @@
       "ms_document": "Communiqué financier 2021",
       "ms_page": 3,
       "ms_libelle": "Dividende proposé par action"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 18589.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 589",
+     "document": "Maroc_Telecom_Document_Enregistrement_universel_2021.pdf",
+     "page": 142,
+     "citation": "EBITDA ajusté 4 760 4 740 0,4 % 1,3 % 18 589 19 100 - 2,7 % - 2,2 %  || même colonne que : Chiffre d’affaires 9 004 9 271 - 2,9 % - 1,8 % 35 790 36 769 - 2,7 % - 2,0 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4 2021 T4 2020 Variation constant (1) 2021 2020 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 19050.0,
+      "ecart_relatif": 0.0248,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 14397.0,
+     "unite_source": "MMAD",
+     "valeur_source": "14 397",
+     "document": "Maroc_Telecom_Document_Enregistrement_universel_2021.pdf",
+     "page": 142,
+     "citation": "Dette Nette 14 397 17 619 - 18,3 % - 17,6 % 14 397 17 619 - 18,3 % - 17,6 %  || même colonne que : Chiffre d’affaires 9 004 9 271 - 2,9 % - 1,8 % 35 790 36 769 - 2,7 % - 2,0 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4 2021 T4 2020 Variation constant (1) 2021 2020 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
      }
     }
    }
@@ -1648,23 +1870,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 18492.0,
-     "unite_source": "MMAD",
-     "valeur_source": "18 492",
-     "document": "Maroc_Telecom_document_enregistrement_universel_2022.pdf",
-     "page": 142,
-     "citation": "EBITDA ajusté 4 420 4 760 - 7,2 % - 8,9 % 18 492 18 589 - 0,5 % - 0,8 %  || même colonne que : Chiffre d’affaires 8 923 9 004 - 0,9 % - 3,0 % 35 731 35 790 - 0,2 % - 0,5 %",
-     "entete_colonnes": "IFRS (en millions MAD) T4 2022 T4 2021 Variation constant (1) 2022 2021 Variation constant (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 16132.0,
-      "ecart_relatif": -0.1276,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 16132.0
      }
     },
     "resultat_exploitation": {
@@ -1765,7 +1975,7 @@
     "dette_nette": {
      "valeur_mdh": 16373.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4325.0,
@@ -1830,7 +2040,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 16373.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 12002.0,
@@ -1873,7 +2096,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_document_enregistrement_universel_2022.pdf",
      "page": 156,
@@ -1899,6 +2122,45 @@
       "ms_document": "Communiqué financier 2022",
       "ms_page": 3,
       "ms_libelle": "Dividende proposé par action"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 18492.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 492",
+     "document": "Maroc_Telecom_document_enregistrement_universel_2022.pdf",
+     "page": 142,
+     "citation": "EBITDA ajusté 4 420 4 760 - 7,2 % - 8,9 % 18 492 18 589 - 0,5 % - 0,8 %  || même colonne que : Chiffre d’affaires 8 923 9 004 - 0,9 % - 3,0 % 35 731 35 790 - 0,2 % - 0,5 %",
+     "entete_colonnes": "IFRS (en millions MAD) T4 2022 T4 2021 Variation constant (1) 2022 2021 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 16132.0,
+      "ecart_relatif": -0.1276,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 16355.0,
+     "unite_source": "MMAD",
+     "valeur_source": "16 355",
+     "document": "Maroc_Telecom_document_enregistrement_universel_2022.pdf",
+     "page": 142,
+     "citation": "Dette Nette 16 355 14 397 13,6 % 12,8 % 16 355 14 397 13,6 % 12,8 %  || même colonne que : Chiffre d’affaires 8 923 9 004 - 0,9 % - 3,0 % 35 731 35 790 - 0,2 % - 0,5 %",
+     "entete_colonnes": "IFRS (en millions MAD) T4 2022 T4 2021 Variation constant (1) 2022 2021 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
      }
     }
    }
@@ -1927,20 +2189,10 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 19369.0,
-     "unite_source": "MMAD",
-     "valeur_source": "19 369",
-     "document": "Maroc_Telecom_Document_enregistrement_universel_2023.pdf",
-     "page": 147,
-     "citation": "EBITDA ajusté 4 841 4 420 9,5 % 9,7 % 19 369 18 492 4,7 % 3,5 %  || même colonne que : Chiffre d’affaires 9 107 8 923 2,1 % 2,2 % 36 786 35 731 3,0 % 1,4 %",
-     "entete_colonnes": "IFRS (en millions de MAD) T4 2023 T4 2022 Variation constant (1) 2023 2022 Variation constant (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "concordant",
+      "resultat": "non_verifie",
       "ms_valeur": 19296.0
      }
     },
@@ -2042,7 +2294,7 @@
     "dette_nette": {
      "valeur_mdh": 16395.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4180.0,
@@ -2107,7 +2359,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 16395.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 13045.0,
@@ -2150,7 +2415,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_Document_enregistrement_universel_2023.pdf",
      "page": 161,
@@ -2176,6 +2441,45 @@
       "ms_document": "Communiqué financier 2023",
       "ms_page": 3,
       "ms_libelle": "Dividende proposé par action"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 19369.0,
+     "unite_source": "MMAD",
+     "valeur_source": "19 369",
+     "document": "Maroc_Telecom_Document_enregistrement_universel_2023.pdf",
+     "page": 147,
+     "citation": "EBITDA ajusté 4 841 4 420 9,5 % 9,7 % 19 369 18 492 4,7 % 3,5 %  || même colonne que : Chiffre d’affaires 9 107 8 923 2,1 % 2,2 % 36 786 35 731 3,0 % 1,4 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4 2023 T4 2022 Variation constant (1) 2023 2022 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 19296.0,
+      "ecart_relatif": -0.0038,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 16367.0,
+     "unite_source": "MMAD",
+     "valeur_source": "16 367",
+     "document": "Maroc_Telecom_Document_enregistrement_universel_2023.pdf",
+     "page": 147,
+     "citation": "Dette Nette 16 367 16 355 0,1 % - 1,5 % 16 367 16 355 0,1 % - 1,5 %  || même colonne que : Chiffre d’affaires 9 107 8 923 2,1 % 2,2 % 36 786 35 731 3,0 % 1,4 %",
+     "entete_colonnes": "IFRS (en millions de MAD) T4 2023 T4 2022 Variation constant (1) 2023 2022 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
      }
     }
    }
@@ -2204,23 +2508,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 19197.0,
-     "unite_source": "MMAD",
-     "valeur_source": "19 197",
-     "document": "Maroc_Teecom_Document_enregistrement_universel_2024.pdf",
-     "page": 157,
-     "citation": "EBITDA ajusté 4 972 4 841 2,7 % 3,9 % 19 197 19 369 - 0,9 % 0,3 %  || même colonne que : Chiffre d’affaires 9 238 9 107 1,4 % 2,8 % 36 699 36 786 - 0,2 % 1,2 %",
-     "entete_colonnes": "(IFRS en millions de MAD) T4 2024 T4 2023 Variation constant (1) 2024 2023 Variation constant (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 12935.0,
-      "ecart_relatif": -0.3262,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 12935.0
      }
     },
     "resultat_exploitation": {
@@ -2320,7 +2612,7 @@
     "dette_nette": {
      "valeur_mdh": 22463.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 5630.0,
@@ -2382,7 +2674,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 22463.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 11598.0,
@@ -2424,7 +2729,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFA_2024.pdf",
      "page": 25,
@@ -2450,6 +2755,45 @@
       "ms_document": "Communiqué financier 2024",
       "ms_page": 3,
       "ms_libelle": "Dividende proposé par action"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 19197.0,
+     "unite_source": "MMAD",
+     "valeur_source": "19 197",
+     "document": "Maroc_Teecom_Document_enregistrement_universel_2024.pdf",
+     "page": 157,
+     "citation": "EBITDA ajusté 4 972 4 841 2,7 % 3,9 % 19 197 19 369 - 0,9 % 0,3 %  || même colonne que : Chiffre d’affaires 9 238 9 107 1,4 % 2,8 % 36 699 36 786 - 0,2 % 1,2 %",
+     "entete_colonnes": "(IFRS en millions de MAD) T4 2024 T4 2023 Variation constant (1) 2024 2023 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 12935.0,
+      "ecart_relatif": -0.3262,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 22436.0,
+     "unite_source": "MMAD",
+     "valeur_source": "22 436",
+     "document": "Maroc_Teecom_Document_enregistrement_universel_2024.pdf",
+     "page": 157,
+     "citation": "Dette Nette 22 436 16 367 37,1 % 38,2 % 22 436 16 367 37,1 % 38,2 %  || même colonne que : Chiffre d’affaires 9 238 9 107 1,4 % 2,8 % 36 699 36 786 - 0,2 % 1,2 %",
+     "entete_colonnes": "(IFRS en millions de MAD) T4 2024 T4 2023 Variation constant (1) 2024 2023 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
      }
     }
    }
@@ -2478,23 +2822,11 @@
      "referentiel_source": "ms-screener (régime comptable par exercice), non relu dans la pièce"
     },
     "ebe": {
-     "valeur_mdh": 18493.0,
-     "unite_source": "MMAD",
-     "valeur_source": "18 493",
-     "document": "Maroc_Telecom_Document_enregistrement_universel_2025.pdf",
-     "page": 172,
-     "citation": "EBITDA 4 802 4 972 - 3,4 % - 3,1 % 18 493 19 188 - 3,6 % - 2,4 %  || même colonne que : Chiffre d’affaires 9 398 9 238 1,7 % 2,1 % 36 681 36 704 - 0,1 % 1,4 %",
-     "entete_colonnes": "(IFRS en millions de MAD) T4 2025 T4 2024 Variation constant (1) 12M 2025 12M 2024 Variation constant (1)",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 21258.0,
-      "ecart_relatif": 0.1495,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 21258.0
      }
     },
     "resultat_exploitation": {
@@ -2594,7 +2926,7 @@
     "dette_nette": {
      "valeur_mdh": 17637.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 10449.0,
@@ -2656,7 +2988,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 17637.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": null,
@@ -2682,7 +3027,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFA_2025.pdf",
      "page": 24,
@@ -2705,6 +3050,45 @@
      "controle_ms": {
       "resultat": "absent_ms"
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 18493.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 493",
+     "document": "Maroc_Telecom_Document_enregistrement_universel_2025.pdf",
+     "page": 172,
+     "citation": "EBITDA 4 802 4 972 - 3,4 % - 3,1 % 18 493 19 188 - 3,6 % - 2,4 %  || même colonne que : Chiffre d’affaires 9 398 9 238 1,7 % 2,1 % 36 681 36 704 - 0,1 % 1,4 %",
+     "entete_colonnes": "(IFRS en millions de MAD) T4 2025 T4 2024 Variation constant (1) 12M 2025 12M 2024 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 21258.0,
+      "ecart_relatif": 0.1495,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 17610.0,
+     "unite_source": "MMAD",
+     "valeur_source": "17 610",
+     "document": "Maroc_Telecom_Document_enregistrement_universel_2025.pdf",
+     "page": 172,
+     "citation": "Dette Nette 17 610 22 436 21,5 % 20,2 % 17 610 22 436 21,5 % 20,2 %  || même colonne que : Chiffre d’affaires 9 398 9 238 1,7 % 2,1 % 36 681 36 704 - 0,1 % 1,4 %",
+     "entete_colonnes": "(IFRS en millions de MAD) T4 2025 T4 2024 Variation constant (1) 12M 2025 12M 2024 Variation constant (1)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -2721,7 +3105,7 @@
     },
     "ebe": {
      "valeur_mdh": null,
-     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "raison_null": "EBE comptable : aucune ligne « EBE » dans les états de synthèse retrouvée dans ce lot ; voir `ebitda_ajuste`",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -2795,6 +3179,13 @@
      "controle_ms": {
       "resultat": "absent_ms"
      }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
     }
    }
   },
@@ -2821,23 +3212,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9603.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 603",
-     "document": "IAM_RFS_S1_2020_0.pdf",
-     "page": 11,
-     "citation": "EBITDA 4 762 4 809 +1,0% +0,2% 9 409 9 603 +2,1% +1,4%  || même colonne que : Chiffre d'affaires 8 895 9 014 +1,3% -2,1% 17 844 18 323 +2,7% +0,0%",
-     "entete_colonnes": "T2-2019 T2-2020 Variation Variation à 6M-2019 6M-2020 Variation Variation à",
-     "perimetre": "consolide_presume",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 6595.0,
-      "ecart_relatif": -0.3132,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 6595.0
      }
     },
     "resultat_exploitation": {
@@ -2941,7 +3320,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "IAM_RFS_S1_2020_0.pdf",
      "page": 27,
@@ -2961,6 +3340,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9603.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 603",
+     "document": "IAM_RFS_S1_2020_0.pdf",
+     "page": 11,
+     "citation": "EBITDA 4 762 4 809 +1,0% +0,2% 9 409 9 603 +2,1% +1,4%  || même colonne que : Chiffre d'affaires 8 895 9 014 +1,3% -2,1% 17 844 18 323 +2,7% +0,0%",
+     "entete_colonnes": "T2-2019 T2-2020 Variation Variation à 6M-2019 6M-2020 Variation Variation à",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 6595.0,
+      "ecart_relatif": -0.3132,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 18659.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 659",
+     "document": "IAM_RFS_S1_2020_0.pdf",
+     "page": 11,
+     "citation": "Dette Nette 21 034 18 659 -11,3% -9,0% 21 034 18 659 -11,3% -9,0%  || même colonne que : Chiffre d'affaires 8 895 9 014 +1,3% -2,1% 17 844 18 323 +2,7% +0,0%",
+     "entete_colonnes": "T2-2019 T2-2020 Variation Variation à 6M-2019 6M-2020 Variation Variation à",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -2990,23 +3408,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9160.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 160",
-     "document": "Maroc_Telecom_RFS_S1_21.pdf",
-     "page": 11,
-     "citation": "EBITDA ajusté 4 809 4 599 -4,4% -3,6% 9 603 9 160 -4,6% -4,6%  || même colonne que : Chiffre d'affaires 9 014 8 866 -1,6% -0,8% 18 323 17 780 -3,0% -2,9%",
-     "entete_colonnes": "(IFRS en millions MAD) T2-2020 T2-2021 Variation 6M-2020 6M-2021 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 9366.0,
-      "ecart_relatif": 0.0225,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 9366.0
      }
     },
     "resultat_exploitation": {
@@ -3124,7 +3530,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFS_S1_21.pdf",
      "page": 26,
@@ -3144,6 +3550,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9160.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 160",
+     "document": "Maroc_Telecom_RFS_S1_21.pdf",
+     "page": 11,
+     "citation": "EBITDA ajusté 4 809 4 599 -4,4% -3,6% 9 603 9 160 -4,6% -4,6%  || même colonne que : Chiffre d'affaires 9 014 8 866 -1,6% -0,8% 18 323 17 780 -3,0% -2,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2-2020 T2-2021 Variation 6M-2020 6M-2021 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 9366.0,
+      "ecart_relatif": 0.0225,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 14908.0,
+     "unite_source": "MMAD",
+     "valeur_source": "14 908",
+     "document": "Maroc_Telecom_RFS_S1_21.pdf",
+     "page": 11,
+     "citation": "Dette Nette 18 659 14 908 -20,1% -20,0% 18 659 14 908 -20,1% -20,0%  || même colonne que : Chiffre d'affaires 9 014 8 866 -1,6% -0,8% 18 323 17 780 -3,0% -2,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2-2020 T2-2021 Variation 6M-2020 6M-2021 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3173,23 +3618,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9171.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 171",
-     "document": "Maroc Telecom_RFS_juin_2022.pdf",
-     "page": 11,
-     "citation": "EBITDA ajusté 4 599 4 655 1,2% 1,3% 9 160 9 171 0,1% 0,5%  || même colonne que : Chiffre d'affaires 8 866 8 798 -0,8% -0,6% 17 780 17 568 -1,2% -0,6%",
-     "entete_colonnes": "T2 2021 T2 2022 Variation 6M 2021 6M 2022 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 9275.0,
-      "ecart_relatif": 0.0113,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 9275.0
      }
     },
     "resultat_exploitation": {
@@ -3307,7 +3740,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc Telecom_RFS_juin_2022.pdf",
      "page": 27,
@@ -3327,6 +3760,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9171.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 171",
+     "document": "Maroc Telecom_RFS_juin_2022.pdf",
+     "page": 11,
+     "citation": "EBITDA ajusté 4 599 4 655 1,2% 1,3% 9 160 9 171 0,1% 0,5%  || même colonne que : Chiffre d'affaires 8 866 8 798 -0,8% -0,6% 17 780 17 568 -1,2% -0,6%",
+     "entete_colonnes": "T2 2021 T2 2022 Variation 6M 2021 6M 2022 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 9275.0,
+      "ecart_relatif": 0.0113,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 12166.0,
+     "unite_source": "MMAD",
+     "valeur_source": "12 166",
+     "document": "Maroc Telecom_RFS_juin_2022.pdf",
+     "page": 11,
+     "citation": "Dette Nette 14 908 12 166 -18,4% -17,7% 14 908 12 166 -18,4% -17,7%  || même colonne que : Chiffre d'affaires 8 866 8 798 -0,8% -0,6% 17 780 17 568 -1,2% -0,6%",
+     "entete_colonnes": "T2 2021 T2 2022 Variation 6M 2021 6M 2022 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3356,23 +3828,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9580.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 580",
-     "document": "Maroc_Telecom_RFS_2023.pdf",
-     "page": 11,
-     "citation": "EBITDA ajusté 4 655 4 943 6,2% 4,1% 9 171 9 580 4,5% 2,3%  || même colonne que : Chiffre d'affaires 8 798 9 306 5,8% 3,4% 17 568 18 399 4,7% 2,2%",
-     "entete_colonnes": "T2 2022 T2 2023 Variation 6M 2022 6M 2023 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 9478.0,
-      "ecart_relatif": -0.0106,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 9478.0
      }
     },
     "resultat_exploitation": {
@@ -3490,7 +3950,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFS_2023.pdf",
      "page": 27,
@@ -3510,6 +3970,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9580.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 580",
+     "document": "Maroc_Telecom_RFS_2023.pdf",
+     "page": 11,
+     "citation": "EBITDA ajusté 4 655 4 943 6,2% 4,1% 9 171 9 580 4,5% 2,3%  || même colonne que : Chiffre d'affaires 8 798 9 306 5,8% 3,4% 17 568 18 399 4,7% 2,2%",
+     "entete_colonnes": "T2 2022 T2 2023 Variation 6M 2022 6M 2023 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 9478.0,
+      "ecart_relatif": -0.0106,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 15733.0,
+     "unite_source": "MMAD",
+     "valeur_source": "15 733",
+     "document": "Maroc_Telecom_RFS_2023.pdf",
+     "page": 11,
+     "citation": "Dette Nette 12 166 15 733 29,3% 27,1% 12 166 15 733 29,3% 27,1%  || même colonne que : Chiffre d'affaires 8 798 9 306 5,8% 3,4% 17 568 18 399 4,7% 2,2%",
+     "entete_colonnes": "T2 2022 T2 2023 Variation 6M 2022 6M 2023 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3539,23 +4038,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9478.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 478",
-     "document": "Maroc_Telecom_Rapport_financier_semetriel_2024.pdf",
-     "page": 11,
-     "citation": "EBITDA ajusté 4 943 4 823 -2,4% -1,0% 9 580 9 478 -1,1% 0,3%  || même colonne que : Chiffre d'affaires 9 306 9 194 -1,2% 0,5% 18 399 18 260 -0,8% 0,9%",
-     "entete_colonnes": "(IFRS en millions MAD) T2 2023 T2 2024 Variation 6M 2023 6M 2024 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 9586.0,
-      "ecart_relatif": 0.0114,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 9586.0
      }
     },
     "resultat_exploitation": {
@@ -3673,7 +4160,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_Rapport_financier_semetriel_2024.pdf",
      "page": 27,
@@ -3693,6 +4180,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9478.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 478",
+     "document": "Maroc_Telecom_Rapport_financier_semetriel_2024.pdf",
+     "page": 11,
+     "citation": "EBITDA ajusté 4 943 4 823 -2,4% -1,0% 9 580 9 478 -1,1% 0,3%  || même colonne que : Chiffre d'affaires 9 306 9 194 -1,2% 0,5% 18 399 18 260 -0,8% 0,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2023 T2 2024 Variation 6M 2023 6M 2024 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 9586.0,
+      "ecart_relatif": 0.0114,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 14383.0,
+     "unite_source": "MMAD",
+     "valeur_source": "14 383",
+     "document": "Maroc_Telecom_Rapport_financier_semetriel_2024.pdf",
+     "page": 11,
+     "citation": "Dette Nette 15 733 14 383 -8,6% -7,7% 15 733 14 383 -8,6% -7,7%  || même colonne que : Chiffre d'affaires 9 306 9 194 -1,2% 0,5% 18 399 18 260 -0,8% 0,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2023 T2 2024 Variation 6M 2023 6M 2024 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3722,23 +4248,11 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9082.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 082",
-     "document": "Maroc_Telecom_RFS_2025_0.pdf",
-     "page": 11,
-     "citation": "EBITDA ajusté 4 823 4 691 -2,7% -2,4% 9 478 9 082 -4,2% -2,5%  || même colonne que : Chiffre d'affaires 9 194 9 157 -0,4% 1,7% 18 260 18 041 -1,2% 0,9%",
-     "entete_colonnes": "(IFRS en millions MAD) T2 2024 T2 2025 Variation 6M 2024 6M 2025 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "ecart",
-      "ms_valeur": 11692.0,
-      "ecart_relatif": 0.2874,
-      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+      "resultat": "non_verifie",
+      "ms_valeur": 11692.0
      }
     },
     "resultat_exploitation": {
@@ -3855,7 +4369,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFS_2025_0.pdf",
      "page": 26,
@@ -3875,6 +4389,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9082.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 082",
+     "document": "Maroc_Telecom_RFS_2025_0.pdf",
+     "page": 11,
+     "citation": "EBITDA ajusté 4 823 4 691 -2,7% -2,4% 9 478 9 082 -4,2% -2,5%  || même colonne que : Chiffre d'affaires 9 194 9 157 -0,4% 1,7% 18 260 18 041 -1,2% 0,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2024 T2 2025 Variation 6M 2024 6M 2025 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 11692.0,
+      "ecart_relatif": 0.2874,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 17624.0,
+     "unite_source": "MMAD",
+     "valeur_source": "17 624",
+     "document": "Maroc_Telecom_RFS_2025_0.pdf",
+     "page": 11,
+     "citation": "Dette Nette 14 383 17 624 22,5% 23,2% 14 383 17 624 22,5% 23,2%  || même colonne que : Chiffre d'affaires 9 194 9 157 -0,4% 1,7% 18 260 18 041 -1,2% 0,9%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2024 T2 2025 Variation 6M 2024 6M 2025 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -3904,20 +4457,10 @@
      }
     },
     "ebe": {
-     "valeur_mdh": 9543.0,
-     "unite_source": "MMAD",
-     "valeur_source": "9 543",
-     "document": "Maroc_Telecom_RFS_S1_26.pdf",
-     "page": 11,
-     "citation": "EBITDA 4 691 4 883 4,1% 3,1% 9 082 9 543 5,1% 4,2%  || même colonne que : Chiffre d'affaires 9 157 9 682 5,7% 4,4% 18 041 19 009 5,4% 4,2%",
-     "entete_colonnes": "(IFRS en millions MAD) T2 2025 T2 2026 Variation S1 2025 S1 2026 Variation",
-     "perimetre": "consolide",
-     "referentiel": "IFRS",
-     "statut": "publie",
-     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
-     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "valeur_mdh": null,
+     "raison_null": "EBE comptable non publié comme ligne des états de synthèse ; l'indicateur de gestion publié est dans `ebitda_ajuste`",
      "controle_ms": {
-      "resultat": "concordant",
+      "resultat": "non_verifie",
       "ms_valeur": 9583.0
      }
     },
@@ -4013,7 +4556,7 @@
     "dette_nette": {
      "valeur_mdh": 18223.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes, trésorerie et équivalents ; NON INCLUS : dettes de location, dettes de financement, trésorerie passive, comptes courants d'associés, placements / TVP. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 7130.0,
@@ -4078,7 +4621,20 @@
      "controle_ms": {
       "resultat": "concordant",
       "ms_valeur": 18223.0
-     }
+     },
+     "unite_source": "MDH (valeur calculée ; unités des composantes ci-dessous)",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financières non courantes",
+      "dettes_financieres_c": "dettes financières courantes",
+      "tresorerie": "trésorerie et équivalents"
+     },
+     "composantes_exclues": [
+      "dettes de location",
+      "dettes de financement",
+      "trésorerie passive",
+      "comptes courants d'associés",
+      "placements / TVP"
+     ]
     },
     "flux_exploitation": {
      "valeur_mdh": 9472.0,
@@ -4108,7 +4664,7 @@
     },
     "nombre_actions": {
      "valeur_mdh": 879095340.0,
-     "unite_source": "MMAD",
+     "unite_source": "actions",
      "valeur_source": "879 095 340",
      "document": "Maroc_Telecom_RFS_S1_26.pdf",
      "page": 27,
@@ -4128,6 +4684,45 @@
     "dividende_par_action_propose": {
      "valeur_mdh": null,
      "raison_null": "non relevé dans ce lot (absent de ms-screener, pas de lecture indépendante)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": 9543.0,
+     "unite_source": "MMAD",
+     "valeur_source": "9 543",
+     "document": "Maroc_Telecom_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "EBITDA 4 691 4 883 4,1% 3,1% 9 082 9 543 5,1% 4,2%  || même colonne que : Chiffre d'affaires 9 157 9 682 5,7% 4,4% 18 041 19 009 5,4% 4,2%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2025 T2 2026 Variation S1 2025 S1 2026 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_EBITDA_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "controle_ms": {
+      "resultat": "ecart",
+      "ms_valeur": 9583.0,
+      "ecart_relatif": 0.0042,
+      "arbitrage": "ms-screener donne un EBE dérivé (non publié tel quel) ; la valeur retenue est la ligne EBITDA/EBE imprimée par l'émetteur"
+     },
+     "nature": "indicateur de gestion publié dans le rapport de gestion/d'activité (EBITDA, parfois « ajusté », ou EBE de gestion), non audité ; ce n'est pas une ligne des états de synthèse"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": 18194.0,
+     "unite_source": "MMAD",
+     "valeur_source": "18 194",
+     "document": "Maroc_Telecom_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Dette Nette 17 624 18 194 -3,2% -2,4% 17 624 18 194 -3,2% -2,4%  || même colonne que : Chiffre d'affaires 9 157 9 682 5,7% 4,4% 18 041 19 009 5,4% 4,2%",
+     "entete_colonnes": "(IFRS en millions MAD) T2 2025 T2 2026 Variation S1 2025 S1 2026 Variation",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "mode": "ligne_dette_nette_publiee_meme_colonne_que_le_CA",
+     "note": "indicateur publié par l'émetteur (EBITDA / EBE), colonne identifiée par le chiffre d'affaires déjà vérifié sur la même table",
+     "nature": "dette nette publiée par l'émetteur dans le tableau « résultats consolidés du Groupe » (définition de l'émetteur, hors IFRS 16 selon sa note)",
      "controle_ms": {
       "resultat": "absent_ms"
      }
@@ -4328,8 +4923,10 @@
   }
  },
  "couverture": {
-  "remplies": 163,
   "attendues": 216,
-  "ecarts": 12
+  "remplies": 148,
+  "supplementaires_remplis": 30,
+  "ecarts_ms_screener": 15,
+  "note": "attendues = 12 métriques demandées × 18 périodes (dette nette sans objet pour ATW) ; supplémentaires = resultat_exploitation_courant, ebitda_ajuste, dette_nette_publiee"
  }
 }
