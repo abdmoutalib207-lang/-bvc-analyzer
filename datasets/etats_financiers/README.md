@@ -44,7 +44,7 @@ Métriques : `chiffre_affaires` (PNB pour une banque), `ebe` (RBE pour une banqu
 `dette_nette` (sans objet pour une banque), `flux_exploitation`, `flux_investissement`, `nombre_actions`,
 `dividende_par_action_propose`.
 
-Cellule renseignée : `valeur_mdh` (MDH, signe tel que dans la pièce ; les montants par action ou en nombre de
+Cellule renseignée : `valeur_mdh` (MDH, signe selon la « Convention de signe » ci-dessous ; les montants par action ou en nombre de
 titres gardent leur unité propre), `unite_source` (unité RÉELLE de la pièce, déduite du rapport jeton imprimé / valeur : KMAD, MMAD ou MDH, DH, milliards MAD, `actions`, `DH par action`), `valeur_source`
 (jeton imprimé), `document` (clé de `documents`), `page` (page du PDF, 1 = première), `citation` (ligne),
 `entete_colonnes` (ligne d'en-tête de dates la plus proche, pour justifier la colonne), `perimetre`
@@ -64,10 +64,19 @@ Test : `tests/test_etats_financiers_schema.py` (toute valeur non nulle a documen
 
 ## Convention de signe
 
-`valeur_mdh` suit la convention de ms-screener, qui peut différer de l'impression : les **intérêts minoritaires** sont
-stockés positifs (part des minoritaires) alors que le CPC les imprime souvent en déduction (« -547 634 », ATW) ; les
-flux d'investissement sont négatifs quand ils sont des emplois, même si une pièce les imprime en positif (LHM FY2016,
-rapprochement à la variation de trésorerie dans `signe_a_verifier`). `citation` montre toujours la ligne imprimée.
+Une seule règle : `valeur_mdh` suit la convention de ms-screener, pas l'impression de la pièce. Les **intérêts
+minoritaires** sont stockés positifs (part des minoritaires), alors que le CPC les imprime en déduction : ATW H1-2023,
+`-744 852` imprimé, `+744,852` stocké. Les flux d'investissement sont négatifs quand ils sont des emplois, même si une
+pièce les imprime en positif (LHM FY2016, rapproché de la variation de trésorerie, signalé par `signe_a_verifier`).
+`citation` montre toujours la ligne telle qu'imprimée.
+
+## Indicateurs non comparables
+
+`ebitda_ajuste` regroupe des **indicateurs de gestion non audités, de définitions différentes selon l'émetteur**
+(« EBITDA ajusté » d'IAM, « EBE » de Managem et d'ADI) : ils ne sont **pas comparables entre sociétés** et ne
+remplacent pas un EBE des états de synthèse. De même, la `dette_nette` calculée par le projet ne s'affiche **jamais
+seule** quand l'émetteur publie sa dette nette (`dette_nette_publiee`) : écarts mesurés IAM +0,2 % (31/12/2018),
+MNG +7 % (31/12/2019), ADI +38 % (30/06/2026).
 
 ## Réserves connues de ce lot
 
