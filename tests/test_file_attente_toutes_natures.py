@@ -154,6 +154,22 @@ def test_trimestriels_listes_a_part_jamais_un_retard(etendue):
     assert "TRIM" not in _tickers(tous_a_lire)
 
 
+def test_communique_de_presse_nu_en_periode_de_publication_visible():
+    ent = [_dep("MNGX", "2026-11-02", "Communiqué de presse"),     # en fenêtre T3 : visible
+           _dep("MNGY", "2026-12-20", "Communiqué de presse"),     # hors fenêtre : silencieux
+           _dep("MNGZ", "2026-11-02", "CP relatif à la nomination du Directeur Général")]
+    f = file_attente_etendue(ent, JEU, {}, resoudre=_res)
+    assert _tickers(f["non_classes"]) == ["MNGX"]
+    assert "MNGX — 2026-11-02" in rapport_etendu(f)
+
+
+def test_autres_semestres_selectionnes_par_periode_pas_par_rang(etendue):
+    texte = rapport_etendu(etendue)
+    assert "## Autres semestres déposés, pas encore intégrés : 1" in texte
+    section = texte.split("## Autres semestres")[1].split("\n## ")[0]
+    assert "SEM5" in section and "S1NO" not in section
+
+
 def test_trimestriel_tardif_ne_masque_pas_le_semestre(etendue):
     # S1NO a un dépôt S1 (30/09) PUIS un T3 (03/11) : le S1 reste à lire.
     assert any(e["ticker"] == "S1NO" and e["periode"] == "S1-2026" for e in etendue["a_lire"][SEMESTRIELS])

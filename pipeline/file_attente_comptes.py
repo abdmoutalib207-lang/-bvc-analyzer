@@ -150,6 +150,31 @@ _EVOQUE = re.compile(r"(?i)r[ée]sultats|comptes|semestr|trimestr|annuel|exercic
 _BRUIT = re.compile(r"(?i)augmentation de capital|dossier d.information|rendement|convocation|prospectus|programme d.[ée]mission")
 
 
+# Un « Communiqué de presse » nu d'un émetteur coté, déposé pendant une période
+# de publication, peut être des comptes (MNG, 02/11/2026) : montré dans
+# `non_classes`, jamais rangé en silence. Fenêtres (mois, jour) d'affichage
+# seulement ; elles ne servent à classer aucun compte.
+_GENERIQUE = re.compile(r"(?i)^\s*(?:CP|communiqu[ée](?: de presse)?)\s*$")
+_FENETRES = (((2, 15), (5, 31)),    # exercice (et T1)
+             ((8, 15), (10, 15)),   # semestre
+             ((10, 15), (11, 30)))  # T3
+
+
+def _generique_en_periode(titre: str, date: str | None) -> bool:
+    """Titre « Émetteur - Communiqué de presse » déposé dans une fenêtre de publication. Pure."""
+    if " - " not in titre or not _GENERIQUE.match(titre.split(" - ", 1)[1]) or not date:
+        return False
+    try:
+        md = (int(date[5:7]), int(date[8:10]))
+    except ValueError:
+        return False
+    return any(a <= md <= b for a, b in _FENETRES)
+
+
+def _periode_jeu(fin: str) -> str | None:
+    return f"S1-{fin[:4]}" if fin[5:7] == "06" else None
+
+
 def _annee_unique(titre: str) -> str | None:
     annees = set(_ANNEE.findall(titre))
     return annees.pop() if len(annees) == 1 else None
@@ -285,7 +310,7 @@ def file_attente_etendue(entrees: list[dict], jeu: dict, integres: dict, resoudr
     classes = classer_depots(entrees, resoudre)
     cotes = [e for e in classes if e["ticker"]]
     fin = jeu.get("fin_periode") or ""
-    p_jeu = f"S1-{fin[:4]}" if fin[5:7] == "06" else None
+    p_jeu = _periode_jeu(fin)
 
     jeu_eff = dict(jeu)
     jeu_eff["titres"] = dict(jeu.get("titres") or {})
@@ -323,7 +348,9 @@ def file_attente_etendue(entrees: list[dict], jeu: dict, integres: dict, resoudr
     }
     trim = sorted((e for e in cotes if e["nature"] == TRIMESTRIELS), key=lambda e: (e["date"], e["ticker"]))
     non_classes = sorted(
-        (e for e in cotes if e["nature"] == AUTRE and _EVOQUE.search(e["titre"]) and not _BRUIT.search(e["titre"])),
+        (e for e in cotes if e["nature"] == AUTRE and (
+            (_EVOQUE.search(e["titre"]) and not _BRUIT.search(e["titre"]))
+            or _generique_en_periode(e["titre"], e["date"]))),
         key=lambda e: (e["date"], e["ticker"]))
     return {
         "schema": "file_attente_comptes/1",
@@ -346,8 +373,9 @@ def rapport_etendu(f: dict, base: dict | None = None) -> str:
     """
     texte = rapport(base if base is not None else f["_s1"])
     lignes = []
-    n_s1 = len(f["_s1"]["a_lire"])
-    for titre, liste in (("Autres semestres déposés, pas encore intégrés", f["a_lire"][SEMESTRIELS][n_s1:]),
+    p_jeu = _periode_jeu(f["depuis"])
+    autres = [e for e in f["a_lire"][SEMESTRIELS] if e["periode"] != p_jeu]
+    for titre, liste in (("Autres semestres déposés, pas encore intégrés", autres),
                          ("Comptes annuels déposés, pas encore intégrés", f["a_lire"][ANNUELS])):
         if liste:
             lignes += ["", f"## {titre} : {len(liste)}", ""]
