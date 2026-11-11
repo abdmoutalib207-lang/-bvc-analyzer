@@ -5446,6 +5446,22 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"niveaux : indisponibles ({_e})")
 
+    # FICHE : « DERNIER SEMESTRE » ET « À SAVOIR » — 09/11/2026, demande d'Abd
+    # Moutalib. Range pour la fiche ce qui est DÉJÀ relevé sur pièce : le
+    # tableau S1 2026 / S1 2025 (datasets/resultats_s1_2026.json, avec sources
+    # et réserves du relevé) et les faits datés des registres de bvc_config.py.
+    # ⚠️ DESCRIPTIF (R8) : posé après la note, la confiance, le score et le rang
+    # sectoriel ; rien en aval ne le lit. Invariance prouvée par un essai à
+    # blanc jumeau (tests/test_fiche_comptes.py). Un échec ici ne doit jamais
+    # emporter la publication, et il se signale avec sa pile (R5).
+    try:
+        from pipeline.fiche_comptes import annexer_fiche as _fiche, resume as _res_fiche
+        _rf = _res_fiche(_fiche(tickers_out, jour=date_analyse()))
+        logger.info(f"fiche : dernier semestre relevé pour {_rf['dernier_semestre']}/{_rf['titres']} "
+                    f"titres, « à savoir » non vide pour {_rf['a_savoir_non_vide']}")
+    except Exception as _e:                               # noqa: BLE001
+        logger.exception(f"fiche : dernier semestre et « à savoir » non publiés ({_e})")
+
     # ⚠️ QUATRE INDICATEURS CORRÉLÉS NE VALENT PAS QUATRE VOTES — 24/09/2026.
     #
     # La critique est juste en général : agréger des mesures corrélées

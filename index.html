@@ -9897,6 +9897,400 @@ const RisqueMesure = ({
     title: q.liquidite.motif_amihud
   }, " Montant échangé et ratio d'Amihud non calculés : nos chandelles ne portent que la quantité de titres.")));
 };
+const httpLien = u => typeof u === "string" && /^https?:\/\//.test(u);
+const dateFait = d => {
+  const s = String(d || "");
+  if (s.length === 10) return s.split("-").reverse().join("/");
+  return s || "sans date";
+};
+const TexteLong = ({
+  t,
+  n = 240,
+  style
+}) => {
+  const s = String(t || "");
+  if (s.length <= n) return React.createElement("span", {
+    style: style
+  }, s);
+  return React.createElement("details", {
+    style: {
+      display: "inline",
+      ...style
+    }
+  }, React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      listStyle: "none",
+      display: "inline"
+    }
+  }, s.slice(0, n).replace(/\s+\S*$/, ""), " ", React.createElement("span", {
+    style: {
+      color: "#4db8ff",
+      whiteSpace: "nowrap"
+    }
+  }, "\u2026 lire la suite")), s);
+};
+const SourceLigne = ({
+  u,
+  doc,
+  pages,
+  extra
+}) => React.createElement("span", {
+  style: {
+    overflowWrap: "anywhere"
+  }
+}, httpLien(u) ? React.createElement("a", {
+  href: u,
+  target: "_blank",
+  rel: "noopener noreferrer",
+  style: {
+    color: "#4db8ff",
+    textDecoration: "none"
+  }
+}, doc || u) : React.createElement(TexteLong, {
+  t: doc || u || "source non citée",
+  n: 180
+}), pages != null && pages !== "" && React.createElement(React.Fragment, null, " \xB7 ", Array.isArray(pages) ? `p. ${pages.join(", ")}` : React.createElement(TexteLong, {
+  t: pages,
+  n: 140
+})), extra && React.createElement(React.Fragment, null, " \xB7 ", extra));
+const variationFr = l => {
+  if (l.unite === "%") {
+    const p = l.variation_pts;
+    return p == null ? null : `${p > 0 ? "+" : p < 0 ? "−" : ""}${nfr(Math.abs(p), 1)} pt`;
+  }
+  const v = l.variation_pct;
+  return v == null ? null : `${v > 0 ? "+" : v < 0 ? "−" : ""}${nfr(Math.abs(v), 1)} %`;
+};
+const valeurS1 = (l, x) => x == null ? "—" : l.unite === "%" ? `${nfr(x, 1)} %` : nfr(x, 1);
+const DernierSemestre = ({
+  c
+}) => {
+  if (!c) return null;
+  const releve = c.etat === "releve";
+  const plusieurs = (c.sources || []).length > 1;
+  return React.createElement("div", {
+    className: "carte fiche-semestre",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 10,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "Dernier semestre ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "S1 2026")), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4"
+    }
+  }, releve ? "millions de DH · contre S1 2025" : "contre S1 2025")), !releve ? React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8",
+      lineHeight: 1.5
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, "Non relev\xE9"), c.motif ? React.createElement(React.Fragment, null, " \u2014 ", React.createElement(TexteLong, {
+    t: c.motif
+  })) : React.createElement(React.Fragment, null, " \u2014 aucun relev\xE9 du premier semestre 2026 n'est inscrit pour ce titre."), c.motif_source && React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478",
+      marginTop: 4,
+      overflowWrap: "anywhere"
+    }
+  }, "Raison lue dans : ", c.motif_source)) : React.createElement(React.Fragment, null, React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      fontSize: 11.5,
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, React.createElement("thead", null, React.createElement("tr", {
+    style: {
+      color: "#8892a4",
+      fontSize: 10
+    }
+  }, React.createElement("th", {
+    style: {
+      textAlign: "left",
+      fontWeight: 400,
+      padding: "0 4px 5px 0"
+    }
+  }), React.createElement("th", {
+    style: {
+      textAlign: "right",
+      fontWeight: 400,
+      padding: "0 4px 5px",
+      whiteSpace: "nowrap"
+    }
+  }, "S1 2025"), React.createElement("th", {
+    style: {
+      textAlign: "right",
+      fontWeight: 400,
+      padding: "0 4px 5px",
+      whiteSpace: "nowrap"
+    }
+  }, "S1 2026"), React.createElement("th", {
+    style: {
+      textAlign: "right",
+      fontWeight: 400,
+      padding: "0 0 5px 4px"
+    }
+  }, "Variation"))), React.createElement("tbody", null, (c.lignes || []).map(l => {
+    const v = variationFr(l);
+    const num = l.unite === "%" ? l.variation_pts : l.variation_pct;
+    return React.createElement("tr", {
+      key: l.cle,
+      style: {
+        borderTop: "1px solid #1a2540"
+      },
+      title: l.calcul || ""
+    }, React.createElement("td", {
+      style: {
+        padding: "6px 4px 6px 0",
+        color: l.unite === "%" ? "#8892a4" : "#c8d3e8",
+        lineHeight: 1.3
+      }
+    }, l.libelle, plusieurs && React.createElement("sup", {
+      style: {
+        color: "#5a6478",
+        marginLeft: 2
+      }
+    }, (l.source || 0) + 1)), React.createElement("td", {
+      style: {
+        padding: "6px 4px",
+        textAlign: "right",
+        color: "#8892a4",
+        whiteSpace: "nowrap"
+      }
+    }, valeurS1(l, l.s1_2025)), React.createElement("td", {
+      style: {
+        padding: "6px 4px",
+        textAlign: "right",
+        color: "#e8eef8",
+        fontWeight: 700,
+        whiteSpace: "nowrap"
+      }
+    }, valeurS1(l, l.s1_2026)), React.createElement("td", {
+      style: {
+        padding: "6px 0 6px 4px",
+        textAlign: "right",
+        whiteSpace: "nowrap",
+        color: v == null ? "#5a6478" : VC(num)
+      },
+      title: v == null ? l.variation_motif || "non calculable" : ""
+    }, v == null ? "n.s." : v));
+  }))), (c.lignes || []).some(l => l.variation_pct == null && l.variation_motif && l.unite !== "%") && React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#5a6478",
+      marginTop: 4
+    }
+  }, "n.s. : ", [...new Set((c.lignes || []).filter(l => l.variation_pct == null && l.variation_motif && l.unite !== "%").map(l => l.variation_motif))].join(" ; "), "."), (c.reserves || []).length > 0 && React.createElement("div", {
+    style: {
+      marginTop: 9,
+      display: "flex",
+      flexDirection: "column",
+      gap: 6
+    }
+  }, c.reserves.map((x, i) => React.createElement("div", {
+    key: "r" + i,
+    style: {
+      padding: "6px 8px",
+      borderRadius: 4,
+      background: "rgba(255,143,0,.08)",
+      border: "1px solid rgba(255,143,0,.3)",
+      fontSize: 10.5,
+      color: "#ffcc80",
+      lineHeight: 1.45
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\u26A0 ", x.libelle), " \u2014 ", React.createElement(TexteLong, {
+    t: x.texte
+  }), (x.source || x.page) && React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      color: "#8892a4",
+      marginTop: 2
+    }
+  }, "Source : ", React.createElement(SourceLigne, {
+    u: x.source,
+    doc: httpLien(x.source) ? null : x.source,
+    pages: x.page != null ? [x.page] : null
+  }))))), (c.precisions || []).length > 0 && React.createElement("details", {
+    style: {
+      marginTop: 8,
+      fontSize: 10.5,
+      color: "#8892a4",
+      lineHeight: 1.45
+    }
+  }, React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      color: "#8892a4"
+    }
+  }, "Pr\xE9cisions du relev\xE9 (", c.precisions.length, ")"), c.precisions.map((x, i) => React.createElement("div", {
+    key: "p" + i,
+    style: {
+      marginTop: 4
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#c8d3e8",
+      fontWeight: 600
+    }
+  }, x.libelle), " \u2014 ", React.createElement(TexteLong, {
+    t: x.texte
+  })))), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      marginTop: 9,
+      lineHeight: 1.5
+    }
+  }, (c.sources || []).map((s, i) => React.createElement("div", {
+    key: "s" + i,
+    style: {
+      marginTop: i ? 3 : 0
+    }
+  }, plusieurs ? React.createElement("sup", {
+    style: {
+      marginRight: 3
+    }
+  }, i + 1) : "Source : ", React.createElement(SourceLigne, {
+    u: s.url,
+    doc: s.document,
+    pages: s.pages,
+    extra: s.formule
+  }))), React.createElement("div", {
+    style: {
+      color: "#5a6478",
+      marginTop: 4
+    }
+  }, "Chiffres recopi\xE9s des comptes d\xE9pos\xE9s ; variations et marges calcul\xE9es ici, rien n'entre dans le Score BVC."))));
+};
+const ASavoir = ({
+  items
+}) => {
+  if (!Array.isArray(items)) return null;
+  const liste = items;
+  return React.createElement("div", {
+    className: "carte fiche-a-savoir",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: liste.length ? 8 : 6,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "\xC0 savoir"), React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4"
+    }
+  }, "pour bien lire les chiffres", liste.length ? ` · ${liste.length} fait${liste.length > 1 ? "s" : ""}` : "")), liste.length === 0 ? React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#8892a4"
+    }
+  }, "Rien de particulier \xE0 signaler pour lire les comptes.") : liste.map((f, i) => React.createElement("div", {
+    key: i,
+    className: "fait-a-savoir",
+    style: {
+      display: "grid",
+      gridTemplateColumns: "76px minmax(0,1fr)",
+      columnGap: 10,
+      padding: "7px 0",
+      borderTop: i ? "1px solid #1a2540" : "none"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#4db8ff",
+      fontWeight: 700,
+      fontVariantNumeric: "tabular-nums",
+      whiteSpace: "nowrap"
+    }
+  }, dateFait(f.date)), React.createElement("div", {
+    style: {
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#e8eef8",
+      fontWeight: 600,
+      marginBottom: 2
+    }
+  }, f.titre), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#aab4c8",
+      lineHeight: 1.45
+    }
+  }, React.createElement(TexteLong, {
+    t: f.texte,
+    n: 280
+  })), React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      color: "#6b7a99",
+      marginTop: 3,
+      lineHeight: 1.4
+    }
+  }, "Source : ", React.createElement(SourceLigne, {
+    u: f.url,
+    doc: httpLien(f.url) ? f.source || null : f.source,
+    pages: f.pages
+  }), f.piece && React.createElement("span", {
+    style: {
+      overflowWrap: "anywhere"
+    }
+  }, " \xB7 pi\xE8ce ", f.piece), f.registre && React.createElement("span", null, " \xB7 registre ", f.registre))))));
+};
 const TickerNews = ({
   sym
 }) => {
@@ -10558,6 +10952,10 @@ const Detail = ({
     }
   }, React.createElement(RisqueMesure, {
     q: r.risque
+  }), React.createElement(DernierSemestre, {
+    c: r.comptes_s1
+  }), React.createElement(ASavoir, {
+    items: r.a_savoir
   }), r.ratios_publies && React.createElement("div", {
     className: "carte",
     style: {
@@ -12233,6 +12631,8 @@ function App() {
             ratios_publies: t.ratios_publies,
             risque: t.risque,
             score_bvc: t.score_bvc,
+            comptes_s1: t.comptes_s1,
+            a_savoir: t.a_savoir,
             obv: t.obv,
             adx: t.adx,
             adx_pdi: t.adx_pdi,
