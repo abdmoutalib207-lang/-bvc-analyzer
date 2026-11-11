@@ -215,12 +215,22 @@ def test_sans_ajout_le_texte_est_exactement_l_ancien():
 
 def test_integration_etats_financiers_charge(tmp_path):
     (tmp_path / "AAA.json").write_text(json.dumps({"ticker": "AAA", "periodes": {
-        "FY2025": {"donnees": {"chiffre_affaires": {"valeur_mdh": 12.5}}},
+        "FY2025": {"donnees": {"chiffre_affaires": {"valeur_mdh": 12.5},
+                               "resultat_net_part_groupe": {"valeur_mdh": 1.5}}},
         "FY2024": {"donnees": {"chiffre_affaires": {"valeur_mdh": None, "raison_null": "non relevé"}}},
-        "H1-2026": {"donnees": {}},
+        "H1-2026": {"donnees": {"chiffre_affaires": {"valeur_mdh": 7.0}}},      # une seule cellule
+        "H1-2025": {"donnees": {}},
     }}), encoding="utf-8")
     (tmp_path / "cassé.json").write_text("{pas du json", encoding="utf-8")
-    assert charger_integres(tmp_path) == {"AAA": {"FY2025"}}      # null et vide ne comptent pas
+    # null, vide et période à moitié relevée ne comptent pas
+    assert charger_integres(tmp_path) == {"AAA": {"FY2025"}}
+
+
+def test_titre_a_moitie_releve_reste_a_lire(tmp_path):
+    (tmp_path / "ETAT.json").write_text(json.dumps({"ticker": "ETAT", "periodes": {
+        "H1-2026": {"donnees": {"chiffre_affaires": {"valeur_mdh": 7.0}}}}}), encoding="utf-8")
+    f = file_attente_etendue(ENTREES, JEU, charger_integres(tmp_path), resoudre=_res)
+    assert "ETAT" in _tickers(f["a_lire"][SEMESTRIELS])
 
 
 def test_etats_financiers_reels_chargeables():

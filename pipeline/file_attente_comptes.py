@@ -24,7 +24,8 @@ titre, elle ne se devine pas ; inconnue => « autre »). Ce qui est déjà inté
   - S1 2026 : `datasets/resultats_s1_2026.json` (ou la période H1-2026 de
     `datasets/etats_financiers/<TICKER>.json`) ;
   - autres semestres et exercices : périodes `H1-AAAA` / `FYAAAA` de
-    `datasets/etats_financiers/<TICKER>.json` (au moins une valeur non nulle) ;
+    `datasets/etats_financiers/<TICKER>.json`, COMPLÈTES au minimum (chiffre
+    d'affaires ou PNB, et résultat net part du groupe, non nuls) ;
   - indicateurs trimestriels : RIEN n'est intégré. Ils sont listés à part,
     « publiés, non suivis par le produit », et ne comptent pas comme un retard.
 Un classement ne dit pas qu'un chiffre est juste : il dit ce qui reste à lire.
@@ -220,11 +221,15 @@ def comptes_par_nature(classes: list[dict]) -> dict:
     return c
 
 
+METRIQUES_REQUISES = ("chiffre_affaires", "resultat_net_part_groupe")
+
+
 def charger_integres(dossier: Path | None = None) -> dict:
     """{ticker: {périodes}} des `datasets/etats_financiers/<TICKER>.json`.
 
-    Une période compte comme intégrée si au moins une de ses cellules porte une
-    `valeur_mdh` non nulle. Un fichier illisible est signalé sur stderr (R5) et
+    Une période compte comme intégrée si elle est COMPLÈTE au minimum : chiffre
+    d'affaires (PNB pour une banque) ET résultat net part du groupe portent une
+    `valeur_mdh` non nulle. Une période relevée à moitié reste à lire. Un fichier illisible est signalé sur stderr (R5) et
     laissé de côté : la file ne doit pas tomber pour un jeu abîmé.
     """
     dossier = dossier or (RACINE / "datasets" / "etats_financiers")
@@ -234,8 +239,9 @@ def charger_integres(dossier: Path | None = None) -> dict:
             d = json.loads(f.read_text(encoding="utf-8"))
             periodes = set()
             for k, p in (d.get("periodes") or {}).items():
-                cellules = (p.get("donnees") or {}).values()
-                if any(isinstance(c, dict) and c.get("valeur_mdh") is not None for c in cellules):
+                donnees = p.get("donnees") or {}
+                if all(isinstance(donnees.get(m), dict) and donnees[m].get("valeur_mdh") is not None
+                       for m in METRIQUES_REQUISES):
                     periodes.add(k)
             out[d.get("ticker") or f.stem] = periodes
         except (OSError, ValueError, AttributeError) as ex:
