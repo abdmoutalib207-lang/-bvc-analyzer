@@ -5211,6 +5211,12 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
                   {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
                     <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {fmt(r.pe_annuel,1)}</div>}
+                  {/* ⚠️ 09/11/2026 : EXCEPTION DÉCLARÉE à la règle c. Le PER 12 mois lit
+                      le résultat PUBLIÉ ; un titre qui y déroge (`pe_exception`, lu tel
+                      quel dans data.json — Risma : hors éléments non courants) le dit
+                      sous le chiffre, avec sa formule, son motif et sa réserve. */}
+                  {ratio==="pe"&&r.pe_exception&&
+                    <div title={`Exception déclarée : résultat 12 mois ${r.pe_exception.base} (${r.pe_exception.formule}) au lieu du résultat publié${r.pe_exception.rnpg_12m_publie!=null?` (${fmt(r.pe_exception.rnpg_12m_publie,1)} MDH)`:""}. Motif : ${r.pe_exception.motif||"—"} Réserve : ${r.pe_exception.reserve||"—"}`} style={{fontSize:9,color:"#ff8f00",marginTop:1,cursor:"help"}}>exception : {r.pe_exception.base}</div>}
                   {/* ⚠️ LE RANG DANS SON SECTEUR — ajouté le 25/09.
                       « Un P/B de 2,16 n'a pas le même sens dans l'immobilier
                       que dans les télécoms. » Le chiffre nu laissait le
@@ -5981,7 +5987,7 @@ function App(){
         d.tickers.forEach(t=>{m[t.symbol]={
           price:t.price,chg:t.chg,vol:t.vol||0,open:t.open,close:t.close,
           name:t.name,sector:t.sector,code_bvc:t.code_bvc,_meta:t._meta,
-          pe:t.pe,pe_annuel:t.pe_annuel,pe_capitalisation:t.pe_capitalisation,bpa_reserve:t.bpa_reserve,bpa:t.bpa,bpa_12m:t.bpa_12m,div_dh:t.div_dh,pe_base:t.pe_base,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
+          pe:t.pe,pe_annuel:t.pe_annuel,pe_capitalisation:t.pe_capitalisation,bpa_reserve:t.bpa_reserve,pe_exception:t.pe_exception,bpa:t.bpa,bpa_12m:t.bpa_12m,div_dh:t.div_dh,pe_base:t.pe_base,pb:t.pb,div:t.div,cap:t.cap,fwd:t.fwd,
           h90:t.h90,l90:t.l90,ma200:t.ma200,h52w:t.h52w,l52w:t.l52w,
           rsi:t.rsi,ma20:t.ma20,ma50:t.ma50,
           macd:t.macd,macd_signal:t.macd_signal,macd_hist:t.macd_hist,

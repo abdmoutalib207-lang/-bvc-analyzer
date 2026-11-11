@@ -91,19 +91,68 @@
     },
     "RIS": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
-      "base": "résultat net part du groupe HORS éléments exceptionnels",
+      "base": "résultat net part du groupe HORS éléments exceptionnels (S1 2025 : hors exceptionnels ET à périmètre comparable) — base retenue par EXCEPTION DÉCLARÉE à la règle c, voir `exception_regle_c`",
       "rnpg_s1_2026": 144,
       "rnpg_s1_2025": 118,
       "rnpg_publie_s1_2026": 313,
-      "rnpg_publie_s1_2025": 135,
+      "rnpg_publie_s1_2025": 117,
       "ca_s1_2026": 863,
       "ca_s1_2025": 754,
-      "pages": "p.1 (CA, RNPG publié) ; p.2 (RNPG hors éléments exceptionnels)",
-      "note": "Le RNPG publié (313) contient +169 MDH de plus-values de cession, non récurrentes. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même.",
+      "pages": "p.1, tableau « En MDH » à trois colonnes « Au 30 juin 2025 Publié / Au 30 juin 2025 Comparable* (2) / Au 30 juin 2026 (1) » : « CA 653 754 863 15% », « RNPG 117 135 313 132% » ; p.2 : « Hors éléments exceptionnels et à périmètre comparable*, le résultat net part du Groupe atteint 144 MDH, contre 118 MDH au premier semestre 2025 ». Recoupé à l'état : https://www.ammc.ma/sites/default/files/Risma_S1_26.pdf p.4, compte de résultat consolidé, colonnes « Publié / Pro forma / 30/06/26 » : « Chiffre d'affaires 653 764 863 », « Résultat Net part du Groupe 117 131 313 ». ⚠️ `rnpg_s1_*` (144 / 118) et `ca_s1_2025` (754) portent la base RETENUE ; le publié est dans `rnpg_publie_s1_*` (313 / 117) et `ca_publie_s1_2025` (653)",
+      "note": "Le RNPG publié (313) contient +169 MDH liés aux cessions (Sofitel Casablanca Tour Blanche), non récurrents. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même — par exception DÉCLARÉE à la règle c (`exception_regle_c`). 09/11/2026 (contre-vérification ms-screener) : `rnpg_publie_s1_2025` portait 135, qui est la colonne « Comparable » et non le publié (117) ; le douze mois additionnait un exercice PUBLIÉ (269,622) à des semestres hors exceptionnels (295,622) : il se calcule désormais sur trois termes de la même base (254 + 144 − 118 = 280).",
       "rnpg_exercice_2025": 269.622,
-      "source_exercice_2025": "RFA 2025 déposé à l'AMMC (repris de bpa.json)",
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Risma_RFA_2025.pdf p.35, compte de résultat consolidé (KMAD) : « Résultat Net Part du Groupe 183 024 269 622 » (31/12/2024, 31/12/2025) ; p.45, résultat par action : « Résultat net part du Groupe 183 024 269 622 », « Nombre moyen d'actions en circulation 14 326 947 14 326 947 », « Résultat net par action (en MAD) 13 19 » — soit 269 622 000 ÷ 14 326 947 = 18,82",
       "actions": 16012132,
-      "source_actions": "résolution d'AG du 02/06/2026 (dividende total ÷ 9 DH) ; marché 16 012 461"
+      "source_actions": "16 012 132 actions ACTUELLES : résolution d'AG du 02/06/2026 (dividende total 144 109 188 ÷ 9 DH) et https://www.ammc.ma/sites/default/files/CP_Risma_cloture_augmentation_capital_dirigeants_eligibles.pdf p.1 (« Nombre de titres après opération 16 012 132 actions ») ; marché 16 012 461. Le BPA se calcule sur le nombre de la PÉRIODE (règle e, IAS 33.19-21) : 14 326 947 sur tout 2025, puis 15 826 947 et 16 012 132 après les deux émissions du premier trimestre 2026 — voir bvc_config.HISTORIQUE_ACTIONS",
+      "avant_2026_11_09": {
+        "rnpg_publie_s1_2025": 135,
+        "pages": "p.1 (CA, RNPG publié) ; p.2 (RNPG hors éléments exceptionnels)",
+        "note": "Le RNPG publié (313) contient +169 MDH de plus-values de cession, non récurrentes. Les retenir diviserait le PER par près de deux sur la foi d'une vente d'actifs : on retient la base hors éléments exceptionnels, publiée par l'émetteur lui-même.",
+        "source_exercice_2025": "RFA 2025 déposé à l'AMMC (repris de bpa.json)",
+        "source_actions": "résolution d'AG du 02/06/2026 (dividende total ÷ 9 DH) ; marché 16 012 461",
+        "rnpg_12m": 295.622,
+        "formule_rnpg_12m": "269,622 (publié) + 144 − 118 (hors exceptionnels)"
+      },
+      "corrige_le": "2026-11-09",
+      "ca_publie_s1_2025": 653,
+      "proforma_s1_2025": {
+        "ca": 754,
+        "rnpg": 135,
+        "libelle": "Comparable",
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
+        "page": 1,
+        "citation": "Au 30 juin 2025 Publié / Au 30 juin 2025 Comparable* (2) / Au 30 juin 2026 (1) — CA 653 754 863 15% ; RNPG 117 135 313 132% — *Données incluant CMG (société qui porte l'hôtel Radisson Blu de Marrakech et le centre commercial Carré Eden) et excluant le Sofitel Casablanca Tour Blanche du 8 mai 2025 au 30 juin 2025",
+        "motif": "périmètre comparable de l'émetteur : CMG incluse, Sofitel Casablanca Tour Blanche exclu du 8 mai au 30 juin 2025 (cession effective au 7 mai 2026)",
+        "autre_base_publiee": {
+          "libelle": "Pro forma",
+          "ca": 764,
+          "rnpg": 131,
+          "source": "https://www.ammc.ma/sites/default/files/Risma_S1_26.pdf",
+          "page": 4,
+          "citation": "Publié / Pro forma / 30/06/26 — Chiffre d'affaires 653 764 863 ; Résultat Net part du Groupe 117 131 313",
+          "note": "seconde base à périmètre retraité, au compte de résultat consolidé ; non retenue pour la croissance : la base « Comparable » est celle sur laquelle l'émetteur publie ses variations (CA +15 %) et son RNPG hors exceptionnels (118)"
+        },
+        "regle": "règle d du 20/10/2026 (IFRS 3.B64(q))",
+        "lu_le": "2026-11-09"
+      },
+      "retraitement_exceptionnel": {
+        "rnpg_ajuste_s1_2026": 144,
+        "rnpg_ajuste_s1_2025": 118,
+        "unite": "MDH arrondis (texte du communiqué)",
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf",
+        "page": 2,
+        "citation": "Hors éléments exceptionnels et à périmètre comparable*, le résultat net part du Groupe atteint 144 MDH, contre 118 MDH au premier semestre 2025, soit une progression de 22%. […] le RNPG publié atteint 313 MDH, contre 135 MDH. Sa progression reflète +44 MDH liés à l'activité, +169 MDH liés aux cessions et un impact de -35 MDH au titre des impôts.",
+        "motif": "éléments exceptionnels chiffrés EN MONTANT par l'émetteur (S1 2026 : +169 MDH liés aux cessions, Sofitel Casablanca Tour Blanche ; RNPG hors exceptionnels 144 contre 313 publiés) ; croissance recalculée sur ses montants, à périmètre comparable : 144 ÷ 118 − 1 = +22,0 %",
+        "regle": "règle c du 20/10/2026 (IAS 33, IAS 1.87 et 1.97)",
+        "lu_le": "2026-11-09"
+      },
+      "exception_regle_c": {
+        "rnpg_exercice_2025_hors_non_courants": 254.0,
+        "source": "https://www.ammc.ma/sites/default/files/CP_Risma_2025.pdf p.2 : « Le Résultat Net Part du Groupe s'élève à 270 Mdh. Hors éléments non courants, le RNPG est de 254 Mdh » ; S1 : https://www.ammc.ma/sites/default/files/CP_Risma_S1_26.pdf p.2 (144 et 118, hors éléments exceptionnels)",
+        "motif": "plus-value de cession du Sofitel Casablanca Tour Blanche dans le S1 2026 (+169 MDH liés aux cessions, CP_Risma_S1_26.pdf p.2) : le résultat publié (313) doublerait le bénéfice sur la foi d'une vente d'actif.",
+        "reserve": "les trois termes sont des agrégats de l'émetteur, arrondis au MDH et non audités ; le 118 du S1 2025 est « hors éléments exceptionnels ET à périmètre comparable » : il inclut CMG, que l'exercice 2025 hors non-courants (254) ne compte qu'à partir de son entrée dans le périmètre.",
+        "decision": "09/11/2026, contre-vérification ms-screener : exception déclarée à la règle c du 20/10/2026 (la valorisation lit en principe le résultat PUBLIÉ)"
+      }
     },
     "CMT": {
       "url": "https://www.ammc.ma/sites/default/files/CMT_S1_26.pdf",
@@ -133,7 +182,15 @@
       "rnpg_exercice_2025": 370.445,
       "source_exercice_2025": "même document, p.5, tableau de variation des capitaux propres, colonne 31/12/2025",
       "actions": 35007960,
-      "source_actions": "référentiel ; capitalisation ÷ cours ≈ 35,0 M"
+      "source_actions": "référentiel ; capitalisation ÷ cours ≈ 35,0 M",
+      "bpa_publie_emetteur": {
+        "valeur": 10.89,
+        "exercice": 2025,
+        "source": "https://www.ammc.ma/sites/default/files/CFG_RFA_2025.pdf",
+        "page": 44,
+        "citation": "Résultat par action 10,89 7,95 ; Résultat dilué par action 10,89 7,95",
+        "note": "Consigné le 09/11/2026 (contre-vérification ms-screener), NON appliqué : le dénominateur n'est pas publié. 370,445 MMAD ÷ 10,89 implique ≈ 34,02 M d'actions, contre les 35 007 960 actions retenues ici (BPA 10,58) : écart de 2,8 % non expliqué par une pièce (nombre moyen pondéré ? titres autodétenus ?). Rien n'est déduit."
+      }
     },
     "MRL": {
       "url": "https://www.ammc.ma/sites/default/files/MLE_S1_26.pdf",
@@ -217,15 +274,21 @@
     "SOT": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Sothema_S1_26.pdf",
       "base": "résultat net part du groupe, consolidé",
-      "rnpg_s1_2026": 215,
-      "rnpg_s1_2025": 194,
+      "rnpg_s1_2026": 215.072,
+      "rnpg_s1_2025": 193.702,
       "ca_s1_2026": 1795,
       "ca_s1_2025": 1549,
-      "pages": "p.1",
+      "pages": "https://www.ammc.ma/sites/default/files/Sothema_S1_26.pdf p.2, compte de résultat consolidé (KMAD) : « Part du groupe 215 072 193 702 » (30/06/2026, 30/06/2025) ; « Nombre d'actions 38 309 500 7 200 000 ». Le communiqué CP_Sothema_S1_26.pdf p.1 arrondit à 215 et 194. KMAD → MDH (÷ 1 000)",
       "rnpg_exercice_2025": 385.526,
       "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Sothema_RFA_2025.pdf, p.53 du fichier (pages imprimées 104-105), compte de résultat consolidé en KMAD : « Part du groupe 385 526 315 288 » = 385,526 MDH ; même chiffre au tableau de variation des capitaux propres (p.65, « Résultat de l'exercice 385 526 ») et au texte (« La part du groupe s'élève à 385,5 MMAD »). Corrige 388,458 (audit verificateur-finance 06/10/2026 ; ni 388,229 = résultat TOTAL avec minoritaires, ni lu dans un état). BPA = 385,526 ÷ 38 309 500 = 10,06. ÉCART CONSIGNÉ, non corrigé pour coïncider : yuna.ma (PER 33,53 à 340 DH) implique 10,14.",
       "actions": 38309500,
-      "source_actions": "après la division par cinq du 05/05/2026 ; yuna.ma : 13,0 Mrd ÷ 340 DH = 38,2 M. fondamentaux.json portait 7 200 000"
+      "source_actions": "38 309 500 actions = 7 606 728 actions de 50 DH au 31/12/2025 (Sothema_RFA_2025.pdf p.53, 63 et 66 : « capital de 380 336 400.00 de dirhams, divisé en 7.606.728 actions ») × 5 (division du nominal du 05/05/2026, registre SPLITS) = 38 033 640, + 275 860 actions de l'augmentation de capital de 80 MMAD du premier semestre 2026 (Sothema_S1_26.pdf p.2, tableau de variation : « Augmentation de capital 2 759 77 241 … 80 000 »). ⚠️ Deux émissions en numéraire (406 728 actions de 50 DH en 2025, Prospectus_AK_Sothema_042_2025.pdf ; 275 860 actions au S1 2026) ne sont PAS au registre HISTORIQUE_ACTIONS : leur date de constatation n'a pas été lue, le BPA reste sur le nombre actuel. yuna.ma : 13,0 Mrd ÷ 340 DH = 38,2 M",
+      "avant_2026_11_09": {
+        "rnpg_s1_2026": 215,
+        "rnpg_s1_2025": 194,
+        "pages": "p.1"
+      },
+      "corrige_le": "2026-11-09"
     },
     "CMGP": {
       "url": "https://www.ammc.ma/sites/default/files/CP_CMGP_S1_26.pdf",
@@ -280,11 +343,14 @@
       "pages": "compte de résultat consolidé IFRS (RNPG et PNB, colonnes 30/06/2026 et 30/06/2025)",
       "rnpg_exercice_2025": 3813.552,
       "source_exercice_2025": "https://www.ammc.ma/sites/default/files/BOA_2025.pdf — compte de résultat consolidé, « Part du groupe 3 813 552 »",
-      "actions": 220281881,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours) ; fondamentaux.json portait 215 786 333, antérieur à l'augmentation de capital",
+      "actions": 225404715,
+      "source_actions": "225 404 715 actions = 220 281 881 + 5 122 834 actions de l'attribution gratuite d'1 pour 43 (AGM du 25/06/2026) — Bourse de Casablanca, avis AV-2026-131 du 15/10/2026 (détachement du droit d'attribution et ajustement du cours le 22/10/2026) et AV-2026-136 du 29/10/2026 (ratification le 13/10/2026 ; 220.281.881 titres avant, 225.404.715 après) ; liste des émetteurs de la Bourse relevée le 10/11/2026 : 225,404,715. Attribution gratuite : rétro-ajustée sur TOUTES les périodes (IAS 33.26-28 et 64), d'où l'exercice 2025 retraité 3 813,552 ÷ 225,404715 = 16,92 (17,31 sur 220 281 881) et le douze mois 17,94 (18,36). ⚠️ La série de cours n'est PAS encore rétro-ajustée (voir le commentaire de bvc_config.SPLITS) et la capitalisation lit encore le relevé des émetteurs du 20/10/2026 (220 281 881)",
       "capitaux_propres_pg_30_06_2026": 33704.015,
       "capitaux_propres_pg_31_12_2025": 31794.36,
-      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf — bilan IFRS (KMAD) : capital et réserves liées 23 248 355 + réserves PG 7 072 784 + gains latents PG 901 384 + résultat PG 2 481 492 = 33 704 015 (le communiqué dit « 33,7 milliards DH ») ; 31/12/2025 : 22 177 528 + 4 930 178 + 873 102 + 3 813 552 = 31 794 360"
+      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/BOA_S1_26.pdf — bilan IFRS (KMAD) : capital et réserves liées 23 248 355 + réserves PG 7 072 784 + gains latents PG 901 384 + résultat PG 2 481 492 = 33 704 015 (le communiqué dit « 33,7 milliards DH ») ; 31/12/2025 : 22 177 528 + 4 930 178 + 873 102 + 3 813 552 = 31 794 360",
+      "actions_avant_2026_11_09": 220281881,
+      "corrige_le": "2026-11-09",
+      "reserve_titre": "État intermédiaire de l'attribution gratuite d'1 action pour 43 (détachée le 22/10/2026, avis AV-2026-131 et AV-2026-136 de la Bourse de Casablanca) : le BPA et le dividende sont sur le nombre d'actions ACTUEL (225 404 715), mais la capitalisation, le P/B et le PER « capitalisation ÷ résultat » lisent encore le relevé officiel du 20/10/2026 (220 281 881 actions) et sont donc sous-évalués d'environ 2,3 % ; la série de cours antérieure au 22/10 n'est pas encore rétro-ajustée (R11). Les deux seront alignés dans un lot dédié."
     },
     "BMC": {
       "url": "https://www.ammc.ma/sites/default/files/BMCI_S1_26.pdf",
@@ -368,16 +434,21 @@
       "ca_s1_2026": 19009.0,
       "ca_s1_2025": 18041.0,
       "ca_libelle": "chiffre d'affaires consolidé",
-      "pages": "communiqué S1 2026, tableau consolidé. ⚠️ Le S1 2025 contient une recette exceptionnelle (accord avec Wana Corporate) : la baisse apparente de 39,7 % n'est pas opérationnelle. Le calcul sur douze mois (exercice + S1 2026 − S1 2025) la retire, puisqu'elle est dans le S1 2025 soustrait. La croissance retenue est celle publiée hors exceptionnel (+8,1 %).",
+      "pages": "communiqué S1 2026, tableau consolidé. ⚠️ Le S1 2025 contient une recette exceptionnelle (accord avec Wana Corporate) : la baisse apparente de 39,7 % n'est pas opérationnelle. Le calcul sur douze mois (exercice + S1 2026 − S1 2025) la retire, puisqu'elle est dans le S1 2025 soustrait. La croissance publiée hors exceptionnel (+8,1 %) reste consignée (`croissance_bpa_publiee`) mais n'est PAS appliquée depuis le 20/10/2026 : la croissance se calcule sur le publié, −39,7 % (voir `croissance_bpa_note`).",
       "croissance_bpa_publiee": 8.1,
-      "rnpg_exercice_2025": 6969.0,
-      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_2025.pdf — « Résultat Net Part du Groupe 6 969 » (recette exceptionnelle incluse)",
+      "rnpg_exercice_2025": 6968.0,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_RFA_2025.pdf p.23-24, états consolidés audités (en millions de MAD) : « Résultats consolidés de l'exercice 5 283 1 801 6 968 », « Part du groupe 5 283 1 801 6 968 », « Résultat net - Part du Groupe (en millions MAD) 5 283 1 801 6 968 », « Nombre d'actions au 31 décembre 879 095 340 » (recette exceptionnelle incluse). Le communiqué Maroc_Telecom_2025.pdf écrit 6 969 dans son tableau de gestion (p.2) et 6 968 dans ses états (p.10-11) : l'état audité est retenu",
       "actions": 879095340,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours), identique à fondamentaux.json",
       "croissance_bpa_note": "20/10/2026 : la croissance publiée hors exceptionnel (+8,1 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (4 117) : la convention de pipeline/resultats_semestriels.py calcule la croissance, 2 482 ÷ 4 117 − 1 = −39,7 %, chiffre que le communiqué publie aussi (CP S1 2026 p.1 : « Résultat Net Part du Groupe(2) … 4 117 2 482 -39,7% »). Le code reprenait la publiée dès qu'elle existait, contrairement à la convention écrite (verificateur-finance).",
       "capitaux_propres_pg_30_06_2026": 19409.0,
       "capitaux_propres_pg_31_12_2025": 20478.0,
-      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf p.2, « État de la situation financière consolidée », PASSIF (en millions de MAD), colonnes « 31/12/2025 30/06/2026 » — « Capitaux propres - part du groupe 20 478 19 409 » ; recoupé : capital 5 275 + réserves consolidées 11 653 + résultat 2 482 = 19 410 (arrondi au MDH) ; le 31/12/2025 concorde avec le rapport annuel 2025 (20 478, faits_financiers p.23). Pièce : sha256 17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af (datasets/pieces/IAM/index.json), relevé le 22/10/2026"
+      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/Maroc%20Telecom%20CP_R%C3%A9sultats%20S12026_Le%20MATIN.pdf p.2, « État de la situation financière consolidée », PASSIF (en millions de MAD), colonnes « 31/12/2025 30/06/2026 » — « Capitaux propres - part du groupe 20 478 19 409 » ; recoupé : capital 5 275 + réserves consolidées 11 653 + résultat 2 482 = 19 410 (arrondi au MDH) ; le 31/12/2025 concorde avec le rapport annuel 2025 (20 478, faits_financiers p.23). Pièce : sha256 17f2635600f82fb4db98dc09da8de2f8ca9f047c1d52196519d1e94032fa27af (datasets/pieces/IAM/index.json), relevé le 22/10/2026",
+      "avant_2026_11_09": {
+        "rnpg_exercice_2025": 6969.0,
+        "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Maroc_Telecom_2025.pdf — « Résultat Net Part du Groupe 6 969 » (recette exceptionnelle incluse)"
+      },
+      "corrige_le": "2026-11-09"
     },
     "ATW": {
       "url": "https://www.ammc.ma/sites/default/files/AWB_S1_26.pdf",
@@ -663,18 +734,26 @@
     "HAL": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_S1_26.pdf",
       "base": "résultat net consolidé",
-      "rnpg_s1_2026": 64.8,
-      "rnpg_s1_2025": 47.3,
+      "rnpg_s1_2026": 64.812881,
+      "rnpg_s1_2025": 47.305263,
       "ca_s1_2026": 3344.0,
       "ca_s1_2025": 2678.0,
       "ca_libelle": "chiffre d'affaires consolidé",
-      "pages": "communiqué S1, tableau « Comptes consolidés (En MDH) » et texte : « Le résultat net consolidé atteint 64,8 MDH, contre 47,3 MDH un an auparavant »",
-      "rnpg_exercice_2025": 99.832,
-      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Auto_Hall_2025_avis_AGO_30_04_25.pdf — comptes consolidés : « Résultat net consolidé 99 832 17 092 » (KMAD, 2025 / 2024)",
+      "pages": "https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf p.5, compte de produits et charges consolidé (en dirhams) : « RÉSULTAT NET CONSOLIDÉ 64 812 881,31 47 305 263,28 » (30 juin 2026 / 30 juin 2025) ; bilan consolidé p.5 : « Résultats consolidés de l'exercice 64 812 881,31 99 832 376,79 » et « Capital social 502 945 280,00 502 945 280,00 » (30 juin 2026 / 31 décembre 2025). Communiqué S1 (arrondi) : « Le résultat net consolidé atteint 64,8 MDH, contre 47,3 MDH un an auparavant ». Dirhams → MDH (÷ 1 000 000)",
+      "rnpg_exercice_2025": 99.832377,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/Auto_Hall_2025_avis_AGO_30_04_25.pdf p.7 — comptes consolidés : « RÉSULTAT NET CONSOLIDÉ 99 832 376,79 17 092 037,28 » (dirhams, 2025 / 2024) ; « Résultat net consolidé 99 832 17 092 » (KMAD)",
       "capitaux_propres_pg_31_12_2025": 1445.97581836,
       "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/Auto_Hall_2025_avis_AGO_30_04_25.pdf — « Capitaux propres part groupe 1 445 975 818,36 1 458 514 079,09 » (MAD, 2025 / 2024)",
       "actions": 54140578,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours) ; bpa.json n'en portait aucun"
+      "source_actions": "54 140 578 actions ACTUELLES = 50 294 528 + 3 846 050 (liste des émetteurs de la Bourse de Casablanca ; note d'opération https://www.ammc.ma/sites/default/files/NO_AutoHall_025_2026.pdf p.25-26 : « Nombre d'actions (unités) 50 294 528 3 846 050 54 140 578 »). Le BPA se calcule sur le nombre de la période (règle e, IAS 33.19-21) : 50 294 528 au 31/12/2025 et au 30/06/2026 (capital social 502 945 280 DH de nominal 10, https://www.ammc.ma/sites/default/files/Auto_Hall_S1_26.pdf p.5), l'émission étant constatée le 02/09/2026 — voir bvc_config.HISTORIQUE_ACTIONS",
+      "avant_2026_11_09": {
+        "rnpg_s1_2026": 64.8,
+        "rnpg_s1_2025": 47.3,
+        "rnpg_exercice_2025": 99.832,
+        "pages": "communiqué S1, tableau « Comptes consolidés (En MDH) » et texte : « Le résultat net consolidé atteint 64,8 MDH, contre 47,3 MDH un an auparavant »",
+        "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours) ; bpa.json n'en portait aucun"
+      },
+      "corrige_le": "2026-11-09"
     },
     "AKD": {
       "url": "https://www.ammc.ma/sites/default/files/Akdital_S1_26.pdf",
@@ -695,15 +774,15 @@
     },
     "TGCC": {
       "url": "https://www.ammc.ma/sites/default/files/CP_TGCC_S1_26.pdf",
-      "base": "résultat net part du groupe, consolidé, en M MAD",
-      "rnpg_s1_2026": 435.0,
-      "rnpg_s1_2025": 416.0,
+      "base": "résultat net part du groupe, consolidé, en M MAD (lu à l'état déposé, en KMAD, depuis le 09/11/2026)",
+      "rnpg_s1_2026": 434.84,
+      "rnpg_s1_2025": 416.623,
       "ca_s1_2026": 4266.944,
       "ca_s1_2025": 5071.093,
       "ca_libelle": "chiffre d'affaires consolidé (et non le produit d'exploitation : la croissance se lit sur le chiffre d'affaires)",
-      "pages": "tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; CA : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Chiffre d'affaires 4 266 944 5 071 093 » (KMAD → MMAD ÷ 1 000), soit −15,86 %",
-      "rnpg_exercice_2025": 952.0,
-      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/CP_TGCC_2025.pdf — « Le résultat net part du Groupe s'établit à 952 M MAD, contre 522 M MAD en 2024 »",
+      "pages": "RNPG : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Dont part du groupe 434 840 416 623 » ; bilan passif consolidé, colonnes « 30/06/2026 31/12/2025 » : « Résultat consolidé 434 840 952 053 » (KMAD → MMAD ÷ 1 000). Le communiqué arrondit : tableau du communiqué (« Résultat net part du Groupe 435 416 19 +4,5 % », « Produit d'exploitation 5 477 5 605 ») ; carnet de commandes 28 360 M MAD (+48,5 %) ; CA : https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, compte de produits et charges consolidé « (En milliers de dirhams) 30/06/2026 30/06/2025 » : « Chiffre d'affaires 4 266 944 5 071 093 » (KMAD → MMAD ÷ 1 000), soit −15,86 %",
+      "rnpg_exercice_2025": 952.053,
+      "source_exercice_2025": "https://www.ammc.ma/sites/default/files/TGCC_RFA_2025.pdf p.96, compte de produits et charges consolidé : « Dont part du groupe 952 053 521 810 » (KMAD, 2025 / 2024) ; p.97, tableau de variation des capitaux propres : « Résultat de l'exercice 952 053 » ; recoupé au dépôt S1 (TGCC_S1_26.pdf p.2 : « Résultat consolidé 434 840 952 053 »). Le communiqué CP_TGCC_2025.pdf arrondit à « 952 M MAD »",
       "actions": 34674332,
       "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation ÷ cours)",
       "avant_2026_10_20": {
@@ -714,7 +793,14 @@
       "note": "20/10/2026 (verificateur-finance, sur pièce) : la croissance du CA était lue sur le PRODUIT d'exploitation du communiqué (5 477 contre 5 605, −2,3 %), qui ajoute au chiffre d'affaires les autres produits et reprises d'exploitation. Elle se lit désormais sur le chiffre d'affaires de l'état déposé : 4 266,944 ÷ 5 071,093 − 1 = −15,86 %. Anciennes valeurs dans `avant_2026_10_20`.",
       "production_lue": "20/10/2026, règle d : le compte de produits et charges consolidé (TGCC_S1_26.pdf p.2) ne porte AUCUNE ligne « production de l'exercice » (seulement « Chiffre d'affaires 4 266 944 5 071 093 », « Autres produits d'exploitation 1 173 499 515 590 », « PRODUIT D'EXPLOITATION 5 476 888 5 605 510 ») : le chiffre d'affaires reste la base, jamais le produit d'exploitation",
       "capitaux_propres_pg_30_06_2026": 4459.032,
-      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, « BILAN PASSIF » consolidé (en milliers de dirhams, KMAD → MMAD ÷ 1 000), colonnes « 30/06/2026 31/12/2025 » — « Capitaux Propres Part Groupe 4 459 032 4 544 126 » ; recoupé : capital social 346 743 + primes liées au capital 2 651 372 + réserves consolidées 1 026 077 + résultat consolidé 434 840 = 4 459 032, et total capitaux propres 4 792 641 − parts minoritaires 333 609 = 4 459 032. Le tableau de variation des capitaux propres de la même page écrit « au 30/06/2026 … 4 459 033 » : 1 KMAD d'arrondi, le bilan est retenu. Le 31/12/2025 (4 544,126) est celui du RFA 2025 (p.97, « au 31/12/2025 … 4 544 126 »). Pièce : sha256 29a6ba5c32f55afc9b03224c63e9cb1f98ef7cf6b7831bb9611752e95244e9de (datasets/pieces/TGCC/index.json), relu le 27/10/2026"
+      "source_capitaux_propres": "https://www.ammc.ma/sites/default/files/TGCC_S1_26.pdf p.2, « BILAN PASSIF » consolidé (en milliers de dirhams, KMAD → MMAD ÷ 1 000), colonnes « 30/06/2026 31/12/2025 » — « Capitaux Propres Part Groupe 4 459 032 4 544 126 » ; recoupé : capital social 346 743 + primes liées au capital 2 651 372 + réserves consolidées 1 026 077 + résultat consolidé 434 840 = 4 459 032, et total capitaux propres 4 792 641 − parts minoritaires 333 609 = 4 459 032. Le tableau de variation des capitaux propres de la même page écrit « au 30/06/2026 … 4 459 033 » : 1 KMAD d'arrondi, le bilan est retenu. Le 31/12/2025 (4 544,126) est celui du RFA 2025 (p.97, « au 31/12/2025 … 4 544 126 »). Pièce : sha256 29a6ba5c32f55afc9b03224c63e9cb1f98ef7cf6b7831bb9611752e95244e9de (datasets/pieces/TGCC/index.json), relu le 27/10/2026",
+      "avant_2026_11_09": {
+        "rnpg_s1_2026": 435.0,
+        "rnpg_s1_2025": 416.0,
+        "rnpg_exercice_2025": 952.0,
+        "source_exercice_2025": "https://www.ammc.ma/sites/default/files/CP_TGCC_2025.pdf — « Le résultat net part du Groupe s'établit à 952 M MAD, contre 522 M MAD en 2024 »"
+      },
+      "corrige_le": "2026-11-09"
     },
     "LES": {
       "url": "https://www.ammc.ma/sites/default/files/CP_Lesieur_Cristal_S1_26.pdf",
@@ -986,7 +1072,7 @@
     },
     "T2S": {
       "url": "https://www.ammc.ma/sites/default/files/T2S_Group_S1_26.pdf",
-      "base": "résultat net part du Groupe, consolidé IFRS (comptes arrêtés par le conseil du 28/09/2026). Le dépôt AMMC T2S_Group_S1_26.pdf porte désormais les états de synthèse en KMAD (relu le 05/10/2026) ; attestation d'examen limité des CAC sur le consolidé (p.3, image rendue) sans réserve : « bénéfice net consolidé de 91.307 KMAD », capitaux propres 1.430.811 KMAD. Il remplace le communiqué d'une page (montants arrondis au MDH : 91 et 109) lu au lot 13. Le S1 2025 (108,864) contient le produit exceptionnel de la cession de l'activité Varian (RNPG ajusté S1 2025 : 55 au communiqué) ; le douze mois retire le S1 2025 en entier. ⚠️ Introduction en bourse en juillet 2026 : BPA sur les 21 785 174 actions ACTUELLES (20 215 668 avant l'augmentation de capital de 1 569 506 titres, capital social 1 010 783 400 DH ÷ nominal 50 = 20 215 668, p.2) ; sur 20 215 668 il vaudrait 9,25 au lieu de 8,58 — à trancher en revue",
+      "base": "résultat net part du Groupe, consolidé IFRS (comptes arrêtés par le conseil du 28/09/2026). Le dépôt AMMC T2S_Group_S1_26.pdf porte désormais les états de synthèse en KMAD (relu le 05/10/2026) ; attestation d'examen limité des CAC sur le consolidé (p.3, image rendue) sans réserve : « bénéfice net consolidé de 91.307 KMAD », capitaux propres 1.430.811 KMAD. Il remplace le communiqué d'une page (montants arrondis au MDH : 91 et 109) lu au lot 13. Le S1 2025 (108,864) contient le produit exceptionnel de la cession de l'activité Varian (RNPG ajusté S1 2025 : 55 au communiqué) ; le douze mois retire le S1 2025 en entier. ⚠️ Introduction en bourse en juillet 2026 puis augmentation réservée au dirigeant (798 944 actions, autorisée par l'AMMC le 23/09/2026) : BPA sur les 22 584 118 actions ACTUELLES depuis le 09/11/2026 (21 785 174 avant ; 20 215 668 avant l'introduction, capital social 1 010 783 400 DH ÷ nominal 50, p.2) — traitement IAS 33 non établi, voir la réserve du registre",
       "rnpg_s1_2026": 91.307,
       "rnpg_s1_2025": 108.864,
       "ca_s1_2026": 977.702,
@@ -995,8 +1081,8 @@
       "pages": "T2S_Group_S1_26.pdf p.1, comptes consolidés en KMAD, colonnes « 30/06/2026 30/06/2025 » (2026 à gauche) : « RÉSULTAT NET CONSOLIDÉ 91 307 113 111 », « PART DU GROUPE 91 307 108 864 », « INTÉRÊTS MINORITAIRES - 4 247 », « PRODUITS DES ACTIVITÉS ORDINAIRES 977 702 773 478 » ; p.3 attestation : « bénéfice net consolidé de 91.307 KMAD ». Communiqué CP_T2S_group_S1_26.pdf p.1 (arrondi) : « Résultat net part du Groupe 91 109 -17% », « Chiffre d'affaires consolidé 978 773 ». KMAD → MDH (÷ 1 000)",
       "rnpg_exercice_2025": 204.576,
       "source_exercice_2025": "https://www.ammc.ma/sites/default/files/T2S_IPO_DR_010_2026.pdf (document de référence exercice 2025, enregistré AMMC le 06/07/2026 sous EN/EM/010/2026), en KMAD : p.221 bilan consolidé « Résultat consolidé 74 937 67 311 204 576 » (2023, 2024, 2025) ; p.211 « dont Résultat net (part du groupe) 74 937 67 311 204 576 » ; p.229 « résultat net part du groupe de l'exercice 2025 de 204 576 KMAD » ; identité : résultat net consolidé 211 269 − minoritaires 6 693 = 204 576. Conversion : 204 576 KMAD = 204,576 MDH. yuna.ma n'affiche ni PER ni ROE pour T2S au 30/09 : pas de rebouclage sur le BPA ; sa capitalisation (4,7 Mrds MAD pour 216,80) recoupe toutefois le nombre d'actions (216,80 × 21 785 174 = 4,72 Mrds) ; recoupé au dépôt S1 p.1 : « RÉSULTAT CONSOLIDÉ 91 307 204 576 » (colonnes 30/06/2026 et 31/12/2025)",
-      "actions": 21785174,
-      "source_actions": "référentiel de l'opérateur du 16/09/2026 (capitalisation 4 794 916 797,40 ÷ cours 220,1 = 21 785 174) ; recoupé au dépôt : 10 107 834 actions de 100 DH (document de référence p.17, 21, 31) × 2 (réduction du nominal à 50 DH au premier jour de cotation, p.21 et p.31) = 20 215 668, + 1 569 506 actions nouvelles de l'introduction en bourse (https://www.ammc.ma/sites/default/files/CP_T2S_resultats_IPO.pdf p.1) = 21 785 174. Deux opérations sur le capital CONSTATÉES sur pièce (R11) : division du nominal, sans effet sur la valeur, et augmentation de capital en numéraire",
+      "actions": 22584118,
+      "source_actions": "09/11/2026 (contre-vérification ms-screener, décision d'alignement) : 22 584 118 = 21 785 174 + 798 944 actions de l'« Augmentation de Capital Dirigeant ». Pièces : https://www.ammc.ma/sites/default/files/CP_T2S_group_augmentation_capital_reservee_dirigeant.pdf p.1 (communiqué du 24/09/2026 : « L'Autorité Marocaine du Marché des Capitaux (AMMC) a autorisé, en date du 23/09/2026, l'augmentation du capital social réservée à Monsieur Abderraouf Sordo […] par émission de 798 944 nouvelles actions » ; « La période de souscription est prévue du 30/09/2026 au 02/10/2026 à 15h30 inclus » ; prix 178,40 MAD) et https://www.ammc.ma/sites/default/files/T2S_IPO_NO_021_2026.pdf p.45 du fichier (tableau d'actionnariat « Avant / Après l'Augmentation de Capital Dirigeant » : « Total 21 785 174 100% 22 584 118 100% »). La liste des émetteurs de la Bourse de Casablanca (relevé du 20/10/2026) porte 22 584 118. Aucun avis de constatation daté n'a été lu : l'émission est postérieure au 30/06/2026 et, en IAS 33.21, elle serait exclue du nombre pondéré ; le titre reste « dénominateur ambigu » (nombre ACTUEL, réserve publiée, bvc_config.HISTORIQUE_ACTIONS). Avant : 21 785 174 = 20 215 668 (10 107 834 actions de 100 DH × 2, document de référence p.17, 21, 31) + 1 569 506 actions de l'introduction (CP_T2S_resultats_IPO.pdf p.1)",
       "actions_avant_introduction": 20215668,
       "avant_2026_10_05": {
         "url": "https://www.ammc.ma/sites/default/files/CP_T2S_group_S1_26.pdf",
@@ -1019,7 +1105,9 @@
         "sensibilite": "55 est arrondi au MDH : 91 ÷ [54,5 ; 55,5] − 1 = +64,0 % à +67,0 % ; avec le RNPG exact 91,307, +66,0 %. La croissance pondérée (0,6 × BPA + 0,4 × CA 26,4 %) vaut 49,8 % sur 91 ÷ 55, 50,2 % sur 91,307 ÷ 55 : le seuil de 50 % de la grille passe DANS l'incertitude d'arrondi.",
         "regle": "règle c du 20/10/2026 (IAS 33, IAS 1.87 et 1.97)",
         "lu_le": "2026-10-20"
-      }
+      },
+      "actions_avant_2026_11_09": 21785174,
+      "corrige_le": "2026-11-09"
     },
     "ADH": {
       "url": "https://www.ammc.ma/sites/default/files/Addoha_S1_26.pdf",
@@ -1141,7 +1229,15 @@
       "source_capitaux_propres_2024": "CIH_Bank_RFA_2025.pdf p.26, tableau des capitaux propres (KMAD) : « Capitaux propres au : 2024.décembre 3 051 978 - - 4 183 198 232 160 7 467 336 792 427 8 259 763 » (ligne publiée à l'origine) ; « Autres changements de méthodes comptables, corrections d'erreurs 97 750 - - 85 159 -5 345 177 564 121 177 685 » ; « Capitaux propres corrigés : 2024.décembre 3 149 728 - - 4 268 357 226 815 7 644 900 792 548 8 437 448 » : part du groupe CORRIGÉE 7 644 900 KMAD (comparatif retraité de même base que 2025). CHOIX : la ligne corrigée, comparable au 31/12/2025, plutôt que la ligne publiée 7 467 336. Page relevée le 14/10/2026.",
       "capitaux_propres_pg_31_12_2024_page": 26,
       "capitaux_propres_pg_31_12_2025_page": 26,
-      "croissance_bpa_note": "20/10/2026 : la croissance publiée (−11,3 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (615,437) : la croissance est calculée sur le résultat, 616,987 ÷ 615,437 − 1 = +0,3 % (communiqué p.1 : « RNPG 617,0 MDH, +0,3 % »). ⚠️ Le −11,3 % publié est une variation de BPA PAR ACTION sur des nombres d'actions différents (17,3 contre 19,5 DH, sur 35 605 624 et 31 497 283 actions, note R12 p.15) : il mesure la dilution, que le calcul sur le résultat ne voit pas."
+      "croissance_bpa_note": "20/10/2026 : la croissance publiée (−11,3 %) reste consignée ici mais n'est PLUS appliquée. Base S1 2025 positive (615,437) : la croissance est calculée sur le résultat, 616,987 ÷ 615,437 − 1 = +0,3 % (communiqué p.1 : « RNPG 617,0 MDH, +0,3 % »). ⚠️ Le −11,3 % publié est une variation de BPA PAR ACTION sur des nombres d'actions différents (17,3 contre 19,5 DH, sur 35 605 624 et 31 497 283 actions, note R12 p.15) : il mesure la dilution, que le calcul sur le résultat ne voit pas.",
+      "bpa_publie_emetteur": {
+        "valeur": 30.6,
+        "exercice": 2025,
+        "source": "https://www.ammc.ma/sites/default/files/CIH_Bank_RFA_2025.pdf",
+        "page": 25,
+        "citation": "RÉSULTAT PAR ACTION (EN DIRHAM) 30,6 27,8",
+        "note": "Consigné le 09/11/2026 (contre-vérification ms-screener), NON appliqué : définition différente. L'émetteur divise par le nombre d'actions de FIN d'exercice (1 089,362 MMAD ÷ 35 605 624 = 30,6 ; p.36, note R12) ; notre 32,78 divise par le nombre moyen pondéré de 2025 (règle e, IAS 33.19-21 : émission de 4 108 341 actions constatée le 31/07/2025, bvc_config.HISTORIQUE_ACTIONS)."
+      }
     },
     "JET": {
       "url": "https://www.ammc.ma/sites/default/files/Jet_Contractors_RFS_S1_26.pdf",

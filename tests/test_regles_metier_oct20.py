@@ -38,9 +38,10 @@ def test_e_cdm_emission_posterieure_exclue():
 
 
 def test_e_t2s_ambigu_garde_le_calcul_et_publie_la_reserve():
-    r = bvc_config.actions_ponderees("T2S", "2025-07-01", "2026-06-30", 21785174)
-    assert r["nombre"] == 21785174 and "IAS 33" in r["reserve"]
-    assert BPA["T2S"]["bpa_12m"] == 8.58 and "PLANCHER" in BPA["T2S"]["reserve_bpa"]
+    # 09/11/2026 : nombre ACTUEL porté à 22 584 118 (augmentation réservée au dirigeant, 798 944 actions).
+    r = bvc_config.actions_ponderees("T2S", "2025-07-01", "2026-06-30", 22584118)
+    assert r["nombre"] == 22584118 and "IAS 33" in r["reserve"]
+    assert BPA["T2S"]["bpa_12m"] == 8.28 and "PLANCHER" in BPA["T2S"]["reserve_bpa"]
 
 
 def test_e_titre_absent_garde_le_nombre_actuel():
@@ -173,7 +174,7 @@ def test_c_t2s_croissance_recalculee_sur_les_montants_de_l_emetteur():
     m = douze_mois(t, "T2S")
     assert m["croissance_bpa"] == round((91 / 55 - 1) * 100, 1) == 65.5       # jamais le « 65 % » publié
     assert m["croissance_bpa_publiee_brute"] == -16.1
-    assert m["rnpg_12m"] == 187.019 and BPA["T2S"]["bpa_12m"] == 8.58          # le PER lit le publié
+    assert m["rnpg_12m"] == 187.019 and BPA["T2S"]["bpa_12m"] == 8.28          # le PER lit le publié
     assert FOND["T2S"]["croissance_bpa"] == 65.5 and FOND["T2S"]["croissance_bpa_retraitee"]["motif"]
 
 

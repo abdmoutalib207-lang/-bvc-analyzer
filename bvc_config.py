@@ -617,7 +617,14 @@ SPLITS: dict = {
     # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).
     "MNG": [{"date": "2026-07-27", "ratio": 10}],
 
-    # Sothema : VN 50 → VN 10 le 05/05/2026. Actions ×5 → 38 309 500.
+    # Sothema : VN 50 → VN 10 le 05/05/2026. Actions ×5 : 7 606 728 → 38 033 640
+    # (capital 380 336 400 DH, Sothema_RFA_2025.pdf p.66 et CP_Sothema_post_AGE_25_03.pdf).
+    # ⚠️ Corrigé le 09/11/2026 : ce commentaire écrivait « ×5 → 38 309 500 ». Les
+    # 38 309 500 actions d'aujourd'hui sont 38 033 640 + 275 860 actions d'une
+    # augmentation de capital de 80 MMAD au premier semestre 2026 (Sothema_S1_26.pdf
+    # p.2) — une émission en numéraire, PAS un effet du split ; le communiqué
+    # post-AGE mêle lui-même les deux nombres (38 309 500 actions pour un capital
+    # de 380 336 400 MAD).
     # AGE du 25/03/2026. Ajouté le 08/09/2026 — le split avait été appliqué à
     # la main dans `bpa.json` et dans les chandelles, mais JAMAIS déclaré ici.
     # ⚠️ Sans cette entrée, un re-téléchargement complet de l'historique
@@ -632,6 +639,24 @@ SPLITS: dict = {
     # actives, relevé le 05/09, donne MA0000012502. Les deux ne peuvent pas
     # être vrais. Ne rien changer sans recoupement — R2.
     "SOT": [{"date": "2026-05-05", "ratio": 5}],
+
+    # ⚠️ Bank of Africa — ATTRIBUTION GRATUITE d'1 action pour 43, droit détaché
+    # le 22/10/2026 : ÉTABLIE SUR PIÈCE le 09/11/2026, PAS ENCORE DÉCLARÉE ICI.
+    # Pièces (Bourse de Casablanca, datasets/pieces/BOA/index.json) : avis
+    # AV-2026-131 du 15/10/2026 (« Date de détachement 22/10/2026 », « ajustement
+    # du cours de l'instrument ») et AV-2026-136 du 29/10/2026 (220.281.881 titres
+    # avant, 225.404.715 après). Au sens de R11 c'est un fait de même nature qu'un
+    # split : la série DOIT être rétro-ajustée (cours antérieurs au 22/10 ÷
+    # 225 404 715/220 281 881 = 1,0232558119 ; 180,00 la veille → 175,91, la
+    # référence servie le 22/10 : 175,90).
+    # Elle ne l'est pas dans ce lot, MESURÉ le 10/11/2026 : l'inscrire ici et
+    # ajuster les chandelles change le RSI, les moyennes et le Score BVC de BOA,
+    # les figures publiées qui traversent le 22/10 et l'artefact de comblement des
+    # gaps (712 → 711 événements) — une régénération d'artefacts publiés qui se
+    # mesure à part. D'ici là la série de BOA porte une fausse marche de −2,27 %
+    # au 22/10/2026 (variation publiée ce jour-là : +2,67 % au lieu de +5,06 %).
+    # Le BPA, le dividende par action et le nombre d'actions, eux, sont à jour
+    # (datasets/resultats_s1_2026.json, bpa.json).
 }
 
 
@@ -1379,8 +1404,65 @@ HISTORIQUE_ACTIONS: dict = {
                    "résultat de base par action 27,46, non le nombre pondéré : le BPA 2025 publié par "
                    "l'émetteur est donc inférieur à celui d'IAS 33.19-21 ; la règle e (20/10/2026) prime."},
     ]},
+    # HAL (Auto Hall) — inscrit le 09/11/2026 (contre-vérification ms-screener). Le BPA divisait le
+    # résultat 2025 et le douze mois au 30/06/2026 par les 54 140 578 actions d'APRÈS l'émission de
+    # septembre 2026 : 1,84 au lieu de 1,98.
+    "HAL": {"mouvements": [
+        {"date": "2026-09-02", "nature": "numeraire", "avant": 50294528, "apres": 54140578,
+         "source": "https://www.ammc.ma/sites/default/files/CP_Auto_Hall_rsultats_augmentation_capital.pdf p.1 "
+                   "(communiqué du 04/09/2026, sha256 18ec6729…) : « le Conseil d'administration a tenu une "
+                   "réunion le mercredi 2 septembre 2026 […] pour constater la réalisation de l'opération "
+                   "d'augmentation de capital » ; « Nombre d'actions attribuées 3 846 050 actions » ; « cotées "
+                   "depuis le 3 septembre 2026 ». Nombres : note d'opération NO_AutoHall_025_2026.pdf p.25-26 "
+                   "(« Nombre d'actions (unités) 50 294 528 3 846 050 54 140 578 », situation avant au "
+                   "31.12.2025) et calendrier p.28 (détachement des droits de souscription 22/07/2026, "
+                   "livraison 03/09/2026) ; capital social 502 945 280 DH au 31/12/2025 ET au 30/06/2026 "
+                   "(Auto_Hall_S1_26.pdf p.5), soit 50 294 528 actions de 10 DH. Après la clôture du "
+                   "30/06/2026 : exclu de l'exercice 2025 et du douze mois. Élément de bonification de "
+                   "l'émission à droits (IAS 33.26-27 et A2) MESURÉ : dernier cours avant détachement 65,00 "
+                   "(21/07/2026, nos chandelles) = prix de souscription 65 DH, cours théorique ex-droit "
+                   "(170 × 65 + 13 × 65) ÷ 183 = 65,00, facteur 1,000 : aucun rétro-ajustement."},
+    ]},
+    # RIS (Risma) — inscrit le 09/11/2026 (contre-vérification ms-screener). Deux émissions en numéraire
+    # au premier trimestre 2026 : le capital de TOUT l'exercice 2025 est de 14 326 947 actions, et le BPA
+    # 2025 publié par l'émetteur (RFA p.45 : « Nombre moyen d'actions en circulation 14 326 947 ») est
+    # 269 622 000 ÷ 14 326 947 = 18,82 — pas 16,84 sur les 16 012 132 actions d'aujourd'hui (règle e).
+    # ⚠️ `date_previsionnelle` : la pièce ne publie pas la date où l'organe social a CONSTATÉ la
+    # réalisation ; la date retenue est celle du calendrier ou de la clôture de souscription, et c'est dit.
+    "RIS": {"mouvements": [
+        {"date": "2026-02-05", "date_previsionnelle": True, "nature": "numeraire",
+         "avant": 14326947, "apres": 15826947,
+         "source": "https://www.ammc.ma/sites/default/files/NO_RISMA_01_2026.pdf p.31, calendrier de "
+                   "l'opération, étape 11 : « Tenue de la réunion de l'instance de l'Emetteur devant constater "
+                   "la réalisation définitive de l'Opération 05/02/2026 » — date PRÉVISIONNELLE (étape 15 : "
+                   "règlement / livraison 13/02/2026) ; p.27-28 : « Nombre d'actions (unités) 14 326 947 "
+                   "1 500 000 15 826 947 ». Réalisation confirmée par "
+                   "https://www.ammc.ma/sites/default/files/CP_Risma_resultats_augmentation_capital.pdf p.2 "
+                   "(publié par l'AMMC le 12/02/2026, sha256 193a4228… : « Actions attribuées 1 500 000 », "
+                   "souscription du 26/01 au 30/01/2026), qui ne donne pas la date du constat. Dans le douze "
+                   "mois au 30/06/2026 à partir de cette date ; hors de l'exercice 2025."},
+        {"date": "2026-03-06", "date_previsionnelle": True, "nature": "numeraire",
+         "avant": 15826947, "apres": 16012132,
+         "source": "https://www.ammc.ma/sites/default/files/CP_Risma_cloture_augmentation_capital_dirigeants_"
+                   "eligibles.pdf p.1 (publié par l'AMMC le 18/03/2026, sha256 be87e078…) : augmentation "
+                   "réservée aux dirigeants éligibles, « émission de 185 185 nouvelles actions », « Période de "
+                   "souscription Du 02/03/2026 au 06/03/2026 », « Nombre de titres avant opération 15 826 947 "
+                   "actions », « Nombre de titres après opération 16 012 132 actions », capital 1 601 213 200 "
+                   "MAD (autorisation AMMC du 23/02/2026, CP_Risma_Augmentation_capital_dirigeants.pdf). La "
+                   "date du constat n'est PAS publiée : retenue = clôture de la souscription, 06/03/2026 "
+                   "(IAS 33.21(a), numéraire à recevoir), date PRÉVISIONNELLE bornée par la publication du "
+                   "18/03/2026. Sensibilité MESURÉE sur le douze mois au 30/06/2026 (280 MDH) : dates "
+                   "retenues, 14 986 308 actions pondérées, BPA 18,68 ; second mouvement au 18/03, "
+                   "14 980 219 (−6 089, 0,04 %), BPA 18,69 ; premier mouvement à la livraison du 13/02 et "
+                   "second au 18/03, 14 947 343, BPA 18,73."},
+    ]},
     "T2S": {"denominateur_ambigu": True, "mouvements": [],
-            "reserve": "BPA sur le nombre d'actions ACTUEL (21 785 174), faute de pouvoir trancher IAS 33. "
+            "reserve": "BPA sur le nombre d'actions ACTUEL (22 584 118 depuis le 09/11/2026 : 21 785 174 + "
+                       "798 944 actions de l'augmentation réservée au dirigeant, autorisée par l'AMMC le "
+                       "23/09/2026, souscription du 30/09 au 02/10/2026, "
+                       "https://www.ammc.ma/sites/default/files/CP_T2S_group_augmentation_capital_reservee_"
+                       "dirigeant.pdf p.1 ; note d'opération T2S_IPO_NO_021_2026.pdf p.45), faute de pouvoir "
+                       "trancher IAS 33 ; cette émission, postérieure à la clôture, en serait elle aussi exclue. "
                        "Lu le 20/10/2026 dans T2S_IPO_DR_010_2026.pdf : les 1 239 actions de priorité A et "
                        "1 239 B (« assorties de droits financiers particuliers », p.26 note 6) étaient le plan "
                        "d'intéressement du management (MIP, p.152 : « actions ordinaires gratuites » « en "
@@ -1392,7 +1474,7 @@ HISTORIQUE_ACTIONS: dict = {
                        "ajustée (IAS 33.28 : 20 215 668 actions, BPA 12 mois 9,25) ou actions à émission "
                        "conditionnelle comptées du 08/06/2026 (IAS 33.24 et 52 : ≈ 18,64 M, ≈ 10,03). Dans les "
                        "deux, les actions de l'introduction, postérieures à la clôture, seraient exclues : le "
-                       "BPA publié ici (sur 21,79 M) est donc un PLANCHER."},
+                       "BPA publié ici (sur 22,58 M) est donc un PLANCHER."},
 }
 
 

@@ -51,7 +51,10 @@ VERIFIES = {
     "CMT": 116.86,
     "CSR": 7.45,
     "HPS": 14.31,
-    "RIS": 16.84,
+    # 09/11/2026 : 269,622 MMAD ÷ 14 326 947 (« Nombre moyen d'actions en circulation », RFA 2025
+    # p.45) = 18,82. Le 16,84 divisait le résultat 2025 par les 16 012 132 actions d'APRÈS les deux
+    # augmentations de capital du premier trimestre 2026 (règle e du 20/10/2026, IAS 33.19-21).
+    "RIS": 18.82,
     "SNA": 69.69,
     # 06/10/2026 : 385,526 MDH (RFA 2025 p.53, « Part du groupe 385 526 ») ÷ 38 309 500
     # = 10,06. L'ancien 10,14 venait de 388,458, lu dans aucun état.
@@ -118,9 +121,20 @@ def test_le_bpa_decoule_des_faits_enregistres(faits, bpa, ticker):
     # Risma a fait basculer 1 devant 2 : sa résolution du 02/06/2026 établit
     # 16 012 132 titres quand le rapport en moyenne 14 326 947. Les deux sont
     # justes — ils répondent à deux questions différentes.
-    actions = (f.get("nombre_actions_existant")
-               or f.get("nombre_actions_retenu_pour_le_bpa")
-               or f.get("nombre_actions_au_rapport"))
+    # ⚠️ 09/11/2026 — la règle e (20/10/2026, IAS 33.19-21) a tranché LAQUELLE
+    # des deux questions pose le BPA : un titre dont le capital a varié APRÈS
+    # l'exercice (registre `bvc_config.HISTORIQUE_ACTIONS`) se divise par le
+    # nombre de la PÉRIODE, celui du rapport, et non par le nombre existant —
+    # qui reste le diviseur de la capitalisation. Cas : Risma, 18,82.
+    import bvc_config
+    if ticker in bvc_config.HISTORIQUE_ACTIONS:
+        actions = (f.get("nombre_actions_retenu_pour_le_bpa")
+                   or f.get("nombre_actions_au_rapport")
+                   or f.get("nombre_actions_existant"))
+    else:
+        actions = (f.get("nombre_actions_existant")
+                   or f.get("nombre_actions_retenu_pour_le_bpa")
+                   or f.get("nombre_actions_au_rapport"))
     if not rnpg or not actions:
         pytest.skip(f"{ticker} : le rapport ne donne pas les deux termes")
 

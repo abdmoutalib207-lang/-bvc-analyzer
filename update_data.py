@@ -4927,6 +4927,13 @@ def run(dry_run=False, push=False, token=""):
             # en regard : les deux divergent quand le capital a varié (CIH, CDM).
             "pe_capitalisation": _per(_cap_retenue, (BPA_DATA.get(ticker) or {}).get("rnpg_12m")),
             "bpa_reserve": (BPA_DATA.get(ticker) or {}).get("reserve_bpa"),
+            # ⚠️ EXCEPTION DÉCLARÉE À LA RÈGLE c — 09/11/2026. Le PER 12 mois
+            # lit en principe le résultat PUBLIÉ. Un titre qui y déroge (RIS :
+            # hors éléments non courants, plus-value de cession du Sofitel
+            # Casablanca Tour Blanche) le DIT ici — base, formule, motif,
+            # réserve, résultat publié en regard — et la fiche l'affiche.
+            # None partout ailleurs (`pipeline/resultats_semestriels.py`).
+            "pe_exception": (BPA_DATA.get(ticker) or {}).get("exception_regle_c"),
             # ⚠️ Le price-to-book vient désormais des FAITS SOURCÉS quand ils
             # existent, et vaut None sinon — jamais la constante de FOND_DATA.
             # Sur Alliances, la table annonçait 0,80 quand les comptes 2025
