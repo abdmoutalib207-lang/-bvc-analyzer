@@ -188,16 +188,25 @@
     .ef-b[aria-pressed="true"]{border-color:#4db8ff;color:#e8eef8;background:rgba(77,184,255,.12)}
     /* ⚠️ width:0 + min-width:100% : sans cela le tableau impose sa largeur
        minimale à toute la colonne de la fiche (mesuré : 1 036 px à 390 px). */
-    .ef-defile{width:0;min-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;direction:rtl}
-    /* direction:rtl sur le cadre seul : il s'ouvre calé à DROITE, période la
-       plus récente visible d'abord, sans script et quelle que soit la largeur. */
-    .ef-t{direction:ltr;border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+    .ef-defile{width:0;min-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+    /* ⚠️ 11/11/2026 — un chiffre à moitié caché sous la colonne figée se lit
+       comme un autre (« 16 373 » lu « 6 373 »). Les colonnes de période ont
+       une largeur ÉGALE, calculée (efColonnes) pour que la zone visible en
+       contienne un nombre entier ; le défilement s'accroche par colonne et
+       s'ouvre calé à droite sur une limite de colonne. L'ombre dit qu'il y a
+       des périodes cachées à gauche. */
+    .ef-ombre .ef-lib{box-shadow:1px 0 0 #1a2540,8px 0 9px -5px rgba(0,0,0,.9)!important}
+    .ef-t{border-collapse:separate;border-spacing:0;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
     .ef-t th,.ef-t td{border-top:1px solid #1a2540;padding:0;text-align:right;white-space:nowrap;font-weight:400}
     .ef-t thead th{border-top:0;padding:0 6px 5px;font-size:10px;color:#8892a4}
     .ef-t .ef-lib{position:sticky;left:0;z-index:1;background:#0d1829;box-shadow:1px 0 0 #1a2540;text-align:left;white-space:normal;
-      width:124px;min-width:124px;max-width:124px;padding:6px 8px 6px 0;color:#c8d3e8;line-height:1.3;overflow-wrap:anywhere}
+      padding:6px 8px 6px 0;color:#c8d3e8;line-height:1.3;overflow-wrap:anywhere}
     .ef-t .ef-grp{color:#8892a4;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding-top:9px}
-    .ef-c{display:block;width:100%;min-width:56px;min-height:36px;padding:3px 4px;border:0;border-radius:3px;background:none;color:#e8eef8;font:inherit;text-align:right;cursor:pointer}
+    .ef-c{display:block;width:100%;min-height:36px;padding:3px 3px;border:0;border-radius:3px;background:none;color:#e8eef8;font:inherit;text-align:right;cursor:pointer}
+    /* La zone de toucher élargie des boutons (button::after, écran tactile)
+       ne sort pas de la case : elle allongeait le défilement de 2 px, et le
+       calage à droite coupait d'autant la première colonne visible. */
+    .ef-c::after{inset:0!important}
     .ef-c[aria-pressed="true"]{background:rgba(77,184,255,.14);box-shadow:inset 0 0 0 1px #4db8ff!important}
     .ef-c small{display:block;font-size:10px;line-height:1.25}
     .ef-val{display:none}
@@ -205,7 +214,7 @@
     .ef-detail{scroll-margin:12px 0 84px}
     .ef-choix{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
     @media(max-width:767px){.ef-choix{flex-wrap:nowrap;width:0;min-width:100%;overflow-x:auto;padding-bottom:2px}.ef-choix .ef-b{flex:0 0 auto;white-space:nowrap}}
-    @media(min-width:768px){.ef-t .ef-lib{width:164px;min-width:164px;max-width:164px}.ef-val{display:inline}}
+    @media(min-width:768px){.ef-val{display:inline}}
     html{scroll-behavior:smooth;}
     @media (prefers-reduced-motion:reduce){
       *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;
@@ -10385,6 +10394,25 @@ const efBarres = (cs, H) => {
     })
   };
 };
+const EF_WMIN = 62,
+  EF_LMIN = 120;
+const efColonnes = (C, n) => {
+  const L0 = C < 480 ? 124 : 164;
+  let k, W;
+  if (C - EF_LMIN >= n * EF_WMIN) {
+    const L = Math.max(EF_LMIN, Math.min(L0, C - n * EF_WMIN));
+    k = n;
+    W = Math.floor((C - L) / n);
+  } else {
+    k = Math.max(1, Math.min(n, Math.floor((C - L0) / EF_WMIN)));
+    W = Math.floor((C - L0) / k);
+  }
+  return {
+    k,
+    W,
+    L: C - k * W
+  };
+};
 const efDetail = (e, vue, cle, i) => {
   const v = e.vues[vue],
     L = k => e.lignes.find(x => x.cle === k),
@@ -10462,7 +10490,10 @@ const EtatsFinanciers = ({
   const [grandeur, setGrandeur] = useState(null);
   const [barre, setBarre] = useState(null);
   const [sel, setSel] = useState(null);
-  const panneau = useRef(null);
+  const panneau = useRef(null),
+    defile = useRef(null);
+  const [C, setC] = useState(0),
+    [ombre, setOmbre] = useState(false);
   useEffect(() => {
     let vivant = true;
     setSel(null);
@@ -10480,6 +10511,23 @@ const EtatsFinanciers = ({
       block: "nearest"
     });
   }, [sel]);
+  React.useLayoutEffect(() => {
+    const el = defile.current;
+    if (!el) return;
+    setC(el.clientWidth);
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setC(el.clientWidth));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [!!e]);
+  React.useLayoutEffect(() => {
+    const el = defile.current;
+    if (!el || !C) return;
+    const m = e.vues[vue].periodes.length,
+      g = efColonnes(C, m);
+    el.scrollLeft = (m - g.k) * g.W;
+    setOmbre(el.scrollLeft > 0.5);
+  }, [C, vue, e]);
   const cadre = {
     background: "#0d1829",
     border: "1px solid #1a2540",
@@ -10507,7 +10555,8 @@ const EtatsFinanciers = ({
     P = v.periodes,
     n = P.length,
     H = 104,
-    T = 16;
+    T = 16,
+    geo = C > 0 ? efColonnes(C, n) : null;
   const avec = l => v.cellules[l.cle].some(c => efA(c.v));
   const lignes = e.lignes.filter(avec),
     vides = e.lignes.filter(l => !avec(l));
@@ -10682,14 +10731,35 @@ const EtatsFinanciers = ({
       fontWeight: on ? 700 : 400
     }, P[i].libelle.replace(" 20", " ")));
   }))), React.createElement("div", {
-    className: "ef-defile",
-    key: vue,
+    className: "ef-defile" + (ombre ? " ef-ombre" : ""),
+    ref: defile,
     tabIndex: 0,
     role: "group",
-    "aria-label": "Tableau des \xE9tats financiers, d\xE9filement horizontal"
+    "aria-label": "Tableau des \xE9tats financiers, d\xE9filement horizontal",
+    onScroll: ev => {
+      const o = ev.currentTarget.scrollLeft > 0.5;
+      if (o !== ombre) setOmbre(o);
+    },
+    style: geo ? {
+      scrollSnapType: "x mandatory",
+      scrollPaddingLeft: geo.L
+    } : null
   }, React.createElement("table", {
-    className: "ef-t"
-  }, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", {
+    className: "ef-t",
+    style: geo ? {
+      tableLayout: "fixed",
+      width: geo.L + n * geo.W
+    } : null
+  }, geo && React.createElement("colgroup", null, React.createElement("col", {
+    style: {
+      width: geo.L
+    }
+  }), P.map(p => React.createElement("col", {
+    key: p.cle,
+    style: {
+      width: geo.W
+    }
+  }))), React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", {
     className: "ef-lib",
     style: {
       fontSize: 10,
@@ -10697,7 +10767,10 @@ const EtatsFinanciers = ({
     }
   }, "millions de DH", e.perimetre === "consolide" ? " · consolidé" : ""), P.map(p => React.createElement("th", {
     key: p.cle,
-    scope: "col"
+    scope: "col",
+    style: {
+      scrollSnapAlign: "start"
+    }
   }, p.libelle)))), React.createElement("tbody", null, lignes.flatMap((l, k) => [(k === 0 || lignes[k - 1].groupe !== l.groupe) && React.createElement("tr", {
     key: "g" + l.groupe
   }, React.createElement("th", {

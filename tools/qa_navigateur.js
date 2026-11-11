@@ -14,6 +14,14 @@
  * Les bibliothèques des CDN sont servies depuis node_modules : le contrôle
  * ne dépend pas du réseau. Chromium : /opt/pw-browsers/chromium si présent.
  * Code de sortie : 0 = PUBLIABLE, 1 = À CORRIGER.
+ *
+ * ⚠️ 11/11/2026 — « États financiers » : un chiffre à moitié caché sous la
+ * colonne figée se lit comme un autre (« 16 373 » lu « 6 373 »). Pour chaque
+ * titre qui a la carte, dans les deux vues : aucune colonne de période
+ * visible n'est coupée (ni par la colonne figée, ni par le bord droit) et
+ * aucun nombre ne déborde de sa case — au chargement, puis après trois
+ * défilements arrêtés sur un pixel arbitraire et relâchés (position fixée par
+ * script, molette, glisser au doigt sur téléphone).
  */
 const fs = require('fs');
 const path = require('path');
@@ -35,6 +43,56 @@ const LIBS = {
     'lightweight-charts/dist/lightweight-charts.standalone.production.js',
 };
 const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 1440, 900]];
+
+// Colonnes coupées et nombres débordants du tableau « États financiers ».
+const coupes = p => p.evaluate(() => {
+  const d = document.querySelector('.fiche-etats .ef-defile');
+  if (!d) return null;
+  const r = d.getBoundingClientRect(), g = d.querySelector('thead th.ef-lib').getBoundingClientRect().right;
+  const out = [];
+  d.querySelectorAll('thead th:not(.ef-lib)').forEach(th => {
+    const b = th.getBoundingClientRect(), vu = Math.min(b.right, r.right) - Math.max(b.left, g);
+    if (vu > 0.5 && vu < b.width - 0.5) out.push(`${th.textContent} visible sur ${vu.toFixed(1)} px de ${b.width.toFixed(1)}`);
+  });
+  // Le contenu (valeur, marque, variation) dans la boîte intérieure de la case.
+  // Pas scrollWidth : sur écran tactile, la zone de toucher élargie (button::after,
+  // 2 px de chaque côté) le gonfle sans rien tronquer.
+  d.querySelectorAll('.ef-c').forEach(c => {
+    const r = c.getBoundingClientRect(), s = getComputedStyle(c);
+    const g0 = r.left + parseFloat(s.paddingLeft) - 0.5, d0 = r.right - parseFloat(s.paddingRight) + 0.5;
+    if ([...c.children].some(e => { const x = e.getBoundingClientRect(); return x.width && (x.left < g0 || x.right > d0); }))
+      out.push(`débordement : ${c.getAttribute('aria-label')}`);
+  });
+  return out;
+});
+const controlerEtats = async (p, nom, t, tactile) => {
+  const constats = [];
+  if (!(await p.locator('.fiche-etats .ef-defile').count())) return constats;
+  for (const vue of ['Annuel', 'Semestriel']) {
+    await p.locator('.fiche-etats').getByRole('button', { name: vue, exact: true }).click();
+    await p.waitForTimeout(400);
+    const note = async quand => (await coupes(p) || []).forEach(c => constats.push(`${nom} ${t} ${vue} ${quand} : ${c}`));
+    await note('au chargement');
+    const max = await p.evaluate(() => { const d = document.querySelector('.fiche-etats .ef-defile'); return d.scrollWidth - d.clientWidth; });
+    if (max < 1) continue;
+    // 1. position arbitraire fixée par script
+    await p.evaluate(x => { document.querySelector('.fiche-etats .ef-defile').scrollLeft = x; }, Math.round(max * 0.37) + 13);
+    await p.waitForTimeout(700); await note('après défilement par script');
+    // 2. molette horizontale d'un nombre arbitraire de pixels
+    const b = await p.locator('.fiche-etats .ef-defile').boundingBox();
+    await p.mouse.move(b.x + b.width * 0.7, b.y + 60); await p.mouse.wheel(-29, 0);
+    await p.waitForTimeout(900); await note('après molette de 29 px');
+    // 3. glisser au doigt, relâché à mi-colonne (téléphone)
+    if (tactile) {
+      const cdp = await p.context().newCDPSession(p), y = b.y + 60, x0 = b.x + b.width * 0.8;
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y }] });
+      for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 - i * 7.3, y }] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await p.waitForTimeout(900); await note('après glisser de 44 px');
+    }
+  }
+  return constats;
+};
 
 (async () => {
   const exe = fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined;
@@ -71,6 +129,7 @@ const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 144
         await p.locator('.classement tr').nth(1).click();
         await p.waitForTimeout(2000);
         if (!(await p.locator('canvas').count())) constats.push(`${nom} ${t} : aucun graphique`);
+        constats.push(...await controlerEtats(p, nom, t, w < 500));
         const fib = p.getByRole('button', { name: 'FIB', exact: true }).first();
         if (await fib.count()) { await fib.click(); await p.waitForTimeout(500); await fib.click(); }
         if (SORTIE) {

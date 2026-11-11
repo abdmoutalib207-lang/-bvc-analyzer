@@ -202,12 +202,39 @@ def test_textes_de_la_carte():
     # Bascule et graphique : boutons à état, SVG simple, aucune bibliothèque de graphique.
     assert '["annuel","Annuel"],["semestriel","Semestriel"]' in CARTE and "aria-pressed={vue===k}" in CARTE
     assert "<svg" in CARTE and "LightweightCharts" not in CARTE and "ApexCharts" not in CARTE
-    # Le tableau défile DANS la carte, la colonne des grandeurs reste en place,
-    # et il s'ouvre sur la période la plus récente.
+    # Le tableau défile DANS la carte, la colonne des grandeurs reste en place.
     css = ECRAN[:ECRAN.index("</style>")]
-    assert re.search(r"\.ef-defile\{width:0;min-width:100%;overflow-x:auto[^}]*direction:rtl\}", css)
+    assert re.search(r"\.ef-defile\{width:0;min-width:100%;overflow-x:auto", css)
     assert re.search(r"\.ef-t \.ef-lib\{position:sticky;left:0", css)
-    assert 'className="ef-defile"' in CARTE
+    assert ".ef-c::after{inset:0!important}" in css           # zone tactile contenue dans la case
+    assert ".ef-ombre .ef-lib{" in css                         # colonnes cachées signalées
+    assert 'className={"ef-defile"+(ombre?" ef-ombre":"")}' in CARTE
+
+
+def test_colonnes_entieres_jamais_un_chiffre_coupe():
+    """11/11/2026 : « 16 373 » se lisait « 6 373 », à moitié sous la colonne figée.
+    Pour toute largeur de cadre de 260 à 1 400 px et 8 ou 10 périodes : colonnes
+    de période égales, au moins aussi larges que la case la plus large mesurée
+    (55,1 px + marges), un nombre ENTIER visible, la colonne figée prenant le
+    reste — donc toute accroche et la position initiale (n − k)·W tombent sur
+    une limite de colonne. Le défilement s'accroche par colonne et s'ouvre calé
+    sur cette position, avant le premier affichage."""
+    r = _node("""const out=[];for(const n of [8,10])for(let C=260;C<=1400;C++){const g=efColonnes(C,n);out.push([C,n,g.k,g.W,g.L]);}
+console.log(JSON.stringify(out));""")
+    for C, n, k, W, L in r:
+        ou = f"C={C} n={n}"
+        assert isinstance(W, int) and isinstance(L, int) and L + k * W == C, ou
+        assert 1 <= k <= n and W >= 62 and 120 <= L < 164 + W, ou
+        if k < n:
+            assert C - (124 if C < 480 else 164) < (k + 1) * 62, ou   # pas une colonne entière de plus
+    g = {(C, n): (k, W, L) for C, n, k, W, L in r}
+    assert g[(336, 10)] == (3, 70, 126)          # téléphone 390 px : trois exercices entiers
+    assert g[(744, 10)][0] == 10                 # ordinateur 1440 px : les dix exercices
+    assert 'scrollSnapType:"x mandatory",scrollPaddingLeft:geo.L' in CARTE
+    assert 'style={{scrollSnapAlign:"start"}}' in CARTE
+    assert "tableLayout:\"fixed\",width:geo.L+n*geo.W" in CARTE
+    assert "el.scrollLeft=(m-g.k)*g.W" in CARTE and "React.useLayoutEffect" in CARTE
+    assert "direction:rtl" not in ECRAN
 
 
 def test_aucune_bibliotheque_ajoutee():
