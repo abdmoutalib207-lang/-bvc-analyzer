@@ -382,11 +382,27 @@ def _candidats_bourse(argv: list[str]) -> list[dict] | None:
         return None
     try:
         return json.loads(Path(argv[argv.index("--bourse") + 1]).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    except (OSError, ValueError) as ex:
+        print(f"file_attente_comptes : fichier --bourse illisible ({ex}), seconde source ignorée",
+              file=sys.stderr)
         return None
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Toujours 0 : une file non vide, ou un jeu absent, n'est pas une panne de séance.
+
+    L'étape du workflow est en `if: always()` sans `continue-on-error` : une
+    exception ici ferait échouer verifier_seance. La cause va sur stderr (R5).
+    """
+    try:
+        return _main(argv)
+    except Exception as ex:  # noqa: BLE001 — promesse du module : ne jamais faire échouer le workflow
+        print(f"file_attente_comptes : échec ({type(ex).__name__}: {ex}), file non produite",
+              file=sys.stderr)
+        return 0
+
+
+def _main(argv: list[str] | None = None) -> int:
     from pipeline.depots_ammc import charger
     args = sys.argv[1:] if argv is None else argv
     jeu = json.loads(JEU.read_text(encoding="utf-8"))

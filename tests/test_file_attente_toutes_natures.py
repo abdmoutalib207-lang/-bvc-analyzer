@@ -249,6 +249,29 @@ def test_main_json_et_texte_sortent_en_zero(capsys):
     assert capsys.readouterr().out.startswith("## Comptes déposés à l'AMMC, pas encore intégrés")
 
 
+def test_main_ne_echoue_jamais_jeu_absent(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(fa, "JEU", tmp_path / "absent.json")
+    assert fa.main(["--json"]) == 0
+    assert "file_attente_comptes : échec" in capsys.readouterr().err
+
+
+def test_main_ne_echoue_jamais_json_corrompu(monkeypatch, tmp_path, capsys):
+    p = tmp_path / "jeu.json"
+    p.write_text("{corrompu", encoding="utf-8")
+    monkeypatch.setattr(fa, "JEU", p)
+    assert fa.main([]) == 0
+    assert "file_attente_comptes : échec" in capsys.readouterr().err
+
+
+def test_bourse_illisible_signalee_sur_stderr(tmp_path, capsys):
+    p = tmp_path / "c.json"
+    p.write_text("{pas du json", encoding="utf-8")
+    assert fa._candidats_bourse(["--bourse", str(p)]) is None
+    assert "illisible" in capsys.readouterr().err
+    assert fa._candidats_bourse(["--bourse", str(tmp_path / "absent.json")]) is None
+    assert "illisible" in capsys.readouterr().err
+
+
 def test_main_json_avec_bourse(tmp_path, capsys):
     p = tmp_path / "c.json"
     p.write_text(json.dumps([{"ticker": "ZZZ", "date": "2026-10-05", "titre": "ZZZ - S1", "url": "b/ZZZ"}]),
