@@ -67,6 +67,16 @@ valeur, PUIS seulement comparer.
 | Dividende dont le texte extrait perd le premier chiffre (Sothema « 8 MAD » pour 28) | rendre la page et lire ; la citation reprend le chiffre lu, la note le dit |
 | Ligature « ﬁ » (« ﬁnancières ») et caractère « � » dans les libellés extraits | écrire les regex de libellé avec les variantes (`(fi\|ﬁ)`, `\S*`) ; un libellé introuvable n'est pas une ligne absente |
 | Dette financière non courante = dette de location (Sonasid, note 23) | la retirer au chiffre du BILAN (123,192), pas au chiffre arrondi de la note (123,2) ; même règle partout où la note identifie les deux |
+| Colonnes d'un en-tête que le texte extrait réordonne (Risma S1 2026 : texte « 30/06/26 » en premier, page rendue « 30/06/25 publié, 30/06/25 pro forma, 30/06/26 ») ; ancien exercice à gauche dans les rapports annuels Risma | rendre la page avant de choisir la colonne ; le même rapport peut ranger le compte de résultat et le bilan dans des sens différents |
+| Unité qui change dans un même émetteur (Risma : KMAD jusqu'au S1 2023, MDH arrondis ensuite) ; minoritaires = ensemble − part du groupe arrondis, qui diffère de 1 de la valeur imprimée | `unite_source` par cellule ; stocker la valeur imprimée avec le signe qui boucle (le test d'unité exige le jeton) |
+| Ligne seule dans une colonne (CMT « Trésorerie - Passif 3 192 138,82 ») : la colonne n'est pas imprimée | placer le montant par l'équilibre du bilan (total passif moins les autres masses) |
+| Tableau des flux semestriel « 30/06/N \| 31/12/N-1 \| variation » (RDS, CMGP) | la 2e colonne est un exercice complet : elle donne le flux de l'exercice précédent en comparatif, jamais celui du semestre précédent |
+| Compte de produits et charges social marocain à quatre colonnes dont les vides ne sont pas imprimées (SRM) | 3 jetons = propres, total, précédent ; 4 jetons = propres, antérieurs, total, précédent ; lire l'en-tête avant de choisir la colonne |
+| Texte extrait à espaces parasites (RDS RFA 2023 : « (27 80 9) ») | le jeton se lit sans ses espaces intérieurs mais le libellé brouillé fausse les tests de citation ; rendre la page, citer ce qui est lu et le dire dans `note` |
+| Libellé coupé sur deux lignes avec les montants entre les deux (Risma FY2024 flux d'investissement) | citer les trois fragments d'une seule chaîne |
+| Retraitement silencieux d'un comparatif (RDS : changement de méthode de reconnaissance du chiffre d'affaires, 2024 : −79,7 retraité contre −82,8 d'origine) | garder la valeur du dépôt d'origine et mettre la valeur retraitée en réserve |
+| Communiqué ou page d'un autre format dans le rapport (SRM RFA 2019 : CA semestriel 130,9 à la p.106, états annuels p.109) | repérer la page des états de synthèse de l'exercice avant de conclure qu'un chiffre est étranger ; lire le sha256 et la page du dépôt d'origine |
+| Deux lignes « TOTAL III » sur la même page de bilan (trésorerie actif et trésorerie passif, SRM 2020) | citer le libellé de la masse (« TRÉSORERIE - PASSIF »), jamais un « TOTAL » seul ; relire la colonne et la masse pièce en main |
 
 ## 3. Contre-vérification (verificateur-finance)
 

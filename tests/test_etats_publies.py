@@ -56,7 +56,7 @@ def _ligne(texte):
 # ── 1. sortie exacte du générateur, 2. poids ───────────────────────────────
 
 def test_les_titres_des_lots_sont_la():
-    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CSR", "IAM", "LHM", "MNG", "MSA", "SMI", "SNA", "SOT", "TGCC"]
+    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CMGP", "CMT", "CSR", "IAM", "LHM", "MNG", "MSA", "RDS", "RIS", "SMI", "SNA", "SOT", "SRM", "TGCC"]
 
 
 def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
@@ -132,7 +132,7 @@ def test_chaque_valeur_a_document_page_citation(t):
             assert c["s"] in ("p", "c"), ou
             source(c, ou)
             assert c.get("u") or docs[c["d"]].get("un"), f"{ou} : unité imprimée"
-    assert n > (60 if t == "SMI" else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes
+    assert n > (60 if t == "SMI" else 40 if t in ("CMGP", "SRM") else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes ; CMGP : introduit en bourse en 2025, quatre périodes seulement
 
 
 # ── 4. fidélité au relevé, cellule par cellule ──────────────────────────────
@@ -226,7 +226,7 @@ def test_variations_et_marges_recalculees(t):
                     assert b["v"] > 0 and m["v"] == round(a["v"] / b["v"] * 100, 1)
                 else:
                     assert "v" not in a or "v" not in b or b["v"] <= 0
-    assert n_var > (20 if t == "AKD" else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022)
+    assert n_var > (10 if t in ("CMGP", "SRM") else 20 if t in ("AKD", "RDS") else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022) ; RDS : exercices 2019-2025, semestres 2022-2026 seulement, tableau des flux absent
     if t in ("ADI", "MNG"):                      # pertes relues dans les relevés : des « ns » existent
         assert n_ns >= 1
 

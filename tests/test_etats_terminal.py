@@ -86,8 +86,8 @@ def test_carte_branchee_dans_la_fiche_et_chargee_a_la_demande():
 
 def test_couverture_index_et_titre_sans_releve():
     r = _node(f"""const ix=JSON.parse(fs.readFileSync({json.dumps(str(PUBLIES / 'index.json'))},'utf8'));
-console.log(JSON.stringify({{iam:efCouvert(ix,'IAM'),cmt:efCouvert(ix,'CMT'),nul:efCouvert(null,'IAM'),vide:efCouvert({{}},'IAM')}}));""")
-    assert r == {"iam": True, "cmt": False, "nul": False, "vide": False}
+console.log(JSON.stringify({{iam:efCouvert(ix,'IAM'),bal:efCouvert(ix,'BAL'),nul:efCouvert(null,'IAM'),vide:efCouvert({{}},'IAM')}}));""")
+    assert r == {"iam": True, "bal": False, "nul": False, "vide": False}
 
 
 # ── 2. les fonctions pures, sur les fichiers publiés ────────────────────────
