@@ -96,7 +96,8 @@ def points_macd(macd, sig, hist, hist_prec) -> float:
 # ─────────────────────────── facteurs et score ───────────────────────────
 
 def facteurs_bvc(*, prix, ma20, ma50, ma200, rsi, macd, macd_signal, hist, hist_prec,
-                 ratio_volume, montant_median, liquidite_prete, roe) -> dict:
+                 ratio_volume, montant_median, liquidite_prete, roe,
+                 mediane_volume=None) -> dict:
     """{nom: {poids, points, mesure}} — `poids` = poids COUVERT (0 si absent)."""
     out: dict = {}
     p_ok = _fini(prix) and prix > 0
@@ -136,8 +137,14 @@ def facteurs_bvc(*, prix, ma20, ma50, ma200, rsi, macd, macd_signal, hist, hist_
     r = round(ratio_volume, 2) if _fini(ratio_volume) else None
     w = POIDS["activité"]
     if r is not None:
+        # `ratio` et `mediane` en chiffres : le briefing lit ce rapport-ci, et
+        # aucun autre, pour qu'un même titre n'ait qu'un rapport d'activité
+        # (constat de l'audit du 12/11/2026 : Salafin 13,9× au briefing, 18,93×
+        # sur la fiche, deux médianes différentes). Ne change aucun point.
         out["activité"] = {"poids": w, "poids_nominal": w,
                            "points": round(nour.points_activite(r) * w, 2),
+                           "ratio": r,
+                           "mediane": (round(mediane_volume, 1) if _fini(mediane_volume) else None),
                            "mesure": f"volume du jour = {_fr(r)} × la médiane des 20 séances précédentes"}
     else:
         out["activité"] = {"poids": 0, "poids_nominal": w, "points": None,
@@ -207,6 +214,7 @@ def score_titre_bvc(rec: dict, bougies: list | None) -> dict:
         rsi=rec.get("rsi"), macd=macd, macd_signal=sig, hist=hist, hist_prec=hprec,
         ratio_volume=m["ratio_volume"], montant_median=m["montant_median"],
         liquidite_prete=m["liquidite_prete"], roe=nour.roe_publie(rec),
+        mediane_volume=m.get("mediane_volume"),
         decision=decision, motif=motif)
 
 

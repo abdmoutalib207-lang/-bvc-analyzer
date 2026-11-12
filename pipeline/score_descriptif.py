@@ -273,18 +273,19 @@ def mesures_series(closes: list, vols: list, n_depuis_reprise=None, n_total=None
     n = len(closes)
     # Rapport de volume : jour ÷ médiane des 20 séances PRÉCÉDENTES (Nour :
     # `volumes[-1] / median(volumes[-21:-1])`, None si cette médiane est nulle).
-    ratio = None
+    ratio = med_prec = None
     if n_total >= MIN_SEANCES_TENDANCE and n >= MIN_SEANCES_TENDANCE:
         prec = vols[-21:-1]
         med = median(prec) if any(prec) else 0
         ratio = vols[-1] / med if med else None
+        med_prec = med or None
     # Liquidité : montant médian des séances ÉCHANGÉES de la fenêtre.
     lo = n - min(int(n_depuis_reprise), n) if (isinstance(n_depuis_reprise, int)
                                                and n_depuis_reprise > 0) else 0
     idx = list(range(max(lo, n - FENETRE), n))
     actives = [i for i in idx if vols[i] > 0]
     montants = [closes[i] * vols[i] for i in actives]
-    return {"n_seances": n_total, "ratio_volume": ratio,
+    return {"n_seances": n_total, "ratio_volume": ratio, "mediane_volume": med_prec,
             "montant_median": median(montants) if montants else None,
             "seances_actives": len(actives), "fenetre": len(idx),
             "liquidite_prete": len(actives) >= MIN_ACTIVES and len(idx) >= MIN_ACTIVES,
