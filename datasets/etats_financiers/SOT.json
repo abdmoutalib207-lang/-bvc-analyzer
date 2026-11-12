@@ -298,21 +298,22 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (88) : seul le signe qui boucle résultat net total − part du groupe (181 761 − 181 853 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 221.521,
+     "valeur_mdh": 217.366,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce"
+      "crédit-bail chiffré en note (page à la composante), retiré"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -363,9 +364,26 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 4.155,
+       "unite_source": "KMAD",
+       "valeur_source": "4 155",
+       "document": "Sothema_RFA_2020.pdf",
+       "page": 144,
+       "citation": "Dont crédit-bail 4 155 10 843 -3 481",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       },
+       "note": "colonne d'ouverture ou comparative d'un document ultérieur : valeur peut-être retraitée"
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "nombre_actions": {
      "valeur_mdh": 1800000.0,
@@ -562,21 +580,22 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (-68) : seul le signe qui boucle résultat net total − part du groupe (219 689 − 219 621 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 204.869,
+     "valeur_mdh": 193.353,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce"
+      "crédit-bail chiffré en note (page à la composante), retiré"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -627,9 +646,26 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 11.516,
+       "unite_source": "KMAD",
+       "valeur_source": "11 516",
+       "document": "Sothema_RFA_2020.pdf",
+       "page": 144,
+       "citation": "Dont crédit-bail 4 155 10 843 -3 481",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       },
+       "note": "colonne d'ouverture ou comparative d'un document ultérieur : valeur peut-être retraitée"
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "nombre_actions": {
      "valeur_mdh": 1800000.0,
@@ -817,21 +853,22 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (-70) : seul le signe qui boucle résultat net total − part du groupe (230 268 − 230 198 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 288.73,
+     "valeur_mdh": 277.987,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce"
+      "crédit-bail chiffré en note (page à la composante), retiré"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -882,9 +919,25 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 10.743,
+       "unite_source": "KMAD",
+       "valeur_source": "10 743",
+       "document": "Sothema_RFA_2020.pdf",
+       "page": 144,
+       "citation": "Dont crédit-bail 11 516 2 783 -3 569",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 429.0,
@@ -1136,21 +1189,22 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (3 903) : seul le signe qui boucle résultat net total − part du groupe (274 946 − 278 849 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 135.52,
+     "valeur_mdh": 120.56,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce"
+      "crédit-bail chiffré en note (page à la composante), retiré"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -1200,9 +1254,26 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 14.96,
+       "unite_source": "KMAD",
+       "valeur_source": "14 960",
+       "document": "SOTHEMA_RFA_2022.pdf",
+       "page": 145,
+       "citation": "Dont Crédit-bail 14 960 1 564 -3 871",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       },
+       "note": "colonne d'ouverture ou comparative d'un document ultérieur : valeur peut-être retraitée"
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 480.0,
@@ -1452,22 +1523,23 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (-518) : seul le signe qui boucle résultat net total − part du groupe (267 134 − 266 616 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 306.996,
+     "valeur_mdh": 294.314,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (4 614 KMAD)"
+      "crédit-bail chiffré en note (page à la composante), retiré",
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -1517,9 +1589,25 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 12.682,
+       "unite_source": "KMAD",
+       "valeur_source": "12 682",
+       "document": "SOTHEMA_RFA_2022.pdf",
+       "page": 145,
+       "citation": "Dont Crédit-bail 14 960 1 564 -3 871",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 498.0,
@@ -1769,22 +1857,23 @@
      "reserve": "Le dépôt imprime ce montant avec le signe inverse (-994) : seul le signe qui boucle résultat net total − part du groupe (263 752 − 262 758 KMAD) est retenu."
     },
     "dette_nette": {
-     "valeur_mdh": 454.023,
+     "valeur_mdh": 441.008,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (5.596 KMAD)"
+      "crédit-bail chiffré en note (page à la composante), retiré",
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -1834,9 +1923,25 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 13.015,
+       "unite_source": "KMAD",
+       "valeur_source": "13.015",
+       "document": "Sothema_RFA_2023.pdf",
+       "page": 145,
+       "citation": "Dont Crédit-bail 12.682 4.575 -4.233",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 490.0,
@@ -2049,22 +2154,23 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 511.43,
+     "valeur_mdh": 442.034,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (5 596 KMAD)"
+      "crédit-bail chiffré en note (page à la composante), retiré",
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -2114,9 +2220,25 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 69.396,
+       "unite_source": "KMAD",
+       "valeur_source": "69 396",
+       "document": "Sothema_RFA_2024.pdf",
+       "page": 84,
+       "citation": "Dont Crédit-bail 13 015 74 139 -17 606",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 600.0,
@@ -2186,7 +2308,7 @@
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "note": "chiffre clé « Pour les actionnaires » du modèle d'affaires, lu sur la page rendue (le texte extrait perd le premier chiffre) ; le rapport propose une distribution de 201 600 000 DH (page 57)",
-     "reserve": "Versé avant la division par cinq du nominal de mai 2026 : par action de 50 DH."
+     "reserve": "Par action de 50 DH de nominal (nominal avant la division par cinq de mai 2026)."
     },
     "ebe": {
      "valeur_mdh": null,
@@ -2343,21 +2465,22 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 827.87,
+     "valeur_mdh": 760.576,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites - credit_bail_retire — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "composantes_exclues": [
-      "dettes de location : non isolées dans la pièce"
+      "crédit-bail chiffré en note (page à la composante), retiré"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
-      "disponibilites": "disponibilités"
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
+      "disponibilites": "disponibilités",
+      "credit_bail_retire": "crédit-bail (note)"
      },
      "composantes": {
       "emprunts_et_dettes_financieres_lt": {
@@ -2407,9 +2530,25 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "credit_bail_retire": {
+       "valeur_mdh": 67.294,
+       "unite_source": "KMAD",
+       "valeur_source": "67 294",
+       "document": "Sothema_RFA_2025.pdf",
+       "page": 76,
+       "citation": "Dont Crédit-bail 69 396 3 864 -17 151",
+       "entete_colonnes": "Note dettes financières, KMAD",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
      },
-     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce"
+     "reserve": "La part location simple d'IFRS 16 n'est pas chiffrée dans la pièce (seuls les droits d'utilisation le sont)."
     },
     "ebitda_ajuste": {
      "valeur_mdh": 763.0,
@@ -2479,7 +2618,7 @@
       "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
      },
      "note": "chiffre clé « Pour les actionnaires » du modèle d'affaires, lu sur la page rendue (le texte extrait perd le premier chiffre) ; le rapport propose une distribution de 252 842 700 DH (page 50)",
-     "reserve": "Dividende arrondi à l'unité par le rapport (252 842 700 DH ÷ 7 606 728 actions = 33,24) ; versé avant la division par cinq du nominal."
+     "reserve": "33 DH par action d'avant la division par cinq ; la masse distribuée (252 842 700 DH) correspond à 7 661 900 actions, titres créés en 2026 compris."
     },
     "ebe": {
      "valeur_mdh": null,
@@ -2946,7 +3085,7 @@
     "dette_nette": {
      "valeur_mdh": 234.299,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -2954,11 +3093,11 @@
      },
      "composantes_exclues": [
       "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (35 015 KMAD)"
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {
@@ -3222,7 +3361,7 @@
     "dette_nette": {
      "valeur_mdh": 191.349,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -3230,11 +3369,11 @@
      },
      "composantes_exclues": [
       "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (5 232 KMAD)"
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {
@@ -3540,7 +3679,7 @@
     "dette_nette": {
      "valeur_mdh": 332.66,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -3548,11 +3687,11 @@
      },
      "composantes_exclues": [
       "dettes de location : non isolées dans la pièce",
-      "VMP et autres placements (5 738 KMAD)"
+      "VMP et autres placements"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {
@@ -3843,7 +3982,7 @@
     "dette_nette": {
      "valeur_mdh": 487.422,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -3853,8 +3992,8 @@
       "dettes de location : non isolées dans la pièce"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {
@@ -4122,7 +4261,7 @@
     "dette_nette": {
      "valeur_mdh": 313.044,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -4132,8 +4271,8 @@
       "dettes de location : non isolées dans la pièce"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {
@@ -4401,7 +4540,7 @@
     "dette_nette": {
      "valeur_mdh": 684.704,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : emprunts et dettes financières non courants, emprunts et concours bancaires à moins d'un an, moins disponibilités ; NON INCLUS : VMP et autres placements, dettes de location non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ emprunts_et_dettes_financieres_lt + emprunts_et_concours_bancaires_ct - disponibilites — INCLUS : dettes financières, concours bancaires, moins disponibilités, moins crédit-bail chiffré en note ; NON INCLUS : VMP. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
@@ -4411,8 +4550,8 @@
       "dettes de location : non isolées dans la pièce"
      ],
      "composantes_incluses": {
-      "emprunts_et_dettes_financieres_lt": "emprunts et dettes financières non courants",
-      "emprunts_et_concours_bancaires_ct": "emprunts et concours bancaires (part à moins d'un an)",
+      "emprunts_et_dettes_financieres_lt": "emprunts non courants",
+      "emprunts_et_concours_bancaires_ct": "emprunts et concours à moins d'un an",
       "disponibilites": "disponibilités"
      },
      "composantes": {

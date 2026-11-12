@@ -61,7 +61,12 @@ valeur, PUIS seulement comparer.
 | Dette nette publiée qui ne recoupe pas la nôtre (TGCC : titres de placement retranchés) | garder les deux, dire la différence de composantes ; une dette nette publiée dont le périmètre consolidé n'est pas établi n'est pas retenue (Cosumar) |
 | Tableau des flux semestriel dont le comparatif est l'exercice précédent (TGCC S1 2022 : « 30/06/2022 \| 31/12/2021 ») | lire l'en-tête de date de CHAQUE état ; une valeur de semestre égale à celle de l'exercice de la même année est suspecte ; sans colonne 30/06, la cellule est vide |
 | Dette nette après IFRS 16 (Cosumar 2019 : 86,7 de dettes de contrats à droit d'usage dans les dettes non courantes, 13,0 de dérivés dans les courantes) | retirer les dettes de location et les dérivés quand la pièce les isole (montants cités dans `composantes_exclues`), sinon réserve « comprend des dettes de location non isolées dans la pièce » |
-| Dette de location absente du bilan mais chiffrée dans la note des dettes financières (TGCC, crédit-bail) | lire la note avant de déclarer « non isolée » ; prendre chaque exercice dans SA propre pièce, la ventilation peut changer dans le comparatif suivant à total égal |
+| Dette de location absente du bilan mais chiffrée dans la note des dettes financières (TGCC, crédit-bail ; Sothema, « Dont crédit-bail » de la note 14 / 4.11) | lire la note avant de déclarer « non isolée » ; prendre chaque exercice dans SA propre pièce, la ventilation peut changer dans le comparatif suivant à total égal ; deuxième récidive (TGCC lot 2, Sothema lot 3) : ouvrir la note des dettes financières de CHAQUE exercice AVANT d'écrire toute réserve de location |
+| Signe des minoritaires imprimé inversé d'un dépôt à l'autre (Sothema 2020-2023 et S1 2020-2024) | recalculer résultat net ensemble − part du groupe ; le signe qui boucle est retenu, la réserve dit le signe imprimé |
+| Ligne « Résultat opérationnel » absente de l'état (Sothema 2021-2023) | somme de lignes publiées (courant + autres produits et charges opérationnels, dernier sous-total), statut calculé, dite dérivée ; vérifier par l'identité jusqu'au résultat net |
+| Dividende dont le texte extrait perd le premier chiffre (Sothema « 8 MAD » pour 28) | rendre la page et lire ; la citation reprend le chiffre lu, la note le dit |
+| Ligature « ﬁ » (« ﬁnancières ») et caractère « � » dans les libellés extraits | écrire les regex de libellé avec les variantes (`(fi\|ﬁ)`, `\S*`) ; un libellé introuvable n'est pas une ligne absente |
+| Dette financière non courante = dette de location (Sonasid, note 23) | la retirer au chiffre du BILAN (123,192), pas au chiffre arrondi de la note (123,2) ; même règle partout où la note identifie les deux |
 
 ## 3. Contre-vérification (verificateur-finance)
 
