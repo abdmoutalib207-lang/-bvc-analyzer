@@ -265,5 +265,8 @@ bulletin_out/
 # Babel DANS LE NAVIGATEUR, sans étape de build. @babel/standalone ne sert
 # qu à vérifier la syntaxe JSX en local (skill run-tests) et n a rien à faire
 # dans le dépôt — commité par mégarde le 24/09/2026, retiré aussitôt.
-node_modules/
+# Sans barre finale : le lien symbolique `node_modules` des contrôles navigateur
+# est un FICHIER, que `node_modules/` (répertoires seulement) laissait passer
+# (ERRORS.md, famille 32, 12/11/2026).
+node_modules
 package-lock.json
