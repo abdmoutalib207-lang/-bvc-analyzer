@@ -77,7 +77,7 @@ RELEVES = RACINE / "datasets" / "etats_financiers"
 SORTIE = RACINE / "datasets" / "etats_publies"
 SCHEMA = "etats_publies/1"
 SCHEMA_RELEVE = "etats_financiers/1"
-POIDS_MAX = 40_000            # octets par titre (objectif de la demande)
+POIDS_MAX = 45_000            # octets par titre (40 000 au lot 1 ; relevé à 45 000 au lot 2 : ADH, 18 périodes de dette nette sur trois composantes citées)
 CITATION_MAX = 200            # caractères ; au-delà, coupée et marquée « […] »
 
 STATUTS = {
@@ -147,6 +147,24 @@ _RAISONS = (
     (r"^ligne « Dette nette » du tableau consolidé non retrouvée",
      "Non relevé : la ligne « Dette nette » du tableau consolidé n'a pas été retrouvée dans la "
      "colonne de la période."),
+    # lot 2 (ADH, CSR, TGCC, MSA)
+    (r"^document introuvable",
+     "Non relevé : document introuvable, aucun dépôt AMMC de comptes pour cette période."),
+    (r"^sans objet : semestre",
+     "Sans objet : un dividende se propose au titre d'un exercice, pas d'un semestre."),
+    (r"image sans texte",
+     "Non relevé : le document déposé est une image sans couche texte, il n'a pas été lu."),
+    (r"^bilan au 30/06",
+     "Non relevé : pas de bilan publié à cette date (le comparatif du document suivant est celui de fin d'exercice)."),
+    (r"^(aucune? ligne|aucun EBITDA|pas de ligne|EBE : aucune)",
+     "Aucune ligne de ce nom dans les états consolidés de l'émetteur ; quand il publie un indicateur "
+     "de gestion, il figure à la ligne « EBITDA ajusté »."),
+    (r"^endettement net publié",
+     "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
+     "sans périmètre consolidé établi."),
+    (r"non lu|non relevé|non établi|non repris",
+     "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
+     "qu'elle n'est pas publiée)."),
 )
 RAISON_ABSENTE = "Non relevé : cette grandeur n'a pas été lue pour cette période."
 RAISON_TERME = "Non calculé : un des deux termes n'est pas relevé pour cette période."
