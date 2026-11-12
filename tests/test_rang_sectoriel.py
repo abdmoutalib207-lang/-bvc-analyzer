@@ -196,3 +196,38 @@ def test_le_flux_publie_situe_une_part_utile_des_titres():
     assert len(r) >= 30, (
         f"seulement {len(r)} titres situés dans leur secteur sur {len(t)} — "
         f"la table COMPANY_SECTORS est-elle intacte ?")
+
+
+# ── ⚠️ Médiane de séance (audit du 12/11/2026) ─────────────────────────────
+
+def _d(sym, pe, asof="2026-11-12", stale=False, **kw):
+    return {"symbol": sym, "sector": "Banque", "pe": pe, "pb": kw.get("pb"), "div": None,
+            "pb_reserve": kw.get("pb_reserve"), "_meta": {"prix_asof": asof, "stale": stale}}
+
+
+def test_un_cours_anterieur_ne_fait_ni_la_mediane_ni_le_rang():
+    t = [_d("A", 10), _d("B", 12), _d("C", 14), _d("D", 16),
+         _d("VIEUX", 2, asof="2026-09-28")]               # PER très bas, cours de septembre
+    r = rangs(t)
+    assert "VIEUX" not in r
+    assert r["A"]["pe"]["mediane_secteur"] == 13.0 and r["A"]["pe"]["pairs"] == 4
+
+
+def test_un_cours_de_moins_d_une_semaine_reste_comparable():
+    """Un titre qui n'a pas coté garde sa dernière clôture comme cours de
+    référence : à sept jours, il compte ; à huit, non."""
+    t = [_d("A", 10), _d("B", 12), _d("C", 14), _d("D", 16),
+         _d("HIER", 11, asof="2026-11-11", stale=True), _d("J7", 13, asof="2026-11-05"),
+         _d("J8", 3, asof="2026-11-04")]
+    r = rangs(t)
+    assert "HIER" in r and "J7" in r and "J8" not in r
+    assert r["A"]["pe"]["pairs"] == 6
+
+
+def test_un_pb_sous_reserve_n_entre_pas_dans_la_comparaison_du_pb():
+    t = [_d(s, 10, pb=v) for s, v in (("A", 1.0), ("B", 1.2), ("C", 1.4), ("D", 1.6))]
+    t.append(_d("T2S", 10, pb=3.41, pb_reserve="fonds propres d'avant l'augmentation de capital"))
+    r = rangs(t)
+    assert "pb" not in r["T2S"] and r["T2S"]["pe"]["pairs"] == 5
+    assert r["A"]["pb"]["pairs"] == 4
+

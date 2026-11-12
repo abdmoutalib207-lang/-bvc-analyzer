@@ -6644,15 +6644,27 @@ function classerPER(rows) {
       motif
     });else classes.push(l);
   }
-  const parSecteur = {};
-  for (const l of classes) if (l.secteur) (parSecteur[l.secteur] = parSecteur[l.secteur] || []).push(l.pe);
+  const JOURS_COMPARABLES = 7;
+  const seance = classes.reduce((d, l) => l.asof && l.asof > d ? l.asof : d, "");
+  const jours = a => (Date.parse(seance) - Date.parse(a)) / 864e5;
+  for (const l of classes) l.anterieur = !l.asof || !(jours(l.asof) <= JOURS_COMPARABLES);
+  const parSecteur = {},
+    horsMed = {};
+  for (const l of classes) if (l.secteur) {
+    if (l.anterieur) {
+      horsMed[l.secteur] = (horsMed[l.secteur] || 0) + 1;
+      continue;
+    }
+    (parSecteur[l.secteur] = parSecteur[l.secteur] || []).push(l.pe);
+  }
   const medianes = {};
-  for (const s of Object.keys(parSecteur)) {
-    const t = [...parSecteur[s]].sort((a, b) => a - b),
+  for (const s of new Set([...Object.keys(parSecteur), ...Object.keys(horsMed)])) {
+    const t = [...(parSecteur[s] || [])].sort((a, b) => a - b),
       n = t.length;
     medianes[s] = {
       n,
-      med: n >= MIN_SECTEUR ? n % 2 ? t[(n - 1) / 2] : (t[n / 2 - 1] + t[n / 2]) / 2 : null
+      med: n >= MIN_SECTEUR ? n % 2 ? t[(n - 1) / 2] : (t[n / 2 - 1] + t[n / 2]) / 2 : null,
+      hors: horsMed[s] || 0
     };
   }
   const ORDRE = {
@@ -6669,7 +6681,8 @@ function classerPER(rows) {
     nonClasses,
     medianes,
     seuil: SEUIL_NS,
-    minSecteur: MIN_SECTEUR
+    minSecteur: MIN_SECTEUR,
+    seance
   };
 }
 const ClassementPER = ({
@@ -6684,7 +6697,8 @@ const ClassementPER = ({
     nonClasses,
     medianes,
     seuil,
-    minSecteur
+    minSecteur,
+    seance
   } = useMemo(() => classerPER(rows), [rows]);
   const secteurs = useMemo(() => [...new Set(rows.map(r => r.sector).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr")), [rows]);
   const garde = l => secteur === "ALL" || l.secteur === secteur;
@@ -6711,13 +6725,13 @@ const ClassementPER = ({
   const DateCours = ({
     l
   }) => React.createElement("span", {
-    title: l.stale ? "Cours antérieur à la dernière séance cotée" : "Cours de la dernière séance cotée",
+    title: l.anterieur ? "Cours de plus de sept jours : ce PER n'entre pas dans la médiane du secteur" : "Cours de moins de sept jours",
     style: {
       fontSize: 10,
-      color: l.stale ? "#ffd740" : "#8892a4",
+      color: l.anterieur ? "#ffd740" : "#8892a4",
       whiteSpace: "nowrap"
     }
-  }, l.stale ? "⚠ " : "", l.asof ? jjmmaaaa(l.asof) : "date inconnue");
+  }, l.anterieur ? "⚠ " : "", l.asof ? jjmmaaaa(l.asof) : "date inconnue");
   const btn = on => ({
     fontSize: 11,
     padding: "6px 12px",
@@ -6782,7 +6796,7 @@ const ClassementPER = ({
     style: {
       color: "#4db8ff"
     }
-  }, "Un PER ne se compare qu'\xE0 celui de son secteur"), " : une banque, une mini\xE8re et une fonci\xE8re n'ont ni la m\xEAme croissance, ni le m\xEAme risque, ni la m\xEAme comptabilit\xE9. La m\xE9diane du secteur est calcul\xE9e ici sur les PER class\xE9s, \xE0 partir de ", minSecteur, " titres.", " ", "Un PER bas d\xE9crit le prix pay\xE9 pour le b\xE9n\xE9fice pass\xE9 ; il ne dit rien de l'\xE9volution du titre.", " ", React.createElement("span", {
+  }, "Un PER ne se compare qu'\xE0 celui de son secteur"), " : une banque, une mini\xE8re et une fonci\xE8re n'ont ni la m\xEAme croissance, ni le m\xEAme risque, ni la m\xEAme comptabilit\xE9. La m\xE9diane du secteur est calcul\xE9e sur les PER class\xE9s dont le cours date de moins de sept jours avant la derni\xE8re s\xE9ance cot\xE9e", seance ? ` (${jjmmaaaa(seance)})` : "", ", \xE0 partir de ", minSecteur, " titres ; un PER sur un cours plus ancien reste class\xE9, dat\xE9 \u26A0, mais hors m\xE9diane.", " ", "Un PER bas d\xE9crit le prix pay\xE9 pour le b\xE9n\xE9fice pass\xE9 ; il ne dit rien de l'\xE9volution du titre.", " ", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
@@ -6827,10 +6841,11 @@ const ClassementPER = ({
     value: "ALL"
   }, "Tous les secteurs"), secteurs.map(s => {
     const m = medianes[s];
+    const k = m ? m.n + m.hors : 0;
     return React.createElement("option", {
       key: s,
       value: s
-    }, s, " (", m ? m.n : 0, " class\xE9", m && m.n > 1 ? "s" : "", ")");
+    }, s, " (", k, " class\xE9", k > 1 ? "s" : "", ")");
   })), secteur !== "ALL" && React.createElement("button", {
     onClick: () => setSecteur("ALL"),
     style: {
@@ -6857,7 +6872,7 @@ const ClassementPER = ({
       style: {
         color: "#8892a4"
       }
-    }, " sur ", m.n, " PER class\xE9", m.n > 1 ? "s" : "", m.med == null ? ` — moins de ${minSecteur} comparables, pas de médiane` : ""));
+    }, " sur ", m.n, " PER \xE0 cours r\xE9cent", m.hors ? ` (${m.hors} sur un cours de plus de sept jours, hors médiane)` : "", m.med == null ? ` — moins de ${minSecteur} comparables, pas de médiane` : ""));
   })(), React.createElement("div", {
     style: {
       overflowX: "auto",
