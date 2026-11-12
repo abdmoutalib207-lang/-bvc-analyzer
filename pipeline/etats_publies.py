@@ -170,6 +170,9 @@ _RAISONS = (
      "Non relevé : aucun EBITDA ou EBE publié par l'émetteur n'a été lu pour cette période."),
     (r"^nombre d'actions non imprimé",
      "Non relevé : le document n'imprime pas le nombre d'actions (capital seul, nominal non cité)."),
+    # lot 3 (AKD, SOT, SMI, SNA)
+    (r"^aucun endettement net publié",
+     "Non relevé : aucun endettement net publié par l'émetteur n'a été trouvé dans le dépôt de cette période."),
     (r"colonne du semestre à « - »",
      "Non relevé : le document du semestre laisse cette colonne vide (« - »)."),
     (r"^endettement net publié",
