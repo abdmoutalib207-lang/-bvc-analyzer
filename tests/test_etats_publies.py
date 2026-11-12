@@ -56,7 +56,7 @@ def _ligne(texte):
 # ── 1. sortie exacte du générateur, 2. poids ───────────────────────────────
 
 def test_les_titres_des_lots_sont_la():
-    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CSR", "IAM", "LHM", "MNG", "MSA", "SOT", "TGCC"]
+    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CSR", "IAM", "LHM", "MNG", "MSA", "SMI", "SOT", "TGCC"]
 
 
 def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
@@ -109,7 +109,7 @@ def test_chaque_valeur_a_document_page_citation(t):
             assert c["s"] in ("p", "c"), ou
             source(c, ou)
             assert c.get("u") or docs[c["d"]].get("un"), f"{ou} : unité imprimée"
-    assert n > 100, "le lot porte plus de cent valeurs par titre"
+    assert n > (60 if t == "SMI" else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes
 
 
 # ── 4. fidélité au relevé, cellule par cellule ──────────────────────────────
