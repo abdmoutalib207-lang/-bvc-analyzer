@@ -4903,7 +4903,7 @@ const EtatsFinanciers=({sym})=>{
         style={geo?{scrollSnapType:"x mandatory",scrollPaddingLeft:geo.L}:null}>
         <table className="ef-t" style={geo?{tableLayout:"fixed",width:geo.L+n*geo.W}:null}>
           {geo&&<colgroup><col style={{width:geo.L}}/>{P.map(p=><col key={p.cle} style={{width:geo.W}}/>)}</colgroup>}
-          <thead><tr><th className="ef-lib" style={{fontSize:10,color:"#8892a4"}}>millions de DH{e.perimetre==="consolide"?" · consolidé":""}</th>
+          <thead><tr><th className="ef-lib" style={{fontSize:10,color:"#8892a4"}}>millions de DH{e.perimetre==="consolide"?" · consolidé":e.perimetre==="social"?" · comptes sociaux":""}</th>
             {P.map(p=><th key={p.cle} scope="col" style={{scrollSnapAlign:"start"}}>{p.libelle}</th>)}</tr></thead>
           <tbody>{lignes.flatMap((l,k)=>[
             (k===0||lignes[k-1].groupe!==l.groupe)&&<tr key={"g"+l.groupe}><th className="ef-lib ef-grp">{l.groupe}</th><td colSpan={n}></td></tr>,

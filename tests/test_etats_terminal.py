@@ -267,3 +267,12 @@ def test_dette_nette_calculee_jamais_seule_dans_la_lecture_du_graphique(details)
         assert pend.endswith(" MDH.") or pend.endswith("non relevée."), pend
         vus["non_relevee" if pend.endswith("non relevée.") else "chiffre"] += 1
     assert vus["chiffre"] >= 20 and vus["non_relevee"] >= 5, vus
+
+
+def test_perimetre_dit_dans_l_en_tete_du_tableau():
+    """SMI ne consolide pas : l'en-tête dit « comptes sociaux », comme il dit
+    « consolidé » pour les autres (relecture du lot 3)."""
+    assert '" · consolidé"' in ECRAN and '" · comptes sociaux"' in ECRAN
+    perimetres = {t: _publie(t)["perimetre"] for t in TITRES}
+    assert perimetres["SMI"] == "social"
+    assert set(perimetres.values()) <= {"consolide", "social"}, perimetres
