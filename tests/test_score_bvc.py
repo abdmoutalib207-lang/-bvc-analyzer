@@ -146,7 +146,10 @@ def test_annexer_bvc_ne_touche_que_son_champ_et_tout_ou_rien(titres):
 #   · des LECTEURS DÉCLARÉS ici : un nouveau lecteur s'ajoute à la liste, en
 #     connaissance de cause ;
 #   · aucun lecteur n'ÉCRIT `score_bvc` (le bloc publié est celui du moteur).
-LECTEURS_SCORE_BVC = {"bulletin_mail.py", "verifier_seance.py", "score_history.py", "coherence.py"}
+# briefing.py (12/11/2026) : lit le RAPPORT D'ACTIVITÉ du facteur « activité »,
+# pas la valeur du score, pour qu'un titre n'ait qu'un rapport publié.
+LECTEURS_SCORE_BVC = {"bulletin_mail.py", "verifier_seance.py", "score_history.py", "coherence.py",
+                      "briefing.py"}
 
 
 def test_branchement_moteur_unique_et_lecteurs_declares():

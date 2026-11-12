@@ -27,7 +27,8 @@ def _t(sym, stale, asof=SEANCE, vol=20, med=1, price=100.0, h52=None, l52=None):
     return {"symbol": sym, "name": sym, "price": price, "chg": 0.0, "vol": vol,
             "h52w": h52, "l52w": l52,
             "_meta": {"prix_asof": asof, "stale": stale, "vol_median20": med,
-                      "n_candles": 400}}
+                      "n_candles": 400},
+            "score_bvc": {"facteurs": {"activité": {"ratio": vol / med, "mediane": med}}}}
 
 
 def test_un_titre_perime_n_est_pas_cote():
