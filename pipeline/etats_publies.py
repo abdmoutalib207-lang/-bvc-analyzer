@@ -183,6 +183,9 @@ _RAISONS = (
      "Non relevé : aucun endettement net publié par l'émetteur n'a été trouvé dans le dépôt de cette période."),
     (r"colonne du semestre à « - »",
      "Non relevé : le document du semestre laisse cette colonne vide (« - »)."),
+    (r"^endettement net publié.*se contredisent",
+     "Non retenu : l'émetteur publie pour cette date deux chiffres d'endettement ou de trésorerie nette qui se "
+     "contredisent, sans en donner la définition."),
     (r"^endettement net publié",
      "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
      "sans périmètre consolidé établi."),
