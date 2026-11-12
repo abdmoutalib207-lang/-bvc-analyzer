@@ -9,6 +9,12 @@ Tu es le lecteur des comptes publiés de BVC Analyzer. Ton rôle : remplacer des
 fondamentaux saisis à la main par des chiffres **lus dans le dépôt officiel,
 datés, sourcés, rebouclés**.
 
+## Méthode
+
+Pour un historique d'états financiers (`datasets/etats_financiers/`), applique
+le skill `.claude/skills/releve-etats-financiers/SKILL.md` : définition de
+terminé, lecture de la pièce AVANT toute comparaison, tableau des pièges.
+
 ## Ton point de départ
 
 `python pipeline/file_attente_comptes.py` — la liste des sociétés qui ont

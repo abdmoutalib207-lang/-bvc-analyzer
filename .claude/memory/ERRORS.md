@@ -1358,3 +1358,25 @@ capitalisation n'est pas alignée.
 **Règle.** Une correction qu'on ne peut pas appliquer en entier se publie avec
 sa réserve À L'ÉCRAN, jamais seulement dans le code.
 
+## Famille 31 — Un fichier annoncé versionné qu'ignore `.gitignore` (12/11/2026)
+
+**Ce qui s'est passé.** La PR #337 annonçait trois apports : `EN_COURS.md`,
+`ERRORS.md` et le skill `releve-etats-financiers`. Elle n'a fusionné que les
+deux premiers. La ligne `.claude/skills/*` de `.gitignore` ignore tout
+skill sans exception déclarée ; `git add` l'a écarté sans erreur, `git status`
+ne le montrait pas, et le titre de la PR comme mon compte rendu ont dit
+« fusionné ». L'agent du lot 2 l'a découvert en le cherchant sur main : il a
+travaillé sans le tableau des pièges.
+
+**Signal.** Une PR dont la description cite N fichiers et dont `changed_files`
+en compte moins. Un fichier lu par un agent ou un skill, présent sur le disque,
+absent de `git ls-files`.
+
+**Parade.**
+- Avant de dire « fusionné », comparer la liste des fichiers de la PR
+  (`get_files`) à ce que la description annonce.
+- Tout nouveau skill appelle une exception `!.claude/skills/<nom>/` dans
+  `.gitignore`, dans le même commit.
+- `tests/test_skills_versionnes.py` : tout skill cité par un agent, la mémoire,
+  un autre skill ou CLAUDE.md doit exister dans le dépôt.
+
