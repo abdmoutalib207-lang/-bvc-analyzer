@@ -282,11 +282,14 @@ def citation_courte(texte: str | None) -> str | None:
     return t[:CITATION_MAX].rsplit(" ", 1)[0] + " […]"
 
 
-def _jeton(texte: str):
-    """« 1 012 305 », « 2.378,5 », « 1,179 milliard MAD » → nombre (valeur absolue), ou None."""
+def _jeton(texte: str, virgule_milliers: bool = False):
+    """« 1 012 305 », « 2.378,5 », « 1,179 milliard MAD » → nombre (valeur absolue), ou None.
+    `virgule_milliers` : états en milliers de DH imprimés à l'américaine (« 400,354 » = 400 354 KMAD)."""
     s = re.sub(r"[^\d,.]", "", str(texte).replace(" ", "").replace("\xa0", ""))
     if re.fullmatch(r"\d{1,3}(\.\d{3})+(,\d+)?", s):
         s = s.replace(".", "")
+    elif virgule_milliers and re.fullmatch(r"\d{1,3}(,\d{3})+", s):
+        s = s.replace(",", "")
     try:
         return float(s.replace(",", "."))
     except ValueError:
@@ -378,7 +381,7 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
         o.append("Convention de signe : " + _public(c["convention_signe"], ou) + ".")
     # La valeur du relevé doit se lire sur la ligne citée, à l'unité près.
     f = _VERS_MDH.get(c.get("unite_source"))
-    j = _jeton(c["valeur_source"]) if c.get("valeur_source") is not None else None
+    j = _jeton(c["valeur_source"], c.get("unite_source") == "KMAD") if c.get("valeur_source") is not None else None
     if f and j is not None and c.get("valeur_mdh") is not None:
         lu, v = j * f, abs(c["valeur_mdh"])
         if abs(lu - v) > max(1e-6, 5e-7 * v):
