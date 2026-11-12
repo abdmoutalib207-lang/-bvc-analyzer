@@ -197,10 +197,8 @@ fusion** : la fusion est la décision d'Abd Moutalib.
 - (lot 14) Un texte de rapport peut contredire son tableau : Immorente « total
   actif 1 294,7 MDH » contre 1.294.062 KMAD, Mutandis « capitaux propres
   consolidés 1 533 Mdh » contre 1 553 781. Le tableau prime, la coquille se consigne.
-- (lot 14) Le `rnpg_exercice_2025` de SMI dans resultats_s1_2026.json (509,98, « NON
-  RECOUPÉ : BPA 310 × 1 645 090 ») ne se recolle PAS au RFA 2025 : résultat net
-  social 397,108594 MMAD (BPA 241,4). À corriger au prochain lot sur SMI ; ce lot
-  n'y a pas touché.
+- (lot 14) Le `rnpg_exercice_2025` de SMI dans resultats_s1_2026.json avait été saisi à 509,98 (« NON RECOUPÉ ») ; corrigé le 14/10/2026 : main porte
+  397,108594 (SMI_RFA_2025 p.44, résultat net social, BPA 241,4). Rien à corriger.
 - (lot 14) Sigles proches : CMT (Minière Touissit) et CTM (transport) — lister
   les titres par `fondamentaux.json`, jamais de mémoire.
 - (lot 14) `faits_financiers.json` se réécrit en `indent=1`, `ensure_ascii=False` :

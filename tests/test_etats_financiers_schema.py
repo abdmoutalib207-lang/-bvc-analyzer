@@ -104,9 +104,9 @@ def test_schema(chemin):
             _valide_unite(c, ou)
         cit = c.get("citation") or ""
         if cle == "resultat_exploitation":
-            assert not re.match(r"\s*r[ée]sultat d.exploitation courant", cit, re.I), f"{ou}: ligne « courant » dans resultat_exploitation"
+            assert not re.match(r"\s*r[ée]sultat (d.exploitation|op[ée]rationnel) courant", cit, re.I), f"{ou}: ligne « courant » dans resultat_exploitation"
         if cle == "resultat_exploitation_courant":
-            assert re.match(r"\s*r[ée]sultat d.exploitation courant", cit, re.I), f"{ou}: courant attendu"
+            assert re.match(r"\s*r[ée]sultat (d.exploitation|op[ée]rationnel) courant", cit, re.I), f"{ou}: courant attendu"
         if cle in ("ebitda_ajuste", "dette_nette_publiee"):
             assert c.get("nature"), f"{ou}: nature de l'indicateur non dite"
         ctl = c.get("controle_ms", {})
