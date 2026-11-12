@@ -630,7 +630,10 @@ def est_ferie_fixe(date_iso: str) -> bool:
 #     3) est hors de notre univers.
 # ⚠️ L'affectation est « révisée au moins une fois par semestre » (Règlement
 # général, art. 4.3.49) : à relever de nouveau à chaque révision. Un titre
-# absent de ce registre est en groupe 1.
+# absent de ce registre est en groupe 1. Pièces conservées :
+# datasets/pieces_reglementaires/ (index.json, sha256) ; le relevé des 81
+# fiches est groupes_cotation_2026-11-12.json. Un test échoue quand le relevé
+# a plus de six mois (tests/test_niveaux.py).
 GROUPES_COTATION_RELEVE = "2026-11-12"
 GROUPES_COTATION: dict = {
     # notre ticker : groupe   (code officiel quand il diffère)

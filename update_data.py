@@ -5417,7 +5417,7 @@ def run(dry_run=False, push=False, token=""):
     # viennent. Le lecteur ne peut ni les reproduire ni les contester.
     #
     # Ici chaque niveau porte sa méthode, et deux familles sont SÉPARÉES :
-    #   · faits       — bornes réglementaires ±10 % (R10), extrêmes réellement
+    #   · faits       — bornes réglementaires du groupe de cotation (R10), extrêmes réellement
     #                   atteints, moyennes réellement calculées ;
     #   · conventions — points pivots, de l'arithmétique sur une séance.
     #

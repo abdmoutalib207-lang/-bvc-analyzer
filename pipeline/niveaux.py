@@ -13,7 +13,8 @@ sa méthode**, et les range en deux familles qui ne s'arbitrent pas ensemble :
 
   **FAITS**       ce que le marché a réellement fait, ou ce que la règle
                   interdit de dépasser. Vérifiable, non discutable.
-                  · plafond et plancher réglementaires (±10 %, R10)
+                  · plafond et plancher réglementaires (seuil du groupe de
+                    cotation : ±10 % en continu, ±6 % au fixing ; R10)
                   · plus-haut et plus-bas réellement atteints (52 s., 90 j.)
                   · moyennes mobiles, calculées sur des clôtures réelles
 
@@ -104,12 +105,13 @@ def bornes_reglementaires(cloture, ticker: str | None = None) -> dict | None:
     c = _n(cloture)
     if c is None:
         return None
-    try:
-        from bvc_config import CYCLE_GROUPE, groupe_cotation, seuil_statique_pct
-        g = groupe_cotation(ticker) if ticker else 1
-        pct, cycle = seuil_statique_pct(ticker) if ticker else LIMITE_PCT, CYCLE_GROUPE.get(g, "continu")
-    except ImportError:                       # appel hors dépôt : règle du groupe 1
-        g, pct, cycle = 1, LIMITE_PCT, "continu"
+    # Pas de repli silencieux : sans le registre, la borne d'un titre au fixing
+    # serait publiée à ±10 % comme un fait (relecture #350). L'import échoue
+    # donc bruyamment, comme dans les autres modules du pipeline.
+    from bvc_config import CYCLE_GROUPE, groupe_cotation, seuil_statique_pct
+    g = groupe_cotation(ticker) if ticker else 1
+    pct = seuil_statique_pct(ticker) if ticker else LIMITE_PCT
+    cycle = CYCLE_GROUPE.get(g, "continu")
     return {
         "plancher": round(c * (1 - pct / 100), 2),
         "plafond": round(c * (1 + pct / 100), 2),
