@@ -890,7 +890,7 @@
     "dette_nette": {
      "valeur_mdh": 5208.273487,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4076.630556,
@@ -946,7 +946,10 @@
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
      },
-     "reserve": "comprend peut-être des dettes de location non isolées dans la pièce",
+     "composantes_exclues": [
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
+     ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -1165,7 +1168,7 @@
     "dette_nette": {
      "valeur_mdh": 4772.695146,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3331.901845,
@@ -1221,7 +1224,10 @@
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
      },
-     "reserve": "comprend peut-être des dettes de location non isolées dans la pièce",
+     "composantes_exclues": [
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
+     ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -1440,7 +1446,7 @@
     "dette_nette": {
      "valeur_mdh": 4448.163633,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3733.477503,
@@ -1497,8 +1503,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -1717,7 +1724,7 @@
     "dette_nette": {
      "valeur_mdh": 4631.109871,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3851.840394,
@@ -1774,8 +1781,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -1994,7 +2002,7 @@
     "dette_nette": {
      "valeur_mdh": 4322.949325,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3653.625185,
@@ -2051,8 +2059,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -2271,7 +2280,7 @@
     "dette_nette": {
      "valeur_mdh": 4119.294948,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3212.529959,
@@ -2328,8 +2337,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -2557,7 +2567,7 @@
     "dette_nette": {
      "valeur_mdh": 4385.450549,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3425.37268,
@@ -2614,8 +2624,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -2834,7 +2845,7 @@
     "dette_nette": {
      "valeur_mdh": 5492.963127,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 4380.403455,
@@ -2891,8 +2902,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -3093,7 +3105,7 @@
     "dette_nette": {
      "valeur_mdh": 5028.587117,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3801.047885,
@@ -3149,7 +3161,10 @@
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
      },
-     "reserve": "comprend peut-être des dettes de location non isolées dans la pièce",
+     "composantes_exclues": [
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
+     ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -3359,7 +3374,7 @@
     "dette_nette": {
      "valeur_mdh": 4537.711919,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3725.370242,
@@ -3416,8 +3431,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -3627,7 +3643,7 @@
     "dette_nette": {
      "valeur_mdh": 4559.180874,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3726.079716,
@@ -3684,8 +3700,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -3895,7 +3912,7 @@
     "dette_nette": {
      "valeur_mdh": 4748.33324,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3964.18567,
@@ -3952,8 +3969,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -4163,7 +4181,7 @@
     "dette_nette": {
      "valeur_mdh": 4246.77106,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3283.907626,
@@ -4220,8 +4238,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -4431,7 +4450,7 @@
     "dette_nette": {
      "valeur_mdh": 4137.506379,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3332.386292,
@@ -4488,8 +4507,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",
@@ -4699,7 +4719,7 @@
     "dette_nette": {
      "valeur_mdh": 4965.29838,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir composantes_exclues), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (y compris découverts bancaires), trésorerie et équivalents ; NON INCLUS : dettes de location (voir réserve), cautions, autres passifs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 3791.309106,
@@ -4756,8 +4776,9 @@
       "note": "ms-screener inaccessible depuis ce poste"
      },
      "composantes_exclues": [
-      "dettes de location : aucune, les sous-lignes égalent le total (bilan)"
+      "dette locative : montant non publié ; les sous-lignes crédit et titres composent les dettes financières"
      ],
+     "reserve": "dette locative non publiée ; les dettes financières ne comptent que crédit et titres",
      "composantes_incluses": {
       "dettes_financieres_nc": "dettes financieres nc",
       "dettes_financieres_c": "dettes financieres c",

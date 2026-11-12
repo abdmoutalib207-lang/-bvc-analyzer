@@ -61,6 +61,7 @@ valeur, PUIS seulement comparer.
 | Dette nette publiée qui ne recoupe pas la nôtre (TGCC : titres de placement retranchés) | garder les deux, dire la différence de composantes ; une dette nette publiée dont le périmètre consolidé n'est pas établi n'est pas retenue (Cosumar) |
 | Tableau des flux semestriel dont le comparatif est l'exercice précédent (TGCC S1 2022 : « 30/06/2022 \| 31/12/2021 ») | lire l'en-tête de date de CHAQUE état ; une valeur de semestre égale à celle de l'exercice de la même année est suspecte ; sans colonne 30/06, la cellule est vide |
 | Dette nette après IFRS 16 (Cosumar 2019 : 86,7 de dettes de contrats à droit d'usage dans les dettes non courantes, 13,0 de dérivés dans les courantes) | retirer les dettes de location et les dérivés quand la pièce les isole (montants cités dans `composantes_exclues`), sinon réserve « comprend des dettes de location non isolées dans la pièce » |
+| Dette de location absente du bilan mais chiffrée dans la note des dettes financières (TGCC, crédit-bail) | lire la note avant de déclarer « non isolée » ; prendre chaque exercice dans SA propre pièce, la ventilation peut changer dans le comparatif suivant à total égal |
 
 ## 3. Contre-vérification (verificateur-finance)
 

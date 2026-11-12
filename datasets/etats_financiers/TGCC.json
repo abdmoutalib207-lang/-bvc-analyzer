@@ -629,9 +629,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 890.793,
+     "valeur_mdh": 796.162,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 320.29,
@@ -680,6 +680,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 94.631,
+       "unite_source": "KMAD",
+       "valeur_source": "94 631",
+       "document": "TGCC_RFA_2021.pdf",
+       "page": 67,
+       "citation": "Dettes liées aux contrats de crédit-bail 128 401 94 631",
+       "entete_colonnes": "Libellé 31/12/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -689,13 +705,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (94 631 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.67, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -900,9 +916,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 449.666,
+     "valeur_mdh": 321.265,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 223.344,
@@ -951,6 +967,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 128.401,
+       "unite_source": "KMAD",
+       "valeur_source": "128 401",
+       "document": "TGCC_RFA_2021.pdf",
+       "page": 67,
+       "citation": "Dettes liées aux contrats de crédit-bail 128 401 94 631",
+       "entete_colonnes": "Libellé 31/12/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -960,13 +992,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (128 401 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.67, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -1171,9 +1203,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 680.855,
+     "valeur_mdh": 544.205,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 216.84,
@@ -1222,6 +1254,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 136.65,
+       "unite_source": "KMAD",
+       "valeur_source": "136 650",
+       "document": "TGCC_RFA_2022.pdf",
+       "page": 64,
+       "citation": "Dettes liées aux contrats de crédit-bail 136 650 128 401",
+       "entete_colonnes": "cours Libellé 31/12/2022 31/12/2021",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -1231,13 +1279,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (136 650 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.64, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -1442,9 +1490,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1012.802,
+     "valeur_mdh": 872.504,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 347.842,
@@ -1493,6 +1541,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 140.298,
+       "unite_source": "KMAD",
+       "valeur_source": "140 298",
+       "document": "TGCC_RFA_2023.pdf",
+       "page": 71,
+       "citation": "Dettes liées aux contrats de crédit-bail 140 298 124 869",
+       "entete_colonnes": "Constructions Libellé 31/12/2023 31/12/2022",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -1502,13 +1566,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (140 298 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.71, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -1713,9 +1777,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 794.042,
+     "valeur_mdh": 485.882,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 807.838,
@@ -1764,6 +1828,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 308.16,
+       "unite_source": "KMAD",
+       "valeur_source": "308 160",
+       "document": "TGCC_RFA_2024.pdf",
+       "page": 84,
+       "citation": "Dettes liées aux contrats de crédit-bail 308 160 265 687",
+       "entete_colonnes": "Solde au 31/12/2024 Solde au 31/12/2023 Libellé 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -1773,13 +1853,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (308 160 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.84, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -1854,8 +1934,8 @@
      "valeur_source": "673",
      "document": "TGCC_RFA_2024.pdf",
      "page": 25,
-     "citation": "\u0007La diversité du portefeuille de projets du Groupe (plus de 100 projets en cours) ; majeures en 2023, permettant de soutenir 673 M MAD. Cette performance financière a été",
-     "entete_colonnes": "dans des domaines stratégiques tels que l’éducation, la santé et les infrastructures publiques. M MAD 2024 2023 M MAD 2024 2023",
+     "citation": "…réduire significativement son endettement net, soit de 31% pour s'établir à 673 M MAD",
+     "entete_colonnes": null,
      "perimetre": "consolide",
      "referentiel": "Normes marocaines (CNC)",
      "statut": "publie",
@@ -2001,9 +2081,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 782.753,
+     "valeur_mdh": 11.523,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif - dettes_credit_bail_retirees — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 1200.954,
@@ -2052,6 +2132,22 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_credit_bail_retirees": {
+       "valeur_mdh": 771.23,
+       "unite_source": "KMAD",
+       "valeur_source": "771 230",
+       "document": "TGCC_RFA_2025.pdf",
+       "page": 103,
+       "citation": "Dettes liées aux contrats de crédit-bail 771 230 308 160",
+       "entete_colonnes": "Solde au 31/12/2025 Solde au 31/12/2024 Libellé 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "Normes marocaines (CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
@@ -2061,13 +2157,13 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes liées aux contrats de crédit-bail (771 230 KMAD, retirées de « Dettes et emprunts » ; note « Emprunts et dettes financières » p.103, total de la note = ligne du bilan)"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
-      "tresorerie_actif": "tresorerie actif"
+      "tresorerie_actif": "tresorerie actif",
+      "dettes_credit_bail_retirees": "dettes credit bail retirees"
      }
     },
     "flux_exploitation": {
@@ -2718,7 +2814,7 @@
     "dette_nette": {
      "valeur_mdh": 938.44,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 210.411,
@@ -2776,9 +2872,9 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes de location / crédit-bail non isolées dans la pièce"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
+     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce (aucune mention de crédit-bail dans le rapport semestriel)",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
@@ -2970,7 +3066,7 @@
     "dette_nette": {
      "valeur_mdh": 774.948,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 286.181,
@@ -3028,9 +3124,9 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes de location / crédit-bail non isolées dans la pièce"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
+     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce (aucune mention de crédit-bail dans le rapport semestriel)",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
@@ -3222,7 +3318,7 @@
     "dette_nette": {
      "valeur_mdh": 1290.901,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 342.407,
@@ -3280,9 +3376,9 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes de location / crédit-bail non isolées dans la pièce"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
+     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce (aucune mention de crédit-bail dans le rapport semestriel)",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
@@ -3483,7 +3579,7 @@
     "dette_nette": {
      "valeur_mdh": 3193.143,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 3312.23,
@@ -3541,9 +3637,9 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes de location / crédit-bail non isolées dans la pièce"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
+     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce (aucune mention de crédit-bail dans le rapport semestriel)",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
@@ -3744,7 +3840,7 @@
     "dette_nette": {
      "valeur_mdh": 2933.298,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_et_emprunts + tresorerie_passif - tresorerie_actif — INCLUS : dettes et emprunts (hors provisions durables), trésorerie passif (concours bancaires), trésorerie actif, dettes de crédit-bail retirées quand la note les chiffre ; NON INCLUS : titres de placement (retranchés dans la dette nette que publie l'émetteur, voir dette_nette_publiee), dettes de financement non isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_et_emprunts": {
        "valeur_mdh": 1289.481,
@@ -3802,9 +3898,9 @@
      },
      "composantes_exclues": [
       "titres de placement",
-      "dettes de location / crédit-bail : retraitées en consolidation (comptes en normes marocaines, pas d'IFRS 16) mais non isolées dans la pièce"
+      "dettes de location / crédit-bail non isolées dans la pièce"
      ],
-     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce",
+     "reserve": "comprend des dettes de crédit-bail retraitées en consolidation, non isolées dans la pièce (aucune mention de crédit-bail dans le rapport semestriel)",
      "composantes_incluses": {
       "dettes_et_emprunts": "dettes et emprunts",
       "tresorerie_passif": "tresorerie passif",
