@@ -56,7 +56,7 @@ def _ligne(texte):
 # ── 1. sortie exacte du générateur, 2. poids ───────────────────────────────
 
 def test_les_titres_des_lots_sont_la():
-    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CSR", "IAM", "LHM", "MNG", "MSA", "SGTM", "SMI", "SNA", "SOT", "TGCC"]
+    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CASH", "CSR", "IAM", "LHM", "MNG", "MSA", "SGTM", "SMI", "SNA", "SOT", "TGCC"]
 
 
 def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
@@ -132,7 +132,7 @@ def test_chaque_valeur_a_document_page_citation(t):
             assert c["s"] in ("p", "c"), ou
             source(c, ou)
             assert c.get("u") or docs[c["d"]].get("un"), f"{ou} : unité imprimée"
-    assert n > (60 if t == "SMI" else 20 if t in ("SGTM",) else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes ; SGTM : introduit en bourse en décembre 2025, deux exercices et deux semestres seulement
+    assert n > (60 if t == "SMI" else 20 if t in ("CASH", "SGTM") else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes ; CASH, SGTM : introduits en bourse en décembre 2025, deux exercices et deux semestres seulement
 
 
 # ── 4. fidélité au relevé, cellule par cellule ──────────────────────────────
@@ -226,7 +226,7 @@ def test_variations_et_marges_recalculees(t):
                     assert b["v"] > 0 and m["v"] == round(a["v"] / b["v"] * 100, 1)
                 else:
                     assert "v" not in a or "v" not in b or b["v"] <= 0
-    assert n_var > (10 if t in ("SGTM",) else 20 if t == "AKD" else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022) ; SGTM : variations de FY2025 et H1-2026 seulement (introduit fin 2025)
+    assert n_var > (10 if t in ("CASH", "SGTM") else 20 if t == "AKD" else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022) ; CASH, SGTM : variations de FY2025 et H1-2026 seulement (introduit fin 2025)
     if t in ("ADI", "MNG"):                      # pertes relues dans les relevés : des « ns » existent
         assert n_ns >= 1
 
