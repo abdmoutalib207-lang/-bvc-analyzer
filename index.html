@@ -10770,7 +10770,7 @@ const EtatsFinanciers = ({
       fontSize: 10,
       color: "#8892a4"
     }
-  }, "millions de DH", e.perimetre === "consolide" ? " · consolidé" : ""), P.map(p => React.createElement("th", {
+  }, "millions de DH", e.perimetre === "consolide" ? " · consolidé" : e.perimetre === "social" ? " · comptes sociaux" : ""), P.map(p => React.createElement("th", {
     key: p.cle,
     scope: "col",
     style: {
