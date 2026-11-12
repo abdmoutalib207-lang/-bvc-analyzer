@@ -895,9 +895,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1098.7,
+     "valeur_mdh": 999.0,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees - derives_de_couverture_retires — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 138.6,
@@ -946,12 +946,55 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 86.7,
+       "unite_source": "MMAD",
+       "valeur_source": "86,7",
+       "document": "Cosumar_RFA_2019.pdf",
+       "page": 50,
+       "citation": "- Dettes liées aux contrats à droit d'usage 86,7",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 31-déc-19 31-déc-18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
+      },
+      "derives_de_couverture_retires": {
+       "valeur_mdh": 13.0,
+       "unite_source": "MMAD",
+       "valeur_source": "13,0",
+       "document": "Cosumar_RFA_2019.pdf",
+       "page": 50,
+       "citation": "- Instruments dérivés de couverture 13,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 31-déc-19 31-déc-18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (86,7 MMAD, retirées ; bilan p.50)",
+      "dérivés de couverture (13,0 MMAD, retirés ; bilan p.50)"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees",
+      "derives_de_couverture_retires": "derives de couverture retires"
      }
     },
     "flux_exploitation": {
@@ -1146,9 +1189,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1658.2,
+     "valeur_mdh": 1529.4,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees - derives_de_couverture_retires — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 86.4,
@@ -1197,12 +1240,55 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 84.8,
+       "unite_source": "MMAD",
+       "valeur_source": "84,8",
+       "document": "Cosumar_RFA 2020.pdf",
+       "page": 49,
+       "citation": "- Dettes liées aux contrats à droit d'usage 84,8 86,7",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 31-déc-20 31-déc-19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
+      },
+      "derives_de_couverture_retires": {
+       "valeur_mdh": 44.0,
+       "unite_source": "MMAD",
+       "valeur_source": "44,0",
+       "document": "Cosumar_RFA 2020.pdf",
+       "page": 49,
+       "citation": "- Instruments dérivés de couverture 44,0 13,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 31-déc-20 31-déc-19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (84,8 MMAD, retirées ; bilan p.49)",
+      "dérivés de couverture (44,0 MMAD, retirés ; bilan p.49)"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees",
+      "derives_de_couverture_retires": "derives de couverture retires"
      }
     },
     "flux_exploitation": {
@@ -1406,9 +1492,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 452.6,
+     "valeur_mdh": 377.3,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 76.9,
@@ -1457,12 +1543,38 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 75.3,
+       "unite_source": "MMAD",
+       "valeur_source": "75,3",
+       "document": "Cosumar_RFA_2021.pdf",
+       "page": 84,
+       "citation": "- Dettes liées aux contrats à droit d'usage 75,3 84,8",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 31-déc-21 31-déc-20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (75,3 MMAD, retirées ; bilan p.84)",
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees"
      }
     },
     "flux_exploitation": {
@@ -1668,7 +1780,7 @@
     "dette_nette": {
      "valeur_mdh": 1069.6,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 74.3,
@@ -1723,6 +1835,15 @@
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie"
      }
     },
     "flux_exploitation": {
@@ -1928,7 +2049,7 @@
     "dette_nette": {
      "valeur_mdh": 1559.3,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 81.3,
@@ -1983,6 +2104,15 @@
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie"
      }
     },
     "flux_exploitation": {
@@ -2197,7 +2327,7 @@
     "dette_nette": {
      "valeur_mdh": 624.8,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 79.0,
@@ -2252,6 +2382,15 @@
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie"
      }
     },
     "flux_exploitation": {
@@ -2467,7 +2606,7 @@
     "dette_nette": {
      "valeur_mdh": 281.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 23.4,
@@ -2522,6 +2661,15 @@
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce",
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie"
      }
     },
     "flux_exploitation": {
@@ -2792,7 +2940,8 @@
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
-     }
+     },
+     "reserve": "Dette nette comprend des dettes de location non isolées dans la pièce ; les dettes financières courantes peuvent comprendre des dérivés de couverture non isolés"
     },
     "flux_exploitation": {
      "valeur_mdh": 1155.0,
@@ -2986,9 +3135,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1629.7,
+     "valeur_mdh": 1516.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees - derives_de_couverture_retires — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 141.5,
@@ -3037,12 +3186,55 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 89.8,
+       "unite_source": "MMAD",
+       "valeur_source": "89,8",
+       "document": "Cosumar_RFS_juin_2020.pdf",
+       "page": 12,
+       "citation": "- Dettes liées aux contrats à droit d'usage 89,8 86,7",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-20 31-déc-19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
+      },
+      "derives_de_couverture_retires": {
+       "valeur_mdh": 23.0,
+       "unite_source": "MMAD",
+       "valeur_source": "23,0",
+       "document": "Cosumar_RFS_juin_2020.pdf",
+       "page": 12,
+       "citation": "- Instruments dérivés de couverture 23,0 13,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-20 31-déc-19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (89,8 MMAD, retirées ; bilan p.12)",
+      "dérivés de couverture (23,0 MMAD, retirés ; bilan p.12)"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees",
+      "derives_de_couverture_retires": "derives de couverture retires"
      }
     },
     "flux_exploitation": {
@@ -3237,9 +3429,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 924.5,
+     "valeur_mdh": 836.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees - derives_de_couverture_retires — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 84.9,
@@ -3288,12 +3480,55 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 83.3,
+       "unite_source": "MMAD",
+       "valeur_source": "83,3",
+       "document": "RFS-Cosumar-2021.pdf",
+       "page": 12,
+       "citation": "- Dettes liées aux contrats à droit d'usage 83,3 84,8",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-21 31-déc-20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
+      },
+      "derives_de_couverture_retires": {
+       "valeur_mdh": 4.3,
+       "unite_source": "MMAD",
+       "valeur_source": "4,3",
+       "document": "RFS-Cosumar-2021.pdf",
+       "page": 12,
+       "citation": "- Instruments dérivés de couverture 4,3 44,0",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-21 31-déc-20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (83,3 MMAD, retirées ; bilan p.12)",
+      "dérivés de couverture (4,3 MMAD, retirés ; bilan p.12)"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees",
+      "derives_de_couverture_retires": "derives de couverture retires"
      }
     },
     "flux_exploitation": {
@@ -3488,9 +3723,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 507.3,
+     "valeur_mdh": 434.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 74.0,
@@ -3539,12 +3774,38 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 72.4,
+       "unite_source": "MMAD",
+       "valeur_source": "72,4",
+       "document": "Cosumar_RFS_juin_22.pdf",
+       "page": 11,
+       "citation": "- Dettes liées aux contrats à droit d'usage 72,4 75,3",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-22 31-déc-21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (72,4 MMAD, retirées ; bilan p.11)",
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees"
      }
     },
     "flux_exploitation": {
@@ -3739,9 +4000,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 357.2,
+     "valeur_mdh": 287.3,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 71.4,
@@ -3790,12 +4051,38 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 69.9,
+       "unite_source": "MMAD",
+       "valeur_source": "69,9",
+       "document": "Cosumar_RFS_juin_2023.pdf",
+       "page": 13,
+       "citation": "- Dettes liées aux contrats à droit d'usage 69,9 75,3",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-23 31-déc-22",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (69,9 MMAD, retirées ; bilan p.13)",
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees"
      }
     },
     "flux_exploitation": {
@@ -3990,9 +4277,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 185.0,
+     "valeur_mdh": 104.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 81.6,
@@ -4041,12 +4328,38 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 80.1,
+       "unite_source": "MMAD",
+       "valeur_source": "80,1",
+       "document": "Cosumar-S1-2024.pdf",
+       "page": 14,
+       "citation": "- Dettes liées aux contrats à droit d'usage 80,1 79,7",
+       "entete_colonnes": "PASSIF (En millions de dirhams) 30-juin-24 31-déc-23",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (80,1 MMAD, retirées ; bilan p.14)",
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees"
      }
     },
     "flux_exploitation": {
@@ -4241,9 +4554,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 857.4,
+     "valeur_mdh": 664.4,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees - derives_de_couverture_retires — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 76.2,
@@ -4292,12 +4605,55 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 74.7,
+       "unite_source": "MMAD",
+       "valeur_source": "74,7",
+       "document": "Cosumar_RFS_S1_25.pdf",
+       "page": 13,
+       "citation": "- Dettes liées aux contrats à droit d'usage 74,7 75,3",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
+      },
+      "derives_de_couverture_retires": {
+       "valeur_mdh": 118.3,
+       "unite_source": "MMAD",
+       "valeur_source": "118,3",
+       "document": "Cosumar_RFS_S1_25.pdf",
+       "page": 13,
+       "citation": "- Instruments dérivés de couverture 118,3 0,0",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (74,7 MMAD, retirées ; bilan p.13)",
+      "dérivés de couverture (118,3 MMAD, retirés ; bilan p.13)"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees",
+      "derives_de_couverture_retires": "derives de couverture retires"
      }
     },
     "flux_exploitation": {
@@ -4492,9 +4848,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1465.7,
+     "valeur_mdh": 1444.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location (non isolées au bilan), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
+     "formule": "+ dettes_financieres_nc + dettes_financieres_c - tresorerie - dettes_de_location_retirees — INCLUS : dettes financières non courantes, dettes financières courantes (établissements de crédit), trésorerie et équivalents ; NON INCLUS : dettes de location et dérivés de couverture quand la pièce les isole (montants cités), provisions, autres créditeurs. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "composantes": {
       "dettes_financieres_nc": {
        "valeur_mdh": 22.4,
@@ -4543,12 +4899,38 @@
         "resultat": "non_verifie",
         "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
        }
+      },
+      "dettes_de_location_retirees": {
+       "valeur_mdh": 20.8,
+       "unite_source": "MMAD",
+       "valeur_source": "20,8",
+       "document": "Cosumar_RFS_S1_26.pdf",
+       "page": 15,
+       "citation": "- Dettes liées aux contrats à droit d'usage 20,8 75,3",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener inaccessible depuis ce poste (HTTP 000) ; aucune valeur tierce consultée"
+       }
       }
      },
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "non_verifie",
       "note": "ms-screener inaccessible depuis ce poste"
+     },
+     "composantes_exclues": [
+      "dettes de location (20,8 MMAD, retirées ; bilan p.15)",
+      "dérivés de couverture : néant, sous-ligne crédits = total des courantes"
+     ],
+     "composantes_incluses": {
+      "dettes_financieres_nc": "dettes financieres nc",
+      "dettes_financieres_c": "dettes financieres c",
+      "tresorerie": "tresorerie",
+      "dettes_de_location_retirees": "dettes de location retirees"
      }
     },
     "flux_exploitation": {

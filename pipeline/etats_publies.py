@@ -154,6 +154,8 @@ _RAISONS = (
      "Sans objet : un dividende se propose au titre d'un exercice, pas d'un semestre."),
     (r"image sans texte",
      "Non relevé : le document déposé est une image sans couche texte, il n'a pas été lu."),
+    (r"^tableau des flux au 30/06",
+     "Non relevé : pas de tableau des flux publié à cette date (le comparatif du document suivant est celui de fin d'exercice)."),
     (r"^bilan au 30/06",
      "Non relevé : pas de bilan publié à cette date (le comparatif du document suivant est celui de fin d'exercice)."),
     (r"^(aucune? ligne|aucun EBITDA|pas de ligne|EBE : aucune)",
@@ -322,6 +324,8 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
     if c.get("nature"):
         n = _public(c["nature"], ou)
         o.append("Nature : " + n + ".")
+    if c.get("reserve"):
+        r.append(_public(c["reserve"], ou).rstrip(".") + ".")
     if c.get("perimetre") == "consolide_presume":
         r.append(R_PRESUME)
     elif c.get("perimetre") == "social":
