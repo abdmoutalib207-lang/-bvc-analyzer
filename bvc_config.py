@@ -612,6 +612,49 @@ def est_ferie_fixe(date_iso: str) -> bool:
         return False
 
 
+# ─── Groupes de cotation et seuils statiques de variation ──────────────────
+# Constaté sur pièce le 12/11/2026 (R11 : un fait réglementaire se constate,
+# il ne se déduit pas d'une série de prix) :
+#   · Décision AMMC DE/BO/03/2026 du 23/06/2026 — « La variation maximale […]
+#     ne peut excéder […] 10% du cours de référence pour les titres de capital
+#     dont la cotation est en mode continu ; 6% […] en mode fixing ; […] 20%
+#     […] pendant les 5 premières séances qui suivent l'admission d'un titre
+#     à la cote » (https://www.ammc.ma/fr/decisions/autres).
+#   · Instruction de la Bourse IN-2026-001 « Seuils de réservation », en
+#     vigueur le 26/06/2026, art. 1 : groupe 01 actions, continu, 10 % ;
+#     groupe 03 actions, fixing, 6 %.
+#   · Affectation de chaque titre : fiche instrument de la Bourse, ligne
+#     « Cycle de négociation », relevée sur les 81 actions le 12/11/2026
+#     (66 groupe 1, 15 groupe 3 ; le bulletin de la cote du 12/11 donne le même
+#     décompte : 66 C, 15 F). Appariement par ISIN via ISIN_MAP. SAMIR (groupe
+#     3) est hors de notre univers.
+# ⚠️ L'affectation est « révisée au moins une fois par semestre » (Règlement
+# général, art. 4.3.49) : à relever de nouveau à chaque révision. Un titre
+# absent de ce registre est en groupe 1.
+GROUPES_COTATION_RELEVE = "2026-11-12"
+GROUPES_COTATION: dict = {
+    # notre ticker : groupe   (code officiel quand il diffère)
+    "AFM": 3, "AGM": 3, "BAL": 3, "DAR": 3,   # DAR = DRI
+    "DIS": 3, "EQD": 3, "MGL": 3,             # MGL = MAB
+    "MRL": 3,                                  # MRL = MLE
+    "NEJ": 3, "OUL": 3, "PPM": 3,             # PPM = PRO
+    "REB": 3, "SRM": 3, "UNI": 3,             # UNI = UMR
+}
+# Seuil statique, en % du cours de référence, par groupe (décision AMMC).
+SEUILS_STATIQUES_PCT: dict = {1: 10.0, 3: 6.0}
+CYCLE_GROUPE: dict = {1: "continu", 3: "fixing"}
+
+
+def groupe_cotation(ticker: str) -> int:
+    """Groupe de cotation du titre (1 par défaut)."""
+    return GROUPES_COTATION.get(ticker, 1)
+
+
+def seuil_statique_pct(ticker: str) -> float:
+    """Seuil statique de variation du titre, en % du cours de référence."""
+    return SEUILS_STATIQUES_PCT[groupe_cotation(ticker)]
+
+
 SPLITS: dict = {
     # Managem : VN 100 → VN 10 le 27/07/2026. Actions 11 864 676 → 118 646 760.
     # Nouvel ISIN MA0000012866 (ancien MA0000011058 radié).

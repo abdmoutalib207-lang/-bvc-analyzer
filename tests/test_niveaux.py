@@ -203,8 +203,8 @@ def test_l_ecran_distingue_visuellement_les_deux_familles():
     bloc = ecran[i:i + 3000]
     assert "Établis" in bloc and "Conventionnels" in bloc, (
         "les deux familles ne sont pas distinguées à l'écran")
-    assert "règle BVC" in bloc, (
-        "la borne réglementaire s'affiche sans dire qu'elle vient de la règle")
+    assert "seuil AMMC" in bloc and "bs.groupe" in bloc, (
+        "la borne réglementaire s'affiche sans dire qu'elle vient de la règle, ni de quel groupe")
 
 
 # ── ⚠️ Deux bornes coexistent, et elles ne disent pas la même chose ────────
@@ -252,3 +252,33 @@ def test_le_moteur_collecte_le_montant_reellement_echange():
         "le montant réellement échangé n'est pas collecté")
     assert '"seuil_bas":  _f(d.get("SeuilBas"))' in src, (
         "les bornes de réservation ne sont pas collectées")
+
+
+# ── ⚠️ Le seuil dépend du groupe de cotation (audit du 12/11/2026) ─────────
+
+def test_un_titre_au_fixing_est_borne_a_6_pourcent():
+    """Rebab, groupe 3 (fixing), clôture 90 : la borne réglementaire est
+    84,60–95,40 (décision AMMC du 23/06/2026), et non 81–99."""
+    b = nv.bornes_reglementaires(90.0, "REB")
+    assert (b["plancher"], b["plafond"], b["pct"], b["groupe"]) == (84.6, 95.4, 6.0, 3)
+    assert "fixing" in b["_methode"] and "groupe 3" in b["_methode"]
+
+
+def test_un_titre_en_continu_reste_a_10_pourcent():
+    b = nv.bornes_reglementaires(681.0, "ATW")
+    assert (b["plancher"], b["plafond"], b["groupe"]) == (612.9, 749.1, 1)
+
+
+def test_composer_passe_le_titre():
+    r = nv.composer({"symbol": "SRM", "price": 440.0, "_meta": {"n_candles": 3}}, None)
+    assert r["faits"]["bornes_seance"]["plafond"] == 466.4      # 440 × 1,06
+
+
+def test_registre_des_groupes_complet_et_source():
+    import bvc_config as C
+    assert C.GROUPES_COTATION_RELEVE == "2026-11-12"
+    assert sorted(C.GROUPES_COTATION) == ["AFM", "AGM", "BAL", "DAR", "DIS", "EQD", "MGL",
+                                          "MRL", "NEJ", "OUL", "PPM", "REB", "SRM", "UNI"]
+    assert set(C.GROUPES_COTATION.values()) == {3}
+    assert all(t in C.TICKERS_ALL for t in C.GROUPES_COTATION)
+

@@ -5160,7 +5160,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
                   <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
                     Établis · ce que le marché a fait, ou ce que la règle interdit</div>
-                  {bs&&L("Prochaine séance, bornes ±10 %",`${fr(bs.plancher)} — ${fr(bs.plafond)}`,"règle BVC","#00e5a0")}
+                  {bs&&L(`Prochaine séance, bornes ±${bs.pct!=null?String(bs.pct).replace(".",","):"10"} %`,`${fr(bs.plancher)} — ${fr(bs.plafond)}`,bs.groupe?`groupe ${bs.groupe} (${bs.cycle}), seuil AMMC`:"seuil AMMC","#00e5a0")}
                   {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
                     L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
                   {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
