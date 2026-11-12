@@ -77,7 +77,7 @@ RELEVES = RACINE / "datasets" / "etats_financiers"
 SORTIE = RACINE / "datasets" / "etats_publies"
 SCHEMA = "etats_publies/1"
 SCHEMA_RELEVE = "etats_financiers/1"
-POIDS_MAX = 40_000            # octets par titre (objectif de la demande)
+POIDS_MAX = 45_000            # octets par titre (40 000 au lot 1 ; relevé à 45 000 au lot 2 : ADH, 18 périodes de dette nette sur trois composantes citées)
 CITATION_MAX = 200            # caractères ; au-delà, coupée et marquée « […] »
 
 STATUTS = {
@@ -147,6 +147,37 @@ _RAISONS = (
     (r"^ligne « Dette nette » du tableau consolidé non retrouvée",
      "Non relevé : la ligne « Dette nette » du tableau consolidé n'a pas été retrouvée dans la "
      "colonne de la période."),
+    # lot 2 (ADH, CSR, TGCC, MSA)
+    (r"^document introuvable",
+     "Non relevé : document introuvable, aucun dépôt AMMC de comptes pour cette période."),
+    (r"^sans objet : semestre",
+     "Sans objet : un dividende se propose au titre d'un exercice, pas d'un semestre."),
+    (r"image sans texte",
+     "Non relevé : le document déposé est une image sans couche texte, il n'a pas été lu."),
+    (r"^tableau des flux au 30/06",
+     "Non relevé : pas de tableau des flux publié à cette date (le comparatif du document suivant est celui de fin d'exercice)."),
+    (r"^bilan au 30/06",
+     "Non relevé : pas de bilan publié à cette date (le comparatif du document suivant est celui de fin d'exercice)."),
+    # Trois motifs distincts (relecture #341) : une absence constatée ne se dit que
+    # de la ligne qu'elle concerne, et « non lu » ne devient jamais « absent ».
+    (r"^(EBE : aucune ligne|aucune ligne.*EBE)",
+     "Aucune ligne « EBE » dans les états consolidés de l'émetteur ; quand il publie un indicateur "
+     "de gestion, il figure à la ligne « EBITDA ajusté »."),
+    (r"^pas de ligne « résultat d'exploitation courant »",
+     "Aucune ligne « résultat d'exploitation courant » dans les comptes consolidés de l'émetteur "
+     "(présentation aux normes marocaines)."),
+    (r"^aucun EBITDA",
+     "Non relevé : aucun EBITDA ou EBE publié par l'émetteur n'a été lu pour cette période."),
+    (r"^nombre d'actions non imprimé",
+     "Non relevé : le document n'imprime pas le nombre d'actions (capital seul, nominal non cité)."),
+    (r"colonne du semestre à « - »",
+     "Non relevé : le document du semestre laisse cette colonne vide (« - »)."),
+    (r"^endettement net publié",
+     "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
+     "sans périmètre consolidé établi."),
+    (r"non lu|non relevé|non établi|non repris",
+     "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
+     "qu'elle n'est pas publiée)."),
 )
 RAISON_ABSENTE = "Non relevé : cette grandeur n'a pas été lue pour cette période."
 RAISON_TERME = "Non calculé : un des deux termes n'est pas relevé pour cette période."
@@ -196,6 +227,11 @@ def variation(avant, apres):
     return round((apres / avant - 1) * 100, 1) + 0.0
 
 
+# Jargon interne jamais publié : numéro de règle (R11), nom de registre ou de
+# fichier de configuration, pictogramme (relecture #341).
+JARGON = re.compile(r"\bR\d{1,2}\b|bvc_config|SPLITS|HISTORIQUE_ACTIONS|[\u2600-\u27BF\U0001F300-\U0001FAFF]")
+
+
 def raison_publique(texte: str) -> str:
     for motif, public in _RAISONS:
         if re.search(motif, texte or ""):
@@ -206,7 +242,7 @@ def raison_publique(texte: str) -> str:
 def _public(texte: str, ou: str) -> str:
     """Un texte du relevé publié tel quel : jamais de renvoi au site tiers ni de nom de champ."""
     t = re.sub(r"\s+", " ", str(texte)).strip()
-    if "ms-screener" in t.lower() or "`" in t:
+    if "ms-screener" in t.lower() or "`" in t or JARGON.search(t):
         raise ReleveInvalide(f"{ou} : texte non publiable tel quel ({t[:80]!r})")
     return t
 
@@ -304,6 +340,8 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
     if c.get("nature"):
         n = _public(c["nature"], ou)
         o.append("Nature : " + n + ".")
+    if c.get("reserve"):
+        r.append(_public(c["reserve"], ou).rstrip(".") + ".")
     if c.get("perimetre") == "consolide_presume":
         r.append(R_PRESUME)
     elif c.get("perimetre") == "social":
@@ -328,7 +366,7 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
         for s in _splits_apres(ticker, cloture):
             d = s["date"].split("-")
             r.append(f"Avant la division du nominal du {d[2]}/{d[1]}/{d[0]} (1 action → {s['ratio']}, "
-                     "registre SPLITS) : à ajuster avant tout rapprochement avec un cours postérieur.")
+                     "registre des opérations sur titres) : à ajuster avant tout rapprochement avec un cours postérieur.")
     return {k: [t.txt(x) for x in xs] for k, xs in (("r", r), ("o", o)) if xs}
 
 
