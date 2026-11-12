@@ -78,6 +78,16 @@ def test_poids_brut_et_compresse(t):
     assert EP.poids_compresse(contenu) <= EP.POIDS_GZ_MAX, t
 
 
+@pytest.mark.parametrize("t", TITRES)
+def test_rapport_compresse_brut_plausible(t):
+    """Contrôle qui ne se tait jamais (le repère SOT ci-dessous se désactive dès
+    que SOT est régénéré) : le rapport compressé / brut mesuré sur les 13 titres
+    va de 0,17 à 0,24 ; hors de 0,10-0,40, l'estimation ne vaut plus rien."""
+    contenu = (PUBLIES / f"{t}.json").read_text(encoding="utf-8")
+    r = EP.poids_compresse(contenu) / len(contenu.encode("utf-8"))
+    assert 0.10 <= r <= 0.40, (t, round(r, 3))
+
+
 def test_poids_compresse_mesure_comme_pages():
     """Repère mesuré le 12/11/2026 : SOT, 44 944 octets bruts, servi en 9 472
     octets gzip par GitHub Pages. L'estimation doit tomber à ±10 % de ce repère."""
