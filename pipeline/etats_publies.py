@@ -62,6 +62,7 @@ FORMAT (`etats_publies/1`) — clés courtes, tables factorisées
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
 import sys
@@ -77,7 +78,12 @@ RELEVES = RACINE / "datasets" / "etats_financiers"
 SORTIE = RACINE / "datasets" / "etats_publies"
 SCHEMA = "etats_publies/1"
 SCHEMA_RELEVE = "etats_financiers/1"
-POIDS_MAX = 45_000            # octets par titre (40 000 au lot 1 ; relevé à 45 000 au lot 2 : ADH, 18 périodes de dette nette sur trois composantes citées)
+# Poids par titre. Ce qui coûte au lecteur est ce qui transite : GitHub Pages sert
+# ces fichiers compressés (gzip), mesuré le 12/11/2026 : SOT 44 944 octets bruts,
+# 9 472 transmis. Le plafond porte donc sur le poids compressé ; le poids brut
+# garde une borne large (lecture JSON). Avant : 40 000 bruts (lot 1), 45 000 (lot 2).
+POIDS_GZ_MAX = 15_000         # octets compressés (gzip niveau 6) par titre
+POIDS_MAX = 80_000            # octets bruts par titre
 CITATION_MAX = 200            # caractères ; au-delà, coupée et marquée « […] »
 
 STATUTS = {
@@ -235,6 +241,11 @@ def variation(avant, apres):
 # Jargon interne jamais publié : numéro de règle (R11), nom de registre ou de
 # fichier de configuration, pictogramme (relecture #341).
 JARGON = re.compile(r"\bR\d{1,2}\b|bvc_config|SPLITS|HISTORIQUE_ACTIONS|[\u2600-\u27BF\U0001F300-\U0001FAFF]")
+
+
+def poids_compresse(contenu: str) -> int:
+    """Octets transmis par GitHub Pages (gzip), estimés au niveau 6."""
+    return len(gzip.compress(contenu.encode("utf-8"), compresslevel=6, mtime=0))
 
 
 def raison_publique(texte: str) -> str:
@@ -582,7 +593,9 @@ def main(argv=None) -> int:
         ecarts += [f.name for f in SORTIE.glob("*.json") if f.name not in sorties]
     for nom, contenu in sorted(sorties.items()):
         o = len(contenu.encode("utf-8"))
-        print(f"  {nom:<12} {o:>6} octets" + ("  ⚠ au-dessus de l'objectif" if o > POIDS_MAX else ""))
+        z = poids_compresse(contenu)
+        trop = o > POIDS_MAX or z > POIDS_GZ_MAX
+        print(f"  {nom:<12} {o:>6} octets, {z:>6} compressés" + ("  ⚠ au-dessus du plafond" if trop else ""))
     if ecarts:
         print(("À RÉGÉNÉRER (python3 pipeline/etats_publies.py) : " if a.verifier
                else "SANS RELEVÉ, à archiver à la main : ") + ", ".join(sorted(ecarts)))

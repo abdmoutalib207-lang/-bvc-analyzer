@@ -3,7 +3,7 @@
 Le fichier compact de la fiche (pipeline/etats_publies.py) :
 
 1. est la sortie EXACTE du générateur sur les relevés commités, index compris ;
-2. pèse moins de 45 Ko par titre (40 Ko au lot 1) ;
+2. pèse au plus 15 Ko compressés par titre (ce que sert GitHub Pages), 80 Ko bruts ;
 3. donne à chaque valeur lue un document (URL https), une page et une citation ;
 4. est FIDÈLE au relevé détaillé, cellule par cellule — valeur, statut, document,
    page, citation, raison de la cellule vide — sans cellule inventée ;
@@ -70,8 +70,31 @@ def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
 
 
 @pytest.mark.parametrize("t", TITRES)
-def test_poids_sous_40_ko(t):
-    assert (PUBLIES / f"{t}.json").stat().st_size < 45_000
+def test_poids_brut_et_compresse(t):
+    """Le plafond porte sur ce qui transite (Pages sert le JSON en gzip) ;
+    le poids brut garde une borne large."""
+    contenu = (PUBLIES / f"{t}.json").read_text(encoding="utf-8")
+    assert len(contenu.encode("utf-8")) <= EP.POIDS_MAX, t
+    assert EP.poids_compresse(contenu) <= EP.POIDS_GZ_MAX, t
+
+
+@pytest.mark.parametrize("t", TITRES)
+def test_rapport_compresse_brut_plausible(t):
+    """Contrôle qui ne se tait jamais (le repère SOT ci-dessous se désactive dès
+    que SOT est régénéré) : le rapport compressé / brut mesuré sur les 13 titres
+    va de 0,17 à 0,24 ; hors de 0,10-0,40, l'estimation ne vaut plus rien."""
+    contenu = (PUBLIES / f"{t}.json").read_text(encoding="utf-8")
+    r = EP.poids_compresse(contenu) / len(contenu.encode("utf-8"))
+    assert 0.10 <= r <= 0.40, (t, round(r, 3))
+
+
+def test_poids_compresse_mesure_comme_pages():
+    """Repère mesuré le 12/11/2026 : SOT, 44 944 octets bruts, servi en 9 472
+    octets gzip par GitHub Pages. L'estimation doit tomber à ±10 % de ce repère."""
+    contenu = (PUBLIES / "SOT.json").read_text(encoding="utf-8")
+    if len(contenu.encode("utf-8")) != 44_944:
+        pytest.skip("SOT.json a changé depuis la mesure du 12/11")
+    assert abs(EP.poids_compresse(contenu) - 9_472) <= 950
 
 
 # ── 3. toute valeur a sa source ─────────────────────────────────────────────
