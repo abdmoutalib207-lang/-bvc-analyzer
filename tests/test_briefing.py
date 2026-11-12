@@ -44,6 +44,12 @@ def _t(sym="ADH", asof="2026-09-24", **kw):
             d["_meta"][k] = v
         else:
             d[k] = v
+    # Le rapport d'activité est celui du Score BVC (audit du 12/11/2026) ; les
+    # fixtures le dérivent de la médiane donnée, comme le moteur le publierait.
+    med = d["_meta"].get("vol_median20")
+    d["score_bvc"] = {"facteurs": {"activité": (
+        {"ratio": round(d["vol"] / med, 2), "mediane": med} if med else
+        {"ratio": None, "mediane": None})}}
     return d
 
 
@@ -128,6 +134,21 @@ def test_le_volume_est_compare_a_la_mediane_du_titre():
         "2026-09-24")
     assert [x["symbol"] for x in v] == ["AAA"]
     assert v[0]["facteur"] == 10.0
+
+
+def test_un_seul_rapport_d_activite_celui_du_score():
+    """Audit du 12/11/2026 : Salafin 1 306 titres, 13,9× au briefing
+    (`vol_median20` = 94, séance du jour comprise), 18,93× sur la fiche (médiane
+    des 20 séances PRÉCÉDENTES du score). Le briefing lit le rapport du score."""
+    x = _t("SLM", vol=1306, vol_median20=94)
+    x["score_bvc"] = {"facteurs": {"activité": {"ratio": 18.93, "mediane": 69.0}}}
+    x["echange_dh"] = 548880.0
+    v = bf.volumes_inhabituels([x], "2026-09-24")
+    assert v[0]["facteur"] == 18.9 and v[0]["median20"] == 69
+    assert v[0]["echange_dh"] == 548880.0
+    # sans rapport du score, le titre est écarté — jamais recalculé à part
+    x["score_bvc"] = {}
+    assert bf.volumes_inhabituels([x], "2026-09-24") == []
 
 
 def test_un_titre_sans_mediane_est_ecarte_et_non_repute_calme():

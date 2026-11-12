@@ -215,6 +215,21 @@ def reellement_cote(x: dict, seance: str) -> bool:
     return str(m.get("prix_asof") or "") == seance and m.get("stale") is not True
 
 
+def activite_du_score(x: dict) -> tuple:
+    """(rapport, médiane) du facteur « activité » du Score BVC publié.
+
+    ⚠️ UN SEUL RAPPORT D'ACTIVITÉ PAR TITRE (audit du 12/11/2026). Le briefing
+    divisait le volume du jour par `_meta.vol_median20`, médiane des vingt
+    dernières séances JOUR COMPRIS ; la fiche affiche le rapport du score,
+    médiane des vingt séances PRÉCÉDENTES. Salafin le 12/11 : 13,9× d'un côté,
+    18,93× de l'autre, pour les mêmes 1 306 titres. Le briefing lit désormais
+    le rapport du score ; sans lui, le titre est écarté (on ne sait pas).
+    `vol_median20` reste publié : il sert à la confiance, pas à ce rapport.
+    """
+    a = ((x.get("score_bvc") or {}).get("facteurs") or {}).get("activité") or {}
+    return _n(a.get("ratio")), _n(a.get("mediane"))
+
+
 def volumes_inhabituels(titres: list, seance: str) -> list:
     """Les titres dont l'activité du jour sort de leur propre ordinaire.
 
@@ -229,17 +244,17 @@ def volumes_inhabituels(titres: list, seance: str) -> list:
     """
     out = []
     for x in titres or []:
-        m = x.get("_meta") or {}
         if not reellement_cote(x, seance):
             continue
-        v, med = _n(x.get("vol")), _n(m.get("vol_median20"))
-        if v is None or med is None or med <= 0:
+        v = _n(x.get("vol"))
+        f, med = activite_du_score(x)
+        if v is None or f is None or med is None or med <= 0:
             continue
-        f = v / med
         if f >= FACTEUR_VOLUME:
             out.append({"symbol": x.get("symbol"), "name": x.get("name"),
-                        "volume": int(v), "median20": int(med),
-                        "facteur": round(f, 1), "chg": _n(x.get("chg"))})
+                        "volume": int(v), "median20": int(round(med)),
+                        "facteur": round(f, 1), "chg": _n(x.get("chg")),
+                        "echange_dh": _n(x.get("echange_dh"))})
     return sorted(out, key=lambda z: -z["facteur"])
 
 
@@ -1031,11 +1046,10 @@ def a_surveiller(b: dict, titres: list, seance: str, n=N_A_SURVEILLER,
     lignes = []
     for sym, cs in crit.items():
         x = par.get(sym) or {}
-        m = x.get("_meta") or {}
-        v, med = _n(x.get("vol")), _n(m.get("vol_median20"))
+        rapport, _med = activite_du_score(x)
         lignes.append({
-            "volume_rapport": (round(v / med, 2) if reellement_cote(x, seance)
-                               and v is not None and med else None),
+            "volume_rapport": (round(rapport, 2) if reellement_cote(x, seance)
+                               and rapport is not None else None),
             "chiffres": (_chiffres_publies((resultats or {}).get(sym))
                          if any(c["code"] == "publication" for c in cs) else None),
             "symbol": sym, "name": x.get("name"),
@@ -1204,9 +1218,11 @@ def composer(data: dict, series=None, contexte=None) -> dict:
         # ponctuation — « sur vingt séances  soit 106.6× ».
         vol = f"{v['volume']:,}".replace(",", " ")
         med = f"{v['median20']:,}".replace(",", " ")
+        dh = (f" ({_fr(v['echange_dh'] / 1e6, 2)} M DH)"
+              if isinstance(v.get("echange_dh"), (int, float)) else "")
         b["constats"].append(
-            f"Activité inhabituelle sur {code_affiche(v['symbol'])} : {vol} titres échangés "
-            f"contre une médiane de {med} sur vingt séances, soit "
+            f"Activité inhabituelle sur {code_affiche(v['symbol'])} : {vol} titres échangés{dh} "
+            f"contre une médiane de {med} sur les vingt séances précédentes, soit "
             f"{_fr(v['facteur'], 1)}×.")
 
     for x in b["limites"]:
