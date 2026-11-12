@@ -186,6 +186,11 @@ _RAISONS = (
     (r"^endettement net publié",
      "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
      "sans périmètre consolidé établi."),
+    # lot 5 (CASH, CFGB, SGTM, VCNE)
+    (r"^non relevé : ligne .* imprimée à « - »",
+     "Non relevé : la ligne est imprimée à « - » dans le document (aucun montant)."),
+    (r"dividende global",
+     "Non relevé : l'émetteur publie un dividende global, sans montant par action."),
     (r"non lu|non relevé|non établi|non repris",
      "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
      "qu'elle n'est pas publiée)."),
