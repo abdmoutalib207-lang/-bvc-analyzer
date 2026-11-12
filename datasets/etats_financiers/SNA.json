@@ -1760,7 +1760,7 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -767.378,
+     "valeur_mdh": -768.137,
      "mode": "calcul_sur_composantes_publiees",
      "formule": "+ dettes_financieres_non_courantes - dettes_de_location_retirees - tresorerie — INCLUS : dettes financières non courantes et courantes, moins dettes de location quand la note les isole, moins trésorerie et équivalents de trésorerie ; NON INCLUS : dettes de location isolées. Calcul propre au projet : ne pas confondre avec la dette nette publiée par l'émetteur (voir dette_nette_publiee quand elle existe).",
      "statut": "calcule_depuis_composantes_publiees",
@@ -1770,7 +1770,7 @@
      },
      "composantes_exclues": [
       "dettes financières courantes : aucun montant imprimé à la clôture",
-      "dettes de location (109,0 MMAD, note des dettes financières p.128) : retirées des dettes financières non courantes"
+      "dettes de location (109.759 MMAD, note des dettes financières p.128) : retirées des dettes financières non courantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -1795,20 +1795,21 @@
        }
       },
       "dettes_de_location_retirees": {
-       "valeur_mdh": 109.0,
-       "unite_source": "MMAD",
-       "valeur_source": "109,0",
+       "valeur_mdh": 109.759,
+       "unite_source": "KMAD",
+       "valeur_source": "109.759",
        "document": "Sonasid_RFA_2023.pdf",
-       "page": 128,
-       "citation": "Dettes liées aux contrats à droit d'usage 109,0 109,0",
-       "entete_colonnes": "EN MILLIONS DE MAD 31/12/2023 | 31/12/2022",
+       "page": 109,
+       "citation": "Dettes financières non courantes 109.759 109.047",
+       "entete_colonnes": "31/12/2023 | 31/12/2022",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
        "controle_ms": {
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
-       }
+       },
+       "note": "dette de location au chiffre du bilan (p.109) : la note 23 du rapport 2023 (p.128) reprend les montants de 2022 (109,0) ; le rapport 2024, note 23 p.110, redonne au 31/12/2023 13,3 + 96,4 = 109,8"
       },
       "tresorerie": {
        "valeur_mdh": 768.137,
