@@ -257,8 +257,10 @@ def test_rien_du_site_tiers_ni_mot_d_action(t):
     assert raisons and not any(re.search(r"\d", r) for r in raisons), f"{t} : un nombre dans une raison"
     cites = [d["raison_null"] for p in rel["periodes"].values() for d in p["donnees"].values()
              if d.get("valeur_mdh") is None and re.search(r"ms-screener \(\d", d.get("raison_null", ""))]
-    if t in ("ADI", "ATW", "IAM", "LHM", "MNG"):   # lot 1 : relevés partis d'une valeur tierce ; lot 2 : lecture directe, aucune valeur tierce citée
+    if t in ("ADI", "ATW", "IAM", "LHM", "MNG"):   # lot 1 : relevés partis d'une valeur tierce
         assert cites, f"{t} : le relevé ne cite plus de valeur tierce — contrôle à revoir"
+    else:                                          # lot 2 et suivants : lecture directe
+        assert not cites, f"{t} : un relevé lu directement cite une valeur tierce"
 
 
 def test_libelles_ebitda_dette_nette_et_banque():
@@ -287,9 +289,9 @@ def test_r11_nombre_d_actions_d_avant_une_division_porte_sa_reserve():
     cs = [c for c in mng["vues"]["annuel"]["cellules"]["nombre_actions"] if "v" in c]
     assert len(cs) >= 8
     for c in cs:
-        assert any("27/07/2026" in mng["textes"][j] and "SPLITS" in mng["textes"][j] for j in c.get("r", []))
+        assert any("27/07/2026" in mng["textes"][j] and "division du nominal" in mng["textes"][j] for j in c.get("r", []))
     iam = _publie("IAM")
-    assert not any("SPLITS" in x for x in iam["textes"])
+    assert not any("division du nominal" in x for x in iam["textes"])
 
 
 # ── 7. hors data.json, hors moteur ──────────────────────────────────────────
@@ -299,3 +301,37 @@ def test_hors_data_json_et_hors_moteur():
     assert "etats_publies" not in (RACINE / "pipeline" / "score_bvc.py").read_text(encoding="utf-8")
     data = (RACINE / "data.json").read_text(encoding="utf-8")
     assert "etats_publies" not in data and '"vues"' not in data
+
+
+# ── relecture #341 : raisons exactes, aucun jargon interne publié ───────────
+
+@pytest.mark.parametrize("t", TITRES)
+def test_aucun_jargon_interne_publie(t):
+    pub = _publie(t)
+    for x in pub["textes"]:
+        assert not EP.JARGON.search(x), f"{t} : jargon interne publié : {x[:90]!r}"
+
+
+def test_une_absence_ne_se_dit_que_de_sa_ligne_et_non_lu_ne_devient_pas_absent():
+    ebe_abs = EP.raison_publique("EBE : aucune ligne « EBE » aux états consolidés")
+    rec_abs = EP.raison_publique("pas de ligne « résultat d'exploitation courant » aux comptes consolidés")
+    for t in TITRES:
+        rel = json.loads((RELEVES / f"{t}.json").read_text(encoding="utf-8"))
+        for p in rel["periodes"].values():
+            for cle, d in p["donnees"].items():
+                if d.get("valeur_mdh") is not None or not d.get("raison_null"):
+                    continue
+                pub = EP.raison_publique(d["raison_null"])
+                if pub == ebe_abs:
+                    assert cle == "ebe", (t, cle, d["raison_null"][:60])
+                if pub == rec_abs:
+                    assert cle == "resultat_exploitation_courant", (t, cle)
+                if re.search(r"non lu|non relevé|non exploré", d["raison_null"]):
+                    assert not pub.startswith("Aucune"), (t, cle, d["raison_null"][:60])
+
+
+def test_temoin_jargon_refuse():
+    for x in ("⚠️ attention", "voir R11", "registre SPLITS", "bvc_config"):
+        with pytest.raises(EP.ReleveInvalide):
+            EP._public(x, "témoin")
+
