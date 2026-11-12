@@ -2170,7 +2170,7 @@ const CarteIndices = ({
       color: "#8892a4",
       whiteSpace: "nowrap"
     },
-    title: "Volume global de la s\xE9ance"
+    title: "Volume du march\xE9 central (hors blocs et transferts)"
   }, "vol. ", React.createElement("b", {
     style: {
       color: "#e8eef8"
@@ -2286,7 +2286,7 @@ const CarteIndices = ({
   }, pct(masi.ytd_pct))))), masi.masi20 && masi.masi20.value != null && React.createElement("div", {
     className: "carte-ind",
     style: carte,
-    title: `MASI 20 — les vingt plus grosses capitalisations.${m20.ytd_pct != null && masi.ytd_pct != null ? ` Écart de ${nb(Math.abs(m20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`
+    title: `MASI 20 — les vingt valeurs les plus liquides parmi les quarante plus grandes capitalisations flottantes (méthodologie de la Bourse de Casablanca).${m20.ytd_pct != null && masi.ytd_pct != null ? ` Écart de ${nb(Math.abs(m20.ytd_pct - masi.ytd_pct), 1)} point(s) avec le MASI sur l'année.` : ""}`
   }, React.createElement("div", {
     style: {
       display: "flex",
@@ -2396,7 +2396,7 @@ const CarteIndices = ({
       fontSize: 11,
       color: "#8892a4"
     },
-    title: `Volume global de la séance${masi.titres_echanges != null ? ` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés` : ""}${masi.transactions != null ? ` en ${masi.transactions.toLocaleString("fr-FR")} transactions` : ""}.`
+    title: `Volume du marché central de la séance, hors blocs et transferts${masi.titres_echanges != null ? ` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés` : ""}${masi.transactions != null ? ` en ${masi.transactions.toLocaleString("fr-FR")} transactions` : ""}.`
   }, React.createElement("b", {
     style: {
       color: "#e8eef8",
@@ -8083,7 +8083,7 @@ const constatsVisuels = s => {
       }
     }, sgp(vv.variation_pct)), " le ", jm(v.seance_veille))
   }), ph.veille && v.ecart_volume_pct != null && React.createElement(CarteConstat, {
-    l: "Volume global",
+    l: "Volume du march\xE9 central",
     phrase: ph.veille,
     val: j.volume_mad == null ? "—" : React.createElement(React.Fragment, null, entier(j.volume_mad), React.createElement("span", {
       style: {
@@ -8422,7 +8422,7 @@ const SeanceDetail = ({
       }
     }, " \xB7 veille ", nfr(vv.cours)))
   }), React.createElement(Kpi, {
-    l: "Volume global",
+    l: "March\xE9 central",
     val: montantEntier(j.volume_mad),
     src: srcCdg,
     sous: v.ecart_volume_pct != null ? React.createElement(React.Fragment, null, React.createElement("span", {

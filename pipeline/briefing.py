@@ -688,7 +688,7 @@ def phrase_veille(c: dict | None) -> str | None:
         P.append(f"indice à {_signe(j['variation_pct'])} % après "
                  f"{_signe(p['variation_pct'])} %,")
     if c["ecart_volume_pct"] is not None:
-        P.append(f"volume global {_fr(j['volume_mad']/1e6, 1)} M DH contre "
+        P.append(f"volume du marché central {_fr(j['volume_mad']/1e6, 1)} M DH contre "
                  f"{_fr(p['volume_mad']/1e6, 1)} M DH "
                  f"({_signe(c['ecart_volume_pct'], 1)} %),")
     if None not in (j["hausses"], j["baisses"], p["hausses"], p["baisses"]):
