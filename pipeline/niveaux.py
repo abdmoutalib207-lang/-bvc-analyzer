@@ -13,7 +13,8 @@ sa méthode**, et les range en deux familles qui ne s'arbitrent pas ensemble :
 
   **FAITS**       ce que le marché a réellement fait, ou ce que la règle
                   interdit de dépasser. Vérifiable, non discutable.
-                  · plafond et plancher réglementaires (±10 %, R10)
+                  · plafond et plancher réglementaires (seuil du groupe de
+                    cotation : ±10 % en continu, ±6 % au fixing ; R10)
                   · plus-haut et plus-bas réellement atteints (52 s., 90 j.)
                   · moyennes mobiles, calculées sur des clôtures réelles
 
@@ -58,7 +59,7 @@ def _n(v):
     return f if f == f and f > 0 else None
 
 
-def bornes_reglementaires(cloture) -> dict | None:
+def bornes_reglementaires(cloture, ticker: str | None = None) -> dict | None:
     """Le plafond et le plancher de la PROCHAINE séance. Un FAIT, pas un avis.
 
     ⚠️ C'est le seul niveau de ce module qu'aucune opinion ne peut déplacer :
@@ -94,16 +95,30 @@ def bornes_reglementaires(cloture) -> dict | None:
     suivante. Le jour d'une reprise de cotation après OPA, l'autorité fixe une
     référence NEUVE et ce calcul ne s'applique pas — cas d'école documenté
     dans `docs/CAS_ECOLE_OPA_ET_REPRISE_DE_COTATION.md` (R11).
+
+    ⚠️ 12/11/2026 — LE SEUIL DÉPEND DU GROUPE DE COTATION (audit externe,
+    vérifié sur pièce) : ±10 % pour le groupe 1 (continu), ±6 % pour le groupe
+    3 (fixing), d'après la décision AMMC du 23/06/2026 et l'instruction
+    IN-2026-001. Rebab (groupe 3, clôture 90) affichait 81–99 ; la borne
+    réglementaire est 84,60–95,40. Le registre est `bvc_config.GROUPES_COTATION`.
     """
     c = _n(cloture)
     if c is None:
         return None
+    # Pas de repli silencieux : sans le registre, la borne d'un titre au fixing
+    # serait publiée à ±10 % comme un fait (relecture #350). L'import échoue
+    # donc bruyamment, comme dans les autres modules du pipeline.
+    from bvc_config import CYCLE_GROUPE, groupe_cotation, seuil_statique_pct
+    g = groupe_cotation(ticker) if ticker else 1
+    pct = seuil_statique_pct(ticker) if ticker else LIMITE_PCT
+    cycle = CYCLE_GROUPE.get(g, "continu")
     return {
-        "plancher": round(c * (1 - LIMITE_PCT / 100), 2),
-        "plafond": round(c * (1 + LIMITE_PCT / 100), 2),
-        "_methode": (f"±{LIMITE_PCT:.0f} % de la clôture de référence — limite "
-                     f"réglementaire de la Bourse de Casablanca (R10). Borne "
-                     f"le possible, ne prédit rien."),
+        "plancher": round(c * (1 - pct / 100), 2),
+        "plafond": round(c * (1 + pct / 100), 2),
+        "pct": pct, "groupe": g, "cycle": cycle,
+        "_methode": (f"±{pct:.0f} % de la clôture de référence — seuil statique du "
+                     f"groupe {g} ({cycle}), décision AMMC du 23/06/2026 (R10). "
+                     f"Borne le possible, ne prédit rien."),
     }
 
 
@@ -211,7 +226,7 @@ def composer(ticker: dict, bougie: dict | None = None) -> dict | None:
         return None
     faits, conventions = {}, {}
 
-    b = bornes_reglementaires(ticker.get("price"))
+    b = bornes_reglementaires(ticker.get("price"), ticker.get("symbol"))
     if b:
         faits["bornes_seance"] = b
     e = extremes(ticker)

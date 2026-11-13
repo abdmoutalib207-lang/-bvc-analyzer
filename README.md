@@ -1,40 +1,59 @@
 # BVC Analyzer
 
 **Analyse quantitative des 80 sociétés cotées à la Bourse de Casablanca.**
-Une note sur 10 par titre, recalculée chaque jour de séance, sur des données
-dont chaque chiffre porte sa source et sa date.
+Un Score BVC descriptif sur 100 par titre, recalculé chaque jour de séance, sur
+des données dont chaque chiffre porte sa source et sa date.
 
 **[Terminal en ligne →](https://abdmoutalib207-lang.github.io/-bvc-analyzer/)**
 
 > ⚠️ **Analyse quantitative, pas conseil en investissement.** Ce terminal
-> n'est pas agréé par l'AMMC. Les signaux publiés sont le résultat d'un calcul
-> documenté, pas une recommandation personnalisée.
+> n'est pas agréé par l'AMMC. Il décrit et mesure ; il ne recommande pas :
+> aucun mot d'action (acheter, éviter…) n'est publié.
 
 ---
 
 ## Ce que le terminal fait
 
-Deux piliers sont combinés en une note composite :
+### Le Score BVC — une description, pas une prévision
 
-| Pilier | Poids de référence | Ce qu'il mesure |
+Depuis le 06/11/2026, un seul score est publié : le **Score BVC**
+(`pipeline/score_bvc.py`, version `bvc-score-v1`), sur 100, **sans mot
+d'action**. Six facteurs :
+
+| Facteur | Points | Ce qu'il mesure |
 |---|---:|---|
-| **Fondamental** | 72 % | rentabilité du capital, croissance, valorisation, bilan |
-| **Technique** | 28 % | RSI(14), moyennes 20/50/200, position dans la fourchette 90 jours |
+| Moyennes mobiles | 35 | cours au-dessus de la MM20 (15), de la MM50 (10), de la MM200 (10) |
+| Momentum | 15 | RSI(14) |
+| MACD | 10 | position du MACD face à son signal, sens de l'histogramme |
+| Activité | 10 | volume du jour ÷ médiane des 20 séances précédentes |
+| Liquidité | 15 | montant médian échangé sur 20 séances |
+| Rentabilité | 15 | ROE de l'exercice 2025, sur comptes déposés |
 
-La pondération de référence est la même à toute heure (depuis le 03/11/2026)
-et **modulée par le contexte** : un MASI en forte baisse depuis janvier
-renforce le fondamental, et le technique est neutralisé sur les titres peu
-liquides. Le poids réellement appliqué est affiché sur chaque fiche, avec la
-note de chaque pilier.
+**C'est une synthèse principalement technique** : moyennes mobiles, RSI et
+MACD portent 60 points sur 100, le seul intrant fondamental (le ROE) en porte
+15. Quand un facteur manque — une MM200 sur un titre coté depuis moins de 200
+séances, par exemple —, ses points sont retirés du dénominateur : le score est
+ramené à 100 sur ce qui est disponible, et la **couverture** (part des 100
+points réellement mesurée) est publiée avec lui.
 
-L'ancien pilier comportemental (sentiment tiré d'un corpus d'investisseurs) a
-été ramené à un poids nul le 25/09/2026, puis supprimé avec son corpus les
-28-29/10/2026.
+**Ce que le score ne fait pas.** Mesuré sur 43 031 observations
+(`datasets/backtests/score_bvc_2026-11-03.json`), la part des titres ayant
+battu le MASI à 20 séances, frais de 2 % compris, est de 31,9 % sous 40,
+30,6 % de 40 à 59, 32,6 % de 60 à 74 et 33,7 % à 75 et plus, pour 32,1 % en
+moyenne. **Aucune tranche ne se distingue du hasard à 5 %** : le score décrit
+la situation d'un titre, il ne distingue pas les gagnants. Un test hors
+échantillon est gelé depuis le 03/11/2026 (formule figée, entrées postérieures
+au 04/11) ; son effectif ne sera suffisant que vers l'automne 2027.
+
+La note v5.3 (fondamental × technique, signaux d'action) a été **retirée le
+06/11/2026** ; le pilier comportemental (sentiment d'un corpus
+d'investisseurs) avait été supprimé les 28-29/10/2026.
 
 ### Des fondamentaux lus dans les comptes publiés
 
-Depuis le 01/10/2026, la note fondamentale lit d'abord ce qui est **calculé sur
-les comptes déposés à l'AMMC**, chaque chiffre avec sa page :
+Les fondamentaux publiés sur chaque fiche sont d'abord **calculés sur les
+comptes déposés à l'AMMC**, chaque chiffre avec sa page. Ils sont publiés comme
+données ; seul le ROE entre dans le Score BVC :
 
 - **ROIC, dette nette / EBITDA, conversion de trésorerie** — calculés sur les
   comptes 2025 (66 sociétés) ; les alertes affichées lisent la même valeur ;
@@ -82,9 +101,9 @@ python3 pipeline/parse_cdg_bulletin.py <bulletin.pdf> --verifier 2026-09-24
 
 Tout titre publié porte un bloc `_meta` : source du prix, date de la séance
 retenue, âge des fondamentaux, nombre de chandelles disponibles, et un **score
-de confiance de 0 à 5**. En dessous de 2, le signal est remplacé à l'écran par
-« Données insuffisantes » — un score calculé sur des données de repli ne doit
-pas se lire comme une conclusion.
+de confiance de 0 à 5**. À 1 ou moins, l'écran affiche « Données
+insuffisantes » et le Score BVC passe en gris — un score calculé sur des
+données de repli ne doit pas se lire comme une conclusion.
 
 ### Les faits se constatent sur pièce, ils ne se déduisent pas
 
@@ -96,9 +115,10 @@ neuf ou une donnée fausse, et **les trois appellent des traitements opposés**.
 
 ### Le flux se contrôle lui-même
 
-À chaque run, neuf familles de contrôles vérifient que les chiffres publiés
-peuvent coexister — dont le principal : **la note doit se refaire à la main**
-depuis les notes et poids publiés. Le résultat est publié dans `data.json`.
+À chaque run, des familles de contrôles vérifient que les chiffres publiés
+peuvent coexister (`pipeline/coherence.py`) — dont les bornes du Score BVC :
+valeur et couverture dans [0, 100], aucun score sur un cours périmé, un état
+connu. Le résultat est publié dans `data.json`.
 
 ### Les conventions de calcul sont déclarées
 
@@ -168,8 +188,9 @@ pipeline/
   rang_sectoriel.py            situe un ratio dans son secteur
   redondance.py                mesure la corrélation entre indicateurs
   verifier_seance.py           15 contrôles quotidiens
-  smart_money/fond_score.py    note fondamentale ; ratio_effectif(), lecture
-                               unique des ratios pour la note et les alertes
+  score_bvc.py                 le Score BVC (six facteurs, couverture)
+  smart_money/fond_score.py    note fondamentale descriptive ; ratio_effectif(),
+                               lecture unique des ratios (hors Score BVC)
   ratios_financiers.py         ratios calculés sur les comptes publiés
   resultats_semestriels.py     bénéfice sur douze mois glissants
   depots_ammc.py               liste des dépôts de l'AMMC

@@ -120,7 +120,7 @@ def test_la_veille_est_la_seance_precedente_enregistree():
     assert c["ecart_volume_pct"] == -20.0          # 400 / 500 − 1
     p = bf.phrase_veille(c)
     assert p == ("Par rapport à la séance du 26/09 : indice à +0,60 % après "
-                 "-0,95 %, volume global 400,0 M DH contre 500,0 M DH "
+                 "-0,95 %, volume du marché central 400,0 M DH contre 500,0 M DH "
                  "(-20,0 %), 36 hausses et 18 baisses contre 12 et 40.")
 
 

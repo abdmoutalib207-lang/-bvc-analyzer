@@ -3408,7 +3408,8 @@ def _meta_ticker(ticker, src_prix, prix_asof, df_candles,
 
 
 def fetch_masi20():
-    """Le MASI 20 — les vingt plus grosses capitalisations. Ou None.
+    """Le MASI 20 — les vingt valeurs les plus liquides parmi les quarante plus
+    grandes capitalisations flottantes (fiche signalétique de la Bourse). Ou None.
 
     ⚠️ POURQUOI UN SECOND INDICE CHANGE LA LECTURE.
     Le MASI est pondéré par les capitalisations : quelques poids lourds
@@ -5417,7 +5418,7 @@ def run(dry_run=False, push=False, token=""):
     # viennent. Le lecteur ne peut ni les reproduire ni les contester.
     #
     # Ici chaque niveau porte sa méthode, et deux familles sont SÉPARÉES :
-    #   · faits       — bornes réglementaires ±10 % (R10), extrêmes réellement
+    #   · faits       — bornes réglementaires du groupe de cotation (R10), extrêmes réellement
     #                   atteints, moyennes réellement calculées ;
     #   · conventions — points pivots, de l'arithmétique sur une séance.
     #
