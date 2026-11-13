@@ -1221,11 +1221,14 @@ const BandeauOffre=({r,cours})=>{const o=meta(r).offre_publique;if(!o)return nul
   </div>);};
 /* Pastille de fraîcheur : n'apparaît que si le cours n'est pas celui de la
    dernière séance cotée. Le titre porte la date réelle et la source. */
-const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
+/* `force`, `prefixe`, `sz` (13/11/2026) : l'en-tête de fiche réutilise la
+   même pastille, plus grande, quand la date précède la dernière séance cotée
+   même si le moteur n'a pas posé `stale`. Sans ces props : inchangée. */
+const Perime=({r,force=false,prefixe="",sz=9,ml=5})=>{const m=meta(r);if(!m.stale&&!force)return null;
   return <span title={`Cours du ${m.asof?jjmm(m.asof):"dernier run"} · source ${m.src==="cdg"?"société de bourse agréée":m.src}`}
-    style={{marginLeft:5,fontSize:9,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
+    style={{marginLeft:ml,fontSize:sz,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
             borderRadius:3,padding:"1px 4px",whiteSpace:"nowrap",verticalAlign:"middle"}}>
-    ⚠ {m.asof?jjmm(m.asof):"périmé"}</span>;};
+    ⚠ {prefixe}{m.asof?jjmm(m.asof):"périmé"}</span>;};
 /* ── FICHE LISIBLE (14/10/2026, diagnostic externe de l'interface) ──────────
    Trois éléments repliables, au toucher (<details>, pas d'info-bulle) :
    l'heure du cours, ce que garantit la confiance, et pourquoi cette note.
@@ -1233,12 +1236,16 @@ const Perime=({r})=>{const m=meta(r);if(!m.stale)return null;
    `note_fond`, `score_bvc`) : l'explication ne peut pas diverger du calcul.
    (`poids` et `score_tech`, cités ici jusqu'au 06/11/2026, ne sont plus
    publiés.) */
-const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
+/* Heure du relevé quand le cours est une valeur de séance en cours (run
+   avant 15h30 le jour même), sinon null. */
+const heureReleve=r=>{const m=meta(r);if(!m.asof)return null;
   let h="",jour="";try{const d=new Date(m.generated_at);
     h=maroc(d).toLocaleTimeString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit"});
     jour=maroc(d).toLocaleDateString("en-CA",{timeZone:"UTC"});}catch(e){}
-  const enSeance=jour===m.asof&&h&&h<"15:30";
-  return enSeance?`dernière valeur relevée à ${h.replace(":","h")} le ${jjmm(m.asof)} — séance en cours`
+  return jour===m.asof&&h&&h<"15:30"?h.replace(":","h"):null;};
+const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
+  const h=heureReleve(r);
+  return h?`dernière valeur relevée à ${h} le ${jjmm(m.asof)} — séance en cours`
     :`cours de clôture du ${jjmm(m.asof)}`;};
 const Repli=({titre,children})=>(
   <details className="repli" style={{width:"100%",maxWidth:420,margin:"6px auto 0",textAlign:"left",background:"#0a1220",border:"1px solid #1a2540",borderRadius:6,padding:"6px 10px"}}>
@@ -1289,13 +1296,89 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   const manque=Object.entries(c).find(([,x])=>x.note==null);
   if(manque)return MANQUE[manque[0]]||`${manque[0]} non mesurée`;
   return null;};
-const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;const res=reservePrincipale(r);
+const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;
   const al=((r.alertes||{}).liste)||[];const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
   const dfr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
-    {res&&<div>Réserve principale : <span style={{color:"#ff8f00"}}>{res}</span></div>}
     {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
     {al.map((x,i)=><div key={i} className="alerte-verifiee"><span style={{color:NIV[x.niveau]||"#ff8f00"}}>⚠ {x.raison} : {x.valeur}</span> <span>({x.seuil}) — comptes au {dfr(x.date)}, {x.source}</span></div>)}
+  </div>;};
+/* ── EN-TÊTE DE FICHE : L'ESSENTIEL AVANT LE SCORE (13/11/2026) ────────────
+   Audit externe du 12/11 : « le gros score coloré attire l'œil avant la date
+   du cours, le montant échangé et la réserve principale. Je mettrais ces
+   trois informations en haut de chaque fiche. » Elles passent sous le cours,
+   AVANT le Score BVC, qui reste tel quel (valeur, couleur, logique).
+   Rien n'est calculé ici : date, montant et réserve sont lus tels que le
+   moteur les publie. Aucune réserve n'est créée.
+
+   Réserve d'en-tête, UNE seule, la première qui existe :
+     suspendu → confiance ≤ 1 → réserve P/B → réserve BPA → rupture de
+     référence des moyennes mobiles → réserve principale de la note
+     (`reservePrincipale`) → rien. C'est la SEULE réserve principale de la
+     fiche : la ligne « Réserve principale » sous le score est retirée.
+   ⚠️ La suspension passe AVANT la confiance, comme au classement et sur la
+   pastille de la carte : un titre suspendu a une confiance nulle, et
+   « Données insuffisantes » y serait un contresens (règle du 24/09). Pour
+   la même raison, une reprise récente à confiance ≤ 1 reprend le libellé
+   de la pastille. */
+const reserveEnTete=r=>{const m=meta(r);
+  if(m.susp)return {texte:"Cotation suspendue",c:"#ff6b6b"};
+  if(m.conf<=1)return m.reprise_recente
+    ?{texte:`Reprise de cotation — ${m.seances_depuis_reprise} séance(s)`,c:"#ffd740"}
+    :{texte:"Données insuffisantes",c:"#8892a4"};
+  if(m.pb_reserve)return {texte:m.pb_reserve,sur:"le P/B",c:"#ffb74d",long:true};
+  if(r.bpa_reserve)return {texte:r.bpa_reserve,sur:"le BPA",c:"#ffb74d",long:true};
+  const ru=((((r.score_bvc||{}).facteurs||{}).moyennes_mobiles)||{}).rupture;
+  if(ru&&Array.isArray(ru.moyennes)&&ru.reprise){
+    const t=`${ru.moyennes.join(", ")} incluent des cours d'avant la reprise du ${ru.reprise.split("-").reverse().join("/")} (référence remise à neuf par l'AMMC, ${ru.seances} séances depuis)`;
+    return {texte:t,sur:"les moyennes mobiles",c:"#ffb74d",long:true};}
+  /* Une seule réserve principale sur la fiche (13/11/2026) : à défaut des
+     précédentes, celle de `reservePrincipale` (comptes absents, grandeur
+     contestée, risque non mesurable…), qui s'affichait plus bas sous un
+     libellé identique. Le cours ancien ne s'y répète pas : la pastille ⚠ de
+     la date le dit déjà. */
+  const rp=reservePrincipale(r);
+  if(rp&&!/^cours non coté|^cotation suspendue/.test(rp))
+    return {texte:rp.charAt(0).toUpperCase()+rp.slice(1),c:"#ff8f00",long:rp.length>60};
+  return null;};
+/* `seance` : la dernière séance cotée, la plus récente des dates de cours
+   publiées. Un cours plus ancien porte la pastille ⚠, même sans `stale`. */
+const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=useState(false);
+  const ancien=m.stale||(!!m.asof&&!!seance&&m.asof<seance);
+  const h=ancien?null:heureReleve(r);
+  const dh=r.echange_dh;
+  const res=reserveEnTete(r);
+  /* Phrases courtes plutôt que libellé + valeur : « cours du 13/11/2026 »
+     se coupait en deux dans une colonne de 147 px (mesuré à 390 px). */
+  const fort={color:"#e8eef8",fontWeight:600};
+  return <div className="fiche-essentiel" style={{textAlign:"left",margin:"10px 0 12px",padding:"8px 10px",
+      background:"rgba(8,13,26,.55)",border:"1px solid #1a2540",borderRadius:6,
+      fontSize:12.5,lineHeight:1.5,color:"#8892a4",fontVariantNumeric:"tabular-nums"}}>
+    <div data-essentiel="date" title={heureCours(r)}>
+      {!m.asof
+        ? <span style={{color:"#ffd740",fontWeight:700}}>⚠ date du cours inconnue</span>
+        : ancien
+        ? <Perime r={r} force prefixe="cours du " sz={12.5} ml={0}/>
+        : <span style={fort}>cours du {jjmmaaaa(m.asof)}</span>}
+      {h&&<span> · relevé à {h}, séance en cours</span>}
+    </div>
+    <div data-essentiel="montant" style={{marginTop:4}}>
+      {dh!=null&&isFinite(dh)&&dh>0
+        ? <><span style={fort}>{montantEntier(dh)}</span> échangés{ancien&&m.asof?` le ${jjmm(m.asof)}`:""}</>
+        : <span style={{color:"#c8d3e8"}}>non échangé ce jour</span>}
+    </div>
+    {res&&<div data-essentiel="reserve" style={{marginTop:6,paddingTop:6,borderTop:"1px solid #1a2540"}}>
+      {res.long
+        ? <button type="button" onClick={()=>setOuvert(o=>!o)} aria-expanded={ouvert}
+            title={res.texte}
+            style={{display:"block",width:"100%",textAlign:"left",minHeight:44,padding:"2px 0",fontSize:12,lineHeight:1.45,fontFamily:"var(--font)",cursor:"pointer"}}>
+            <span style={{display:"block",fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Réserve sur {res.sur}</span>
+            <span style={{color:res.c,overflowWrap:"anywhere",...(ouvert?{display:"block"}
+              :{display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"})}}>⚠ {res.texte}</span>
+            <span style={{display:"block",fontSize:10.5,color:"#4db8ff",marginTop:2}}>{ouvert?"réduire":"lire en entier"}</span>
+          </button>
+        : <span style={{fontSize:13,fontWeight:600,color:res.c}}>{res.c==="#8892a4"?"":"⚠ "}{res.texte}{res.sur?<span style={{fontWeight:400,color:"#8892a4"}}> (sur {res.sur})</span>:null}</span>}
+    </div>}
   </div>;};
 const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
   if(!Array.isArray(g))return null;
@@ -5027,6 +5110,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
     ?Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100)):50;
   const sym=r.symbol||r.ticker;
   const rsiVal=r.rsi??r.rsi14??null;
+  /* Dernière séance cotée : la plus récente des dates de cours publiées. */
+  const seance=useMemo(()=>rows.reduce((a,x)=>{const d=meta(x).asof;return d&&d>a?d:a;},""),[rows]);
 
   /* Les pastilles du filtre suivaient l'ordre du CLASSEMENT — donc un ordre qui
      change à chaque run. On cherche un titre par son nom, pas par son rang :
@@ -5087,14 +5172,19 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
               <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={56}/>
             </div>
-            <div style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{tk(r)} · {px(price)} DH<Perime r={r}/> <span style={{color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?"—":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+            <div className="fiche-cours" style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+              <span>{tk(r)} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?"—":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 className="etoile" aria-pressed={fav.includes(sym)}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>
+            {/* L'essentiel AVANT le score (audit externe du 12/11/2026) : date
+                du cours, montant échangé, réserve principale. La pastille
+                ⚠ JJ/MM d'un cours ancien y est : elle quitte la ligne du cours
+                juste au-dessus, où elle faisait doublon. */}
+            <EnTeteEssentiel key={sym} r={r} seance={seance}/>
             {/* Le score reste affiché même à faible confiance — mais en gris,
                 pour qu'il ne se lise pas comme une conclusion (CLAUDE.md).
                 Valeur EXACTE ici ; le classement en donne la partie entière. */}
@@ -5110,7 +5200,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 calculer sur une donnée qu'on n'a pas. */}
             {vBVC==null&&<div style={{fontSize:10.5,color:"#ff8f00",lineHeight:1.4,margin:"0 auto 8px",maxWidth:260}}>
               {r.score_bvc?(r.score_bvc.motif||`Score BVC ${etatBVC(r)}`):"Score BVC non publié pour ce titre"}. Aucune valeur approchée n'est affichée à la place.</div>}
-            <div className="heure-cours" style={{fontSize:10.5,color:"#8892a4",marginBottom:4}}>{heureCours(r)}</div>
+            {/* La date du cours (ligne « heure-cours » jusqu'au 13/11/2026) est
+                passée en tête de carte, dans EnTeteEssentiel. */}
             <ResumeNote r={r}/>
             <DetailConfiance r={r}/>
             <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>

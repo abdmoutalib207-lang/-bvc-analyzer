@@ -1586,15 +1586,19 @@ const BandeauOffre = ({
   }, i ? "avis de la Bourse" : "note d'information")).reduce((a, x) => a.length ? [...a, " · ", x] : [x], []), ". Le Score BVC n'en tient pas compte."));
 };
 const Perime = ({
-  r
+  r,
+  force = false,
+  prefixe = "",
+  sz = 9,
+  ml = 5
 }) => {
   const m = meta(r);
-  if (!m.stale) return null;
+  if (!m.stale && !force) return null;
   return React.createElement("span", {
     title: `Cours du ${m.asof ? jjmm(m.asof) : "dernier run"} · source ${m.src === "cdg" ? "société de bourse agréée" : m.src}`,
     style: {
-      marginLeft: 5,
-      fontSize: 9,
+      marginLeft: ml,
+      fontSize: sz,
       fontWeight: 700,
       color: "#ffd740",
       border: "1px solid rgba(255,215,64,.45)",
@@ -1603,11 +1607,11 @@ const Perime = ({
       whiteSpace: "nowrap",
       verticalAlign: "middle"
     }
-  }, "\u26A0 ", m.asof ? jjmm(m.asof) : "périmé");
+  }, "\u26A0 ", prefixe, m.asof ? jjmm(m.asof) : "périmé");
 };
-const heureCours = r => {
+const heureReleve = r => {
   const m = meta(r);
-  if (!m.asof) return "date du cours inconnue";
+  if (!m.asof) return null;
   let h = "",
     jour = "";
   try {
@@ -1621,8 +1625,13 @@ const heureCours = r => {
       timeZone: "UTC"
     });
   } catch (e) {}
-  const enSeance = jour === m.asof && h && h < "15:30";
-  return enSeance ? `dernière valeur relevée à ${h.replace(":", "h")} le ${jjmm(m.asof)} — séance en cours` : `cours de clôture du ${jjmm(m.asof)}`;
+  return jour === m.asof && h && h < "15:30" ? h.replace(":", "h") : null;
+};
+const heureCours = r => {
+  const m = meta(r);
+  if (!m.asof) return "date du cours inconnue";
+  const h = heureReleve(r);
+  return h ? `dernière valeur relevée à ${h} le ${jjmm(m.asof)} — séance en cours` : `cours de clôture du ${jjmm(m.asof)}`;
 };
 const Repli = ({
   titre,
@@ -1740,7 +1749,6 @@ const ResumeNote = ({
 }) => {
   const m = meta(r);
   const dh = m.echange_median_dh;
-  const res = reservePrincipale(r);
   const al = (r.alertes || {}).liste || [];
   const NIV = {
     "critique": "#ff4f5a",
@@ -1756,11 +1764,7 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
-    style: {
-      color: "#ff8f00"
-    }
-  }, res)), dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
+  }, dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
@@ -1772,6 +1776,168 @@ const ResumeNote = ({
       color: NIV[x.niveau] || "#ff8f00"
     }
   }, "\u26A0 ", x.raison, " : ", x.valeur), " ", React.createElement("span", null, "(", x.seuil, ") \u2014 comptes au ", dfr(x.date), ", ", x.source))));
+};
+const reserveEnTete = r => {
+  const m = meta(r);
+  if (m.susp) return {
+    texte: "Cotation suspendue",
+    c: "#ff6b6b"
+  };
+  if (m.conf <= 1) return m.reprise_recente ? {
+    texte: `Reprise de cotation — ${m.seances_depuis_reprise} séance(s)`,
+    c: "#ffd740"
+  } : {
+    texte: "Données insuffisantes",
+    c: "#8892a4"
+  };
+  if (m.pb_reserve) return {
+    texte: m.pb_reserve,
+    sur: "le P/B",
+    c: "#ffb74d",
+    long: true
+  };
+  if (r.bpa_reserve) return {
+    texte: r.bpa_reserve,
+    sur: "le BPA",
+    c: "#ffb74d",
+    long: true
+  };
+  const ru = (((r.score_bvc || {}).facteurs || {}).moyennes_mobiles || {}).rupture;
+  if (ru && Array.isArray(ru.moyennes) && ru.reprise) {
+    const t = `${ru.moyennes.join(", ")} incluent des cours d'avant la reprise du ${ru.reprise.split("-").reverse().join("/")} (référence remise à neuf par l'AMMC, ${ru.seances} séances depuis)`;
+    return {
+      texte: t,
+      sur: "les moyennes mobiles",
+      c: "#ffb74d",
+      long: true
+    };
+  }
+  const rp = reservePrincipale(r);
+  if (rp && !/^cours non coté|^cotation suspendue/.test(rp)) return {
+    texte: rp.charAt(0).toUpperCase() + rp.slice(1),
+    c: "#ff8f00",
+    long: rp.length > 60
+  };
+  return null;
+};
+const EnTeteEssentiel = ({
+  r,
+  seance
+}) => {
+  const m = meta(r);
+  const [ouvert, setOuvert] = useState(false);
+  const ancien = m.stale || !!m.asof && !!seance && m.asof < seance;
+  const h = ancien ? null : heureReleve(r);
+  const dh = r.echange_dh;
+  const res = reserveEnTete(r);
+  const fort = {
+    color: "#e8eef8",
+    fontWeight: 600
+  };
+  return React.createElement("div", {
+    className: "fiche-essentiel",
+    style: {
+      textAlign: "left",
+      margin: "10px 0 12px",
+      padding: "8px 10px",
+      background: "rgba(8,13,26,.55)",
+      border: "1px solid #1a2540",
+      borderRadius: 6,
+      fontSize: 12.5,
+      lineHeight: 1.5,
+      color: "#8892a4",
+      fontVariantNumeric: "tabular-nums"
+    }
+  }, React.createElement("div", {
+    "data-essentiel": "date",
+    title: heureCours(r)
+  }, !m.asof ? React.createElement("span", {
+    style: {
+      color: "#ffd740",
+      fontWeight: 700
+    }
+  }, "\u26A0 date du cours inconnue") : ancien ? React.createElement(Perime, {
+    r: r,
+    force: true,
+    prefixe: "cours du ",
+    sz: 12.5,
+    ml: 0
+  }) : React.createElement("span", {
+    style: fort
+  }, "cours du ", jjmmaaaa(m.asof)), h && React.createElement("span", null, " \xB7 relev\xE9 \xE0 ", h, ", s\xE9ance en cours")), React.createElement("div", {
+    "data-essentiel": "montant",
+    style: {
+      marginTop: 4
+    }
+  }, dh != null && isFinite(dh) && dh > 0 ? React.createElement(React.Fragment, null, React.createElement("span", {
+    style: fort
+  }, montantEntier(dh)), " \xE9chang\xE9s", ancien && m.asof ? ` le ${jjmm(m.asof)}` : "") : React.createElement("span", {
+    style: {
+      color: "#c8d3e8"
+    }
+  }, "non \xE9chang\xE9 ce jour")), res && React.createElement("div", {
+    "data-essentiel": "reserve",
+    style: {
+      marginTop: 6,
+      paddingTop: 6,
+      borderTop: "1px solid #1a2540"
+    }
+  }, res.long ? React.createElement("button", {
+    type: "button",
+    onClick: () => setOuvert(o => !o),
+    "aria-expanded": ouvert,
+    title: res.texte,
+    style: {
+      display: "block",
+      width: "100%",
+      textAlign: "left",
+      minHeight: 44,
+      padding: "2px 0",
+      fontSize: 12,
+      lineHeight: 1.45,
+      fontFamily: "var(--font)",
+      cursor: "pointer"
+    }
+  }, React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase"
+    }
+  }, "R\xE9serve sur ", res.sur), React.createElement("span", {
+    style: {
+      color: res.c,
+      overflowWrap: "anywhere",
+      ...(ouvert ? {
+        display: "block"
+      } : {
+        display: "-webkit-box",
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: "vertical",
+        overflow: "hidden"
+      })
+    }
+  }, "\u26A0 ", res.texte), React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 10.5,
+      color: "#4db8ff",
+      marginTop: 2
+    }
+  }, ouvert ? "réduire" : "lire en entier")) : React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600,
+      color: res.c
+    }
+  }, res.c === "#8892a4" ? "" : "⚠ ", res.texte, res.sur ? React.createElement("span", {
+    style: {
+      fontWeight: 400,
+      color: "#8892a4"
+    }
+  }, " (sur ", res.sur, ")") : null)));
 };
 const DetailConfiance = ({
   r
@@ -11118,6 +11284,10 @@ const Detail = ({
   const pos = objectifs && r.bull !== r.bear ? Math.min(98, Math.max(2, (price - r.bear) / (r.bull - r.bear) * 100)) : 50;
   const sym = r.symbol || r.ticker;
   const rsiVal = r.rsi ?? r.rsi14 ?? null;
+  const seance = useMemo(() => rows.reduce((a, x) => {
+    const d = meta(x).asof;
+    return d && d > a ? d : a;
+  }, ""), [rows]);
   const visRows = (detSearch.trim() ? rows.filter(d => {
     const q = detSearch.trim().toUpperCase();
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
@@ -11253,6 +11423,7 @@ const Detail = ({
     sector: r.sector,
     size: 56
   })), React.createElement("div", {
+    className: "fiche-cours",
     style: {
       fontSize: 12,
       color: "#8892a4",
@@ -11263,9 +11434,7 @@ const Detail = ({
       justifyContent: "center",
       gap: 8
     }
-  }, React.createElement("span", null, tk(r), " \xB7 ", px(price), " DH", React.createElement(Perime, {
-    r: r
-  }), " ", React.createElement("span", {
+  }, React.createElement("span", null, tk(r), " \xB7 ", px(price), " DH ", React.createElement("span", {
     style: {
       color: VC(r.chg),
       fontWeight: 600
@@ -11290,7 +11459,11 @@ const Detail = ({
       lineHeight: 1,
       transition: "color .2s"
     }
-  }, fav.includes(sym) ? "★" : "☆")), React.createElement("div", {
+  }, fav.includes(sym) ? "★" : "☆")), React.createElement(EnTeteEssentiel, {
+    key: sym,
+    r: r,
+    seance: seance
+  }), React.createElement("div", {
     className: "score-bvc-tete",
     style: {
       fontSize: 52,
@@ -11314,14 +11487,7 @@ const Detail = ({
       margin: "0 auto 8px",
       maxWidth: 260
     }
-  }, r.score_bvc ? r.score_bvc.motif || `Score BVC ${etatBVC(r)}` : "Score BVC non publié pour ce titre", ". Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), React.createElement("div", {
-    className: "heure-cours",
-    style: {
-      fontSize: 10.5,
-      color: "#8892a4",
-      marginBottom: 4
-    }
-  }, heureCours(r)), React.createElement(ResumeNote, {
+  }, r.score_bvc ? r.score_bvc.motif || `Score BVC ${etatBVC(r)}` : "Score BVC non publié pour ce titre", ". Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), React.createElement(ResumeNote, {
     r: r
   }), React.createElement(DetailConfiance, {
     r: r
