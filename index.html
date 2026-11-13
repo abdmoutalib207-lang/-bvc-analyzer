@@ -1749,7 +1749,6 @@ const ResumeNote = ({
 }) => {
   const m = meta(r);
   const dh = m.echange_median_dh;
-  const res = reservePrincipale(r);
   const al = (r.alertes || {}).liste || [];
   const NIV = {
     "critique": "#ff4f5a",
@@ -1765,11 +1764,7 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, res && React.createElement("div", null, "R\xE9serve principale : ", React.createElement("span", {
-    style: {
-      color: "#ff8f00"
-    }
-  }, res)), dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
+  }, dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
     style: {
       color: "#ff8f00"
     }
@@ -1808,15 +1803,21 @@ const reserveEnTete = r => {
     long: true
   };
   const ru = (((r.score_bvc || {}).facteurs || {}).moyennes_mobiles || {}).rupture;
-  if (ru) {
-    const t = typeof ru === "string" ? ru : ru && (ru.motif || ru.texte || ru.libelle) || "rupture de référence";
+  if (ru && Array.isArray(ru.moyennes) && ru.reprise) {
+    const t = `${ru.moyennes.join(", ")} incluent des cours d'avant la reprise du ${ru.reprise.split("-").reverse().join("/")} (référence remise à neuf par l'AMMC, ${ru.seances} séances depuis)`;
     return {
       texte: t,
       sur: "les moyennes mobiles",
       c: "#ffb74d",
-      long: t.length > 60
+      long: true
     };
   }
+  const rp = reservePrincipale(r);
+  if (rp && !/^cours non coté|^cotation suspendue/.test(rp)) return {
+    texte: rp.charAt(0).toUpperCase() + rp.slice(1),
+    c: "#ff8f00",
+    long: rp.length > 60
+  };
   return null;
 };
 const EnTeteEssentiel = ({

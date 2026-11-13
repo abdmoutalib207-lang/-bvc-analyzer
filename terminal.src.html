@@ -1296,11 +1296,10 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   const manque=Object.entries(c).find(([,x])=>x.note==null);
   if(manque)return MANQUE[manque[0]]||`${manque[0]} non mesurée`;
   return null;};
-const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;const res=reservePrincipale(r);
+const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;
   const al=((r.alertes||{}).liste)||[];const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
   const dfr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
-    {res&&<div>Réserve principale : <span style={{color:"#ff8f00"}}>{res}</span></div>}
     {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
     {al.map((x,i)=><div key={i} className="alerte-verifiee"><span style={{color:NIV[x.niveau]||"#ff8f00"}}>⚠ {x.raison} : {x.valeur}</span> <span>({x.seuil}) — comptes au {dfr(x.date)}, {x.source}</span></div>)}
   </div>;};
@@ -1314,7 +1313,9 @@ const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;const res=
 
    Réserve d'en-tête, UNE seule, la première qui existe :
      suspendu → confiance ≤ 1 → réserve P/B → réserve BPA → rupture de
-     référence des moyennes mobiles (si le moteur publie le champ) → rien.
+     référence des moyennes mobiles → réserve principale de la note
+     (`reservePrincipale`) → rien. C'est la SEULE réserve principale de la
+     fiche : la ligne « Réserve principale » sous le score est retirée.
    ⚠️ La suspension passe AVANT la confiance, comme au classement et sur la
    pastille de la carte : un titre suspendu a une confiance nulle, et
    « Données insuffisantes » y serait un contresens (règle du 24/09). Pour
@@ -1328,8 +1329,17 @@ const reserveEnTete=r=>{const m=meta(r);
   if(m.pb_reserve)return {texte:m.pb_reserve,sur:"le P/B",c:"#ffb74d",long:true};
   if(r.bpa_reserve)return {texte:r.bpa_reserve,sur:"le BPA",c:"#ffb74d",long:true};
   const ru=((((r.score_bvc||{}).facteurs||{}).moyennes_mobiles)||{}).rupture;
-  if(ru){const t=typeof ru==="string"?ru:(ru&&(ru.motif||ru.texte||ru.libelle))||"rupture de référence";
-    return {texte:t,sur:"les moyennes mobiles",c:"#ffb74d",long:t.length>60};}
+  if(ru&&Array.isArray(ru.moyennes)&&ru.reprise){
+    const t=`${ru.moyennes.join(", ")} incluent des cours d'avant la reprise du ${ru.reprise.split("-").reverse().join("/")} (référence remise à neuf par l'AMMC, ${ru.seances} séances depuis)`;
+    return {texte:t,sur:"les moyennes mobiles",c:"#ffb74d",long:true};}
+  /* Une seule réserve principale sur la fiche (13/11/2026) : à défaut des
+     précédentes, celle de `reservePrincipale` (comptes absents, grandeur
+     contestée, risque non mesurable…), qui s'affichait plus bas sous un
+     libellé identique. Le cours ancien ne s'y répète pas : la pastille ⚠ de
+     la date le dit déjà. */
+  const rp=reservePrincipale(r);
+  if(rp&&!/^cours non coté|^cotation suspendue/.test(rp))
+    return {texte:rp.charAt(0).toUpperCase()+rp.slice(1),c:"#ff8f00",long:rp.length>60};
   return null;};
 /* `seance` : la dernière séance cotée, la plus récente des dates de cours
    publiées. Un cours plus ancien porte la pastille ⚠, même sans `stale`. */

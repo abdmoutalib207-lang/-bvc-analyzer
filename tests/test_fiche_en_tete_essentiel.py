@@ -108,8 +108,11 @@ def _reserves(rows):
     if not node:                                    # pragma: no cover
         pytest.skip("node absent de cette machine")
     meta = _bloc(SRC, "const meta=r=>")
+    rp = _bloc(SRC, "const reservePrincipale=r=>")
     res = _bloc(SRC, "const reserveEnTete=r=>")
-    script = (meta + ";\n" + res + ";\nconsole.log(JSON.stringify(%s.map(reserveEnTete)));"
+    jj = SRC[SRC.index("const jjmm=d=>"):].split("\n", 1)[0]
+    script = (jj + "\n" + meta + ";\n" + rp + ";\n"
+              + res + ";\nconsole.log(JSON.stringify(%s.map(reserveEnTete)));"
               % json.dumps(rows))
     r = subprocess.run([node, "-"], input=script, capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr
@@ -123,7 +126,8 @@ def test_ordre_des_reserves():
         {"_meta": {"confidence": 1, "pb_reserve": pb}, "bpa_reserve": bpa},
         {"_meta": {"confidence": 4, "pb_reserve": pb}, "bpa_reserve": bpa},
         {"_meta": {"confidence": 4}, "bpa_reserve": bpa},
-        {"_meta": {"confidence": 4}, "score_bvc": {"facteurs": {"moyennes_mobiles": {"rupture": "référence remise à neuf le 16/09"}}}},
+        {"_meta": {"confidence": 4}, "score_bvc": {"facteurs": {"moyennes_mobiles": {"rupture":
+            {"reprise": "2026-09-16", "seances": 40, "moyennes": ["MM50", "MM200"]}}}}},
         {"_meta": {"confidence": 5}, "score_bvc": {"facteurs": {"moyennes_mobiles": {"points": 35}}}},
         {},                                            # sans _meta : confiance 0
     ]
@@ -132,7 +136,7 @@ def test_ordre_des_reserves():
     assert out[1]["texte"] == "Données insuffisantes" and out[1]["c"] == "#8892a4"   # gris
     assert out[2]["texte"] == pb and out[2]["sur"] == "le P/B"
     assert out[3]["texte"] == bpa and out[3]["sur"] == "le BPA"
-    assert out[4]["texte"] == "référence remise à neuf le 16/09"
+    assert out[4]["texte"].startswith("MM50, MM200 incluent des cours d'avant la reprise du 16/09/2026")
     assert out[5] is None                              # rien : on n'invente pas
     assert out[6]["texte"] == "Données insuffisantes"
 
@@ -149,3 +153,22 @@ def test_aucun_mot_d_action():
     texte = (EN_TETE + _bloc(SRC, "const reserveEnTete=r=>")).lower()
     for mot in ("acheter", "achat", "vendre", "vente", "éviter", "surveiller", "conserver", "renforcer"):
         assert not re.search(rf"\b{mot}\b", texte), mot
+
+
+def test_une_seule_reserve_principale_sur_la_fiche():
+    """13/11/2026 : l'en-tête et la ligne « Réserve principale » sous le score
+    suivaient deux règles et pouvaient se contredire (T2S). L'en-tête est la
+    seule ; il reprend `reservePrincipale` à défaut des réserves précédentes."""
+    assert "Réserve principale : <span" not in SRC
+    corps = SRC[SRC.index("const reserveEnTete="):SRC.index("const EnTeteEssentiel=")]
+    assert "reservePrincipale(r)" in corps
+    assert "incluent des cours d'avant la reprise du" in corps
+
+
+def test_a_defaut_la_reserve_principale_de_la_note():
+    rows = [{"_meta": {"confidence": 4, "comptes_absents": {"dernier_depot": "2023-06-30"}}},
+            {"_meta": {"confidence": 4, "stale": True, "prix_asof": "2026-09-28"}}]
+    out = _reserves(rows)
+    assert out[0]["texte"] == "Aucuns comptes publiés récents"
+    assert out[1] is None            # le cours ancien est dit par la pastille de la date, pas répété
+
