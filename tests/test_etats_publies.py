@@ -56,7 +56,8 @@ def _ligne(texte):
 # ── 1. sortie exacte du générateur, 2. poids ───────────────────────────────
 
 def test_les_titres_des_lots_sont_la():
-    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CMGP", "CMT", "CSR", "IAM", "LHM", "MNG", "MSA", "RDS", "RIS", "SMI", "SNA", "SOT", "SRM", "TGCC"]
+    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CASH", "CFGB", "CMGP", "CMT", "CSR", "IAM", "LHM", "MNG",
+                      "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT", "SRM", "TGCC", "VCNE"]
 
 
 def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
@@ -132,7 +133,7 @@ def test_chaque_valeur_a_document_page_citation(t):
             assert c["s"] in ("p", "c"), ou
             source(c, ou)
             assert c.get("u") or docs[c["d"]].get("un"), f"{ou} : unité imprimée"
-    assert n > (60 if t == "SMI" else 40 if t in ("CMGP", "SRM") else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes ; CMGP : introduit en bourse en 2025, quatre périodes seulement
+    assert n > (60 if t == "SMI" else 40 if t in ("CMGP", "SRM") else 20 if t in ("CASH", "SGTM", "VCNE") else 100), "le lot porte plus de cent valeurs par titre"   # SMI : comptes sociaux, moins de lignes ; CMGP : introduit en bourse en 2025, quatre périodes seulement ; CASH, SGTM : introduits en décembre 2025, deux exercices et deux semestres seulement ; VCNE : juillet 2025
 
 
 # ── 4. fidélité au relevé, cellule par cellule ──────────────────────────────
@@ -226,7 +227,7 @@ def test_variations_et_marges_recalculees(t):
                     assert b["v"] > 0 and m["v"] == round(a["v"] / b["v"] * 100, 1)
                 else:
                     assert "v" not in a or "v" not in b or b["v"] <= 0
-    assert n_var > (10 if t in ("CMGP", "SRM") else 20 if t in ("AKD", "RDS") else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022) ; RDS : exercices 2019-2025, semestres 2022-2026 seulement, tableau des flux absent
+    assert n_var > (10 if t in ("CMGP", "SRM", "CASH", "SGTM", "VCNE") else 20 if t in ("AKD", "RDS") else 50)       # AKD : quatre exercices et quatre semestres seulement (introduit fin 2022) ; RDS : exercices 2019-2025, semestres 2022-2026 seulement, tableau des flux absent ; CASH, SGTM, VCNE : variations de FY2025 et H1-2026 seulement (introduits en 2025)
     if t in ("ADI", "MNG"):                      # pertes relues dans les relevés : des « ns » existent
         assert n_ns >= 1
 
@@ -357,4 +358,16 @@ def test_temoin_jargon_refuse():
     for x in ("⚠️ attention", "voir R11", "registre SPLITS", "bvc_config"):
         with pytest.raises(EP.ReleveInvalide):
             EP._public(x, "témoin")
+
+
+def test_jeton_virgule_des_milliers_en_kmad():
+    """Lot 5 : certains états en milliers de DH impriment la virgule comme
+    séparateur de milliers (« 400,354 » = 400 354 KMAD, CFG Bank 2021 ;
+    « 52,031 » = 52 031 KMAD, Sonasid S1 2024, vérifié par l'addition des
+    lignes). La règle ne joue qu'avec `virgule_milliers` (unité KMAD)."""
+    assert EP._jeton("400,354", virgule_milliers=True) == 400354.0
+    assert EP._jeton("1,234,567", virgule_milliers=True) == 1234567.0
+    assert EP._jeton("400,354") == 400.354                 # hors KMAD : décimale
+    assert EP._jeton("52,03", virgule_milliers=True) == 52.03   # deux décimales : jamais des milliers
+    assert EP._jeton("1 012 305", virgule_milliers=True) == 1012305.0
 

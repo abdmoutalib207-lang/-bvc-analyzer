@@ -183,9 +183,17 @@ _RAISONS = (
      "Non relevé : aucun endettement net publié par l'émetteur n'a été trouvé dans le dépôt de cette période."),
     (r"colonne du semestre à « - »",
      "Non relevé : le document du semestre laisse cette colonne vide (« - »)."),
+    (r"^endettement net publié.*se contredisent",
+     "Non retenu : l'émetteur publie pour cette date deux chiffres d'endettement ou de trésorerie nette qui se "
+     "contredisent, sans en donner la définition."),
     (r"^endettement net publié",
      "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
      "sans périmètre consolidé établi."),
+    # lot 5 (CASH, CFGB, SGTM, VCNE)
+    (r"^non relevé : ligne .* imprimée à « - »",
+     "Non relevé : la ligne est imprimée à « - » dans le document (aucun montant)."),
+    (r"dividende global",
+     "Non relevé : l'émetteur publie un dividende global, sans montant par action."),
     (r"non lu|non relevé|non établi|non repris",
      "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
      "qu'elle n'est pas publiée)."),
@@ -274,11 +282,14 @@ def citation_courte(texte: str | None) -> str | None:
     return t[:CITATION_MAX].rsplit(" ", 1)[0] + " […]"
 
 
-def _jeton(texte: str):
-    """« 1 012 305 », « 2.378,5 », « 1,179 milliard MAD » → nombre (valeur absolue), ou None."""
+def _jeton(texte: str, virgule_milliers: bool = False):
+    """« 1 012 305 », « 2.378,5 », « 1,179 milliard MAD » → nombre (valeur absolue), ou None.
+    `virgule_milliers` : états en milliers de DH imprimés à l'américaine (« 400,354 » = 400 354 KMAD)."""
     s = re.sub(r"[^\d,.]", "", str(texte).replace(" ", "").replace("\xa0", ""))
     if re.fullmatch(r"\d{1,3}(\.\d{3})+(,\d+)?", s):
         s = s.replace(".", "")
+    elif virgule_milliers and re.fullmatch(r"\d{1,3}(,\d{3})+", s):
+        s = s.replace(",", "")
     try:
         return float(s.replace(",", "."))
     except ValueError:
@@ -370,7 +381,7 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
         o.append("Convention de signe : " + _public(c["convention_signe"], ou) + ".")
     # La valeur du relevé doit se lire sur la ligne citée, à l'unité près.
     f = _VERS_MDH.get(c.get("unite_source"))
-    j = _jeton(c["valeur_source"]) if c.get("valeur_source") is not None else None
+    j = _jeton(c["valeur_source"], c.get("unite_source") == "KMAD") if c.get("valeur_source") is not None else None
     if f and j is not None and c.get("valeur_mdh") is not None:
         lu, v = j * f, abs(c["valeur_mdh"])
         if abs(lu - v) > max(1e-6, 5e-7 * v):

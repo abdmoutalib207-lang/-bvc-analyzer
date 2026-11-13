@@ -45,7 +45,7 @@ def _classer(rows):
         pytest.skip("node absent de cette machine")
     code = _bloc(SRC, "function classerPER(")
     script = code + "\nconst o=classerPER(%s);console.log(JSON.stringify({" \
-        "classes:o.classes.map(l=>({sym:l.sym,pe:l.pe,bpa:l.bpa})),"\
+        "classes:o.classes.map(l=>({sym:l.sym,pe:l.pe,bpa:l.bpa,anterieur:l.anterieur})),"\
         "nonClasses:o.nonClasses.map(l=>({sym:l.sym,code:l.code,motif:l.motif})),"\
         "medianes:o.medianes}));" % json.dumps(rows)
     # Par l'entrée standard : le data.json entier dépasse la longueur
@@ -118,8 +118,8 @@ def test_mediane_de_secteur_sur_les_seuls_classes_et_a_partir_de_4():
         _r("BNS", 300.0, bpa_12m=0.3), _r("BP", None, bpa_12m=-2.0),   # exclus de la médiane
         _r("M1", 15.0, "Mines"), _r("M2", 20.0, "Mines"), _r("M3", 25.0, "Mines")]
     o = _classer(rows)
-    assert o["medianes"]["Banque"] == {"n": 4, "med": statistics.median([8, 10, 12, 30])}
-    assert o["medianes"]["Mines"] == {"n": 3, "med": None}       # trop peu de comparables
+    assert o["medianes"]["Banque"] == {"n": 4, "med": statistics.median([8, 10, 12, 30]), "hors": 0}
+    assert o["medianes"]["Mines"] == {"n": 3, "med": None, "hors": 0}   # trop peu de comparables
 
 
 # ── 4. data.json publié ──────────────────────────────────────────────────────
@@ -137,3 +137,27 @@ def test_partition_du_data_json_publie():
     for x in t:                                       # aucun PER absent ou > 100 classé
         if x.get("pe") is None or x["pe"] > 100:
             assert x["symbol"] in {l["sym"] for l in o["nonClasses"]}
+
+
+def test_la_mediane_ne_prend_que_les_cours_de_moins_de_sept_jours():
+    """Audit du 12/11/2026 : 14 PER classés sur 68 reposaient sur un cours
+    antérieur à la séance, jusqu'à 32 séances (NEJ), et entraient dans les
+    médianes sectorielles. Règle : sept jours au plus."""
+    rows = [_r(s, pe, _meta={"prix_asof": "2026-11-12"}) for s, pe in
+            (("A", 10), ("B", 12), ("C", 14), ("D", 16))]
+    rows.append(_r("VIEUX", 2, _meta={"prix_asof": "2026-09-28"}))
+    rows.append(_r("HIER", 13, _meta={"prix_asof": "2026-11-11", "stale": True}))
+    o = _classer(rows)
+    assert o["medianes"]["Banque"]["med"] == 13 and o["medianes"]["Banque"]["n"] == 5
+    assert o["medianes"]["Banque"]["hors"] == 1
+    assert next(c for c in o["classes"] if c["sym"] == "HIER")["anterieur"] is False
+    vieux = next(c for c in o["classes"] if c["sym"] == "VIEUX")
+    assert vieux["anterieur"] is True          # toujours classé, mais hors médiane
+
+
+def test_sans_aucune_date_rien_n_est_ecarte():
+    """Même règle qu'en Python : aucune date nulle part, aucun titre écarté."""
+    rows = [_r(s, pe, _meta={}) for s, pe in (("A", 10), ("B", 12), ("C", 14), ("D", 16))]
+    o = _classer(rows)
+    assert o["medianes"]["Banque"]["n"] == 4 and o["medianes"]["Banque"]["hors"] == 0
+
