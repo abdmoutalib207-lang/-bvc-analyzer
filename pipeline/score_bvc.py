@@ -43,6 +43,8 @@ proposé dans `pipeline/backtest_score_bvc.py`.
 """
 from __future__ import annotations
 
+import sys
+
 from . import score_descriptif as nour
 from .score_descriptif import _fini, _fr
 
@@ -188,6 +190,9 @@ def score_bvc(*, decision="OBSERVABLE", motif=None, **entrees) -> dict:
 
 # ─────────────────────────── le titre de data.json ───────────────────────────
 
+_RUPTURE_SIGNALEE: list = []  # panne du registre déjà écrite sur stderr pendant ce run
+
+
 def rupture_de_reference(ticker: str, bougies: list) -> dict | None:
     """Moyennes mobiles qui traversent une RÉFÉRENCE REMISE À NEUF.
 
@@ -203,7 +208,15 @@ def rupture_de_reference(ticker: str, bougies: list) -> dict | None:
     """
     try:
         from bvc_config import SUSPENSIONS
-    except ImportError:
+    except ImportError as exc:
+        # R5 : la mention de rupture disparaîtrait sans que rien ne le dise
+        # (CMT afficherait de nouveau des moyennes « pleines »). Le score, lui,
+        # n'en dépend pas : on signale et on continue. Un seul message par
+        # run : la fonction est appelée pour chacun des 80 titres.
+        if not _RUPTURE_SIGNALEE:
+            _RUPTURE_SIGNALEE.append(True)
+            print(f"⚠ score_bvc.rupture_de_reference : registre SUSPENSIONS illisible ({exc}) — "
+                  f"mention de rupture omise pour tous les titres (premier : {ticker})", file=sys.stderr)
         return None
     reprises = [e.get("reprise") for e in SUSPENSIONS.get(ticker or "", [])
                 if e.get("reprise") and e.get("reference_impliquee") is not None]
