@@ -1380,3 +1380,18 @@ absent de `git ls-files`.
 - `tests/test_skills_versionnes.py` : tout skill cité par un agent, la mémoire,
   un autre skill ou CLAUDE.md doit exister dans le dépôt.
 
+## Famille 32 — Un lien `node_modules` commité : `.gitignore` ne visait que les répertoires (12/11/2026)
+
+**Ce qui s'est passé.** Les contrôles navigateur et les tests JS ont besoin de
+`node_modules` ; les arbres de travail en reçoivent un LIEN SYMBOLIQUE vers une
+copie partagée. Un `git add -A` l'a indexé dans la fusion de main dans le lot 5.
+Déjà vécu (CLAUDE.md, R12 : « `node_modules` commité »).
+
+**Cause.** `.gitignore` portait `node_modules/` : la barre finale ne vise que
+les RÉPERTOIRES ; un lien symbolique est un fichier.
+
+**Signal.** `git status` montre `?? node_modules` au lieu de rien.
+
+**Parade.** `.gitignore` porte `node_modules` sans barre ; retirer le lien
+avant tout `git add -A` reste la règle.
+
