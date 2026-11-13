@@ -11443,7 +11443,7 @@ const Detail = ({
         letterSpacing: .6,
         marginBottom: 5
       }
-    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L("Prochaine séance, bornes ±10 %", `${fr(bs.plancher)} — ${fr(bs.plafond)}`, "règle BVC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
+    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
       style: {
         background: "#0a1220",
         border: "1px dashed #2a3550",
