@@ -1134,6 +1134,13 @@ const vpub=()=>VERSION_PUB?encodeURIComponent(VERSION_PUB):String(Math.floor(Dat
    restent inchangées partout ailleurs — sélection, favoris, chandelles.
    Repli sur le symbole si le champ manque (tableau STATIC). */
 const tk=r=>r&&(r.code_bvc||r.symbol||r.ticker)||"";
+/* Correspondance d'une recherche de titre (13/11/2026) : symbole interne,
+   code officiel BVC ou nom de la société, sans tenir compte des accents ni
+   de la casse — « societe » trouve « Société des Boissons du Maroc ». Une
+   seule règle pour la recherche du classement et celle de l'Accueil. */
+const plier=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
+const correspondTitre=(x,q)=>{const p=plier(q).trim();if(!p)return true;
+  return plier(x.symbol||x.ticker).includes(p)||plier(tk(x)).includes(p)||plier(x.name).includes(p);};
 /* Code AFFICHÉ d'un symbole interne — 14/10/2026 (diagnostic externe). Le
    briefing, les publications et les tableaux affichaient notre clé interne
    quand la fiche affiche le code officiel : 31 titres sur 80 différaient, et
@@ -3022,6 +3029,38 @@ const Tuile=({r,ligne,onClick})=>{
       {ligne&&<div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.4,height:30,overflow:"hidden"}}>{ligne}</div>}
     </button>);
 };
+/* ⚠️ RECHERCHE SUR L'ACCUEIL — 13/11/2026, audit externe : « la recherche
+   est peu visible ». Mesuré : l'Accueil, premier écran de chaque visite,
+   n'avait ni champ ni bouton de recherche ; trouver un titre demandait MENU
+   puis Classement. Le champ ouvre la fiche directement : six titres au plus,
+   un toucher ou Entrée sur le premier. */
+const RechercheAccueil=({rows,ouvrir})=>{
+  const [q,setQ]=useState("");
+  const res=q.trim()?rows.filter(x=>correspondTitre(x,q))
+    .sort((a,b)=>{const p=plier(q).trim(),ea=plier(tk(a))===p||plier(a.symbol)===p,eb=plier(tk(b))===p||plier(b.symbol)===p;
+      return (eb-ea)||tk(a).localeCompare(tk(b));}).slice(0,6):[];
+  const aller=sym=>{setQ("");ouvrir(sym);};
+  return(
+    <div className="recherche-accueil" role="search" style={{position:"relative",marginBottom:16,maxWidth:640}}>
+      <input type="search" value={q} onChange={e=>setQ(e.target.value)}
+        onKeyDown={e=>{if(e.key==="Enter"&&res[0])aller(res[0].symbol);if(e.key==="Escape")setQ("");}}
+        placeholder="Rechercher un titre — code ou société" aria-label="Rechercher un titre depuis l'accueil"
+        autoComplete="off" spellCheck={false}
+        style={{width:"100%",boxSizing:"border-box",background:"#0d1829",border:"1px solid #2a3550",color:"#e6edf7",
+          borderRadius:8,padding:"12px 14px",fontSize:15,fontFamily:"var(--font)",outline:"none",minHeight:46}}/>
+      {q.trim()&&<div role="listbox" aria-label="Titres trouvés" style={{marginTop:6,background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,overflow:"hidden"}}>
+        {res.length?res.map(r=>(
+          <button key={r.symbol} role="option" aria-selected="false" onClick={()=>aller(r.symbol)}
+            style={{display:"flex",alignItems:"center",gap:10,width:"100%",textAlign:"left",padding:"10px 12px",minHeight:44,
+              background:"none",border:"none",borderBottom:"1px solid #1a2540",color:"#c8d3e8",cursor:"pointer",fontFamily:"var(--font)"}}>
+            <b style={{color:"#e6edf7",minWidth:48,fontSize:13}}>{tk(r)}</b>
+            <span style={{flex:"1 1 auto",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontSize:12,color:"#8892a4"}}>{r.name}</span>
+            <span style={{fontSize:12,color:"#e6edf7",whiteSpace:"nowrap"}}>{r.price!=null?fmt(r.price):"—"}</span>
+          </button>))
+        :<div style={{padding:"10px 12px",fontSize:12,color:"#8892a4"}}>Aucun titre ne correspond à « {q.trim()} ».</div>}
+      </div>}
+    </div>);
+};
 const Rangee=({titre,sous,vers,setTab,items})=>{
   if(!items.length)return null;
   return(
@@ -3062,6 +3101,7 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
   const t=(r,ligne)=><Tuile key={r.symbol} r={r} ligne={ligne} onClick={()=>ouvrir(r.symbol)}/>;
   return(
     <div>
+      <RechercheAccueil rows={rows} ouvrir={ouvrir}/>
       <div className="carte" style={{background:"linear-gradient(135deg,rgba(0,229,160,.10),rgba(77,184,255,.06) 60%,#0d1829)",
         border:"1px solid rgba(0,229,160,.25)",borderRadius:12,padding:"20px 20px 18px",marginBottom:20}}>
         <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1.4,textTransform:"uppercase",marginBottom:6}}>
@@ -3254,8 +3294,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     if(group==="MASI1") r=r.filter(x=>MASI1_TICKERS.has(x.symbol||x.ticker||""));
     if(sector!=="ALL") r=r.filter(x=>x.sector===sector);
     if(search.trim()){
-      const q=search.trim().toUpperCase();
-      r=r.filter(x=>(x.symbol||x.ticker||"").includes(q)||tk(x).includes(q)||(x.name||"").toUpperCase().includes(q));
+      r=r.filter(x=>correspondTitre(x,search));
     }
     /* Filtre par tranche du SCORE BVC (06/11/2026) : il remplace le filtre
        par palier de note v5.3. « non calculé » = pas de valeur publiée. */
