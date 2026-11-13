@@ -6503,16 +6503,17 @@ const Ranking = ({
       h: 4
     }), vBVC != null && (() => {
       const s = r.score_bvc || {},
-        rup = ((s.facteurs || {}).moyennes_mobiles || {}).rupture;
-      return s.couverture_pct < 100 || rup ? React.createElement("div", {
+        rup = ((s.facteurs || {}).moyennes_mobiles || {}).rupture,
+        partielle = typeof s.couverture_pct === "number" && s.couverture_pct < 100;
+      return partielle || rup ? React.createElement("div", {
         style: {
           fontSize: 9.5,
           color: "#ffd740",
           marginTop: 2,
           whiteSpace: "nowrap"
         },
-        title: [s.couverture_pct < 100 ? `Calculé sur ${s.couverture_pct} % des facteurs : les points manquants sont retirés du dénominateur.` : "", rup ? `${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).` : ""].filter(Boolean).join(" ")
-      }, s.couverture_pct < 100 ? `couv. ${s.couverture_pct} %` : "", s.couverture_pct < 100 && rup ? " · " : "", rup ? "⚠ rupture" : "") : null;
+        title: [partielle ? `Calculé sur ${s.couverture_pct} % des facteurs : les points manquants sont retirés du dénominateur.` : "", rup ? `${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).` : ""].filter(Boolean).join(" ")
+      }, partielle ? `couv. ${s.couverture_pct} %` : "", partielle && rup ? " · " : "", rup ? "⚠ rupture" : "") : null;
     })()), React.createElement("td", {
       style: {
         padding: "8px 8px"
