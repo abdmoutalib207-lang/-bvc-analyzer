@@ -6501,7 +6501,20 @@ const Ranking = ({
       max: 100,
       c: couleurChiffre(r),
       h: 4
-    })), React.createElement("td", {
+    }), vBVC != null && (() => {
+      const s = r.score_bvc || {},
+        rup = ((s.facteurs || {}).moyennes_mobiles || {}).rupture,
+        partielle = typeof s.couverture_pct === "number" && s.couverture_pct < 100;
+      return partielle || rup ? React.createElement("div", {
+        style: {
+          fontSize: 9.5,
+          color: "#ffd740",
+          marginTop: 2,
+          whiteSpace: "nowrap"
+        },
+        title: [partielle ? `Calculé sur ${s.couverture_pct} % des facteurs : les points manquants sont retirés du dénominateur.` : "", rup ? `${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).` : ""].filter(Boolean).join(" ")
+      }, partielle ? `couv. ${s.couverture_pct} %` : "", partielle && rup ? " · " : "", rup ? "⚠ rupture" : "") : null;
+    })()), React.createElement("td", {
       style: {
         padding: "8px 8px"
       }

@@ -188,6 +188,33 @@ def score_bvc(*, decision="OBSERVABLE", motif=None, **entrees) -> dict:
 
 # ─────────────────────────── le titre de data.json ───────────────────────────
 
+def rupture_de_reference(ticker: str, bougies: list) -> dict | None:
+    """Moyennes mobiles qui traversent une RÉFÉRENCE REMISE À NEUF.
+
+    Audit externe du 12/11/2026 : CMT affichait 100 % de couverture alors que
+    ses MM50 et MM200 incorporent des cours d'avant la reprise du 16/09/2026,
+    où l'AMMC a fixé une référence neuve (2 217 DH contre 4 501 avant la
+    suspension, R10 seconde précision, R11). La série n'est PAS rétro-ajustée
+    — la perte des porteurs est réelle — mais une moyenne qui mêle les deux
+    régimes ne compare pas le cours à son propre passé récent. Le fait vient du
+    registre `bvc_config.SUSPENSIONS` (champ `reference_impliquee`), jamais
+    d'un saut de prix. Rend {"reprise", "seances", "moyennes"} ou None ; ne
+    change AUCUN point du score (R8) : c'est une mention.
+    """
+    try:
+        from bvc_config import SUSPENSIONS
+    except ImportError:
+        return None
+    reprises = [e.get("reprise") for e in SUSPENSIONS.get(ticker or "", [])
+                if e.get("reprise") and e.get("reference_impliquee") is not None]
+    if not reprises:
+        return None
+    reprise = max(reprises)
+    n = sum(1 for b in bougies or [] if str(b.get("d") or "") >= reprise)
+    moyennes = [nom for nom, fen in (("MM20", 20), ("MM50", 50), ("MM200", 200)) if n < fen]
+    return {"reprise": reprise, "seances": n, "moyennes": moyennes} if moyennes else None
+
+
 def score_titre_bvc(rec: dict, bougies: list | None) -> dict:
     """Score BVC d'un titre de data.json, depuis ses entrées publiées et ses chandelles."""
     meta = rec.get("_meta") or {}
@@ -209,13 +236,21 @@ def score_titre_bvc(rec: dict, bougies: list | None) -> dict:
     if len(mc) >= 2 and mc[-1] is not None and mc[-2] is not None:
         macd, sig, hist = mc[-1]
         hprec = mc[-2][2]
-    return score_bvc(
+    out = score_bvc(
         prix=prix, ma20=rec.get("ma20"), ma50=rec.get("ma50"), ma200=rec.get("ma200"),
         rsi=rec.get("rsi"), macd=macd, macd_signal=sig, hist=hist, hist_prec=hprec,
         ratio_volume=m["ratio_volume"], montant_median=m["montant_median"],
         liquidite_prete=m["liquidite_prete"], roe=nour.roe_publie(rec),
         mediane_volume=m.get("mediane_volume"),
         decision=decision, motif=motif)
+    rup = rupture_de_reference(rec.get("symbol") or "", bg)
+    mm = (out.get("facteurs") or {}).get("moyennes_mobiles")
+    if rup and mm and mm.get("points") is not None:
+        a, j, mo = rup["reprise"].split("-")
+        mm["rupture"] = rup
+        mm["mesure"] += (f" · ⚠ {', '.join(rup['moyennes'])} incluent des cours d'avant la reprise du "
+                         f"{mo}/{j}/{a} (référence remise à neuf par l'AMMC, {rup['seances']} séances depuis)")
+    return out
 
 
 def annexer_bvc(tickers: list, bougies_de) -> dict:
