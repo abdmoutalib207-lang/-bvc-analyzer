@@ -28,7 +28,7 @@
     button{cursor:pointer;border:none;background:none;font-family:inherit;font-size:12px;}
     ::-webkit-scrollbar{width:5px;height:5px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
     .tv-lightweight-charts{display:block!important;}
-    .detail-grid{display:grid;grid-template-columns:290px 1fr;gap:12px;}
+    .detail-grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px;}
     .mobile-seul{display:none}
     .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
@@ -51,7 +51,7 @@
       background:linear-gradient(90deg,transparent,rgba(200,211,232,.06),transparent);animation:reflet 1.2s ease-in-out infinite;}
     @media (prefers-reduced-motion:reduce){[data-gabarit] .carte-ind::after,[data-gabarit] .indices-ligne::after{display:none;}}
     .carte-indices{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;margin-top:8px}
-    @media(max-width:640px){.detail-grid{grid-template-columns:1fr!important;}}
+    @media(max-width:640px){.detail-grid{grid-template-columns:minmax(0,1fr)!important;}}
     /* ⚠️ GABARIT À PANNEAUX DE LA FICHE — 20/10/2026, sur captures d'Abd
        Moutalib : à 1440 px la fiche tenait dans 290 px collés à gauche,
        1 100 px vides. Au-delà de 1200 px : liste des titres | graphique et
@@ -61,7 +61,7 @@
     /* Heatmap (20/10/2026) : un secteur par ligne laissait 93 % de la largeur
        vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
     @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
-    @media(max-width:767px){.detail-grid{grid-template-columns:1fr!important;gap:10px}}
+    @media(max-width:767px){.detail-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px}}
     @media(min-width:768px){.fiche-graphique{order:-1}}
     @media(min-width:1200px){
       .fiche-gabarit{display:grid;grid-template-columns:272px minmax(0,1fr);gap:12px;align-items:start}
@@ -1424,8 +1424,11 @@ const Bar=({v,max=10,c,h=6})=>(
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
   </div>
 );
-const Chip=({label,bg,fg,bd,sz=11})=>(
-  <span className="chip" style={{display:"inline-block",whiteSpace:"nowrap",background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
+/* `wrap` (13/11/2026) : une pastille au libellé long passe à la ligne au lieu
+   d'élargir la fiche — « LIQUIDATION JUDICIAIRE · suspendu depuis le 04/10 »
+   faisait 369 px dans une colonne de 362 (DLM, téléphone 390). */
+const Chip=({label,bg,fg,bd,sz=11,wrap})=>(
+  <span className="chip" style={{display:"inline-block",whiteSpace:wrap?"normal":"nowrap",...(wrap?{maxWidth:"100%"}:{}),background:bg,color:fg,border:`1px solid ${bd}`,borderRadius:4,padding:"2px 8px",fontSize:sz,fontWeight:600,fontFamily:"var(--font)"}}>{label}</span>
 );
 /* La pastille de la colonne COULEUR (06/11/2026) : un rond de la couleur de
    la tranche du Score BVC et sa plage. Sans valeur (PARTIEL, NON_CALCULABLE),
@@ -4805,9 +4808,13 @@ const httpLien=u=>typeof u==="string"&&/^https?:\/\//.test(u);
 const dateFait=d=>{const s=String(d||"");if(s.length===10)return s.split("-").reverse().join("/");return s||"sans date";};
 /* Texte de relevé parfois très long (motif d'écart, citation de page) : le
    début reste lisible, la suite s'ouvre au toucher. Rien n'est tronqué. */
+/* overflowWrap « anywhere » (13/11/2026) : une adresse de pièce sans espace
+   (« https://www.ammc.ma/…/Stokvis_RFA_2025.pdf ») imposait sa longueur à la
+   colonne de la fiche — 440 px de large sur un téléphone de 390, cartes
+   coupées au bord droit (STK). Ne coupe qu'un mot qui ne tient pas. */
 const TexteLong=({t,n=240,style})=>{const s=String(t||"");
-  if(s.length<=n)return <span style={style}>{s}</span>;
-  return <details style={{display:"inline",...style}}><summary style={{cursor:"pointer",listStyle:"none",display:"inline"}}>
+  if(s.length<=n)return <span style={{overflowWrap:"anywhere",...style}}>{s}</span>;
+  return <details style={{display:"inline",overflowWrap:"anywhere",...style}}><summary style={{cursor:"pointer",listStyle:"none",display:"inline"}}>
     {s.slice(0,n).replace(/\s+\S*$/,"")} <span style={{color:"#4db8ff",whiteSpace:"nowrap"}}>… lire la suite</span></summary>{s}</details>;};
 const SourceLigne=({u,doc,pages,extra})=>(
   <span style={{overflowWrap:"anywhere"}}>
@@ -5248,7 +5255,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 erreur : à confiance ≤ 1 on l'annonce comme tel plutôt que de
                 colorer un score que rien ne soutient (règle CLAUDE.md). */}
             {meta(r).susp
-              ? <Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12}/>
+              ? <Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12} wrap/>
               : meta(r).conf<=1
               ? (meta(r).reprise_recente
                  ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>

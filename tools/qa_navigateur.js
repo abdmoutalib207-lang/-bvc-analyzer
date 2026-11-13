@@ -42,6 +42,9 @@ const LIBS = {
   'lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js':
     'lightweight-charts/dist/lightweight-charts.standalone.production.js',
 };
+// Nombre de séances par titre : un titre sans aucune séance n'a pas de graphique.
+let SEANCES = {};
+try { JSON.parse(fs.readFileSync('data.json', 'utf8')).tickers.forEach(x => { SEANCES[x.symbol] = (x._meta || {}).n_candles; }); } catch (e) { SEANCES = {}; }
 const ECRANS = [['telephone', 390, 844], ['tablette', 768, 1024], ['bureau', 1440, 900]];
 
 // Colonnes coupées et nombres débordants du tableau « États financiers ».
@@ -128,7 +131,25 @@ const controlerEtats = async (p, nom, t, tactile) => {
         await p.waitForTimeout(400);
         await p.locator('.classement tr').nth(1).click();
         await p.waitForTimeout(2000);
-        if (!(await p.locator('canvas').count())) constats.push(`${nom} ${t} : aucun graphique`);
+        // Sans aucune séance (titre suspendu depuis des années : DLM), il n'y a
+        // rien à tracer ; l'absence de graphique n'est pas un défaut.
+        if (!(await p.locator('canvas').count()) && (SEANCES[t] ?? 1) > 0) constats.push(`${nom} ${t} : aucun graphique`);
+        // ⚠️ 13/11/2026 — la fiche de DLM et de STK sortait de l'écran du
+        // téléphone (colonne de 405 et 440 px pour 362) sans que la page ait
+        // de défilement horizontal : le bord droit des cartes était coupé, et
+        // seul le classement était mesuré. On mesure désormais la fiche :
+        // tout élément qui dépasse le bord droit hors d'une zone qui défile.
+        const sort = await p.evaluate(W => {
+          const g = document.querySelector('.detail-grid'); if (!g) return [];
+          const defile = e => { for (let a = e.parentElement; a && a !== g; a = a.parentElement) {
+            const o = getComputedStyle(a).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; };
+          const out = [];
+          g.querySelectorAll('*').forEach(e => { const r = e.getBoundingClientRect();
+            if (r.width > 0 && r.right > W + 1 && !defile(e) && ![...e.children].some(c => c.getBoundingClientRect().right > W + 1))
+              out.push(`${Math.round(r.right - W)} px — « ${(e.textContent || '').trim().slice(0, 50)} »`); });
+          return out.slice(0, 3);
+        }, w);
+        sort.forEach(x => constats.push(`${nom} ${t} : fiche hors de l'écran de ${x}`));
         constats.push(...await controlerEtats(p, nom, t, w < 500));
         const fib = p.getByRole('button', { name: 'FIB', exact: true }).first();
         if (await fib.count()) { await fib.click(); await p.waitForTimeout(500); await fib.click(); }
