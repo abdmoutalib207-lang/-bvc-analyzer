@@ -154,3 +154,10 @@ def test_la_mediane_ne_prend_que_les_cours_de_moins_de_sept_jours():
     vieux = next(c for c in o["classes"] if c["sym"] == "VIEUX")
     assert vieux["anterieur"] is True          # toujours classé, mais hors médiane
 
+
+def test_sans_aucune_date_rien_n_est_ecarte():
+    """Même règle qu'en Python : aucune date nulle part, aucun titre écarté."""
+    rows = [_r(s, pe, _meta={}) for s, pe in (("A", 10), ("B", 12), ("C", 14), ("D", 16))]
+    o = _classer(rows)
+    assert o["medianes"]["Banque"]["n"] == 4 and o["medianes"]["Banque"]["hors"] == 0
+

@@ -201,8 +201,10 @@ def test_le_flux_publie_situe_une_part_utile_des_titres():
 # ── ⚠️ Médiane de séance (audit du 12/11/2026) ─────────────────────────────
 
 def _d(sym, pe, asof="2026-11-12", stale=False, **kw):
+    """Un titre au FORMAT RÉEL de data.json : la réserve du P/B est dans `_meta`
+    (update_data._meta_ticker), pas à la racine (relecture de #348)."""
     return {"symbol": sym, "sector": "Banque", "pe": pe, "pb": kw.get("pb"), "div": None,
-            "pb_reserve": kw.get("pb_reserve"), "_meta": {"prix_asof": asof, "stale": stale}}
+            "_meta": {"prix_asof": asof, "stale": stale, "pb_reserve": kw.get("pb_reserve")}}
 
 
 def test_un_cours_anterieur_ne_fait_ni_la_mediane_ni_le_rang():
@@ -230,4 +232,21 @@ def test_un_pb_sous_reserve_n_entre_pas_dans_la_comparaison_du_pb():
     r = rangs(t)
     assert "pb" not in r["T2S"] and r["T2S"]["pe"]["pairs"] == 5
     assert r["A"]["pb"]["pairs"] == 4
+
+
+def test_la_reserve_du_pb_est_lue_la_ou_le_moteur_l_ecrit():
+    """Garde : sur le data.json publié, tout titre dont `_meta.pb_reserve` est
+    renseigné n'a pas de rang de P/B."""
+    import json
+    data = json.loads((Path(__file__).resolve().parent.parent / "data.json").read_text(encoding="utf-8"))
+    r = rangs(data["tickers"])
+    sous_reserve = [t["symbol"] for t in data["tickers"] if (t.get("_meta") or {}).get("pb_reserve")]
+    assert all("pb" not in r.get(s, {}) for s in sous_reserve), sous_reserve
+
+
+def test_resume_dit_les_titres_ecartes_pour_cours_ancien():
+    t = [_d("A", 10), _d("B", 12), _d("C", 14), _d("VIEUX", 2, asof="2026-09-28")]
+    res = resume(rangs(t), t)
+    assert res["ecartes_cours_ancien"] == ["VIEUX"]
+    assert res["secteurs_trop_petits"] == {"Banque": 3}       # 3 à cours récent, pas 4
 

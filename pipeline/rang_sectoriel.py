@@ -74,6 +74,18 @@ def _valeur(t: dict, ratio: str):
     return v
 
 
+def _pb_sous_reserve(t: dict) -> bool:
+    """Le moteur écrit la réserve du P/B dans `_meta.pb_reserve`
+    (update_data._meta_ticker) ; la racine est acceptée par sûreté."""
+    return bool((t.get("_meta") or {}).get("pb_reserve") or t.get("pb_reserve"))
+
+
+def _seance_de_reference(tickers) -> str:
+    """La dernière séance cotée : la plus récente date de cours publiée."""
+    return max((str((t.get("_meta") or {}).get("prix_asof") or "")
+                for t in tickers or [] if isinstance(t, dict)), default="")
+
+
 def _cours_comparable(t: dict, seance: str) -> bool:
     """Vrai si le cours du titre date de moins de `JOURS_COMPARABLES` jours
     avant la dernière séance cotée. Aucune date nulle part (appel sans
@@ -105,8 +117,7 @@ def rangs(tickers: list[dict]) -> dict:
     # sept jours → 8 ; sans limite → 10. Retenu : cours de moins de
     # `JOURS_COMPARABLES` jours calendaires avant la dernière séance cotée.
     # Un P/B porteur d'une réserve (`pb_reserve`) n'entre pas dans le P/B.
-    seance = max((str((t.get("_meta") or {}).get("prix_asof") or "")
-                  for t in tickers or [] if isinstance(t, dict)), default="")
+    seance = _seance_de_reference(tickers)
     par_secteur: dict[str, list[dict]] = {}
     for t in tickers or []:
         if isinstance(t, dict) and t.get("sector") and _cours_comparable(t, seance):
@@ -116,7 +127,7 @@ def rangs(tickers: list[dict]) -> dict:
     for secteur, groupe in par_secteur.items():
         for ratio in RATIOS:
             couples = [(t.get("symbol"), _valeur(t, ratio)) for t in groupe
-                       if not (ratio == "pb" and t.get("pb_reserve"))]
+                       if not (ratio == "pb" and _pb_sous_reserve(t))]
             couples = [(s, v) for s, v in couples if v is not None]
             if len(couples) < MIN_PAIRS:
                 continue
@@ -144,20 +155,29 @@ def resume(rangs_par_titre: dict, tickers: list[dict]) -> dict:
     ⚠️ Le second chiffre compte autant que le premier : il dit sur combien de
     titres la lecture sectorielle est muette, et pourquoi.
     """
-    secteurs = {}
+    seance = _seance_de_reference(tickers)
+    secteurs, anciens = {}, []
     for t in tickers or []:
-        if isinstance(t, dict) and t.get("sector"):
+        if not (isinstance(t, dict) and t.get("sector")):
+            continue
+        if _cours_comparable(t, seance):
             secteurs[t["sector"]] = secteurs.get(t["sector"], 0) + 1
+        else:
+            anciens.append(t.get("symbol"))
     trop_petits = {s: n for s, n in sorted(secteurs.items()) if n < MIN_PAIRS}
     return {
         "titres_classes": len(rangs_par_titre),
         "titres_total": len(tickers or []),
         "min_pairs": MIN_PAIRS,
+        "jours_comparables": JOURS_COMPARABLES,
+        "ecartes_cours_ancien": sorted(s for s in anciens if s),
         "secteurs_trop_petits": trop_petits,
         "_lecture": (
-            f"{len(rangs_par_titre)} titres situés dans leur secteur. Les "
-            f"autres appartiennent à un secteur de moins de {MIN_PAIRS} "
-            f"comparables renseignés : un rang y serait un tirage au sort."),
+            f"{len(rangs_par_titre)} titres situés dans leur secteur. "
+            f"{len([s for s in anciens if s])} écartés : cours de plus de "
+            f"{JOURS_COMPARABLES} jours avant la dernière séance cotée, ou sans "
+            f"date. Les autres appartiennent à un secteur de moins de {MIN_PAIRS} "
+            f"comparables à cours récent : un rang y serait un tirage au sort."),
     }
 
 

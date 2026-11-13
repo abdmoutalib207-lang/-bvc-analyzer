@@ -6645,9 +6645,12 @@ function classerPER(rows) {
     });else classes.push(l);
   }
   const JOURS_COMPARABLES = 7;
-  const seance = classes.reduce((d, l) => l.asof && l.asof > d ? l.asof : d, "");
+  const seance = (rows || []).reduce((d, r) => {
+    const a = r && r._meta && r._meta.prix_asof;
+    return a && a > d ? a : d;
+  }, "");
   const jours = a => (Date.parse(seance) - Date.parse(a)) / 864e5;
-  for (const l of classes) l.anterieur = !l.asof || !(jours(l.asof) <= JOURS_COMPARABLES);
+  for (const l of classes) l.anterieur = !!seance && (!l.asof || !(jours(l.asof) >= 0 && jours(l.asof) <= JOURS_COMPARABLES));
   const parSecteur = {},
     horsMed = {};
   for (const l of classes) if (l.secteur) {
