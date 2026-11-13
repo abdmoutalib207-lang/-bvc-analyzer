@@ -29,6 +29,18 @@ def test_rupture_vient_du_registre_et_compte_les_seances():
     assert r == {"reprise": "2026-09-16", "seances": len(apres), "moyennes": ["MM50", "MM200"]}
 
 
+def test_registre_illisible_se_signale_sans_casser_le_score(monkeypatch, capsys):
+    # R5 : un registre qui ne s'importe plus ne doit pas effacer la mention de
+    # CMT en silence. sys.modules[...] = None fait lever ImportError à l'import.
+    monkeypatch.setitem(sys.modules, "bvc_config", None)
+    monkeypatch.setattr(sb, "_RUPTURE_SIGNALEE", [])
+    assert sb.rupture_de_reference("CMT", _b(["2026-09-16"])) is None
+    assert sb.rupture_de_reference("ADH", _b(["2026-09-16"])) is None
+    err = capsys.readouterr().err
+    assert "rupture_de_reference" in err and "CMT" in err and "SUSPENSIONS" in err
+    assert err.count("rupture_de_reference") == 1, "un seul message par run, pas un par titre"
+
+
 def test_une_suspension_sans_reference_neuve_n_est_pas_une_rupture():
     # MNG : suspension de deux séances (rumeurs), référence inchangée
     assert sb.rupture_de_reference("MNG", _b(["2026-11-03", "2026-11-04"])) is None
