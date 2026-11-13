@@ -3479,23 +3479,36 @@ function classerPER(rows){
       motif=`PER ${nf(pe,1)} > ${SEUIL_NS} : BPA ${bpa!=null?nf(bpa,2)+" DH":"—"} quasi nul face au cours — non significatif`;}
     if(code)nonClasses.push({...l,code,motif});else classes.push(l);
   }
-  const parSecteur={};
-  for(const l of classes)if(l.secteur)(parSecteur[l.secteur]=parSecteur[l.secteur]||[]).push(l.pe);
+  // Médiane sur cours comparables (audit du 12/11/2026) : un PER dont le cours
+  // a plus de sept jours reste classé et daté, mais ne fait pas la médiane.
+  // Un titre qui n'a pas coté garde sa dernière clôture comme cours de
+  // référence : à sept jours, son PER reste comparable ; au-delà, non (même
+  // règle que pipeline/rang_sectoriel.py, JOURS_COMPARABLES).
+  // Séance de référence prise sur TOUS les titres, comme en Python ; sans
+  // aucune date nulle part, rien n'est écarté (même règle des deux côtés).
+  const JOURS_COMPARABLES=7;
+  const seance=(rows||[]).reduce((d,r)=>{const a=r&&r._meta&&r._meta.prix_asof;return a&&a>d?a:d;},"");
+  const jours=a=>(Date.parse(seance)-Date.parse(a))/864e5;
+  for(const l of classes)l.anterieur=!!seance&&(!l.asof||!(jours(l.asof)>=0&&jours(l.asof)<=JOURS_COMPARABLES));
+  const parSecteur={}, horsMed={};
+  for(const l of classes)if(l.secteur){
+    if(l.anterieur){horsMed[l.secteur]=(horsMed[l.secteur]||0)+1;continue;}
+    (parSecteur[l.secteur]=parSecteur[l.secteur]||[]).push(l.pe);}
   const medianes={};
-  for(const s of Object.keys(parSecteur)){
-    const t=[...parSecteur[s]].sort((a,b)=>a-b), n=t.length;
-    medianes[s]={n,med:n>=MIN_SECTEUR?(n%2?t[(n-1)/2]:(t[n/2-1]+t[n/2])/2):null};
+  for(const s of new Set([...Object.keys(parSecteur),...Object.keys(horsMed)])){
+    const t=[...(parSecteur[s]||[])].sort((a,b)=>a-b), n=t.length;
+    medianes[s]={n,med:n>=MIN_SECTEUR?(n%2?t[(n-1)/2]:(t[n/2-1]+t[n/2])/2):null,hors:horsMed[s]||0};
   }
   const ORDRE={perte:0,non_significatif:1,absent:2,sans_comptes:3,suspendu:4};
   classes.sort((a,b)=>a.pe-b.pe||String(a.sym).localeCompare(String(b.sym)));
   nonClasses.sort((a,b)=>ORDRE[a.code]-ORDRE[b.code]||String(a.sym).localeCompare(String(b.sym)));
-  return {classes,nonClasses,medianes,seuil:SEUIL_NS,minSecteur:MIN_SECTEUR};
+  return {classes,nonClasses,medianes,seuil:SEUIL_NS,minSecteur:MIN_SECTEUR,seance};
 }
 
 const ClassementPER=({rows,setSel,setTab})=>{
   const [sens,setSens]=useState("asc");          // asc = du PER le plus bas au plus haut
   const [secteur,setSecteur]=useState("ALL");
-  const {classes,nonClasses,medianes,seuil,minSecteur}=useMemo(()=>classerPER(rows),[rows]);
+  const {classes,nonClasses,medianes,seuil,minSecteur,seance}=useMemo(()=>classerPER(rows),[rows]);
   const secteurs=useMemo(()=>[...new Set(rows.map(r=>r.sector).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fr")),[rows]);
   const garde=l=>secteur==="ALL"||l.secteur===secteur;
   const vus=classes.filter(garde);
@@ -3505,8 +3518,8 @@ const ClassementPER=({rows,setSel,setTab})=>{
   const baseCourte=b=>{if(!b)return "base inconnue";const m=/^12 mois au (\d{4})-(\d{2})-(\d{2})$/.exec(b);return m?`12 mois au ${m[3]}/${m[2]}/${m[1]}`:b;};
   const ouvrir=sym=>{setSel(sym);setTab("detail");};
   const med=l=>(l.secteur&&medianes[l.secteur])||{n:0,med:null};
-  const DateCours=({l})=><span title={l.stale?"Cours antérieur à la dernière séance cotée":"Cours de la dernière séance cotée"}
-    style={{fontSize:10,color:l.stale?"#ffd740":"#8892a4",whiteSpace:"nowrap"}}>{l.stale?"⚠ ":""}{l.asof?jjmmaaaa(l.asof):"date inconnue"}</span>;
+  const DateCours=({l})=><span title={l.anterieur?"Cours de plus de sept jours : ce PER n'entre pas dans la médiane du secteur":"Cours de moins de sept jours"}
+    style={{fontSize:10,color:l.anterieur?"#ffd740":"#8892a4",whiteSpace:"nowrap"}}>{l.anterieur?"⚠ ":""}{l.asof?jjmmaaaa(l.asof):"date inconnue"}</span>;
   const btn=on=>({fontSize:11,padding:"6px 12px",minHeight:32,borderRadius:4,cursor:"pointer",fontFamily:"var(--font)",
     border:on?"1px solid rgba(0,229,160,.5)":"1px solid #1a2540",background:on?"rgba(0,229,160,.12)":"transparent",color:on?"#00e5a0":"#8892a4"});
   const th={padding:"8px 8px",fontSize:10,color:"#8892a4",textAlign:"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500};
@@ -3519,7 +3532,7 @@ const ClassementPER=({rows,setSel,setTab})=>{
       </div>
       <div className="per-aide" style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.5,background:"#0d1829",border:"1px solid #1a2540",borderLeft:"3px solid #4db8ff",borderRadius:6,padding:"8px 12px",marginBottom:10,maxWidth:900}}>
         <b>PER = cours ÷ bénéfice par action (BPA)</b>, réalisé et non prévisionnel : sur 12 mois glissants quand les comptes semestriels ont été lus, sur l'exercice 2025 sinon (colonne « base »).
-        {" "}<b style={{color:"#4db8ff"}}>Un PER ne se compare qu'à celui de son secteur</b> : une banque, une minière et une foncière n'ont ni la même croissance, ni le même risque, ni la même comptabilité. La médiane du secteur est calculée ici sur les PER classés, à partir de {minSecteur} titres.
+        {" "}<b style={{color:"#4db8ff"}}>Un PER ne se compare qu'à celui de son secteur</b> : une banque, une minière et une foncière n'ont ni la même croissance, ni le même risque, ni la même comptabilité. La médiane du secteur est calculée sur les PER classés dont le cours date de moins de sept jours avant la dernière séance cotée{seance?` (${jjmmaaaa(seance)})`:""}, à partir de {minSecteur} titres ; un PER sur un cours plus ancien reste classé, daté ⚠, mais hors médiane.
         {" "}Un PER bas décrit le prix payé pour le bénéfice passé ; il ne dit rien de l'évolution du titre.
         {" "}<span style={{color:"#8892a4"}}>Non classés : perte (pas de PER), PER absent, PER au-delà de {seuil} (BPA quasi nul), comptes absents, cotation suspendue.</span>
       </div>
@@ -3530,14 +3543,14 @@ const ClassementPER=({rows,setSel,setTab})=>{
         <select value={secteur} onChange={e=>setSecteur(e.target.value)} aria-label="Filtrer par secteur"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"6px 8px",minHeight:32,fontSize:11,fontFamily:"var(--font)",cursor:"pointer"}}>
           <option value="ALL">Tous les secteurs</option>
-          {secteurs.map(s=>{const m=medianes[s];return <option key={s} value={s}>{s} ({m?m.n:0} classé{m&&m.n>1?"s":""})</option>;})}
+          {secteurs.map(s=>{const m=medianes[s];const k=m?m.n+m.hors:0;return <option key={s} value={s}>{s} ({k} classé{k>1?"s":""})</option>;})}
         </select>
         {secteur!=="ALL"&&<button onClick={()=>setSecteur("ALL")} style={{...btn(false),color:"#ff4f5a",border:"1px solid #ff4f5a30"}}>✕ Secteur</button>}
       </div>
       {secteur!=="ALL"&&(()=>{const m=medianes[secteur]||{n:0,med:null};return(
         <div style={{fontSize:12,color:"#c8d3e8",marginBottom:10}}>
           Médiane du secteur {secteur} : <b style={{color:"#4db8ff"}}>{m.med!=null?nf(m.med):"—"}</b>
-          <span style={{color:"#8892a4"}}> sur {m.n} PER classé{m.n>1?"s":""}{m.med==null?` — moins de ${minSecteur} comparables, pas de médiane`:""}</span>
+          <span style={{color:"#8892a4"}}> sur {m.n} PER à cours récent{m.hors?` (${m.hors} sur un cours de plus de sept jours, hors médiane)`:""}{m.med==null?` — moins de ${minSecteur} comparables, pas de médiane`:""}</span>
         </div>);})()}
       <div style={{overflowX:"auto",maxWidth:1100}}>
         <table className="classement-per" style={{width:"100%",borderCollapse:"collapse",minWidth:700}}>

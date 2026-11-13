@@ -31,12 +31,16 @@ Ne pas produire un chiffre quand on n'a pas de quoi le fonder.
 
 from __future__ import annotations
 
+from datetime import date
 from statistics import median
 
 # En dessous, un rang n'informe pas. Quatre comparables, c'est le minimum pour
 # qu'un « au-dessus de la médiane » distingue autre chose que le hasard — et
 # c'est ce que les secteurs de la cote permettent le plus souvent.
 MIN_PAIRS = 4
+
+# Ancienneté maximale d'un cours pour entrer dans la comparaison sectorielle.
+JOURS_COMPARABLES = 7
 
 # Les ratios pour lesquels un rang sectoriel a un sens. Le dividende y figure :
 # un rendement de 3 % est ordinaire dans les télécoms et remarquable dans la
@@ -70,6 +74,31 @@ def _valeur(t: dict, ratio: str):
     return v
 
 
+def _pb_sous_reserve(t: dict) -> bool:
+    """Le moteur écrit la réserve du P/B dans `_meta.pb_reserve`
+    (update_data._meta_ticker) ; la racine est acceptée par sûreté."""
+    return bool((t.get("_meta") or {}).get("pb_reserve") or t.get("pb_reserve"))
+
+
+def _seance_de_reference(tickers) -> str:
+    """La dernière séance cotée : la plus récente date de cours publiée."""
+    return max((str((t.get("_meta") or {}).get("prix_asof") or "")
+                for t in tickers or [] if isinstance(t, dict)), default="")
+
+
+def _cours_comparable(t: dict, seance: str) -> bool:
+    """Vrai si le cours du titre date de moins de `JOURS_COMPARABLES` jours
+    avant la dernière séance cotée. Aucune date nulle part (appel sans
+    `_meta`) : rien n'est écarté. Un cours sans date est écarté."""
+    if not seance:
+        return True
+    asof = str((t.get("_meta") or {}).get("prix_asof") or "")
+    try:
+        return 0 <= (date.fromisoformat(seance) - date.fromisoformat(asof)).days <= JOURS_COMPARABLES
+    except ValueError:
+        return False
+
+
 def rangs(tickers: list[dict]) -> dict:
     """{symbol: {ratio: {...}}} — la place de chaque titre dans SON secteur.
 
@@ -80,15 +109,25 @@ def rangs(tickers: list[dict]) -> dict:
       · `pairs`    combien de titres ont servi à établir le rang ;
       · `ecart_pct` l'écart à la médiane sectorielle, en pourcentage.
     """
+    # ⚠️ COURS COMPARABLES (audit du 12/11/2026). Les trois ratios portent un
+    # COURS. Un titre qui n'a pas coté garde sa dernière clôture comme cours de
+    # référence : à quelques jours, son ratio reste comparable ; à plusieurs
+    # semaines (NEJ 32 séances, UNI 23 le 12/11), non. Mesuré le 12/11 sur 80
+    # titres : séance seule → 6 secteurs sur 10 gardent une médiane de PER ;
+    # sept jours → 8 ; sans limite → 10. Retenu : cours de moins de
+    # `JOURS_COMPARABLES` jours calendaires avant la dernière séance cotée.
+    # Un P/B porteur d'une réserve (`pb_reserve`) n'entre pas dans le P/B.
+    seance = _seance_de_reference(tickers)
     par_secteur: dict[str, list[dict]] = {}
     for t in tickers or []:
-        if isinstance(t, dict) and t.get("sector"):
+        if isinstance(t, dict) and t.get("sector") and _cours_comparable(t, seance):
             par_secteur.setdefault(t["sector"], []).append(t)
 
     out: dict[str, dict] = {}
     for secteur, groupe in par_secteur.items():
         for ratio in RATIOS:
-            couples = [(t.get("symbol"), _valeur(t, ratio)) for t in groupe]
+            couples = [(t.get("symbol"), _valeur(t, ratio)) for t in groupe
+                       if not (ratio == "pb" and _pb_sous_reserve(t))]
             couples = [(s, v) for s, v in couples if v is not None]
             if len(couples) < MIN_PAIRS:
                 continue
@@ -116,20 +155,29 @@ def resume(rangs_par_titre: dict, tickers: list[dict]) -> dict:
     ⚠️ Le second chiffre compte autant que le premier : il dit sur combien de
     titres la lecture sectorielle est muette, et pourquoi.
     """
-    secteurs = {}
+    seance = _seance_de_reference(tickers)
+    secteurs, anciens = {}, []
     for t in tickers or []:
-        if isinstance(t, dict) and t.get("sector"):
+        if not (isinstance(t, dict) and t.get("sector")):
+            continue
+        if _cours_comparable(t, seance):
             secteurs[t["sector"]] = secteurs.get(t["sector"], 0) + 1
+        else:
+            anciens.append(t.get("symbol"))
     trop_petits = {s: n for s, n in sorted(secteurs.items()) if n < MIN_PAIRS}
     return {
         "titres_classes": len(rangs_par_titre),
         "titres_total": len(tickers or []),
         "min_pairs": MIN_PAIRS,
+        "jours_comparables": JOURS_COMPARABLES,
+        "ecartes_cours_ancien": sorted(s for s in anciens if s),
         "secteurs_trop_petits": trop_petits,
         "_lecture": (
-            f"{len(rangs_par_titre)} titres situés dans leur secteur. Les "
-            f"autres appartiennent à un secteur de moins de {MIN_PAIRS} "
-            f"comparables renseignés : un rang y serait un tirage au sort."),
+            f"{len(rangs_par_titre)} titres situés dans leur secteur. "
+            f"{len([s for s in anciens if s])} écartés : cours de plus de "
+            f"{JOURS_COMPARABLES} jours avant la dernière séance cotée, ou sans "
+            f"date. Les autres appartiennent à un secteur de moins de {MIN_PAIRS} "
+            f"comparables à cours récent : un rang y serait un tirage au sort."),
     }
 
 
