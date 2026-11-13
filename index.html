@@ -1491,6 +1491,12 @@ let VERSION_PUB = "";
 const vpub = () => VERSION_PUB ? encodeURIComponent(VERSION_PUB) : String(Math.floor(Date.now() / 60000));
 const fr = (n, d = 2) => fmt(n, d).replace(".", ",");
 const tk = r => r && (r.code_bvc || r.symbol || r.ticker) || "";
+const plier = v => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+const correspondTitre = (x, q) => {
+  const p = plier(q).trim();
+  if (!p) return true;
+  return plier(x.symbol || x.ticker).includes(p) || plier(tk(x)).includes(p) || plier(x.name).includes(p);
+};
 const CODES_BVC = {};
 const codeDe = s => CODES_BVC[s] || s;
 const meta = r => {
@@ -5473,6 +5479,114 @@ const Tuile = ({
     }
   }, ligne));
 };
+const RechercheAccueil = ({
+  rows,
+  ouvrir
+}) => {
+  const [q, setQ] = useState("");
+  const res = q.trim() ? rows.filter(x => correspondTitre(x, q)).sort((a, b) => {
+    const p = plier(q).trim(),
+      ea = plier(tk(a)) === p || plier(a.symbol) === p,
+      eb = plier(tk(b)) === p || plier(b.symbol) === p;
+    return eb - ea || tk(a).localeCompare(tk(b));
+  }).slice(0, 6) : [];
+  const aller = sym => {
+    setQ("");
+    ouvrir(sym);
+  };
+  return React.createElement("div", {
+    className: "recherche-accueil",
+    role: "search",
+    style: {
+      position: "relative",
+      marginBottom: 16,
+      maxWidth: 640
+    }
+  }, React.createElement("input", {
+    type: "search",
+    value: q,
+    onChange: e => setQ(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter" && res[0]) aller(res[0].symbol);
+      if (e.key === "Escape") setQ("");
+    },
+    placeholder: "Rechercher un titre \u2014 code ou soci\xE9t\xE9",
+    "aria-label": "Rechercher un titre depuis l'accueil",
+    autoComplete: "off",
+    spellCheck: false,
+    style: {
+      width: "100%",
+      boxSizing: "border-box",
+      background: "#0d1829",
+      border: "1px solid #2a3550",
+      color: "#e6edf7",
+      borderRadius: 8,
+      padding: "12px 14px",
+      fontSize: 15,
+      fontFamily: "var(--font)",
+      outline: "none",
+      minHeight: 46
+    }
+  }), q.trim() && React.createElement("div", {
+    role: "listbox",
+    "aria-label": "Titres trouv\xE9s",
+    style: {
+      marginTop: 6,
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      overflow: "hidden"
+    }
+  }, res.length ? res.map(r => React.createElement("button", {
+    key: r.symbol,
+    role: "option",
+    "aria-selected": "false",
+    onClick: () => aller(r.symbol),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      width: "100%",
+      textAlign: "left",
+      padding: "10px 12px",
+      minHeight: 44,
+      background: "none",
+      border: "none",
+      borderBottom: "1px solid #1a2540",
+      color: "#c8d3e8",
+      cursor: "pointer",
+      fontFamily: "var(--font)"
+    }
+  }, React.createElement("b", {
+    style: {
+      color: "#e6edf7",
+      minWidth: 48,
+      fontSize: 13
+    }
+  }, tk(r)), React.createElement("span", {
+    style: {
+      flex: "1 1 auto",
+      minWidth: 0,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, r.name), React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: "#e6edf7",
+      whiteSpace: "nowrap"
+    }
+  }, r.price != null ? fmt(r.price) : "—"))) : React.createElement("div", {
+    style: {
+      padding: "10px 12px",
+      fontSize: 12,
+      color: "#8892a4"
+    }
+  }, "Aucun titre ne correspond \xE0 \xAB ", q.trim(), " \xBB.")));
+};
 const Rangee = ({
   titre,
   sous,
@@ -5550,7 +5664,10 @@ const Accueil = ({
     ligne: ligne,
     onClick: () => ouvrir(r.symbol)
   });
-  return React.createElement("div", null, React.createElement("div", {
+  return React.createElement("div", null, React.createElement(RechercheAccueil, {
+    rows: rows,
+    ouvrir: ouvrir
+  }), React.createElement("div", {
     className: "carte",
     style: {
       background: "linear-gradient(135deg,rgba(0,229,160,.10),rgba(77,184,255,.06) 60%,#0d1829)",
@@ -6121,8 +6238,7 @@ const Ranking = ({
     if (group === "MASI1") r = r.filter(x => MASI1_TICKERS.has(x.symbol || x.ticker || ""));
     if (sector !== "ALL") r = r.filter(x => x.sector === sector);
     if (search.trim()) {
-      const q = search.trim().toUpperCase();
-      r = r.filter(x => (x.symbol || x.ticker || "").includes(q) || tk(x).includes(q) || (x.name || "").toUpperCase().includes(q));
+      r = r.filter(x => correspondTitre(x, search));
     }
     if (trancheFiltre != null) r = r.filter(x => trancheBVC(x).id === trancheFiltre);
     if (rsiZone === "survendu") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
