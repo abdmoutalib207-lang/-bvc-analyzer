@@ -314,6 +314,11 @@ def annoter_hors_registre(jour: str, lignes: list, chemin: Path | None = None) -
                 "echange_dh": round(float(l.get("echange_dh") or 0), 2),
                 "qte": int(l.get("qte") or 0)} for l in (lignes or [])
                if (l.get("echange_dh") or 0) > 0]
+    # Une liste vide n'efface pas une annotation existante : elle peut venir
+    # d'un passage où CDG n'a pas répondu (relecture du 17/11). Le titre ne
+    # disparaît pas de la séance qu'il a déjà cotée.
+    if not propres and seances[jour].get("hors_registre"):
+        return False
     etat = dict(seances[jour])
     etat["hors_registre"] = propres
     etat["volume_hors_registre_dh"] = round(sum(l["echange_dh"] for l in propres), 2)

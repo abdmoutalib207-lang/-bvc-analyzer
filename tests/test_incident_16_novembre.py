@@ -76,6 +76,16 @@ def test_l_introduction_est_inscrite_sur_la_seance_et_survit_au_rafraichissement
     assert d["hors_registre"][0]["code"] == "NRJ"
 
 
+def test_controle_negatif_une_liste_vide_n_efface_pas_l_annotation(tmp_path):
+    """Relecture du 17/11 : un passage où CDG ne répond pas reçoit une liste
+    vide ; il ne doit pas faire disparaître NRJ de la séance qu'elle a cotée."""
+    p = tmp_path / "marche.json"
+    mh.enregistrer(_ligne(135629736.67, 2189), SEANCE, p, aujourd_hui=SEANCE)
+    mh.annoter_hors_registre(SEANCE, [NRJ], p)
+    assert not mh.annoter_hors_registre(SEANCE, [], p)
+    assert mh.dernier(p)["volume_hors_registre_dh"] == 17153799.15
+
+
 def test_le_recoupement_compte_le_titre_hors_registre():
     import update_data as ud
     masi = {"asof": SEANCE, "volume_mad": 135629736.67, "volume_hors_registre_dh": 17153799.15}
