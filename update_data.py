@@ -2641,6 +2641,26 @@ def _charger_actions_operateur() -> dict:
 ACTIONS_OPERATEUR = _charger_actions_operateur()
 
 
+def _charger_actions_operateur_au() -> dict:
+    """{ticker: AAAA-MM-JJ} — dernière séance de la série d'où le nombre de
+    l'opérateur est déduit (`periode_source[1]`). Une opération sur titres
+    postérieure (registre SPLITS) n'y est pas encore : voir `_actions_sourcees`.
+    Absent du fichier → pas d'entrée, et aucun ajustement (comportement d'avant)."""
+    out = {}
+    for p in (Path(__file__).parent / "datasets" / "historiques_importes").glob("*.json"):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        per = d.get("periode_source")
+        if isinstance(per, list) and len(per) == 2 and isinstance(per[1], str):
+            out[d.get("ticker") or p.stem] = per[1][:10]
+    return out
+
+
+ACTIONS_OPERATEUR_AU = _charger_actions_operateur_au()
+
+
 # ⚠️ 20/10/2026 — DÉCISION D'ABD MOUTALIB : LA CAPITALISATION SE CALCULE.
 # Cours du jour × nombre officiel d'actions relevé sur la liste des émetteurs
 # de la Bourse de Casablanca (`datasets/bourse_emetteurs.json`, relevé par
@@ -2766,7 +2786,16 @@ def _actions_sourcees(ticker: str):
     """
     # ⚠️ L'OPÉRATEUR D'ABORD — 02/10/2026. Voir `ACTIONS_OPERATEUR`.
     if ticker in ACTIONS_OPERATEUR:
-        return ACTIONS_OPERATEUR[ticker]
+        # ⚠️ 13/11/2026 — le nombre de l'opérateur est « à jour des splits » À LA
+        # DATE de sa série, pas après. BOA (attribution gratuite du 22/10/2026,
+        # série arrêtée au 22/09) restait sur 220 281 881 actions quand le relevé
+        # officiel ajusté en donnait 225 404 715 : `test_b3` l'a vu.
+        n = ACTIONS_OPERATEUR[ticker]
+        au = ACTIONS_OPERATEUR_AU.get(ticker)
+        for sp in SPLITS.get(ticker, []):
+            if au and sp["date"] > au:
+                n *= sp["ratio"]
+        return n
     e = FAITS_DATA.get(ticker)
     if not isinstance(e, dict):
         # ⚠️ 17/11/2026 — UN TITRE INTRODUIT APRÈS LE RELEVÉ DE LA BOURSE (NRJ,

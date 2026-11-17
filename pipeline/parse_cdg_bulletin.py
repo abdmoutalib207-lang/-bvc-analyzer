@@ -52,7 +52,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from bvc_config import IDB_TICKER_MAP, ISIN_MAP, COMPANY_NAMES  # noqa: E402
+from bvc_config import IDB_TICKER_MAP, ISIN_MAP, COMPANY_NAMES, SPLITS  # noqa: E402
 
 RACINE = Path(__file__).parent.parent
 CANDLES = Path(__file__).parent / "candles"
@@ -186,7 +186,15 @@ def comparer(cotations: dict, date: str) -> tuple:
         if not jour.get("c"):
             non_compares["clôture manquante"].append(t); continue
         compares += 1
-        e = (v["cours"] - jour["c"]) / v["cours"] * 100
+        # R11 : nos chandelles sont rétro-ajustées des opérations déclarées dans
+        # SPLITS (BOA, attribution gratuite du 22/10/2026). Le bulletin, lui, cite
+        # le cours du jour tel qu'il était : on le ramène sur la même base avant de
+        # comparer, sinon chaque bulletin antérieur à l'opération discorde.
+        cours = v["cours"]
+        for sp in SPLITS.get(t, []):
+            if date < sp["date"]:
+                cours /= sp["ratio"]
+        e = (cours - jour["c"]) / cours * 100
         if abs(e) > TOLERANCE:
             ecarts.append((t, jour["c"], v["cours"], e))
 

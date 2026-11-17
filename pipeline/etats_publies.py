@@ -392,8 +392,13 @@ def _reserves(cle: str, c: dict, t: _Tables, ticker: str, cloture: str | None, o
     if cle in ("nombre_actions", "dividende_par_action_propose"):
         for s in _splits_apres(ticker, cloture):
             d = s["date"].split("-")
-            r.append(f"Avant la division du nominal du {d[2]}/{d[1]}/{d[0]} (1 action → {s['ratio']}, "
-                     "registre des opérations sur titres) : à ajuster avant tout rapprochement avec un cours postérieur.")
+            if s.get("nature") == "attribution":       # BOA, 22/10/2026 : ratio non entier
+                quoi = (f"l'attribution gratuite du {d[2]}/{d[1]}/{d[0]} ({s.get('parite') or 'parité non citée'}, "
+                        f"nombre d'actions ×{s['ratio']:.4f}".replace(".", ","))
+            else:
+                quoi = f"la division du nominal du {d[2]}/{d[1]}/{d[0]} (1 action → {s['ratio']}"
+            r.append(f"Avant {quoi}, registre des opérations sur titres) : "
+                     "à ajuster avant tout rapprochement avec un cours postérieur.")
     return {k: [t.txt(x) for x in xs] for k, xs in (("r", r), ("o", o)) if xs}
 
 

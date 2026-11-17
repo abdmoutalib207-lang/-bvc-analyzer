@@ -357,6 +357,19 @@ def a_savoir(ticker: str, meta: dict | None = None, jour: str | None = None) -> 
     faits = []
 
     for s in C.SPLITS.get(ticker, []):
+        # Une attribution gratuite (BOA, 22/10/2026) a un ratio non entier : « 1
+        # action devient 1.0232558119476018 » ne dit rien à un lecteur. L'entrée
+        # porte alors sa nature, sa parité et sa pièce.
+        if s.get("nature") == "attribution":
+            r = f"{s['ratio']:.4f}".replace(".", ",")
+            faits.append(_fait(
+                s["date"], "split", f"Attribution gratuite d'actions : {s.get('parite') or 'parité non citée'}",
+                f"Nombre d'actions multiplié par {r} ; les cours antérieurs au {_date_fr(s['date'])} "
+                f"sont divisés par {r} dans l'historique, pour rester comparables aux cours d'après. "
+                "La valeur d'une position n'en change pas.",
+                source=s.get("source") or "registre SPLITS (bvc_config.py) — pièce non citée dans l'entrée du registre",
+                url=s.get("url"), piece=s.get("piece"), sha256=s.get("sha256"), registre="SPLITS"))
+            continue
         faits.append(_fait(
             s["date"], "split", f"Division du titre : 1 action devient {s['ratio']}",
             f"Nombre d'actions multiplié par {s['ratio']} ; les cours antérieurs au {_date_fr(s['date'])} "
