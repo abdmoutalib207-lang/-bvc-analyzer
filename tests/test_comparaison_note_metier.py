@@ -17,6 +17,7 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 import pytest  # noqa: E402
 
 import comparaison_note_metier as cm  # noqa: E402
+import bvc_config  # noqa: E402
 from pipeline.smart_money import fond_score_sectoriel as fs  # noqa: E402
 
 
@@ -25,9 +26,13 @@ def comparaison():
     return cm.construire()
 
 
+# 17/11/2026 : la taille de l'univers n'est pas figée (NRJ ajoutée, 81 titres).
+N = len(bvc_config.TICKERS_ALL)
+
+
 def test_quatre_vingts_titres_chacun_avec_ses_criteres(comparaison):
     t = comparaison["titres"]
-    assert len(t) == 80
+    assert len(t) == N
     for s, x in t.items():
         assert {"famille", "note_actuelle", "note_metier", "criteres", "dependance_cote"} <= set(x), s
         assert set(x["criteres"]) == set(fs.POIDS), s
@@ -50,12 +55,12 @@ def test_les_poids_effectifs_d_un_titre_note_somment_a_cent(comparaison):
 
 def test_la_synthese_recompte_le_detail(comparaison):
     sy, t = comparaison["synthese"], comparaison["titres"]
-    assert sy["notes_metier"] + sy["sans_note_metier"] == sy["titres"] == 80
+    assert sy["notes_metier"] + sy["sans_note_metier"] == sy["titres"] == N
     assert sy["notes_metier"] == sum(1 for x in t.values() if x["note_metier"] is not None)
     for k in fs.POIDS:
-        assert sum(sy["etats_par_critere"][k].values()) == 80
-    assert sum(sy["base_du_roe"].values()) == 80
-    assert sum(v["n"] for v in sy["par_famille"].values()) == 80
+        assert sum(sy["etats_par_critere"][k].values()) == N
+    assert sum(sy["base_du_roe"].values()) == N
+    assert sum(v["n"] for v in sy["par_famille"].values()) == N
     dep = sy["dependance_a_la_cote_entiere"]
     assert dep["titres_concernes"] == len(dep["liste"])
 
@@ -113,7 +118,7 @@ def test_l_effet_de_la_convention_des_fonds_propres_moyens_est_mesure(comparaiso
     t = comparaison["titres"]
     assert (e["titres_sur_moyenne"] + e["titres_sur_cloture_moyenne_ecartee"]
             + e["titres_sur_cloture_moyenne_indisponible"] + e["titres_en_remplacement_12_mois"]
-            + e["titres_sans_roe_d_exercice"]) == 80
+            + e["titres_sans_roe_d_exercice"]) == N
     assert e["titres_avec_roe_d_exercice"] == (e["titres_sur_moyenne"] + e["titres_sur_cloture_moyenne_ecartee"]
                                                 + e["titres_sur_cloture_moyenne_indisponible"])
     assert "NON arrondi" in e["ecart_roe_moyen_moins_cloture_non_arrondie"]["reference"]

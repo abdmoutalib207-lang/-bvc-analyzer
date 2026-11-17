@@ -295,7 +295,8 @@ def enregistrer(ligne: dict, asof: str, chemin: Path | None = None,
     return True
 
 
-def annoter_hors_registre(jour: str, lignes: list, chemin: Path | None = None) -> bool:
+def annoter_hors_registre(jour: str, lignes: list, chemin: Path | None = None,
+                          connus=None) -> bool:
     """Inscrit, sur la DERNIÈRE séance enregistrée, les titres cotés que notre
     registre ne connaît pas encore, avec leur montant (`Volumes` de CDG).
 
@@ -316,9 +317,14 @@ def annoter_hors_registre(jour: str, lignes: list, chemin: Path | None = None) -
                if (l.get("echange_dh") or 0) > 0]
     # Une liste vide n'efface pas une annotation existante : elle peut venir
     # d'un passage où CDG n'a pas répondu (relecture du 17/11). Le titre ne
-    # disparaît pas de la séance qu'il a déjà cotée.
+    # disparaît pas de la séance qu'il a déjà cotée — SAUF s'il est entré au
+    # registre (`connus`, codes officiels) : il est alors compté parmi nos
+    # fiches, et le garder ici le compterait deux fois (NRJ, 17/11/2026).
     if not propres and seances[jour].get("hors_registre"):
-        return False
+        connus = set(connus or ())
+        propres = [l for l in seances[jour]["hors_registre"] if l.get("code") not in connus]
+        if len(propres) == len(seances[jour]["hors_registre"]):
+            return False
     etat = dict(seances[jour])
     etat["hors_registre"] = propres
     etat["volume_hors_registre_dh"] = round(sum(l["echange_dh"] for l in propres), 2)

@@ -28,7 +28,12 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import sys
+
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import bvc_config as cfg  # noqa: E402
 
 RACINE = Path(__file__).resolve().parent.parent
 FRONT = RACINE / "terminal.src.html"
@@ -374,7 +379,7 @@ for(const [t,v] of Object.entries(FP.titres)){{
 }}
 console.log(JSON.stringify(res));
 """))
-    assert len(sortie) == len(publie["titres"]) == 80
+    assert len(sortie) == len(publie["titres"]) == len(cfg.TICKERS_ALL)  # 81 depuis NRJ (17/11/2026)
     for t, r in sortie.items():
         for n, x in r["par"].items():
             assert x["avant"] == 0, f"{t}/{n} : un élément antérieur à la fenêtre est tracé"

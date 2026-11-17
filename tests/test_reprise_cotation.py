@@ -274,9 +274,15 @@ def test_le_garde_fou_des_dix_pour_cent_reste_entier(moteur):
     une. Hors du jour d'une reprise inscrite, R10 doit continuer de raboter.
     """
     s = (RACINE / "update_data.py").read_text(encoding="utf-8")
-    assert "elif abs(chg) > 10:" in s, (
-        "le plafond ±10 % n'est plus la branche par défaut — une variation "
+    # 17/11/2026 : le plafond se lit dans `plafond_variation_pct` (±20 % les
+    # cinq premières séances d'une introduction inscrite au registre) ; hors
+    # de ce cas, il reste ±10 %, branche par défaut.
+    assert "elif abs(chg) > plafond_variation_pct(ticker, prix_asof):" in s, (
+        "le plafond R10 n'est plus la branche par défaut — une variation "
         "aberrante de la source passerait telle quelle")
+    import bvc_config
+    assert bvc_config.plafond_variation_pct("IAM", "2026-11-17") == 10.0
+    assert bvc_config.plafond_variation_pct("CMT", "2026-09-16") == 10.0
     assert "_ref_reprise = reference_de_reprise(ticker, prix_asof" in s, (
         "la référence de reprise n'est plus consultée avant le rabotage")
 
