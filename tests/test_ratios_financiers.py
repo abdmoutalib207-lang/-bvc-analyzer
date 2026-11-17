@@ -368,3 +368,13 @@ def test_med_paper_n_a_ni_roe_2025_ni_roe_12m():
     rp = FOND["MDP"]["ratios_publies"]
     assert "roe_2025" not in rp and "roe_12m" not in rp
     assert rp["roe_ecarte"]["motif"]
+
+
+def test_mdp_le_pb_porte_la_reserve_des_commissaires_aux_comptes():
+    """17/11/2026 — MDP reçoit un P/B (capitaux propres du 30/06/2026) : il ne doit
+    jamais s'afficher sans la réserve des commissaires aux comptes."""
+    import logging
+    logging.disable(logging.CRITICAL)
+    import update_data as ud
+    r = ud.RESERVES_PB.get("MDP") or ""
+    assert "sous réserve" in r and "8,6 MDH" in r and "hors pénalités fiscales" in r
