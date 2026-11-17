@@ -40,7 +40,7 @@ def test_chaque_ratio_porte_sa_date_et_ses_sources():
     for s, f in FOND.items():
         for k, x in ((f or {}).get("ratios_publies") or {}).items():
             if k in ("calcule_le", "non_calcules_2025", "ratios_bilan_2025", "reserve_cac",
-                     "solvabilite_globale_absente"):   # un motif d'absence, pas un ratio
+                     "solvabilite_globale_absente", "roe_ecarte"):   # un motif d'absence, pas un ratio
                 continue
             assert x["date"] and x["formule"] and any(x["sources"].values()), (s, k)
 
@@ -361,3 +361,10 @@ def test_alu_dar_reb_restent_sans_roic_avec_leur_motif():
     for s in ("ALU", "DAR", "REB"):
         assert "roic" not in FOND[s]["ratios_publies"], s
         assert "roic" in FOND[s]["ratios_publies"]["non_calcules_2025"], s
+
+
+def test_med_paper_n_a_ni_roe_2025_ni_roe_12m():
+    """17/11/2026 (verificateur-finance) : bénéfice 2025 entièrement non courant, attestation S1 sous réserve."""
+    rp = FOND["MDP"]["ratios_publies"]
+    assert "roe_2025" not in rp and "roe_12m" not in rp
+    assert rp["roe_ecarte"]["motif"]
