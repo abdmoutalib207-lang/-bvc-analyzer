@@ -740,23 +740,29 @@ SPLITS: dict = {
     # être vrais. Ne rien changer sans recoupement — R2.
     "SOT": [{"date": "2026-05-05", "ratio": 5}],
 
-    # ⚠️ Bank of Africa — ATTRIBUTION GRATUITE d'1 action pour 43, droit détaché
-    # le 22/10/2026 : ÉTABLIE SUR PIÈCE le 09/11/2026, PAS ENCORE DÉCLARÉE ICI.
+    # Bank of Africa — ATTRIBUTION GRATUITE d'1 action pour 43, droit détaché le
+    # 22/10/2026, établie sur pièce le 09/11/2026 et DÉCLARÉE ICI le 13/11/2026.
     # Pièces (Bourse de Casablanca, datasets/pieces/BOA/index.json) : avis
     # AV-2026-131 du 15/10/2026 (« Date de détachement 22/10/2026 », « ajustement
     # du cours de l'instrument ») et AV-2026-136 du 29/10/2026 (220.281.881 titres
     # avant, 225.404.715 après). Au sens de R11 c'est un fait de même nature qu'un
-    # split : la série DOIT être rétro-ajustée (cours antérieurs au 22/10 ÷
-    # 225 404 715/220 281 881 = 1,0232558119 ; 180,00 la veille → 175,91, la
-    # référence servie le 22/10 : 175,90).
-    # Elle ne l'est pas dans ce lot, MESURÉ le 10/11/2026 : l'inscrire ici et
-    # ajuster les chandelles change le RSI, les moyennes et le Score BVC de BOA,
-    # les figures publiées qui traversent le 22/10 et l'artefact de comblement des
-    # gaps (712 → 711 événements) — une régénération d'artefacts publiés qui se
-    # mesure à part. D'ici là la série de BOA porte une fausse marche de −2,27 %
-    # au 22/10/2026 (variation publiée ce jour-là : +2,67 % au lieu de +5,06 %).
-    # Le BPA, le dividende par action et le nombre d'actions, eux, sont à jour
-    # (datasets/resultats_s1_2026.json, bpa.json).
+    # split : le nombre d'actions change, la série est rétro-ajustée.
+    # Ratio = 225 404 715 / 220 281 881 = 1,0232558119 (1 + 1/43 au milliardième
+    # près). Clôture du 21/10 : 180,00 → 175,91 ; référence servie le 22/10 :
+    # 175,90 (arrondi de la Bourse).
+    # ⚠️ `pipeline/candles/BOA.json` a été ajusté UNE FOIS, à la main, le 13/11/2026
+    # (829 séances antérieures au 22/10, cours ÷ ratio arrondis au centime, volumes
+    # inchangés — même convention que MNG). Ne pas le refaire.
+    # ⚠️ L'attribution de 2025 (1 pour 48) n'est PAS déclarée : date de
+    # détachement non lue sur pièce. La série garde donc une fausse marche
+    # d'environ −2 % à cette date, inconnue.
+    "BOA": [{"date": "2026-10-22", "ratio": 1.0232558119476018,  # = 225 404 715 / 220 281 881
+             "nature": "attribution", "parite": "1 action nouvelle pour 43 détenues",
+             "source": "Bourse de Casablanca, avis AV-2026-131 du 15/10/2026 (date de détachement) "
+                       "et AV-2026-136 du 29/10/2026 (220 281 881 titres avant, 225 404 715 après)",
+             "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-10/av-2026-136_fr.pdf",
+             "piece": "datasets/pieces/BOA/av-2026-136_fr.pdf",
+             "sha256": "f53d28f2416b138c2e24bf31669c3eeb59a3477c77776914017f67416a98c7df"}],
 }
 
 

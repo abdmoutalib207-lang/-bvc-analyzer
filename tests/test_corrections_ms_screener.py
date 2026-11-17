@@ -298,15 +298,20 @@ def test_boa_bpa_dividende_et_nombre_d_actions_par_action_actuelle():
     assert b["dividende_piece"]["dpa"] == 4.886 and b["dividende_piece"]["dpa_vote"] == 5.0
 
 
-def test_boa_la_serie_de_cours_n_est_pas_ajustee_dans_ce_lot_et_c_est_dit():
-    """Le rétro-ajustement des cours (R11) est un lot à part : il régénère des artefacts
-    publiés. Tant qu'il n'est pas fait, ni le registre ni les chandelles ne bougent — les
-    deux ensemble, ou aucun (sinon un téléchargement frais diviserait une série non ajustée)."""
+def test_boa_registre_et_chandelles_sont_ajustes_ensemble():
+    """Le rétro-ajustement des cours (R11) a été fait le 13/11/2026, en lot à part. Le
+    registre et les chandelles bougent ENSEMBLE, ou aucun : un registre sans chandelles
+    ajustées ferait diviser par un téléchargement frais une série non ajustée ; des
+    chandelles ajustées sans registre seraient ré-écrasées par la série brute."""
     config = (RACINE / "bvc_config.py").read_text(encoding="utf-8")
-    assert "AV-2026-131" in config and "PAS ENCORE DÉCLARÉE ICI" in config
+    assert "AV-2026-131" in config and "PAS ENCORE DÉCLARÉE ICI" not in config
     c = {k["d"]: k for k in json.loads((RACINE / "pipeline/candles/BOA.json").read_text(encoding="utf-8"))}
     ajustee = c["2026-10-21"]["c"] != 180.0
     assert ("BOA" in bvc_config.SPLITS) == ajustee
+    # 180,00 ÷ (225 404 715 / 220 281 881) ; la Bourse a servi 175,90 le 22/10
+    assert c["2026-10-21"]["c"] == 175.91
+    assert abs(bvc_config.SPLITS["BOA"][0]["ratio"] / (225404715 / 220281881) - 1) < 1e-12
+    assert c["2026-10-22"]["c"] == 184.8, "les cours à partir du 22/10 ne bougent pas"
 
 
 def test_boa_l_etat_intermediaire_est_dit_a_l_ecran_tant_que_la_capitalisation_n_est_pas_alignee():
@@ -329,3 +334,17 @@ def test_boa_reserve_affichee_par_le_moteur():
     """La réserve passe par `bpa_reserve` (update_data.py), seul canal affiché sous le PER."""
     src = (RACINE / "update_data.py").read_text(encoding="utf-8")
     assert '"bpa_reserve": (BPA_DATA.get(ticker) or {}).get("reserve_bpa")' in src
+
+
+def test_boa_les_etats_publies_disent_attribution_et_non_division():
+    """Relecture du 17/11/2026 : le registre porte une attribution (ratio non entier) ;
+    le texte ne doit ni parler de division du nominal ni imprimer 1.0232558119476018."""
+    from pipeline import etats_publies as ep
+
+    class T:
+        def txt(self, x):
+            return x
+    r = ep._reserves("nombre_actions", {"note": None}, T(), "BOA", "2025-12-31", "")["r"]
+    texte = " ".join(r)
+    assert "attribution gratuite du 22/10/2026" in texte and "1 action nouvelle pour 43" in texte
+    assert "×1,0233" in texte and "division du nominal" not in texte and "1.02325" not in texte
