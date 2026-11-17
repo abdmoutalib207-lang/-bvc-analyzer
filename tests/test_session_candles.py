@@ -56,7 +56,21 @@ def test_le_lendemain_le_volume_d_une_seance_echue_se_complete(tmp_path):
     assert serie == [dict(d='2026-10-05', o=580, h=590, l=550, c=560, v=7818)]
 
 
-@pytest.mark.parametrize('patch', [{'price': 561, 'high': 590},   # clôture différente
+def test_cloture_differente_et_quantite_plus_grande_la_seance_echue_suit(tmp_path):
+    """⚠️ 17/11/2026 — RÈGLE ÉLARGIE, ET C'ÉTAIT LE CAS REFUSÉ ICI. La
+    complétion n'acceptait qu'une clôture IDENTIQUE. Le 16/11, les runs du soir
+    ont été refusés (introduction de JET ENERGY) et la bougie est restée celle
+    de 14h56 — IAM 89,40 sur 18 002 titres pour une clôture de 90,00 sur
+    64 115 ; passé minuit, plus rien ne pouvait la corriger, et 37 titres sont
+    devenus « non calculables ». Une quantité CDG STRICTEMENT plus grande
+    décrit un état plus avancé de la même séance : clôture et extrêmes suivent."""
+    (tmp_path / 'HPS.json').write_text(json.dumps([H_PARTIEL]))
+    serie = preparer({'HPS': {**H_SOURCE, 'price': 561, 'high': 590}}, '2026-10-05',
+                     '2026-10-06', tmp_path, ['HPS'])['HPS']
+    assert serie == [dict(d='2026-10-05', o=580, h=590, l=550, c=561, v=7818)]
+
+
+@pytest.mark.parametrize('patch', [{'price': 561, 'high': 590, 'vol': 5851},  # clôture différente, quantité égale
                                    {'vol': 5851},                  # volume identique
                                    {'vol': 5000},                  # volume plus petit
                                    {'src': 'bmce'}])               # autre source
