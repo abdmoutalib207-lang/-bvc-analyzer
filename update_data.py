@@ -63,7 +63,7 @@ from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
                         SEANCES_ANNULEES, seance_annulee, rupture_methode,
                         offre_publique, derniere_reprise_remise_a_neuf,
-                        plafond_variation_pct)
+                        plafond_variation_pct, INTRODUCTIONS)
 
 TICKERS = TICKERS_ALL
 
@@ -2379,6 +2379,37 @@ FAITS_DATA: dict = {}
 _TAUX_MAD_TND: dict = {}   # règle g, 20/10/2026 — rempli au démarrage de run()
 
 
+def _completer_taux_bct(live_prices: dict) -> list:
+    """Relève à la BCT les taux MAD → TND manquants pour la date de cours des
+    titres dont les comptes sont en TND (`FAITS_DATA[t]["devise"]`). Range
+    chaque taux dans `datasets/change_mad_tnd.json` et `_TAUX_MAD_TND`. Une
+    panne réseau est signalée, jamais bloquante. Renvoie les dates rangées."""
+    dates = sorted({str((live_prices.get(t) or {}).get("asof") or "")[:10]
+                    for t, e in FAITS_DATA.items()
+                    if isinstance(e, dict) and e.get("devise") == "TND"} - {""})
+    manquantes = [d for d in dates if d not in _TAUX_MAD_TND]
+    if not manquantes:
+        return []
+    ranges = []
+    try:
+        from pipeline.change_bct import TAUX, relever
+        doc = json.loads(TAUX.read_text(encoding="utf-8")) if TAUX.exists() else {"taux": {}}
+        for d in manquantes:
+            r = relever(d)
+            if r:
+                doc.setdefault("taux", {})[d] = r
+                _TAUX_MAD_TND[d] = r
+                ranges.append(d)
+            else:
+                logger.info(f"  taux BCT du {d} : journée non encore publiée, pas de conversion")
+        if ranges:
+            TAUX.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            logger.info(f"  taux BCT relevé(s) : {', '.join(ranges)}")
+    except Exception as _e:                                # noqa: BLE001
+        logger.warning(f"  taux BCT non relevés ({_e}) — capitalisation en TND non convertie")
+    return ranges
+
+
 def _cap_en_devise(cap_mdh, prix_asof, devise, taux):
     from pipeline.change_bct import cap_en_devise
     return cap_en_devise(cap_mdh, prix_asof, devise, taux)
@@ -2738,7 +2769,14 @@ def _actions_sourcees(ticker: str):
         return ACTIONS_OPERATEUR[ticker]
     e = FAITS_DATA.get(ticker)
     if not isinstance(e, dict):
-        return None
+        # ⚠️ 17/11/2026 — UN TITRE INTRODUIT APRÈS LE RELEVÉ DE LA BOURSE (NRJ,
+        # 16/11) n'a ni nombre officiel au relevé du 20/10, ni comptes relevés :
+        # sa capitalisation restait vide. Le nombre d'actions d'après
+        # l'opération est au registre des introductions, avec sa pièce (note
+        # d'opération visée par l'AMMC). Recoupé : 13 125 000 × 171,55 =
+        # 2 252 MDH, la capitalisation qu'affiche MASI Screener.
+        intro = INTRODUCTIONS.get(ticker) or {}
+        return float(intro["actions"]) if intro.get("actions") else None
     faits = e.get("faits") or {}
     na = (faits.get("nombre_actions_existant")
           or faits.get("nombre_actions_au_rapport")
@@ -4156,6 +4194,13 @@ def run(dry_run=False, push=False, token=""):
     # viendrait d'une autre source.
     seance_fictive = arbitrer_cotations(live_prices)
     _ecarter_masi_annule(masi)
+    # ⚠️ 17/11/2026 — Règle g (IAS 21) : le taux BCT du JOUR DU COURS de chaque
+    # titre publiant ses comptes en dinars (ENK) n'était relevé qu'à la main —
+    # le dernier datait du 19/10, et la capitalisation en TND restait vide
+    # depuis. Relevé ici à chaque passage ; la BCT ne servant que les journées
+    # publiées, un jour absent reste sans conversion (jamais un autre jour).
+    if ECRITURE_AUTORISEE and not dry_run:
+        _completer_taux_bct(live_prices)
     # ⚠️ 17/11/2026 — Titres cotés hors de notre registre (JET ENERGY, NRJ,
     # introduite le 16/11) : chiffrés sur la séance enregistrée, pour que le
     # recoupement synthèse / fiches sache expliquer l'écart (voir

@@ -57,6 +57,9 @@ ECRITS_PAR_LE_MOTEUR = [
     ("pipeline/depots_ammc.json", "les dépôts de résultats lus sur la liste de l'AMMC"),
     ("briefings/", "l'archive des lectures, un fichier par séance — sa raison "
      "d'être est d'accumuler"),
+    ("datasets/change_mad_tnd.json",
+     "taux MAD → TND de la BCT, relevés par le moteur depuis le 17/11/2026 "
+     "(règle g) — sans commit, chaque passage le relèverait de nouveau"),
     ("pipeline/seance_marche.json",
      "trajectoire du MASI, secteurs et matières premières — la série "
      "intrajournalière ne vit qu'un jour, non commitée elle est perdue"),

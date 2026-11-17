@@ -384,7 +384,7 @@ jobs:
                      briefing_mijournee.json briefing_cloture.json news.json \
                      pipeline/depots_ammc.json pipeline/seance_marche.json \
                      pipeline/marche_history.json pipeline/score_history.json \
-                     marches_mondiaux.json; do
+                     marches_mondiaux.json datasets/change_mad_tnd.json; do
               [ -f "$f" ] && git add "$f"
             done
             if [ -f pipeline/historical_data.json ]; then
