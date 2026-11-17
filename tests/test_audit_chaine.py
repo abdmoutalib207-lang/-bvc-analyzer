@@ -117,7 +117,8 @@ def test_le_fichier_regenere_passe_l_audit(regenere, entrees):
 
 def test_les_80_titres_sont_audites(regenere):
     _, data = regenere
-    assert len(data["tickers"]) == 80
+    import bvc_config
+    assert len(data["tickers"]) == len(bvc_config.TICKERS_ALL)   # 81 depuis NRJ (17/11/2026)
 
 
 def test_le_fichier_regenere_ne_porte_plus_la_note_v53(regenere):

@@ -74,7 +74,8 @@ def test_la_config_ne_porte_plus_la_version_ni_le_seuil_de_verdict():
     # Ce qui reste utilisé, et R2 : le référentiel n'est pas touché.
     assert bvc_config.SEUIL_NON_COMPARABLE_DH == 100_000
     assert bvc_config.NOTE_METIER_PUBLIEE is False
-    assert len(bvc_config.ISIN_MAP) == 83
+    # 84 depuis le 17/11/2026 : NRJ (Jet Energy) inscrite avec l'accord d'Abd Moutalib (R2).
+    assert len(bvc_config.ISIN_MAP) == 84
 
 
 def test_le_second_pipeline_ne_publie_plus_la_note_v53(monkeypatch):

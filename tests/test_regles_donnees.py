@@ -16,7 +16,7 @@ import pytest
 # réduction délibérée, pas une régression — une société radiée n'a plus de
 # cours, et la publier revenait à recopier indéfiniment un prix de 195 DH quand
 # son retrait s'est fait à 660.
-NB_TICKERS = 80
+NB_TICKERS = 81           # R1 — 81 depuis NRJ (Jet Energy), inscrite le 17/11/2026
 NB_MASI1 = 19            # R1 — les valeurs suivies en priorité
 LIMITE_VARIATION = 10.0  # R10 — plafond réglementaire BVC, ±10 %/séance
 
@@ -41,10 +41,13 @@ def test_r1_tout_titre_a_un_prix(titres):
 
 # ── R10 : le plafond de variation est un invariant réglementaire ────────────
 
-def test_r10_aucune_variation_hors_limite(titres):
-    """Au-delà de ±10 %, c'est une erreur de source, jamais un mouvement réel."""
+def test_r10_aucune_variation_hors_limite(config, titres):
+    """Au-delà de ±10 %, c'est une erreur de source, jamais un mouvement réel —
+    sauf les cinq premières séances d'une introduction inscrite au registre,
+    plafonnées à ±20 % (décision AMMC du 23/06/2026 ; NRJ, +19,97 % le 16/11)."""
     hors = {s: x["chg"] for s, x in titres.items()
-            if abs(x.get("chg") or 0) > LIMITE_VARIATION}
+            if abs(x.get("chg") or 0) > config.plafond_variation_pct(
+                s, (x.get("_meta") or {}).get("prix_asof"))}
     assert not hors, f"variations impossibles : {hors}"
 
 

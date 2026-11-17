@@ -85,7 +85,9 @@ def test_le_run_avec_erreur_injectee_se_termine_et_ecrit_data_json(deux_runs):
     ok, err, r_ok, r_err = deux_runs
     assert "RUN_TERMINE" in r_ok.stdout, r_ok.stderr[-2000:]
     assert "RUN_TERMINE" in r_err.stdout, "l'erreur injectée a interrompu le run :\n" + r_err.stderr[-2000:]
-    assert len(_tickers(err)) == 80 and len(_tickers(ok)) == 80
+    import bvc_config
+    n = len(bvc_config.TICKERS_ALL)   # 81 depuis NRJ (17/11/2026)
+    assert len(_tickers(err)) == n and len(_tickers(ok)) == n
 
 
 def test_tout_ce_qui_est_publie_est_identique_avec_ou_sans_erreur(deux_runs):

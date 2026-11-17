@@ -62,7 +62,8 @@ from bvc_config import (ISIN_MAP, IDB_NAME_MAP, IDB_TICKER_MAP, TICKERS_ALL,
                         COMPANY_NAMES, COMPANY_SECTORS, est_ferie_fixe,
                         est_suspendu, SPLITS, SUSPENSIONS, sans_comptes,
                         SEANCES_ANNULEES, seance_annulee, rupture_methode,
-                        offre_publique, derniere_reprise_remise_a_neuf)
+                        offre_publique, derniere_reprise_remise_a_neuf,
+                        plafond_variation_pct)
 
 TICKERS = TICKERS_ALL
 
@@ -633,9 +634,12 @@ def recalculer_variation(ticker, price, chg, candles, seance, asof_prix=""):
     if veille <= 0 or abs(price - veille) <= 0.01:
         return chg
     calcule = round((price - veille) / veille * 100, 2)
-    if abs(calcule) > 10.0:
+    # 17/11/2026 : ±20 % pendant les cinq premières séances d'une introduction
+    # inscrite au registre (bvc_config.INTRODUCTIONS), ±10 % sinon (R10).
+    _plafond = plafond_variation_pct(ticker, asof_prix or seance)
+    if abs(calcule) > _plafond:
         logger.warning(
-            f"  {ticker}: variation calculée {calcule:+.2f}% > ±10%"
+            f"  {ticker}: variation calculée {calcule:+.2f}% > ±{_plafond:.0f}%"
             f" — cours de référence suspect (prix={price}, ref={veille})")
         return 0.0
     if calcule != chg:
@@ -4164,7 +4168,8 @@ def run(dry_run=False, push=False, token=""):
                            "(ajout au registre : décision à part, R2)")
         if ECRITURE_AUTORISEE and not dry_run:
             from pipeline.marche_history import annoter_hors_registre
-            annoter_hors_registre(str(masi.get("asof") or "")[:10], _hr)
+            annoter_hors_registre(str(masi.get("asof") or "")[:10], _hr,
+                                  connus=set(IDB_TICKER_MAP.values()))
     except Exception as _e:                                # noqa: BLE001
         logger.warning(f"titres hors registre : annotation impossible ({_e})")
     if seance_fictive:
@@ -4393,7 +4398,7 @@ def run(dry_run=False, push=False, token=""):
 
         # Safety cap : BVC limite réglementaire stricte ±10%/j
         # Toute variation > 10% est une erreur source (mauvais cours de référence IDBourse)
-        elif abs(chg) > 10:
+        elif abs(chg) > plafond_variation_pct(ticker, prix_asof):
             chg = 0.0  # sera recalculé par Médias24 puis recalcul final depuis candles
 
         # Historique Médias24 pour indicateurs techniques
@@ -5243,12 +5248,27 @@ def run(dry_run=False, push=False, token=""):
     # le lit : ces champs sont identiques avec ou sans ce bloc
     # (essai à blanc jumeau, voir `pipeline/score_descriptif.py`).
     # Un échec ici ne doit jamais emporter la publication.
+    # ⚠️ 17/11/2026 — LES SCORES LISENT LA SÉRIE ENTIÈRE, MÊME COURTE. Le cache
+    # `_candles_cache` écarte les séries de moins de 20 bougies (OBV / ADX) ;
+    # JET ENERGY, introduite le 16/11, en a une. Le score se calculait alors
+    # sans aucune bougie (« cours en désaccord avec la dernière clôture ») et
+    # le contrôle, qui relit le fichier, trouvait un autre résultat. Même
+    # série des deux côtés : le fichier, quand le cache ne l'a pas.
+    def _bougies_du_score(s):
+        if _candles_cache.get(s) is not None:
+            return _candles_cache[s].to_dict("records")
+        f = Path(__file__).parent / "pipeline" / "candles" / f"{s}.json"
+        try:
+            brut = json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+        except (OSError, ValueError):
+            return []
+        return brut if isinstance(brut, list) else []
+
     try:
         from pipeline.score_descriptif import annexer as _sd_annexer
         _sd = _sd_annexer(
             tickers_out,
-            lambda s: [] if _candles_cache.get(s) is None
-            else _candles_cache[s].to_dict("records"))
+            _bougies_du_score)
         logger.info(f"  👻 score descriptif (fantôme) : "
                     f"{sum(1 for v in _sd.values() if v['valeur'] is not None)} valeurs, "
                     f"{sum(1 for v in _sd.values() if v['etat'] == 'PARTIEL')} partiels, "
@@ -5263,8 +5283,7 @@ def run(dry_run=False, push=False, token=""):
         from pipeline.score_bvc import annexer_bvc as _bvc_annexer
         _sb = _bvc_annexer(
             tickers_out,
-            lambda s: [] if _candles_cache.get(s) is None
-            else _candles_cache[s].to_dict("records"))
+            _bougies_du_score)
         logger.info(f"  👻 score BVC (fantôme) : "
                     f"{sum(1 for v in _sb.values() if v['valeur'] is not None)} valeurs")
     except Exception as _e:                               # noqa: BLE001

@@ -74,6 +74,7 @@ COMPANY_NAMES: dict = {
     "SNP":  "SNEP",
     "SLM":  "Salafin",
     "JET":  "Jet Contractors",
+    "NRJ":  "Jet Energy",        # introduite le 16/11/2026 — ne pas confondre avec JET
     "M2M":  "M2M Group",
     "INV":  "Involys",
     "S2M":  "S2M",  # « S.M Monétique » était une troncature de screener ; le relevé de la cote et le marché disent S2M
@@ -185,6 +186,7 @@ COMPANY_SECTORS: dict = {
     "IMI": "Immobilier",
     "INV": "Technologie",
     "JET": "Construction",
+    "NRJ": "Énergie",            # « Electricité » (note d'opération, p. 17), comme TQA
     "LBV": "Distribution",
     "LES": "Agroalimentaire",
     "LHM": "Matériaux",
@@ -254,6 +256,7 @@ ISIN_MAP: dict = {
     "DTT": "MA0000012536", "DSW": "MA0000011637", "ENK": "MA0000011942",
     "EQD": "MA0000010357", "FNB": "MA0000011587", "HPS": "MA0000012619",
     "IBM": "MA0000011132", "IMI": "MA0000012387", "INV": "MA0000011579",
+    "NRJ": "MA0000012874",  # Jet Energy — note d'opération AMMC VI/EM/030/2026, p. 17 ; clé de contrôle vérifiée
     "JET": "MA0000012080", "LBV": "MA0000011801", "LHM": "MA0000012320",
     "LES": "MA0000012031", "M2M": "MA0000011678", "MOX": "MA0000010985",
     "MGL": "MA0000011215", "MNG": "MA0000012866",
@@ -323,7 +326,7 @@ IDB_TICKER_MAP: dict = {
     "DAR": "DRI",   "DHO": "DHO",   "DSW": "DWY",   "DTT": "DYT",
     "ENK": "NKL",   "EQD": "EQD",   "FNB": "FBR",   "GAZ": "GAZ",
     "HAL": "ATH",   "HPS": "HPS",   "IAM": "IAM",   "IBM": "IBC",
-    "IMI": "IMO",   "INV": "INV",   "JET": "JET",   "LBV": "LBV",
+    "IMI": "IMO",   "INV": "INV",   "JET": "JET",   "NRJ": "NRJ",   "LBV": "LBV",
     "LES": "LES",   "LHM": "LHM",   "M2M": "M2M",   "MGL": "MAB",
     # BAL et REB — ajoutés le 02/09/2026. Le CLAUDE.md les notait « sans
     # ticker IDBourse » depuis le 02/07, et `fetch_all_cdg` les écartait donc
@@ -656,6 +659,57 @@ def groupe_cotation(ticker: str) -> int:
 def seuil_statique_pct(ticker: str) -> float:
     """Seuil statique de variation du titre, en % du cours de référence."""
     return SEUILS_STATIQUES_PCT[groupe_cotation(ticker)]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Introductions en bourse — registre créé le 17/11/2026
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# ⚠️ Le plafond de variation n'est PAS ±10 % pendant les cinq premières séances
+# d'une admission : il est de ±20 % (décision AMMC du 23/06/2026,
+# datasets/pieces_reglementaires/). JET ENERGY a ouvert le 16/11 à 171,55 DH
+# pour une référence de 143,00, soit +19,97 % — un cours réel que nos trois
+# garde-fous R10 auraient remplacé par 0,00 % (R9 l'interdit). Comme pour R11,
+# on ne relâche pas le contrôle : on porte le FAIT dans le registre, avec sa
+# pièce, et le contrôle le consulte.
+SEANCES_ADMISSION = 5
+SEUIL_ADMISSION_PCT = 20.0
+INTRODUCTIONS: dict = {
+    "NRJ": {
+        "date": "2026-11-16", "prix": 143.0, "actions": 13_125_000,
+        "source": ("note d'opération visée par l'AMMC le 21/10/2026 (VI/EM/030/2026), "
+                   "p. 17 (ISIN, ticker, date de 1ère cotation) et p. 37 (10 500 000 + "
+                   "2 625 000 = 13 125 000 actions) ; avis de la Bourse de Casablanca "
+                   "AV-2026-142 (prix 143,00 MAD) et AV-2026-144 (résultats)"),
+        "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-11/av-2026-142_fr.pdf",
+        "piece": "datasets/pieces/NRJ/index.json",
+    },
+}
+
+
+def seances_depuis_introduction(ticker: str, seance: str) -> int | None:
+    """Rang de `seance` parmi les séances du titre depuis son introduction (1 =
+    jour de la première cotation), en jours ouvrés hors fériés à date fixe.
+    None si le titre n'est pas au registre ou si `seance` précède l'admission."""
+    e = INTRODUCTIONS.get(ticker)
+    if not e or not seance or str(seance)[:10] < e["date"]:
+        return None
+    from datetime import date, timedelta
+    d, fin, n = date.fromisoformat(e["date"]), date.fromisoformat(str(seance)[:10]), 0
+    while d <= fin:
+        if d.weekday() < 5 and (d.month, d.day) not in JOURS_FERIES_FIXES:
+            n += 1
+        d += timedelta(days=1)
+    return n
+
+
+def plafond_variation_pct(ticker: str, seance: str | None = None) -> float:
+    """Plafond de variation d'une séance (R10) : 20 % pendant les cinq premières
+    séances d'une introduction inscrite au registre, 10 % sinon."""
+    rang = seances_depuis_introduction(ticker, seance) if seance else None
+    if rang is not None and rang <= SEANCES_ADMISSION:
+        return SEUIL_ADMISSION_PCT
+    return 10.0
 
 
 SPLITS: dict = {
@@ -1761,6 +1815,8 @@ TICKERS_ALL: list = [
     "DHO", "PPM", "REB", "SBS", "STK", "UNI", "IBM",
     # Ajouts du 10/08/2026 — T2S est l'introduction du 27/07/2026
     "T2S", "MDP", "DLM", "DIS",
+    # Ajout du 17/11/2026, accord d'Abd Moutalib (R2) — introduction du 16/11/2026
+    "NRJ",
 ]
 
 

@@ -59,7 +59,7 @@ def _n(v):
     return f if f == f and f > 0 else None
 
 
-def bornes_reglementaires(cloture, ticker: str | None = None) -> dict | None:
+def bornes_reglementaires(cloture, ticker: str | None = None, seance: str | None = None) -> dict | None:
     """Le plafond et le plancher de la PROCHAINE séance. Un FAIT, pas un avis.
 
     ⚠️ C'est le seul niveau de ce module qu'aucune opinion ne peut déplacer :
@@ -108,17 +108,26 @@ def bornes_reglementaires(cloture, ticker: str | None = None) -> dict | None:
     # Pas de repli silencieux : sans le registre, la borne d'un titre au fixing
     # serait publiée à ±10 % comme un fait (relecture #350). L'import échoue
     # donc bruyamment, comme dans les autres modules du pipeline.
-    from bvc_config import CYCLE_GROUPE, groupe_cotation, seuil_statique_pct
+    from bvc_config import (CYCLE_GROUPE, SEANCES_ADMISSION, SEUIL_ADMISSION_PCT,
+                            groupe_cotation, seances_depuis_introduction, seuil_statique_pct)
     g = groupe_cotation(ticker) if ticker else 1
     pct = seuil_statique_pct(ticker) if ticker else LIMITE_PCT
     cycle = CYCLE_GROUPE.get(g, "continu")
+    # 17/11/2026 : ±20 % pendant les cinq premières séances d'une admission
+    # (registre `INTRODUCTIONS`, même décision AMMC). La PROCHAINE séance est
+    # la suivante de celle du cours publié.
+    rang = seances_depuis_introduction(ticker, seance) if (ticker and seance) else None
+    admission = rang is not None and rang + 1 <= SEANCES_ADMISSION
+    if admission:
+        pct = SEUIL_ADMISSION_PCT
     return {
         "plancher": round(c * (1 - pct / 100), 2),
         "plafond": round(c * (1 + pct / 100), 2),
         "pct": pct, "groupe": g, "cycle": cycle,
-        "_methode": (f"±{pct:.0f} % de la clôture de référence — seuil statique du "
-                     f"groupe {g} ({cycle}), décision AMMC du 23/06/2026 (R10). "
-                     f"Borne le possible, ne prédit rien."),
+        "_methode": (f"±{pct:.0f} % de la clôture de référence — "
+                     + (f"séance {rang + 1} sur {SEANCES_ADMISSION} après l'introduction en bourse"
+                        if admission else f"seuil statique du groupe {g} ({cycle})")
+                     + ", décision AMMC du 23/06/2026 (R10). Borne le possible, ne prédit rien."),
     }
 
 
@@ -226,7 +235,8 @@ def composer(ticker: dict, bougie: dict | None = None) -> dict | None:
         return None
     faits, conventions = {}, {}
 
-    b = bornes_reglementaires(ticker.get("price"), ticker.get("symbol"))
+    b = bornes_reglementaires(ticker.get("price"), ticker.get("symbol"),
+                              (ticker.get("_meta") or {}).get("prix_asof"))
     if b:
         faits["bornes_seance"] = b
     e = extremes(ticker)

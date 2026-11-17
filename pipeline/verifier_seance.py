@@ -32,7 +32,7 @@ RACINE = Path(__file__).parent.parent
 sys.path.insert(0, str(RACINE))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from bvc_config import TICKERS_ACTIFS, decalage_maroc    # noqa: E402
+from bvc_config import TICKERS_ACTIFS, decalage_maroc, plafond_variation_pct    # noqa: E402
 from seance import derniere_seance_connue                # noqa: E402
 
 # ⚠️ PAS `ZoneInfo`. Voir le bloc sur `_fuseau()` plus bas : la base de
@@ -294,9 +294,13 @@ def _controles(jour, ecart):
     # Règle R10 : la BVC plafonne la variation à ±10 % par séance, sur le
     # COURS D'UNE SOCIÉTÉ. Le contrôle porte bien sur les titres un à un —
     # l'indice, lui, n'est pas soumis à ce plafond (précision du 05/09/2026).
+    # 17/11/2026 : ±20 % pendant les cinq premières séances d'une introduction
+    # inscrite au registre (bvc_config.INTRODUCTIONS) — JET ENERGY, +19,97 % le 16/11.
     aberrantes = [(t, x.get("chg")) for t, x in titres.items()
-                  if abs(x.get("chg") or 0) > 10]
-    ajouter("aucune variation au-delà de ±10 %", not aberrantes,
+                  if abs(x.get("chg") or 0) > plafond_variation_pct(
+                      t, (x.get("_meta") or {}).get("prix_asof"))]
+    ajouter("aucune variation au-delà de ±10 % (±20 % les 5 premières séances d'une introduction)",
+            not aberrantes,
             aberrantes or "conforme")
 
     sans_meta = [t for t, x in titres.items() if not x.get("_meta")]
