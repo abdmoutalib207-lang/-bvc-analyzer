@@ -5334,6 +5334,23 @@ def run(dry_run=False, push=False, token=""):
     except Exception as _e:                               # noqa: BLE001
         logger.exception(f"  👻 score BVC non calculé ({_e})")
 
+    # ⚠️ 17/11/2026 — SCORE DE LA SEMAINE, décision d'Abd Moutalib : « les
+    # mouvements pendant une journée ne laissent pas une bonne lecture du
+    # score ». `score_bvc` devient le Score BVC de la DERNIÈRE SEMAINE CLOSE
+    # (même formule, chandelles arrêtées à sa dernière séance) ; le score du
+    # jour reste publié sous `score_bvc_jour` (journal des scores, mesure).
+    # Vérifié : au 13/11, 64/64 titres cotés ce jour-là retrouvent exactement
+    # le score publié le 13/11 au soir.
+    try:
+        from pipeline.score_bvc import annexer_bvc_semaine, fin_de_semaine_close, seances_du_marche
+        _seances = seances_du_marche(_bougies_du_score(_t["symbol"]) for _t in tickers_out)
+        _fin_sem = fin_de_semaine_close(_seances, datetime.now(_tz_maroc()).date().isoformat())
+        _sem = annexer_bvc_semaine(tickers_out, _bougies_du_score, _fin_sem)
+        logger.info(f"  score BVC de la semaine close le {_fin_sem} : "
+                    f"{sum(1 for v in _sem.values() if v['valeur'] is not None)} valeurs")
+    except Exception as _e:                               # noqa: BLE001
+        logger.exception(f"  score BVC de la semaine non calculé ({_e}) — score du jour conservé")
+
     # ⚠️ LE FLUX SE CONTRÔLE LUI-MÊME — ajouté le 24/09/2026.
     #
     # « Un score qui ne se vérifie pas lui-même ne peut pas être calibré. » La

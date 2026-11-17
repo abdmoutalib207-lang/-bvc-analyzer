@@ -158,7 +158,10 @@ def test_branchement_moteur_unique_et_lecteurs_declares():
     de lire devient une liste de lecteurs qui n'écrivent pas."""
     src = (RACINE / "update_data.py").read_text(encoding="utf-8")
     code = re.sub(r"#.*", "", src)
-    assert len(re.findall(r"score_bvc", code)) == 1
+    # 17/11/2026 : deux imports du module, le score du jour puis celui de la
+    # semaine close, dans cet ordre (le second remplace le premier).
+    assert len(re.findall(r"score_bvc", code)) == 2
+    assert src.index("_bvc_annexer(") < src.index("annexer_bvc_semaine(")
     assert src.index("note_metier_du_run(tickers_out, passe1") < src.index("_bvc_annexer(")
     ecriture = re.compile(r"""\[\s*["']score_bvc["']\s*\]\s*=(?!=)|setdefault\(\s*["']score_bvc["']""")
     for p in sorted((RACINE / "pipeline").rglob("*.py")):
@@ -181,7 +184,11 @@ def test_publie_score_bvc(titres):
         if b["valeur"] is not None:
             assert 0 <= b["valeur"] <= 100 and b["couverture_pct"] >= 70, s
         m = t.get("_meta") or {}
-        if m.get("stale", True) or m.get("suspendu"):
+        # 17/11/2026 : un score de la semaine close se calcule sur la clôture
+        # de cette semaine, pas sur le cours du jour ; seule la suspension le
+        # rend non calculable.
+        perime = m.get("stale", True) and not isinstance(b.get("semaine"), dict)
+        if perime or m.get("suspendu"):
             assert b["etat"] == "NON_CALCULABLE", s
     # v53 / sig non lus : le bloc n'est pas utilisé par la note
     assert all("score_bvc" not in (t.get("note_fond") or {}) for t in titres.values())

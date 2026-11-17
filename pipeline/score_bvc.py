@@ -147,7 +147,7 @@ def facteurs_bvc(*, prix, ma20, ma50, ma200, rsi, macd, macd_signal, hist, hist_
                            "points": round(nour.points_activite(r) * w, 2),
                            "ratio": r,
                            "mediane": (round(mediane_volume, 1) if _fini(mediane_volume) else None),
-                           "mesure": f"volume du jour = {_fr(r)} × la médiane des 20 séances précédentes"}
+                           "mesure": f"volume de la séance = {_fr(r)} × la médiane des 20 séances précédentes"}
     else:
         out["activité"] = {"poids": 0, "poids_nominal": w, "points": None,
                            "mesure": "absent : médiane de volume des 20 séances précédentes nulle ou indisponible"}
@@ -270,5 +270,158 @@ def annexer_bvc(tickers: list, bougies_de) -> dict:
     """Pose `score_bvc` sur chaque titre — et RIEN d'autre. Tout ou rien."""
     calcul = {x["symbol"]: score_titre_bvc(x, bougies_de(x["symbol"])) for x in tickers}
     for x in tickers:
+        x["score_bvc"] = calcul[x["symbol"]]
+    return calcul
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCORE DE LA SEMAINE — 17/11/2026, décision d'Abd Moutalib
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# « Les mouvements pendant une journée ne laissent pas une bonne lecture du
+# score. » Le Score BVC publié est désormais celui de la DERNIÈRE SEMAINE CLOSE :
+# même formule (`score_titre_bvc`, aucun facteur, poids ni seuil changé — R8),
+# calculée sur les chandelles arrêtées à la dernière séance de cette semaine,
+# puis affichée telle quelle jusqu'à la clôture de la semaine suivante.
+#
+# ⚠️ Chaque titre est jugé sur SA dernière clôture à cette date. Le figer sur le
+# seul calcul du vendredi aurait laissé « non calculé » tout titre qui n'a pas
+# échangé ce jour-là ; c'était le défaut constaté en séance le 17/11 (SRM,
+# WAA, LHM, GAZ… : clôture juste de la veille, score effacé).
+#
+# Le score du JOUR reste calculé et publié à part (`score_bvc_jour`, non
+# affiché) : le journal des scores l'enregistre, la série de mesure n'est pas
+# rompue.
+
+
+# Miroir de `update_data.SEANCES_APRES_REPRISE` (égalité testée).
+SEANCES_APRES_REPRISE = 20
+
+
+def seances_du_marche(series, quorum: int = 20) -> list:
+    """Les dates où le MARCHÉ a coté, d'après les chandelles de tous les titres.
+
+    ⚠️ Une date ne compte que si elle tombe en semaine ET qu'au moins `quorum`
+    titres y portent une bougie : une seule bougie fantôme ou mal datée (14/08,
+    06/11) ne doit pas déplacer la fin de semaine de tout le marché. Une séance
+    réelle en compte 40 à 70 (mesuré sur novembre 2026)."""
+    from collections import Counter
+    from datetime import date
+    n = Counter()
+    for bougies in series:
+        n.update({str(b.get("d"))[:10] for b in (bougies or []) if b.get("d")})
+    out = []
+    for d, k in n.items():
+        try:
+            ouvre = date.fromisoformat(d).weekday() < 5
+        except ValueError:
+            continue
+        if ouvre and k >= quorum:
+            out.append(d)
+    return sorted(out)
+
+
+def fin_de_semaine_close(seances, aujourd_hui: str) -> str | None:
+    """La dernière séance de la dernière semaine TERMINÉE.
+
+    Du lundi au vendredi, la semaine en cours n'est pas close : on prend la
+    dernière séance antérieure au lundi. Le samedi et le dimanche, la semaine
+    qui s'achève l'est : sa dernière séance compte (un vendredi férié laisse le
+    jeudi). `seances` : dates AAAA-MM-JJ où le marché a coté."""
+    from datetime import date, timedelta
+    j = date.fromisoformat(str(aujourd_hui)[:10])
+    if j.weekday() >= 5:
+        borne, inclus = j.isoformat(), True
+    else:
+        borne, inclus = (j - timedelta(days=j.weekday())).isoformat(), False
+    avant = [s for s in seances if (s <= borne if inclus else s < borne)]
+    return max(avant) if avant else None
+
+
+def _indicateurs_au(bougies: list, fin: str) -> dict:
+    """MM20, MM50, MM200 et RSI(14) à la date `fin`, par la fonction même du
+    moteur (`collect_history_bvcscrap.compute_indicators`) — celle qui produit
+    les valeurs de data.json, reproduites à l'identique (mesuré le 13/11)."""
+    import io, contextlib
+    import pandas as pd
+    with contextlib.redirect_stdout(io.StringIO()):
+        from pipeline.collect_history_bvcscrap import compute_indicators
+    df = pd.DataFrame(bougies).rename(columns={"d": "date", "o": "open", "h": "high", "l": "low",
+                                               "c": "close", "v": "volume"})
+    df["date"] = pd.to_datetime(df["date"])               # colonne, pas index : la fonction la lit
+    ind = compute_indicators(df, as_of=fin)
+    return {k: ind.get(k) for k in ("ma20", "ma50", "ma200", "rsi")}
+
+
+def score_titre_bvc_semaine(rec: dict, bougies: list | None, fin: str | None) -> dict:
+    """Le Score BVC du titre à la clôture de la semaine `fin`. Même formule.
+
+    Le cours retenu est la dernière clôture échangée du titre jusqu'à `fin`, et
+    les moyennes et le RSI sont recalculés sur la série arrêtée à cette date.
+    La fraîcheur se juge sur cette date-là, pas sur le cours du jour : un titre
+    qui n'a pas encore échangé cette semaine garde le score de sa dernière
+    semaine close. Un titre suspendu AUJOURD'HUI reste non calculable, même si
+    sa semaine close a coté : on ne met pas en avant un titre qu'on ne peut
+    plus traiter (choix du 17/11/2026, testé)."""
+    bg = sorted((b for b in (bougies or []) if _fini(b.get("c")) and b.get("c") > 0
+                 and fin and str(b.get("d")) <= fin), key=lambda b: str(b.get("d")))
+    meta = dict(rec.get("_meta") or {})
+    if not fin or not bg:
+        meta.update(stale=True)
+        out = score_titre_bvc({**rec, "_meta": meta}, bg)
+        if out.get("etat") != "NON_CALCULABLE" or not meta.get("suspendu"):
+            out.update(etat="NON_CALCULABLE", valeur=None,
+                       motif=(f"aucune séance échangée jusqu'à la clôture de la semaine du "
+                              f"{fin[8:10]}/{fin[5:7]}/{fin[:4]}" if fin else
+                              "aucune semaine close dans l'historique"))
+        out["semaine"] = {"fin": fin, "cours_du": None, "cours": None}
+        return out
+    der = bg[-1]
+    # ⚠️ Jamais les indicateurs du JOUR à la place de ceux de la semaine : une
+    # exception avalée ici les laissait passer en silence (constaté le 17/11 sur
+    # 11 titres sur 64). Sans recalcul possible, les moyennes et le RSI sont
+    # inconnus, et le score le dit (facteurs indisponibles).
+    # Une erreur de recalcul n'est donc PAS rattrapée ici : elle remonte, et
+    # `annexer_bvc_semaine` (tout ou rien) laisse le score du jour en place —
+    # ce que le contrôle du soir signale (bloc `semaine` absent).
+    ind = _indicateurs_au(bg, fin)
+    # Reprise à référence remise à neuf : comptée À LA FIN DE SEMAINE, pas au
+    # jour du run, et avec la même abstention que le moteur (indicateurs
+    # retirés tant que la série d'après reprise est trop courte).
+    from bvc_config import derniere_reprise_remise_a_neuf
+    rep = derniere_reprise_remise_a_neuf(rec.get("symbol") or "", fin)
+    n_apres = sum(1 for b in bg if str(b.get("d")) >= rep) if rep else None
+    depuis = n_apres if (n_apres is not None and n_apres < SEANCES_APRES_REPRISE) else None
+    if depuis is not None:
+        ind = {"ma20": None, "ma50": None, "ma200": None, "rsi": None}
+    r2 = {**rec, "price": float(der["c"]), **ind}
+    meta.update(prix_asof=str(der["d"]), stale=False,
+                reprise_recente=depuis is not None, seances_depuis_reprise=depuis)
+    r2["_meta"] = meta
+    out = score_titre_bvc(r2, bg)
+    out["semaine"] = {"fin": fin, "cours_du": str(der["d"]), "cours": float(der["c"])}
+    return out
+
+
+def annexer_bvc_semaine(tickers: list, bougies_de, fin: str | None) -> dict:
+    """Range le score du jour sous `score_bvc_jour` et publie sous `score_bvc` le
+    score de la semaine close `fin`. À appeler APRÈS `annexer_bvc`.
+
+    TOUT OU RIEN, comme `annexer_bvc` : tout est calculé avant la moindre
+    écriture ; une exception laisse chaque titre sur son score du jour.
+    Rappelée une seconde fois, elle ne range pas le score de la semaine sous
+    `score_bvc_jour`."""
+    if not fin:
+        raise ValueError("aucune semaine close : fin de semaine inconnue")
+    calcul, jours = {}, {}
+    for x in tickers:
+        b = x.get("score_bvc")
+        jours[x["symbol"]] = (x.get("score_bvc_jour") if isinstance(b, dict) and "semaine" in b
+                              else b)
+        calcul[x["symbol"]] = score_titre_bvc_semaine(
+            {k: v for k, v in x.items() if k not in ("score_bvc", "score_bvc_jour")},
+            bougies_de(x["symbol"]), fin)
+    for x in tickers:
+        x["score_bvc_jour"] = jours[x["symbol"]]
         x["score_bvc"] = calcul[x["symbol"]]
     return calcul

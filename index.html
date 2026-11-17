@@ -2116,7 +2116,7 @@ const PastilleBVC = ({
     }
   }, "\u25CC ", s && s.etat === "PARTIEL" ? "partiel" : "non calculé");
   return React.createElement("span", {
-    title: `Score BVC ${exactBVC(v)}/100 : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`,
+    title: `Score BVC ${exactBVC(v)}/100${s.semaine && s.semaine.fin ? ` (semaine close le ${jjmmaaaa(s.semaine.fin)})` : ""} : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`,
     className: "pastille",
     style: {
       display: "inline-flex",
@@ -10036,7 +10036,13 @@ const ScoreBVC = ({
     style: {
       color: ok ? "#00e5a0" : "#ffd740"
     }
-  }, "\xB7 ", etatTxt)), !sansValeur && React.createElement("div", {
+  }, "\xB7 ", etatTxt)), s.semaine && s.semaine.fin && React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      marginTop: 2
+    }
+  }, "Score de la semaine \xB7 cl\xF4ture du ", jjmmaaaa(s.semaine.fin), s.semaine.cours_du && s.semaine.cours_du !== s.semaine.fin ? ` (dernier échange le ${jjmmaaaa(s.semaine.cours_du)})` : ""), !sansValeur && React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "baseline",

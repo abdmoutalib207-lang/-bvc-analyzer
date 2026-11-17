@@ -342,7 +342,20 @@ def test_score_bvc_absent_ou_d_une_autre_version(audit, regenere):
 
 def test_score_bvc_calcule_sur_un_cours_perime(audit, regenere):
     sym = _calculable(regenere[1])
-    assert "score_bvc.score_bvc_sur_cours_perime" in audit(sym, lambda t: t["_meta"].update(stale=True))
+    def perime_sans_semaine(t):
+        t["_meta"].update(stale=True)
+        t["score_bvc"].pop("semaine", None)
+    assert "score_bvc.score_bvc_sur_cours_perime" in audit(sym, perime_sans_semaine)
+
+
+def test_score_de_la_semaine_ne_depend_pas_du_cours_du_jour(audit, regenere):
+    """17/11/2026 — le score publié est celui de la semaine close : un cours du
+    jour périmé ne le rend pas suspect (contrôle négatif du précédent)."""
+    sym = _calculable(regenere[1])
+    t0 = next(t for t in regenere[1]["tickers"] if t["symbol"] == sym)
+    if not isinstance(t0["score_bvc"].get("semaine"), dict):
+        pytest.skip("fichier antérieur au score de la semaine")
+    assert "score_bvc.score_bvc_sur_cours_perime" not in audit(sym, lambda t: t["_meta"].update(stale=True))
 
 
 def test_score_bvc_recalcule_depuis_les_chandelles(regenere, entrees):

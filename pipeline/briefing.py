@@ -226,7 +226,13 @@ def activite_du_score(x: dict) -> tuple:
     le rapport du score ; sans lui, le titre est écarté (on ne sait pas).
     `vol_median20` reste publié : il sert à la confiance, pas à ce rapport.
     """
-    a = ((x.get("score_bvc") or {}).get("facteurs") or {}).get("activité") or {}
+    # ⚠️ 17/11/2026 : `score_bvc` est celui de la SEMAINE CLOSE — son rapport
+    # d'activité est celui d'une autre séance. On lit le score du jour ; à
+    # défaut, un bloc de semaine n'est jamais lu (on ne sait pas).
+    b = x.get("score_bvc_jour")
+    if not isinstance(b, dict):
+        b = x.get("score_bvc") if not isinstance((x.get("score_bvc") or {}).get("semaine"), dict) else {}
+    a = ((b or {}).get("facteurs") or {}).get("activité") or {}
     return _n(a.get("ratio")), _n(a.get("mediane"))
 
 
