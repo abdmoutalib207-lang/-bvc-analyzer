@@ -69,7 +69,10 @@ def test_chaque_fait_porte_page_colonne_citation_et_date(faits):
         note = f.get("note") or ""
         assert "«" in note and "»" in note, f"{t} : la note ne cite pas la ligne du rapport"
         assert re.search(r"capitaux\s+propres|fonds\s+propres|CAPITAUX", note, re.I), t
-        assert f.get("releve_le") == "2026-10-13", t
+        # 17/11/2026 : « == 2026-10-13 » figeait la date du premier lot ; MGL, AGM et MDP
+        # (relevé du 17/11) portent leur vraie date. La règle reste : une date de relevé,
+        # jamais antérieure à la première lecture de la colonne N-1.
+        assert isinstance(f.get("releve_le"), str) and f["releve_le"] >= "2026-10-13", t
 
 
 def test_la_valeur_retenue_est_celle_de_la_colonne_declaree(faits):

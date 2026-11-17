@@ -248,6 +248,54 @@
    "page": 2,
    "citation": "IX.RESULTAT NET DE L'EXERCICE 8 2 516 7 1 497",
    "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 1237.375,
+   "unite": "MMAD (1 237 375 KMAD ÷ 1 000)",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé) ; tient lieu de part du groupe",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 5,
+   "citation": "CAPITAUX PROPRES … Total 1 228 220 - 148 199 157 354 1 237 375 (colonnes Encours 31/12/2025 | Affectation du résultat | Autres variations | Encours 30/06/2026) [lu sur image rendue ; le texte extrait coupe la ligne]",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 1237.374,
+   "unite": "MMAD",
+   "periode": "30/06/2026 (recoupement par le bilan passif)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "12.Capital 138 418 ; 11.Réserves et primes liées au capital 415 158 ; 14.Report à nouveau (+/-) 601 282 ; 16.Résultat net de l'exercice (+/-) 82 516 (somme 1 237 374 : 1 KMAD d'arrondi avec 1 237 375)",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 1228.22,
+   "unite": "MMAD",
+   "periode": "31/12/2025",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf",
+   "piece": "rfa_2025",
+   "page": 68,
+   "citation": "CAPITAUX PROPRES ET ASSIMILES 1 228 220 1 153 383 1 086 958",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "nombre_actions",
+   "valeur": 1384182,
+   "unite": "actions",
+   "periode": "31/12/2025",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Maghrebail_RFA_2025.pdf",
+   "piece": "rfa_2025",
+   "page": 67,
+   "citation": "Montant du capital: 138 418 200,00 DH ; Valeur nominale des titres 100,00 DH (138 418 200 ÷ 100 = 1 384 182 = référentiel de l'opérateur)",
+   "releve_le": "2026-11-17"
   }
  ],
  "calculs": [
@@ -296,13 +344,20 @@
    "formule": "57 846 / 13 335 000",
    "resultat": 0.43,
    "unite": "%"
+  },
+  {
+   "quoi": "capitaux propres 30/06/2026 par le bilan passif",
+   "formule": "138 418 + 415 158 + 601 282 + 82 516",
+   "resultat": 1237.374,
+   "unite": "MMAD"
   }
  ],
  "constats": [
   "Trois divergences persistantes, non résolues par les annexes : (1) taux de couverture publié 87,43 % / 86,72 % contre 90,3 % / 88,3 % recalculés sur le même état ; (2) dotations nettes 2025 de 74,1 MMAD au communiqué contre 57,8 au CPC, alors que le S1 recolle ; (3) créances en souffrance brutes 1 866 009 KMAD (tableau des immobilisations, RFA p.53) contre 1 549 640 (état des créances, S1 p.8). → question IR.",
   "L'état des créances du S1 2026 titre sa première colonne « 30/06/2025 » ; le texte p.1 attribue 86,72 % au S1 2026 : en-tête vraisemblablement erroné, signalé dans la question IR.",
   "Aucun ratio de solvabilité ni fonds propres réglementaires dans les pages à texte. Pages 9-42 (rapport de gestion) en image, non rendues — non vérifié.",
-  "Les 1 228 220 KMAD sont des « capitaux propres et assimilés » (p.68), pas des fonds propres réglementaires."
+  "Les 1 228 220 KMAD sont des « capitaux propres et assimilés » (p.68), pas des fonds propres réglementaires.",
+  "17/11/2026 : capitaux propres sociaux 1 237 375 KMAD au 30/06/2026 relevés (S1 p.5) ; 1 228 220 au 31/12/2025 (RFA p.68) et 1 153 383 au 31/12/2024 (même ligne, colonne 2) écrits dans pipeline/faits_financiers.json ; nombre d'actions 1 384 182 (RFA p.67)."
  ],
  "conclusion": "Encours, coefficient d'exploitation, coût du risque, créances en souffrance : publiés ; la couverture et le coût du risque annuel ont DEUX valeurs selon la pièce.",
  "debloquerait": "La composante bilan d'un crédit-bailleur, une fois la définition de la couverture et du coût du risque établie par la réponse IR.",

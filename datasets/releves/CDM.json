@@ -27,6 +27,15 @@
       "sha256": "dc2a230397f7b1b2cf6053be39b76cae7721a4d4e78b9ab552c4b0641a9b9097",
       "octets": 1655358,
       "pages": 24
+    },
+    {
+      "id": "cp_augmentation_capital",
+      "rang_methode": 1,
+      "titre": "Communiqué du 28/07/2026, clôture de l'augmentation de capital",
+      "url": "https://www.ammc.ma/sites/default/files/CP_CDM_cloture_augmentation_capital.pdf",
+      "sha256": "347e452f5d148ced071a0941f720e8d68c01d549b4bff0df81cb45c43c57bd5f",
+      "octets": 170716,
+      "pages": 1
     }
   ],
   "chiffres": [
@@ -227,6 +236,54 @@
       "piece": "rfs_s1_2026",
       "page": 3,
       "citation": "amélioration du coefficient d'exploitation de 104 points de base pour s'établir à 45 %."
+    },
+    {
+      "grandeur": "capitaux_propres_part_groupe",
+      "valeur": 8092.788,
+      "unite": "MMAD (8 092 788 KMAD ÷ 1 000)",
+      "periode": "30/06/2026",
+      "perimetre": "consolidé IFRS ; part des minoritaires nulle (« - »), le total est la part du groupe",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "Capitaux propres 8 092 788 8 203 010 (passif consolidé, en milliers de DH, colonnes 30/06/2026 | 31/12/2025) ; Part des minoritaires - -",
+      "releve_le": "2026-11-17"
+    },
+    {
+      "grandeur": "capitaux_propres_part_groupe",
+      "valeur": 8203.01,
+      "unite": "MMAD (8 203 010 KMAD ÷ 1 000)",
+      "periode": "31/12/2025",
+      "perimetre": "consolidé IFRS, part du groupe",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_RFA_2025.pdf",
+      "piece": "rfa_2025",
+      "page": 14,
+      "citation": "CAPITAUX PROPRES CLÔTURE AU 31 DECEMBRE 2025 1 088 121 3 662 492 - 3 415 095 37 302 - 8 203 010 - 8 203 010",
+      "releve_le": "2026-11-17"
+    },
+    {
+      "grandeur": "resultat_net_part_groupe",
+      "valeur": 531.692,
+      "unite": "MMAD (531 692 KMAD ÷ 1 000)",
+      "periode": "S1 2026 (S1 2025 : 445 147)",
+      "perimetre": "consolidé IFRS, part du groupe",
+      "source": "https://www.ammc.ma/sites/default/files/CDM_S1_26.pdf",
+      "piece": "rfs_s1_2026",
+      "page": 4,
+      "citation": "Résultat net Part du groupe 531 692 445 147",
+      "releve_le": "2026-11-17"
+    },
+    {
+      "grandeur": "augmentation_de_capital_posterieure",
+      "valeur": 699.07733,
+      "unite": "MMAD",
+      "periode": "constatée par le Directoire le 23/07/2026 (après le 30/06/2026)",
+      "perimetre": "745 285 actions nouvelles à 938 DH",
+      "source": "https://www.ammc.ma/sites/default/files/CP_CDM_cloture_augmentation_capital.pdf",
+      "piece": "cp_augmentation_capital",
+      "page": 1,
+      "citation": "Nombre d’actions à émettre 745.285 actions ; Prix de souscription (prime d’émission incluse) 938 dirhams par action ; Montant global de l’opération 699.077.330 dirhams",
+      "releve_le": "2026-11-17"
     }
   ],
   "estimations": [],
@@ -266,6 +323,18 @@
       "formule": "4 605 201 / (57 476 753 + 6 166 205 + 4 605 201)",
       "resultat": 6.75,
       "unite": "%"
+    },
+    {
+      "quoi": "capitaux propres 30/06/2026 par les composantes (S1 p.4)",
+      "formule": "4 611 959 + 2 893 500 + 55 637 + 531 692",
+      "resultat": 8092.788,
+      "unite": "MMAD"
+    },
+    {
+      "quoi": "PRO FORMA NON PUBLIÉ (illustration, jamais écrit en fait) : livre du 30/06 + produit de l'augmentation, hors frais d'émission, hors résultat de juillet et hors dividende éventuel",
+      "formule": "8 092,788 + 699,07733",
+      "resultat": 8791.86533,
+      "unite": "MMAD"
     }
   ],
   "constats": [
@@ -273,7 +342,8 @@
     "Écart interne au RFS S1 2026 : p.3 « créances en souffrance 4 259 MDH » contre Bucket 3 clientèle 4 605,2 MMAD p.12 ; le 86,2 % publié ne se reconstitue qu'avec 4 605,2. 4 605,2 / 4 259 = +8,1 %, proche du « +8,2 % » annoncé : 4 259 pourrait être le niveau de juin 2025. Hypothèse, non établie → question IR.",
     "Pas de ratio CET1 publié (seuls T1 et solvabilité globale).",
     "Le fichier « CDM_2025.pdf » (33 p., AMMC) reprend les états consolidés du RFA ; non utilisé comme pièce distincte.",
-    "www.creditdumaroc.ma joignable (HTTP 200) ; Pilier III non nécessaire : le RFA et le RFS contiennent la section « fonds propres du groupe »."
+    "www.creditdumaroc.ma joignable (HTTP 200) ; Pilier III non nécessaire : le RFA et le RFS contiennent la section « fonds propres du groupe ».",
+    "17/11/2026 : capitaux propres 8 092 788 KMAD au 30/06/2026 relus (S1 p.4) et 8 203 010 au 31/12/2025 (RFA p.14), identiques à datasets/resultats_s1_2026.json. Le P/B reste absent : l'augmentation de 745 285 actions (699 077 330 MAD, constatée le 23/07/2026) est postérieure au bilan — R11, test_b4_le_30_06_ne_cree_pas_de_pb."
   ],
   "conclusion": "Les quatre familles sont disponibles en consolidé pour 2025 et S1 2026 ; la couverture publiée a une définition propre à CDM (à recalculer en Bucket 3 / Bucket 3 pour comparer).",
   "debloquerait": "Grille bancaire CDM : solvabilité 14,85 % (T1 12,16 %), coût du risque 383 MMAD sur 62 863 MMAD, Bucket 3 6,6 % couvert à 70,8 % (définition commune), coefficient 46,3 %.",
