@@ -64,6 +64,7 @@ TICKER_ALIASES = {
     "MRL": ["maroc leasing", "maroc-leasing", "maroclease"],
     "MSA": ["marsa maroc", "marsa portuaire", "marsa tanger", "sodep marsa"],
     "MUT": ["mutandis"],
+    "NRJ": ["jet energy"],   # introduite le 16/11/2026 ; « jet » seul taggerait JET (Jet Contractors)
     "NEJ": ["auto nejma", "nejma auto"],
     "OUL": ["oulmes", "oulmès"],
     "PPM": ["promopharm"],
