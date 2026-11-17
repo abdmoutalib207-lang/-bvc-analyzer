@@ -1436,7 +1436,7 @@ const Chip=({label,bg,fg,bd,sz=11,wrap})=>(
 const PastilleBVC=({r,sz=11})=>{const s=r.score_bvc;const v=valeurBVC(r);const t=trancheBVC(r);
   if(v==null)return <span className="pastille-nc" title={s?`Score BVC ${etatBVC(r)}${s.motif?` : ${s.motif}`:""}`:"Score BVC non publié pour ce titre"}
     style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ {s&&s.etat==="PARTIEL"?"partiel":"non calculé"}</span>;
-  return <span title={`Score BVC ${exactBVC(v)}/100 : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`}
+  return <span title={`Score BVC ${exactBVC(v)}/100${s.semaine&&s.semaine.fin?` (semaine close le ${jjmmaaaa(s.semaine.fin)})`:""} : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`}
     className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:t.c,fontWeight:600}}>
     <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:t.c,boxShadow:`0 0 6px ${t.c}60`,flex:"0 0 auto"}}/>
     <span className="pastille-texte">{t.plage}</span></span>;};
@@ -4721,6 +4721,7 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
   return(
     <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>{sansValeur?"Composition du Score BVC":"Score BVC"} <span style={{color:ok?"#00e5a0":"#ffd740"}}>· {etatTxt}</span></div>
+      {s.semaine&&s.semaine.fin&&<div style={{fontSize:11,color:"#8892a4",marginTop:2}}>Score de la semaine · clôture du {jjmmaaaa(s.semaine.fin)}{s.semaine.cours_du&&s.semaine.cours_du!==s.semaine.fin?` (dernier échange le ${jjmmaaaa(s.semaine.cours_du)})`:""}</div>}
       {!sansValeur&&<div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
         <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
       </div>}

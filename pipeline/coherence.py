@@ -197,7 +197,11 @@ def controler_score_bvc(t: dict) -> list[dict]:
     if cn is None or not 0 <= cn <= 100:
         dire("hors_bornes", f"score_bvc.couverture_pct = {couv!r}, hors [0, 100]")
     meta = t.get("_meta") or {}
-    if (meta.get("suspendu") or meta.get("stale")) and etat != "NON_CALCULABLE":
+    # 17/11/2026 : le score de la SEMAINE porte sur la clôture de fin de semaine
+    # (`semaine.cours_du`), pas sur le cours du jour ; « périmé » ne le concerne
+    # pas. La suspension, si.
+    perime = meta.get("stale") and not isinstance(b.get("semaine"), dict)
+    if (meta.get("suspendu") or perime) and etat != "NON_CALCULABLE":
         dire("score_bvc_sur_cours_perime",
              f"Score BVC {etat} sur un titre "
              f"{'suspendu' if meta.get('suspendu') else 'au cours périmé'}")

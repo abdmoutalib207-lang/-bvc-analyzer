@@ -170,6 +170,32 @@ def _seance_de_reference():
     return derniere, ecart
 
 
+INTITULE_SEMAINE = "Score BVC de la semaine close : une seule semaine, la précédente"
+
+
+def _controle_semaine(blocs: dict, jour) -> tuple:
+    from datetime import date, timedelta
+    if not blocs:
+        return INTITULE_SEMAINE, False, "aucun bloc score_bvc"
+    sans = sorted(t for t, b in blocs.items() if not isinstance(b.get("semaine"), dict))
+    if sans:
+        return INTITULE_SEMAINE, False, f"{len(sans)} titres sans semaine : {sans[:8]}"
+    fins = {b["semaine"].get("fin") for b in blocs.values()}
+    if len(fins) != 1:
+        return INTITULE_SEMAINE, False, f"plusieurs semaines : {sorted(map(str, fins))}"
+    fin = next(iter(fins))
+    try:
+        f = date.fromisoformat(str(fin))
+    except ValueError:
+        return INTITULE_SEMAINE, False, f"date illisible : {fin}"
+    j = jour if isinstance(jour, date) else date.fromisoformat(str(jour)[:10])
+    lundi = j - timedelta(days=j.weekday()) if j.weekday() < 5 else j + timedelta(days=7 - j.weekday())
+    # Un passage tombé le week-end (cron décalé de plusieurs heures) clôt la
+    # semaine de la séance : un vendredi égal à la séance est alors légitime.
+    ok = f.weekday() < 5 and (lundi - f).days <= 10 and (f < lundi or (f == j and j.weekday() == 4))
+    return INTITULE_SEMAINE, ok, f"semaine close le {fin}" if ok else f"semaine du {fin} pour la séance du {j}"
+
+
 def _controles(jour, ecart):
     """Liste de (intitulé, réussi, détail). Aucun effet de bord."""
     resultats = []
@@ -242,6 +268,12 @@ def _controles(jour, ecart):
     hors = [t for t, b in blocs.items() if b.get("valeur") is not None and _hors_100(b["valeur"])]
     ajouter("Score BVC dans [0, 100] pour chaque titre qui a une valeur", not hors,
             hors or "conforme")
+
+    # 17/11/2026 — SCORE DE LA SEMAINE CLOSE (décision d'Abd Moutalib). Une
+    # panne du calcul hebdomadaire laisse le score du jour en place sans
+    # bruit : on exige que chaque bloc porte sa semaine, la même pour tout le
+    # marché, un jour ouvré de la semaine précédant celle de la séance.
+    ajouter(*_controle_semaine(blocs, jour))
 
     # Note fondamentale par famille (11/10/2026, mode comparaison). Deux lignes,
     # de nature DIFFÉRENTE :

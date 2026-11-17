@@ -67,7 +67,9 @@ def test_la_mention_ne_change_aucun_point(monkeypatch):
     if mm is not None:
         assert mm["rupture"]["moyennes"] == ["MM50", "MM200"]
         assert "référence remise à neuf" in mm["mesure"]
-    assert s["valeur"] == cmt["score_bvc"]["valeur"]
+    # 17/11/2026 : score_bvc est celui de la semaine close ; le score du jour
+    # recalculé ici se compare à score_bvc_jour quand il est publié.
+    assert s["valeur"] == cmt.get("score_bvc_jour", cmt["score_bvc"])["valeur"]
 
 
 def test_le_classement_montre_couverture_et_rupture():

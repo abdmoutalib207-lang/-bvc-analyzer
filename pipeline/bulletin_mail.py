@@ -86,6 +86,12 @@ _LIBELLES_MESURE = (("< 40", "sous 40"), ("40 – 59", "de 40 à 59"),
                     ("60 – 74", "de 60 à 74"), ("≥ 75", "à 75 et plus"))
 
 
+def ligne_semaine(fin: str) -> str:
+    """« Score de la semaine close le JJ/MM/AAAA » — décision du 17/11/2026."""
+    f = str(fin)[:10]
+    return f"Score de la semaine close le {f[8:10]}/{f[5:7]}/{f[:4]}, inchangé jusqu'à la clôture de la semaine en cours."
+
+
 def valeur_bvc(x):
     """La valeur publiée du Score BVC, ou None (PARTIEL, NON_CALCULABLE,
     bloc absent, valeur hors [0, 100])."""
@@ -302,6 +308,10 @@ def analyser(data, titres):
         "hausses": hausses,
         "baisses": baisses,
         "score_bvc": score_bvc,
+        # 17/11/2026 : le score publié est celui de la semaine close ; sa date
+        # est dite, sinon il se lirait comme celui de la séance du courriel.
+        "semaine_bvc": next((x["score_bvc"]["semaine"].get("fin") for x in titres
+                             if isinstance((x.get("score_bvc") or {}).get("semaine"), dict)), None),
         "repartition": repartition,
         "mesure": mesure,
         # Titres sans Score BVC publié : PARTIEL ou NON_CALCULABLE (cours
@@ -472,6 +482,8 @@ def texte(a):
     sb = a["score_bvc"]
     add(f"SCORE BVC — LES {min(len(sb), N_SCORE_BVC)} PLUS ÉLEVÉS "
         f"(sur {len(sb)} titres notés)")
+    if a.get("semaine_bvc"):
+        add(f"   {ligne_semaine(a['semaine_bvc'])}")
     add(f"   {PHRASE_SCORE}")
     add(f"   {ligne_retenus()}")
     if sb:
@@ -601,6 +613,7 @@ background:#ffffff;line-height:1.6">
   <h2 style="font-size:15px;margin:0 0 4px">
     Score BVC — les {min(len(a['score_bvc']), N_SCORE_BVC)} plus élevés
     (sur {len(a['score_bvc'])} titres notés)</h2>
+  {f'<p style="font-size:12.5px;color:#6d7887;margin:0 0 4px">{escape(ligne_semaine(a["semaine_bvc"]), quote=False)}</p>' if a.get("semaine_bvc") else ""}
   <p style="font-size:12.5px;color:#6d7887;margin:0 0 4px">{escape(PHRASE_SCORE, quote=False)}</p>
   <p style="font-size:12.5px;color:#6d7887;margin:0 0 8px">{escape(ligne_retenus(), quote=False)}</p>
   {rep}

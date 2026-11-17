@@ -127,7 +127,12 @@ def ligne_ticker(t: dict) -> list | None:
         return None
     sym = t.get("symbol")
     v53 = _nombre(t.get("v53"))
-    bvc = t.get("score_bvc") if isinstance(t.get("score_bvc"), dict) else None
+    # 17/11/2026 : `score_bvc` est celui de la semaine close ; le journal garde
+    # la série QUOTIDIENNE (`score_bvc_jour`), sans quoi la mesure serait rompue.
+    # Jamais le score de la semaine à la place : sans score du jour, la ligne
+    # n'a pas de Score BVC (colonnes vides).
+    _b = t.get("score_bvc_jour") if isinstance(t.get("score_bvc_jour"), dict) else t.get("score_bvc")
+    bvc = _b if isinstance(_b, dict) and not isinstance(_b.get("semaine"), dict) else None
     if not sym or (v53 is None and bvc is None):
         return None
     p = t.get("poids") or {}

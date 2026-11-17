@@ -285,7 +285,12 @@ def controler_score_bvc(sym, t, bougies_de=None) -> list:
     # « data.json pas encore régénéré », pas « score faux ». Mesuré le
     # 06/11/2026 sur le data.json publié : 80 recalculs sur 80 identiques.
     if bougies_de is not None:
-        r = sb.score_titre_bvc({k: v for k, v in t.items() if k != "score_bvc"}, bougies_de(sym))
+        sans = {k: v for k, v in t.items() if k not in ("score_bvc", "score_bvc_jour")}
+        sem = b.get("semaine") if isinstance(b.get("semaine"), dict) else None
+        # 17/11/2026 : le score publié est celui de la semaine close ; on le
+        # recalcule à SA date (chandelles arrêtées à la fin de semaine).
+        r = (sb.score_titre_bvc_semaine(sans, bougies_de(sym), sem.get("fin")) if sem
+             else sb.score_titre_bvc(sans, bougies_de(sym)))
         pub = (b.get("valeur"), b.get("etat"), b.get("couverture_pct"))
         att = (r["valeur"], r["etat"], r["couverture_pct"])
         if pub != att:
