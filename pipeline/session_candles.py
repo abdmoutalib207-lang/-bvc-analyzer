@@ -40,14 +40,25 @@ def preparer(live_prices, seance, aujourd_hui, dossier, tickers):
         # Seul le VOLUME change (ouverture et extrêmes stockés conservés), et
         # seulement depuis CDG : BMCE pourrait compter autrement.
         completer = (derniere and seance < aujourd_hui and derniere['d'] == seance)
-        if completer and not (q.get('src') == 'cdg' and c == derniere['c']
-                              and v > derniere.get('v', 0)):
+        if completer and not (q.get('src') == 'cdg' and v > derniere.get('v', 0)):
             continue
+        # ⚠️ 17/11/2026 — ET SI LA CLÔTURE A CHANGÉ, ELLE AUSSI. Le 16/11, les
+        # runs du soir ont tous été refusés par la garde (titre hors registre,
+        # voir `marche_history.annoter_hors_registre`) : la bougie du 16/11
+        # est restée celle du run de 14h56 (IAM 89,40 sur 18 002 titres, au
+        # lieu de 90,00 sur 64 115). Passé minuit, la règle « clôture
+        # identique » la refusait pour toujours, et 37 titres sont tombés en
+        # « cours en désaccord avec la dernière clôture » — Score BVC non
+        # calculable. Le garde-fou qui compte est le VOLUME, qui ne recule
+        # jamais dans une séance : une quantité CDG STRICTEMENT plus grande
+        # décrit un état plus avancé de la MÊME séance. Une clôture définitive
+        # ne peut plus être dépassée ; elle n'est donc jamais réécrite.
+        completer_volume = completer and c == derniere['c']
         rafraichir = derniere and derniere['d'] == seance
         if rafraichir and derniere.get('v', 0) > v:
             continue
         bougie = dict(d=seance, o=o, h=h, l=l, c=c, v=int(v))
-        if completer:
+        if completer_volume:
             bougie = {**derniere, 'v': int(v)}
         elif rafraichir:
             bougie['h'] = max(h, derniere['h'])

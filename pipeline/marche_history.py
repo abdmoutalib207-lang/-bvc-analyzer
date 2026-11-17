@@ -238,8 +238,22 @@ def enregistrer(ligne: dict, asof: str, chemin: Path | None = None,
     seances = _charger(p)
     connu = seances.get(jour)
     if connu is not None:
-        if jour != aujourd_hui:
+        # ⚠️ 17/11/2026 — UNE SÉANCE ÉCHUE GRAVÉE SUR UN RELEVÉ DE MI-SÉANCE.
+        # Le 16/11, le run de 14h56 a enregistré 48,3 M DH ; les runs suivants
+        # ont été refusés par la garde, et passé minuit la séance était
+        # « passée », donc gravée à 48,3 M quand CDG en servait 135,6 M. Le
+        # verrou s'entretenait lui-même : la garde comparait les titres à ce
+        # chiffre faux et refusait chaque passage. Un volume cumulé ne recule
+        # jamais dans une séance : la DERNIÈRE séance enregistrée accepte
+        # donc, même échue, un état de volume STRICTEMENT plus grand. Une
+        # clôture définitive ne peut pas être dépassée ; elle n'est plus réécrite.
+        derniere = jour == max(seances)
+        plus_avance = (etat.get("volume_mad") or 0) > (connu.get("volume_mad") or 0)
+        if jour != aujourd_hui and not (derniere and plus_avance):
             return False
+        for k in ("hors_registre", "volume_hors_registre_dh"):
+            if k in connu and k not in etat:
+                etat[k] = connu[k]
         if connu == etat:
             return False
         # ⚠️ 09/10/2026 : CDG a servi, d'un run à l'autre, deux relevés de la
@@ -275,6 +289,44 @@ def enregistrer(ligne: dict, asof: str, chemin: Path | None = None,
         },
         "seances": dict(sorted(seances.items())),
     })
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(charge, ensure_ascii=False, indent=1), encoding="utf-8")
+    tmp.replace(p)
+    return True
+
+
+def annoter_hors_registre(jour: str, lignes: list, chemin: Path | None = None) -> bool:
+    """Inscrit, sur la DERNIÈRE séance enregistrée, les titres cotés que notre
+    registre ne connaît pas encore, avec leur montant (`Volumes` de CDG).
+
+    ⚠️ 17/11/2026 — JET ENERGY (NRJ), introduite le 16/11, a échangé 17,15 M DH
+    dès sa première séance. La synthèse de CDG la compte, nos 80 fiches non :
+    la somme des titres ne recoupait plus le volume de la séance et la garde a
+    refusé toutes les publications. L'écart n'était pas une erreur, c'était un
+    titre nouveau : on le DIT, chiffré, au lieu de le subir. Ajouter le titre
+    au registre reste une décision à part (R2).
+    """
+    p = Path(chemin) if chemin else CHEMIN
+    seances = _charger(p)
+    if not seances or jour not in seances or jour != max(seances):
+        return False
+    propres = [{"code": l.get("code"), "libelle": l.get("libelle"),
+                "echange_dh": round(float(l.get("echange_dh") or 0), 2),
+                "qte": int(l.get("qte") or 0)} for l in (lignes or [])
+               if (l.get("echange_dh") or 0) > 0]
+    # Une liste vide n'efface pas une annotation existante : elle peut venir
+    # d'un passage où CDG n'a pas répondu (relecture du 17/11). Le titre ne
+    # disparaît pas de la séance qu'il a déjà cotée.
+    if not propres and seances[jour].get("hors_registre"):
+        return False
+    etat = dict(seances[jour])
+    etat["hors_registre"] = propres
+    etat["volume_hors_registre_dh"] = round(sum(l["echange_dh"] for l in propres), 2)
+    if etat == seances[jour]:
+        return False
+    seances[jour] = etat
+    charge = json.loads(p.read_text(encoding="utf-8"))
+    charge["seances"] = dict(sorted(seances.items()))
     tmp = p.with_suffix(".tmp")
     tmp.write_text(json.dumps(charge, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp.replace(p)

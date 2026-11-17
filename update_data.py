@@ -1369,6 +1369,11 @@ def arbitrer_cotations(live_prices, cdg=None, bmce=None, lignes_cdg=None,
 
 CDG_API = "https://www.cdgcapitalbourse.ma/api/"
 
+# ⚠️ 17/11/2026 — Les lignes CDG cotées que notre registre ne connaît pas
+# (JET ENERGY, NRJ, introduite le 16/11). Remplie par `fetch_all_cdg`, lue par
+# `annoter_hors_registre` : la synthèse de séance les compte, nos fiches non.
+CDG_HORS_REGISTRE: list = []
+
 
 def fetch_all_cdg():
     """Cotations de la séance depuis CDG Capital Bourse, différées de 15 min.
@@ -1436,9 +1441,18 @@ def fetch_all_cdg():
             return None
 
     out = {}
+    CDG_HORS_REGISTRE.clear()
     for d in lignes:
         sym = IDB_TICKER_INV.get(str(d.get("Symbol") or "").upper())
         prix = _f(d.get("Cours"))
+        if not sym and prix and prix > 0 and (_f(d.get("Volumes")) or 0) > 0:
+            brut = str(d.get("DateDernierCours") or "")
+            if re.match(r"\d{2}/\d{2}/\d{4}", brut):
+                j, m, a = brut[:10].split("/")
+                CDG_HORS_REGISTRE.append({
+                    "code": str(d.get("Symbol") or ""), "libelle": d.get("Libelle"),
+                    "asof": f"{a}-{m}-{j}", "echange_dh": _f(d.get("Volumes")),
+                    "qte": int(_f(d.get("QteEchangee")) or 0), "cours": round(prix, 2)})
         if not sym or not prix or prix <= 0:
             continue
         # « 27/08/2026 » → « 2026-08-27 ». Une ligne sans date est écartée :
@@ -3084,7 +3098,11 @@ def volume_indice_coherent(masi: dict, tickers: list) -> dict | None:
               and (t.get("vol") or 0) > 0]
     if not lignes or any(not t.get("echange_dh") for t in lignes):
         return {"volume_source": "indice_cdg", "volume_titres_couverture": "incomplete"}
-    somme = round(sum(float(t["echange_dh"]) for t in lignes), 2)
+    # ⚠️ 17/11/2026 : les titres cotés hors de notre registre (introduction en
+    # bourse) sont dans la synthèse, pas dans nos fiches ; on les ajoute à la
+    # somme, chiffrés et nommés (`hors_registre`), pour comparer ce qui se compare.
+    hors = float(masi.get("volume_hors_registre_dh") or 0)
+    somme = round(sum(float(t["echange_dh"]) for t in lignes) + hors, 2)
     ecart = somme - float(vol)
     if abs(ecart) <= max(10.0, abs(float(vol)) * 0.0005):
         return {"volume_source": "indice_cdg", "volume_titres_dh": somme}
@@ -4134,6 +4152,21 @@ def run(dry_run=False, push=False, token=""):
     # viendrait d'une autre source.
     seance_fictive = arbitrer_cotations(live_prices)
     _ecarter_masi_annule(masi)
+    # ⚠️ 17/11/2026 — Titres cotés hors de notre registre (JET ENERGY, NRJ,
+    # introduite le 16/11) : chiffrés sur la séance enregistrée, pour que le
+    # recoupement synthèse / fiches sache expliquer l'écart (voir
+    # `marche_history.annoter_hors_registre`).
+    try:
+        _hr = [l for l in CDG_HORS_REGISTRE if l.get("asof") == str(masi.get("asof") or "")[:10]]
+        for _l in _hr:
+            logger.warning(f"titre coté absent du référentiel : {_l['code']} ({_l.get('libelle')}) "
+                           f"— {_l['echange_dh']:,.0f} DH, {_l['qte']} titres le {_l['asof']} "
+                           "(ajout au registre : décision à part, R2)")
+        if ECRITURE_AUTORISEE and not dry_run:
+            from pipeline.marche_history import annoter_hors_registre
+            annoter_hors_registre(str(masi.get("asof") or "")[:10], _hr)
+    except Exception as _e:                                # noqa: BLE001
+        logger.warning(f"titres hors registre : annotation impossible ({_e})")
     if seance_fictive:
         # La Bourse n'a pas coté : ni le calendrier des fériés à date fixe ni
         # l'horaire ne le savaient — le Mawlid suit le calendrier lunaire et
@@ -5097,6 +5130,10 @@ def run(dry_run=False, push=False, token=""):
                 # transaction — une séance de 2 293 opérations pour 568 414
                 # titres n'est pas une séance de 50 blocs.
                 "volume_mad": e.get("volume_mad"),
+                # ⚠️ 17/11/2026 : la part de ce volume échangée sur des titres
+                # que notre registre ne connaît pas (introduction en bourse).
+                "volume_hors_registre_dh": e.get("volume_hors_registre_dh"),
+                "hors_registre": e.get("hors_registre"),
                 "titres_echanges": e.get("titres_echanges"),
                 "transactions": e.get("transactions"),
                 # Vrai quand la source compte des transactions sans servir
@@ -5517,8 +5554,8 @@ def run(dry_run=False, push=False, token=""):
             output["masi"].update(_vc)
             if _vc.get("volume_source") != "indice_cdg":
                 logger.warning(f"volume global : {_vc['volume_source']} — "
-                               f"indice {_vc.get('volume_mad_indice_cdg')} DH, "
-                               f"titres {_vc['volume_mad']} DH")
+                               f"indice {_vc.get('volume_mad_indice_cdg') or output['masi'].get('volume_mad')} DH, "
+                               f"titres {_vc.get('volume_titres_dh')} DH")
     except Exception as _e:                               # noqa: BLE001
         logger.warning(f"volume global : contrôle indisponible ({_e})")
 
