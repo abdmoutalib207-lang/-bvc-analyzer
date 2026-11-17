@@ -669,7 +669,9 @@ def comparaison_veille(historique: dict, seance: str) -> dict | None:
     def sel(e):
         return {k: e.get(k) for k in ("cours", "variation_pct", "volume_mad",
                                       "hausses", "baisses", "inchanges",
-                                      "valeurs_traitees", "transactions")}
+                                      "valeurs_traitees", "transactions",
+                                      # 17/11/2026 : titres cotés hors registre
+                                      "volume_hors_registre_dh")}
     j, p = sel(jour), sel(veille)
     ecart = None
     if _n(j["volume_mad"]) and _n(p["volume_mad"]):

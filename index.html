@@ -7517,7 +7517,7 @@ const titresDuReleve = (b, rows) => {
     const m = meta(r);
     return m.asof === b.seance && !m.susp && r.chg != null && isFinite(r.chg);
   });
-  const somme = l.reduce((s, r) => s + (r.echange_dh || 0), 0);
+  const somme = l.reduce((s, r) => s + (r.echange_dh || 0), 0) + (j.volume_hors_registre_dh || 0);
   const ecart = Math.abs(somme - j.volume_mad) / j.volume_mad;
   return {
     ok: l.length > 0 && ecart <= 0.005,

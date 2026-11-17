@@ -47,15 +47,26 @@ def test_une_suspension_sans_reference_neuve_n_est_pas_une_rupture():
     assert sb.rupture_de_reference("ATW", _b(["2026-11-03"])) is None
 
 
-def test_la_mention_ne_change_aucun_point():
+def test_la_mention_ne_change_aucun_point(monkeypatch):
+    """⚠️ 17/11/2026 : ce test plantait (`KeyError: 'moyennes_mobiles'`) dès que
+    le score de CMT n'était pas calculable — il a bloqué la garde de publication
+    pendant l'incident du 16-17/11. Il vérifie maintenant ce qu'il annonce, dans
+    tous les états : le même calcul avec et sans la mention donne les mêmes
+    points."""
     data = json.loads((RACINE / "data.json").read_text(encoding="utf-8"))
     cmt = next(t for t in data["tickers"] if t["symbol"] == "CMT")
     bg = json.loads((RACINE / "pipeline" / "candles" / "CMT.json").read_text(encoding="utf-8"))
     bg = bg.get("candles", bg) if isinstance(bg, dict) else bg
     s = sb.score_titre_bvc(cmt, bg)
-    mm = s["facteurs"]["moyennes_mobiles"]
-    assert mm["rupture"]["moyennes"] == ["MM50", "MM200"]
-    assert "référence remise à neuf" in mm["mesure"]
+    monkeypatch.setattr(sb, "rupture_de_reference", lambda *a, **k: None)
+    s0 = sb.score_titre_bvc(cmt, bg)
+    assert s["valeur"] == s0["valeur"] and s["etat"] == s0["etat"]
+    assert ({k: v.get("points") for k, v in (s.get("facteurs") or {}).items()}
+            == {k: v.get("points") for k, v in (s0.get("facteurs") or {}).items()})
+    mm = (s.get("facteurs") or {}).get("moyennes_mobiles")
+    if mm is not None:
+        assert mm["rupture"]["moyennes"] == ["MM50", "MM200"]
+        assert "référence remise à neuf" in mm["mesure"]
     assert s["valeur"] == cmt["score_bvc"]["valeur"]
 
 

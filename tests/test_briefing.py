@@ -515,7 +515,11 @@ def test_le_total_du_briefing_egale_le_volume_de_l_operateur():
     if masi_asof != str(b.get("seance") or "")[:10]:
         pytest.skip(f"indice du {masi_asof or '?'}, briefing du {b.get('seance')} "
                     "— séances différentes, voir verifier_seance")
-    ecart = abs(c["total_dh"] - vol)
+    # ⚠️ 17/11/2026 : JET ENERGY (NRJ), introduite le 16/11, est dans la
+    # synthèse et pas dans nos fiches. Le moteur la publie à part, chiffrée
+    # (`masi.hors_registre`) ; on l'ajoute ici, sans élargir la tolérance.
+    hors = float((d.get("masi") or {}).get("volume_hors_registre_dh") or 0)
+    ecart = abs(c["total_dh"] + hors - vol)
     assert ecart <= max(10.0, vol * 0.0005), (
-        f"le briefing totalise {c['total_dh']:,.0f} DH quand l'indice en "
-        f"publie {vol:,.0f} — écart de {ecart:,.0f}")
+        f"le briefing totalise {c['total_dh']:,.0f} DH (+ {hors:,.0f} hors registre) "
+        f"quand l'indice en publie {vol:,.0f} — écart de {ecart:,.0f}")
