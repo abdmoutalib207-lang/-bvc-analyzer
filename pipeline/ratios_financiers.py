@@ -79,6 +79,14 @@ def calculer(t: dict, faits: dict | None) -> dict:
                       f"{f['capitaux_propres_part_groupe'].get('page')}")
     rn25 = t.get("rnpg_exercice_2025")
     roe25 = _pct(rn25, cp_fin)
+    # ⚠️ 17/11/2026 (verificateur-finance, MDP) : une entrée peut porter `roe_ecarte` (motif) quand
+    # le résultat qui ferait le numérateur n'est pas un bénéfice d'exploitation établi (Med Paper :
+    # 2025 entièrement non courant, attestation du S1 sous réserve). Le ROE n'est alors publié ni sur
+    # l'exercice ni sur 12 mois ; le motif voyage dans `roe_ecarte`.
+    ecarte = t.get("roe_ecarte")
+    if ecarte:
+        roe25 = None
+        out["roe_ecarte"] = {"motif": ecarte, "source": t.get("url")}
     if roe25 is not None:
         out["roe_2025"] = {
             "valeur": roe25, "date": "2025-12-31",
@@ -89,7 +97,7 @@ def calculer(t: dict, faits: dict | None) -> dict:
     rn12 = None
     if all(t.get(k) is not None for k in ("rnpg_exercice_2025", "rnpg_s1_2026", "rnpg_s1_2025")):
         rn12 = round(t["rnpg_exercice_2025"] + t["rnpg_s1_2026"] - t["rnpg_s1_2025"], 3)
-    roe12 = _pct(rn12, cp_s1)
+    roe12 = None if ecarte else _pct(rn12, cp_s1)
     if roe12 is not None:
         out["roe_12m"] = {
             "valeur": roe12, "date": "2026-06-30",

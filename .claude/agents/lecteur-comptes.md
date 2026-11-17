@@ -417,9 +417,15 @@ des dizaines.
   `/fr/communication-financiere/rapports-annuels-et-financiers` le « Rapport annuel et financier 2025 » (33 p.,
   bilan consolidé en IMAGE p.22 : part du groupe 171 898 KDH, minoritaires vides). Le rapport financier
   semestriel complet existe aussi à l'AMMC (`Agma_RFS_S1_26.pdf`, 11 p.) : essayer `_RFS_S1_26` quand le
-  dépôt S1 n'est qu'une attestation. « Capitaux propres consolidés » d'un semestre = ENSEMBLE : la part du
-  groupe se déduit (minoritaires vides à la clôture, résultat de l'ensemble = RNPG, variation reconstituée avec
-  le dividende) et se dit déduite.
+  dépôt S1 n'est qu'une attestation. ⚠️ Le fichier « attestations seules » (`Agma_S1_26.pdf`, 2 p.) porte en
+  IMAGE, sous le texte de la p.2, l'état consolidé complet : « Capitaux propres, part du groupe 149 006 »,
+  minoritaires vides. Rendre la page entière avant de conclure que la part du groupe « n'est pas imprimée »
+  (erreur du premier jet du 17/11, corrigée par verificateur-finance : ne jamais écrire « par déduction » sans
+  avoir rendu chaque page du fichier).
+- (17/11) Med Paper : le bénéfice 2025 est entièrement non courant et l'attestation est sous réserve : pas de ROE.
+  Le BPA, lui, n'est PAS écarté (bpa.json 1,4, resultats_officiels) ; le ROE l'est par `roe_ecarte` (entrée S1,
+  lu par `ratios_financiers.calculer`). Un écart d'acquisition ou un fonds commercial qui dépasse ou pèse
+  l'essentiel des capitaux propres (AGM 77 %, MDP > 100 %) se dit en précision de lecture.
 - (17/11) `source_capitaux_propres` de `resultats_s1_2026.json` alimente AUSSI la source du ROE 2025 quand
   `capitaux_propres_pg_31_12_2025` existe : pour CIH, la citation couvre les deux dates (S1 p.11 et RFA p.26).
 - (17/11) R11 : une augmentation constatée APRÈS le 30/06 (CIH 28/07, 999,99991 MMAD ; CDM 23/07, 699,07733 MMAD)

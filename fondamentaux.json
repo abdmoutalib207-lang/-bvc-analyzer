@@ -2948,23 +2948,9 @@
     },
     "source_s1_2026": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf",
     "ratios_publies": {
-      "roe_2025": {
-        "valeur": 16.3,
-        "date": "2025-12-31",
-        "formule": "6.713106 ÷ 41.14596811 (MMAD)",
-        "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf p.41 (état des soldes de gestion, du 01/01/2025 au 31/12/2025) : « X = RESULTAT NET DE L'EXERCICE 6.713.105,50 7.985.231,64 » ; 6 713 105,50 DH = 6,713106 MDH. ⚠️ le bénéfice 2025 (6,713 MDH) vient du NON COURANT : « RESULTAT NON COURANT 22.126.203,77 », « RESULTAT D'EXPLOITATION(+ou-) -10.355.525,86 », « RESULTAT COURANT (+ou-) -15.136.514,27 » (https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf p.41, état des soldes de gestion) ; bénéfice non récurrent",
-          "capitaux_propres": "Rapport Financier Annuel 2025 (comptes sociaux) — https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf, p. 38"
-        }
-      },
-      "roe_12m": {
-        "valeur": 14.6,
-        "date": "2026-06-30",
-        "formule": "(6.713106 + 0.949968 − 1.535) ÷ 42.09593585 (MMAD)",
-        "sources": {
-          "resultat": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf",
-          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf p.2 (page IMAGE rendue et lue), « BILAN PASSIF » SOCIAL (aucun compte consolidé), exercice du 01/01/2026 au 30/06/2026, colonnes EXERCICE | EXERCICE PRÉCÉDENT (31/12/2025) — « Total des capitaux propres (A) 42.095.935,85 41.145.968,11 » (MAD → MMAD ÷ 1 000 000) ; recoupé : capital 47.838.230,00 + réserve légale 0,46 − report à nouveau 6.692.262,35 + résultat 949.967,74 = 42.095.935,85, et attestation p.3 « un montant de capitaux propres et assimilés de MAD 42 095 936 dont un bénéfice net de MAD 949 968 » ; colonne précédente = RFA 2025 p.38. ⚠️ ATTESTATION « sous réserve de l'incidence » de quatre situations (charges de 4,3 MDH non reconnues par un ancien actionnaire, pénalités CNSS de 2 318 KMAD capitalisées, prélèvement bancaire de 2 MMAD, protocole fiscal non respecté) : 8,6 MDH chiffrés pour 42,1 de capitaux propres ; si elles se réalisaient, les capitaux propres resteraient positifs (≥ 33,5). Pièce : sha256 920bc778f0e0… (datasets/pieces/MDP/index.json), relu le 17/11/2026"
-        }
+      "roe_ecarte": {
+        "motif": "bénéfice 2025 (6,713 MDH) entièrement NON COURANT : résultat courant −15,1 MDH, non courant +22,1 MDH (Med_Paper_RFA_2025.pdf p.41) ; attestation des CAC du S1 2026 sous réserve (quatre situations, 8,6 MDH chiffrés) ; capitaux propres inférieurs au fonds commercial. Un ROE rapporterait un gain non récurrent à un livre contesté : non publié (verificateur-finance, 17/11/2026).",
+        "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf"
       },
       "marge_nette_s1_2026": {
         "valeur": 2.4,
@@ -6652,7 +6638,7 @@
         "formule": "(73.8 + 39.1 − 38.5) ÷ 149.006 (MMAD)",
         "sources": {
           "resultat": "https://www.ammc.ma/sites/default/files/CP_Agma_S1_26.pdf",
-          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Agma_RFS_S1_26.pdf p.7, « VI- COMPTES CONSOLIDES » (rapport financier semestriel au 30/06/2026, 11 p., page rendue et lue ; en KDH = milliers de dirhams), colonnes 30/06/26 | 31/12/25 | variation — « Capitaux propres consolidés 149.006 171.898 -22.892 -13,3% » ; recoupé : attestation des CAC Agma_S1_26.pdf p.2 « un montant de capitaux propres consolidés de KMAD 149 006 dont un bénéfice net consolidé de KMAD 39 109 ». ⚠️ « consolidés » désigne l'ENSEMBLE : la part du groupe n'est pas imprimée au S1. Retenu comme part du groupe parce que (1) les intérêts minoritaires sont VIDES au 31/12/2025 (rapport annuel agma.ma p.22 : part du groupe 171 898 = ensemble 171 898), (2) le résultat de l'ensemble consolidé du S1 (39,1 MDH) est égal au RNPG (39,1, communiqué CP_Agma_S1_26.pdf), (3) la variation se reconstitue sans minoritaire : 171 898 + 39 109 − dividende 62 000 (310 DH × 200 000, AGO du 08/06/2026, rapport p.8) = 149 007 contre 149 006 imprimé. Déduction consignée pour la revue, pas une lecture imprimée. 31/12/2025 : 171 898. Pièce : sha256 b36511b623e7… (datasets/pieces/AGM/index.json), relu le 17/11/2026"
+          "capitaux_propres": "https://www.ammc.ma/sites/default/files/Agma_S1_26.pdf p.2 (page IMAGE rendue et lue), « COMPTES CONSOLIDÉS AU 30 JUIN 2026 », « ÉTAT DE LA SITUATION FINANCIÈRE CONSOLIDÉE - PASSIF » en KDH, colonnes 30/06/2026 | 31/12/2025 : « Capitaux propres, part du groupe 149 006 171 898 », ligne « Intérêts minoritaires » VIDE, « CAPITAUX PROPRES DE L'ENSEMBLE CONSOLIDÉ 149 006 171 898 » ; somme : capital 20 000 + primes 13 + réserves 89 884 + résultat net part du groupe 39 109 = 149 006 ; recoupé : rapport financier semestriel Agma_RFS_S1_26.pdf p.7 « Capitaux propres consolidés 149.006 171.898 -22.892 -13,3% » (en KDH) et attestation des CAC Agma_S1_26.pdf p.2 « capitaux propres consolidés de KMAD 149 006 dont un bénéfice net consolidé de KMAD 39 109 ». La part du groupe est donc IMPRIMÉE (aucune déduction). Variation : 171 898 + 39 109 − dividende 62 000 (310 DH × 200 000, AGO du 08/06/2026, RFS p.8) = 149 007. ⚠️ Précision de lecture : l'écart d'acquisition (114 995 KDH, même état, actif) fait 77 % de ces capitaux propres ; fonds propres tangibles ≈ 34,0 MMAD. Pièce : sha256 df7b04fcd258… (datasets/pieces/AGM/index.json), relu le 17/11/2026"
         }
       },
       "marge_nette_s1_2026": {
