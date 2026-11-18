@@ -2753,6 +2753,8 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
     capitalisation, et l'écart avec la valeur servie (comparaison seulement)."""
     if cap_source == "calculee_bourse_officielle":
         actions = "bourse_officielle"
+    elif cap_source == "calculee_actions_introduction":
+        actions = "introduction"
     elif cap_source in ("calculee_recoupee", "calculee_apres_refus", "calculee_faute_de_source"):
         actions = "operateur" if ticker in ACTIONS_OPERATEUR else "faits"
     elif cap_source in ("servie", "publiee_la_veille"):
@@ -2775,13 +2777,23 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
 def _actions_introduction(ticker: str):
     """Le nombre d'actions d'après l'introduction en bourse, quand c'est LUI que
     `_actions_sourcees` retient (titre absent du relevé de l'opérateur et sans
-    comptes relevés : NRJ). Daté de l'opération, visé par l'AMMC : il ne peut
-    pas être « périmé » au sens de HAL (07/10), au contraire d'un nombre lu dans
-    un rapport annuel antérieur à une augmentation de capital."""
+    comptes relevés : NRJ). Exact à la date de l'opération, visé par l'AMMC, et
+    ajusté des splits déclarés APRÈS elle (registre SPLITS, R11).
+
+    ⚠️ Il cesse d'être juste à la prochaine opération sur le capital. Un split
+    se déclare dans SPLITS ; une augmentation de capital n'a pas de registre :
+    elle doit être portée au relevé de la Bourse (`ACTIONS_BOURSE`), qui prend
+    alors le pas sur ce nombre — c'est la raison d'être du relevé."""
     if ticker in ACTIONS_OPERATEUR or isinstance(FAITS_DATA.get(ticker), dict):
         return None
     intro = INTRODUCTIONS.get(ticker) or {}
-    return float(intro["actions"]) if intro.get("actions") else None
+    if not intro.get("actions"):
+        return None
+    n = float(intro["actions"])
+    for sp in SPLITS.get(ticker, []):
+        if intro.get("date") and sp["date"] > intro["date"]:
+            n *= sp["ratio"]
+    return n
 
 
 def _actions_sourcees(ticker: str):
