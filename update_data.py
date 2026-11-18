@@ -2772,6 +2772,18 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
     return out
 
 
+def _actions_introduction(ticker: str):
+    """Le nombre d'actions d'après l'introduction en bourse, quand c'est LUI que
+    `_actions_sourcees` retient (titre absent du relevé de l'opérateur et sans
+    comptes relevés : NRJ). Daté de l'opération, visé par l'AMMC : il ne peut
+    pas être « périmé » au sens de HAL (07/10), au contraire d'un nombre lu dans
+    un rapport annuel antérieur à une augmentation de capital."""
+    if ticker in ACTIONS_OPERATEUR or isinstance(FAITS_DATA.get(ticker), dict):
+        return None
+    intro = INTRODUCTIONS.get(ticker) or {}
+    return float(intro["actions"]) if intro.get("actions") else None
+
+
 def _actions_sourcees(ticker: str):
     """Le nombre d'actions du rapport, ajusté des splits postérieurs. None sinon.
 
@@ -2930,13 +2942,18 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
         # SON cours périmé. Le moteur l'a préférée et le contrôle bloquant l'a
         # refusée. Un garde-fou ne devine pas un fait juridique : il le lit.
         n_off = _actions_bourse(ticker)
+        etiquette = "calculee_bourse_officielle"
+        # 18/11/2026 : un titre introduit après le relevé (NRJ) se calcule sur
+        # le nombre de l'introduction quand rien du jour ne le contredit.
+        if not n_off and not temoin_du_jour and _actions_introduction(ticker):
+            n_off, etiquette = _actions_introduction(ticker), "calculee_actions_introduction"
         if n_off and price and price > 0:
             calculee = _arrondi_cap(price * n_off / 1e6)
             if not cap_servie or (calculee and abs(cap_servie / calculee - 1)
                                   <= TOL_COURS_IMPLICITE_JOUR + 0.5 / cap_servie):
-                return calculee, "calculee_bourse_officielle"
+                return calculee, etiquette
             if calculee and not _reprise_sur_reference_inscrite(ticker):
-                return calculee, "calculee_bourse_officielle"
+                return calculee, etiquette
         return cap_servie, ("servie" if cap_servie else "absente")
 
     # ⚠️ 20/10/2026 — MAILLON 1 : LE NOMBRE OFFICIEL DE LA BOURSE (voir
@@ -2968,6 +2985,15 @@ def _capitalisation(ticker: str, price: float, cap_servie, src_prix=None,
     calculee = _arrondi_cap(price * n / 1e6)         # data.json exprime en MDHS
     if not cap_servie:
         return calculee, "calculee_faute_de_source"
+    # ⚠️ 18/11/2026 — UNE CAPITALISATION REPRISE DE LA VEILLE NE CONTREDIT PAS LE
+    # NOMBRE D'ACTIONS D'UNE INTRODUCTION. Sans valeur servie du jour,
+    # `cap_servie` est celle du data.json précédent ; gardée « sous le seuil »,
+    # elle se reconduisait elle-même : NRJ restait à 2 366 MDHS quand 190 DH ×
+    # 13 125 000 actions en font 2 494 — le chiffre de la Bourse (recoupé le 18/11
+    # avec MASI Screener). La règle HAL (garder la valeur servie quand le nombre
+    # sourcé peut être périmé) ne s'applique pas à un nombre daté de l'opération.
+    if not temoin_du_jour and _actions_introduction(ticker):
+        return calculee, "calculee_actions_introduction"
 
     # ⚠️ 07/10/2026 — DEUX CHIFFRES DU MÊME INSTANT, À CONDITION DE SAVOIR
     # POURQUOI ILS DIFFÈRENT. La capitalisation servie retarde d'une séance :
