@@ -15,7 +15,8 @@ Mesuré dans un navigateur le 19/11/2026 (`data.json` du jour), AVANT ce lot :
 
 Les tranches du score passent sur une échelle NEUTRE, du gris au bleu de
 plus en plus soutenu ; les couleurs évaluatives hors score (PER > 25 en
-orange, dividende > 4 % en vert, rang « cher / pas cher », filtres RSI
+orange, PER prévisionnel > 25 en orange, dividende et rendement attendu
+> 4 % en vert, rang « cher / pas cher », filtres RSI
 survendu vert / suracheté rouge, bouton du briefing vert plein) deviennent
 neutres. Les VALEURS, les tranches et les seuils ne changent pas (R8).
 
@@ -233,7 +234,7 @@ def test_l_ancienne_echelle_echouait_en_protanopie():
     assert delta_e("#b5e655", "#ffd740", "protanopie") < 10
 
 
-# ── 5. La composition du score ──────────────────────────────────────
+# ── 5. Couleurs évaluatives hors score ──────────────────────────────────────
 
 def test_la_composition_n_est_plus_verte():
     sb = _zones_score()["composition du score (barres et légende)"]
@@ -245,12 +246,37 @@ def test_la_composition_n_est_plus_verte():
         assert not _teinte_interdite(c), f"barre de facteur {c}"
 
 
+def test_le_per_eleve_n_est_plus_orange_et_le_dividende_eleve_plus_vert():
+    for motif in (r"r\.pe>25\?", r"per_2[67]e>25\?", r"r\.div>4\?", r"dy_2[67]e>4\?"):
+        assert not re.search(motif, SRC), motif
+    # Les valeurs restent affichées.
+    assert "{perTxt(r.pe,r.bpa_12m??r.bpa)}</td>" in SRC
+    assert "{divClassement(r.div)}</td>" in SRC
+    assert '["Dividende",divFiche(r.div),' in SRC
+    assert '["Rendement 2026e",r.fwd.dy_26e!=null?' in SRC
+    assert '["PER 2026e",fmt(r.fwd.per_26e,1),' in SRC
 
 
+def test_le_rang_dans_le_secteur_ne_dit_plus_cher_ou_pas_cher():
+    bloc = _bloc("const e=(r.rang_secteur||{})[ratio];", "})()}")
+    assert "cher?" not in bloc and HAUSSE not in bloc and "#ff8f00" not in bloc
+    assert "vs secteur" in bloc and "e.rang" in bloc and "e.ecart_pct" in bloc
 
 
+def test_les_filtres_rsi_ne_jugent_plus():
+    bloc = _bloc('<span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}>RSI</span>', "))}")
+    assert "survendu" in bloc and "suracheté" in bloc
+    for c in (HAUSSE, *BAISSES):
+        assert c not in bloc.lower(), c
 
 
+def test_le_bouton_du_briefing_n_est_plus_vert():
+    i = SRC.index("LIRE LE BRIEFING ›")
+    bouton = SRC[SRC.rindex("<button", 0, i):i]
+    assert HAUSSE not in bouton.lower()
+    fond = re.search(r'background:"(#[0-9a-fA-F]{6})"', bouton).group(1)
+    assert not _teinte_interdite(fond)
+    assert contraste("#080d1a", fond) >= 4.5
 
 
 # ── 6. Comment lire ─────────────────────────────────────────────────────────
