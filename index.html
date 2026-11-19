@@ -1604,6 +1604,21 @@ const meta = r => {
   };
 };
 const varSeance = r => meta(r).stale ? null : r.chg;
+const zoneStoch = k => k == null || !isFinite(k) ? "" : k > 80 ? "zone haute" : k < 20 ? "zone basse" : "neutre";
+const varBandeau = c => c === 0 ? "0,00 %" : `${c > 0 ? "▲" : "▼"}${Math.abs(c).toFixed(2)}%`;
+const divClassement = d => d == null || !isFinite(d) ? "—" : `${(+d).toFixed(1)}%`;
+const divFiche = d => d == null || !isFinite(d) ? "—" : +d === 0 ? "0 %" : `${(+d).toFixed(1)}%`;
+const cleTitreArticle = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const dedoublonnerArticles = l => {
+  const vus = new Set();
+  return (l || []).filter(a => {
+    const k = cleTitreArticle(a && a.title);
+    if (!k) return true;
+    if (vus.has(k)) return false;
+    vus.add(k);
+    return true;
+  });
+};
 const roeSansObjet = r => {
   const c = (((r || {}).note_fond_metier || {}).criteres || {}).rentabilite;
   if (!c || c.etat !== "suspendu" || typeof c.motif !== "string") return null;
@@ -5154,7 +5169,7 @@ const TickerTape = ({
     style: {
       color: nc(r.chg)
     }
-  }, varSeance(r) == null ? NON_COTE : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
+  }, varSeance(r) == null ? NON_COTE : varBandeau(r.chg), r.chg_alert && React.createElement("span", {
     title: "Variation \u2265 \xB18% \u2014 approche limite BVC"
   }, "\u26A1"))))));
 };
@@ -5174,7 +5189,7 @@ const RUBRIQUES = [{
   vues: [{
     id: "ranking",
     icone: "▤",
-    aide: "Les 80 titres, leur Score BVC et sa tranche"
+    aide: "Tous les titres cotés, leur Score BVC et sa tranche"
   }, {
     id: "per",
     icone: "÷",
@@ -5701,7 +5716,9 @@ const Rangee = ({
   sous,
   vers,
   setTab,
-  items
+  items,
+  tri,
+  setSort
 }) => {
   if (!items.length) return null;
   return React.createElement("section", {
@@ -5730,7 +5747,10 @@ const Rangee = ({
       marginLeft: 10
     }
   }, sous)), vers && React.createElement("button", {
-    onClick: () => setTab(vers),
+    onClick: () => {
+      if (tri && setSort) setSort(tri);
+      setTab(vers);
+    },
     style: {
       background: "none",
       border: "none",
@@ -5747,7 +5767,8 @@ const Accueil = ({
   rows,
   fav,
   ouvrir,
-  setTab
+  setTab,
+  setSort
 }) => {
   const [b, setB] = useState(undefined);
   useEffect(() => {
@@ -5834,18 +5855,24 @@ const Accueil = ({
     titre: "Plus fortes hausses",
     sous: "s\xE9ance du jour",
     vers: "ranking",
+    tri: "var",
+    setSort: setSort,
     setTab: setTab,
     items: hausses.map(r => t(r))
   }), React.createElement(Rangee, {
     titre: "Plus fortes baisses",
     sous: "s\xE9ance du jour",
     vers: "ranking",
+    tri: "var_asc",
+    setSort: setSort,
     setTab: setTab,
     items: baisses.map(r => t(r))
   }), React.createElement(Rangee, {
     titre: "Score BVC le plus \xE9lev\xE9",
     sous: "descriptif, pas une pr\xE9vision \xB7 confiance \u2265 2",
     vers: "ranking",
+    tri: "bvc",
+    setSort: setSort,
     setTab: setTab,
     items: notes.map(r => t(r, `Score BVC ${exactBVC(valeurBVC(r))}/100 · ${trancheBVC(r).plage}`))
   }), React.createElement(Rangee, {
@@ -6310,6 +6337,7 @@ const Ranking = ({
       return vb - va;
     }
     if (sort === "var") return (varSeance(b) ?? -Infinity) - (varSeance(a) ?? -Infinity) || 0;
+    if (sort === "var_asc") return (varSeance(a) ?? Infinity) - (varSeance(b) ?? Infinity) || 0;
     if (sort === "rsi") {
       const ra = a.rsi ?? a.rsi14,
         rb = b.rsi ?? b.rsi14;
@@ -6542,18 +6570,22 @@ const Ranking = ({
       color: "#8892a4",
       letterSpacing: 1
     }
-  }, "TRIER PAR"), SORTS.map(([id, lbl]) => React.createElement("button", {
-    key: id,
-    onClick: () => setSort(id),
-    style: {
-      background: sort === id ? "rgba(0,229,160,.12)" : "transparent",
-      border: sort === id ? "1px solid rgba(0,229,160,.4)" : "1px solid #1a2540",
-      color: sort === id ? "#00e5a0" : "#8892a4",
-      padding: "3px 10px",
-      borderRadius: 4,
-      fontSize: 11
-    }
-  }, lbl, sort === id ? " ▼" : "")), !isWatchlist && React.createElement("button", {
+  }, "TRIER PAR"), SORTS.map(([id, lbl]) => {
+    const on = sort === id || id === "var" && sort === "var_asc";
+    return React.createElement("button", {
+      key: id,
+      onClick: () => setSort(id),
+      "aria-pressed": on,
+      style: {
+        background: on ? "rgba(0,229,160,.12)" : "transparent",
+        border: on ? "1px solid rgba(0,229,160,.4)" : "1px solid #1a2540",
+        color: on ? "#00e5a0" : "#8892a4",
+        padding: "3px 10px",
+        borderRadius: 4,
+        fontSize: 11
+      }
+    }, lbl, on ? sort === "var_asc" ? " ▲" : " ▼" : "");
+  }), !isWatchlist && React.createElement("button", {
     onClick: () => setTab("per"),
     title: "Classement par PER, avec la m\xE9diane du secteur et les titres non class\xE9s",
     style: {
@@ -6821,7 +6853,7 @@ const Ranking = ({
         fontSize: 12,
         color: r.div > 4 ? "#00e5a0" : "#c8d3e8"
       }
-    }, r.div?.toFixed(1) || "—", "%"), React.createElement("td", {
+    }, divClassement(r.div)), React.createElement("td", {
       style: {
         padding: "8px 8px"
       }
@@ -11366,7 +11398,7 @@ const TickerNews = ({
     setOk(false);
     fetch("news.json?t=" + vpub()).then(r => r.ok ? r.json() : null).then(d => {
       if (!vivant) return;
-      if (d?.articles) setArticles((d.articles || []).filter(a => (a.tickers || []).includes(sym)).slice(0, 6));
+      if (d?.articles) setArticles(dedoublonnerArticles((d.articles || []).filter(a => (a.tickers || []).includes(sym))).slice(0, 6));
       setOk(true);
     }).catch(() => {
       if (vivant) setOk(true);
@@ -11627,7 +11659,21 @@ const Detail = ({
       lineHeight: 1,
       transition: "color .2s"
     }
-  }, fav.includes(sym) ? "★" : "☆")), React.createElement(EnTeteEssentiel, {
+  }, fav.includes(sym) ? "★" : "☆")), (r.name || r.sector) && React.createElement("div", {
+    className: "fiche-identite",
+    style: {
+      fontSize: 13,
+      lineHeight: 1.35,
+      color: "#c8d3e8",
+      marginBottom: 6,
+      textWrap: "balance",
+      overflowWrap: "anywhere"
+    }
+  }, r.name || tk(r), r.sector && React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " \xB7 ", r.sector)), React.createElement(EnTeteEssentiel, {
     key: sym,
     r: r,
     seance: seance
@@ -11941,7 +11987,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", perTxt(r.pe, r.bpa_12m ?? r.bpa), perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", perTxt(r.pe, r.bpa_12m ?? r.bpa), perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", divFiche(r.div), r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -11982,6 +12028,7 @@ const Detail = ({
     const e = (r.rang_secteur || {})[ratio];
     if (!e) return null;
     if (ratio === "pe" && perNS(r.pe, r.bpa_12m ?? r.bpa)) return null;
+    if (ratio === "div" && +r.div === 0) return null;
     const cher = ratio === "div" ? e.ecart_pct < 0 : e.ecart_pct > 0;
     return React.createElement("div", {
       title: `Médiane ${e.secteur} : ${e.mediane_secteur}`,
@@ -12346,7 +12393,7 @@ const Detail = ({
       fontSize: 9,
       color: "#8892a4"
     }
-  }, r.stoch_k > 80 ? "survente" : r.stoch_k < 20 ? "survente" : "neutre"))), (r.obv != null || r.adx != null) && React.createElement("div", {
+  }, zoneStoch(r.stoch_k)))), (r.obv != null || r.adx != null) && React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
@@ -13827,7 +13874,8 @@ function App() {
       choisirTitre(sym);
       changeTab("detail");
     },
-    setTab: changeTab
+    setTab: changeTab,
+    setSort: setSort
   }), tab === "ranking" && React.createElement(Ranking, {
     rows: rows,
     sort: sort,
