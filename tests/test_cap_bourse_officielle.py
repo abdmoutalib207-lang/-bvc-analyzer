@@ -211,3 +211,15 @@ def test_chaque_capitalisation_officielle_vaut_cours_fois_actions(ud):
               if t["cap"] != attendu(t)]
     assert not fautes, "\n".join(fautes)
     assert all(t["_meta"].get("cap_releve_bourse") for t in off)
+
+
+def test_ecart_servie_ramene_au_cours_du_jour(ud):
+    """19/11/2026 (audit Manus) : la valeur servie est calculée sur la référence ;
+    l'écart publié recopiait la variation du jour. Ramenée au cours du jour, elle
+    ne diffère plus que par le nombre d'actions."""
+    # même nombre d'actions, cours +2 % : écart nul
+    d = ud._cap_detail("ADI", "calculee_bourse_officielle", 102, 100, "2026-11-19", cours=102.0, reference=100.0)
+    assert d["cap_ecart_servie_pct"] == 0.0
+    # nombre d'actions différent de 10 % : l'écart le dit
+    d = ud._cap_detail("ADI", "calculee_bourse_officielle", 112.2, 100, "2026-11-19", cours=102.0, reference=100.0)
+    assert d["cap_ecart_servie_pct"] == 10.0

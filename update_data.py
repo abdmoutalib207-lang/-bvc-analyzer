@@ -2748,9 +2748,46 @@ def _age_releve_bourse(ref_date=None):
     return (d1 - d0).days
 
 
-def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_date=None) -> dict:
+def motifs_dividende(tickers: list, dividendes: dict, jour: str) -> int:
+    """`_meta.div_motif` pour un rendement NON publié alors que le calendrier
+    des dividendes de la Bourse porte un détachement dans les 15 derniers mois.
+    Rend le nombre de titres annotés. Ne publie aucun rendement (R12 : le
+    montant du calendrier n'est pas relevé sur pièce)."""
+    from datetime import date, timedelta
+    try:
+        borne = (date.fromisoformat(str(jour)[:10]) - timedelta(days=456)).isoformat()
+    except ValueError:
+        return 0
+    n = 0
+    for t in tickers:
+        if t.get("div") is not None:
+            continue
+        lignes = [d for d in (dividendes.get(t.get("symbol")) or [])
+                  if borne <= str(d.get("detachement") or "") <= str(jour)[:10]]
+        if not lignes:
+            continue
+        d = max(lignes, key=lambda x: x["detachement"])
+        j = d["detachement"]
+        t.setdefault("_meta", {})["div_motif"] = (
+            f"Dernier détachement au calendrier de la Bourse : {str(d.get('montant')).replace('.', ',')} "
+            f"le {j[8:10]}/{j[5:7]}/{j[:4]}. Montant non relevé sur pièce (devise ou pièce manquante) : "
+            "rendement non publié.")
+        n += 1
+    return n
+
+
+def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_date=None,
+                cours=None, reference=None) -> dict:
     """Champs `_meta` qui disent d'où vient le NOMBRE D'ACTIONS de la
-    capitalisation, et l'écart avec la valeur servie (comparaison seulement)."""
+    capitalisation, et l'écart avec la valeur servie (comparaison seulement).
+
+    ⚠️ 19/11/2026 (audit externe Manus) : la capitalisation servie par la source
+    est calculée sur la RÉFÉRENCE (clôture de la veille), la nôtre sur le cours
+    du jour. Mesuré le 19/11 : servie = référence × actions à 0,0 % près (médiane
+    sur 65 titres). Comparées telles quelles, l'écart publié recopiait la
+    variation du jour (56 titres sur 80) et ne disait rien. Ramenée au cours du
+    jour, la valeur servie ne diffère plus de la nôtre que par le NOMBRE
+    D'ACTIONS — ce que ce champ doit signaler (STR +28 %, ZLD −16 %, LHM +5 %)."""
     if cap_source == "calculee_bourse_officielle":
         actions = "bourse_officielle"
     elif cap_source == "calculee_actions_introduction":
@@ -2763,9 +2800,12 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
         actions = "capitalisation_servie"
     else:
         actions = None
+    servie = cap_servie_du_jour
+    if servie and cours and reference and reference > 0:
+        servie = servie * cours / reference                  # même instant que la nôtre
     out = {"cap_actions_source": actions,
-           "cap_ecart_servie_pct": (round(100 * (cap_retenue / cap_servie_du_jour - 1), 2)
-                                    if cap_retenue and cap_servie_du_jour else None)}
+           "cap_ecart_servie_pct": (round(100 * (cap_retenue / servie - 1), 2)
+                                    if cap_retenue and servie else None)}
     if actions == "bourse_officielle":
         age = _age_releve_bourse(ref_date)
         out.update({"cap_releve_bourse": RELEVE_BOURSE_DATE,
@@ -3329,7 +3369,10 @@ def _meta_ticker(ticker, src_prix, prix_asof, df_candles,
         ("Note fondamentale calculable sur comptes, sans grandeur contestée",
          ticker in _FOND_COMPUTED and note_fond_ok and ticker not in _CONTESTES),
         ("Au moins 15 séances échangées (historique suffisant)", n_echangees >= 15),
-        ("Comptes déposés à l'AMMC", bool(comptes_deposes)),
+        # 19/11/2026 (audit Manus) : le critère est « comptes RELEVÉS » — NRJ a
+        # déposé son document de référence le 21/10 sans qu'on l'ait encore lu,
+        # et « comptes déposés : non » le contredisait.
+        ("Comptes déposés à l'AMMC et relevés", bool(comptes_deposes)),
         ("Au moins 100 000 DH échangés par séance (médiane 20 séances)",
          (_echange_median_dh(df_candles) or 0) >= 100_000),
     ]
@@ -4977,7 +5020,7 @@ def run(dry_run=False, push=False, token=""):
             # Mesuré au cours retenu, il devenait négatif pour un titre non coté
             # dont le cours précède le relevé : SRM −8 j, NEJ −22 j au 21/10.
             cap_detail=_cap_detail(ticker, _cap_source, _cap_retenue, lp.get("cap"),
-                                   date_analyse()),
+                                   date_analyse(), cours=price, reference=_reference),
             cliquet_volume=lp.get("cliquet_volume", False),
             seances_depuis_reprise=_seances_depuis_reprise,
             comptes_deposes=_comptes_deposes(BPA_DATA.get(ticker)))
@@ -5517,6 +5560,18 @@ def run(dry_run=False, push=False, token=""):
             "comparable. Un écart de convention pris pour un écart de donnée "
             "fait chercher au mauvais endroit."),
     }
+
+    # ⚠️ 19/11/2026 (audit Manus) : « Dividende inconnu : aucun versement relevé
+    # sur pièce » était faux pour ENK, dont le calendrier de la Bourse porte un
+    # détachement de 2,81 le 06/07/2026. Un rendement absent dit désormais ce
+    # que le registre sait.
+    try:
+        _f_div = Path(__file__).parent / "datasets" / "dividendes_bvc.json"
+        if _f_div.exists():
+            motifs_dividende(tickers_out, json.loads(_f_div.read_text(encoding="utf-8")).get("dividendes") or {},
+                             date_analyse())
+    except Exception as _e:                               # noqa: BLE001
+        logger.warning(f"motifs de dividende non écrits ({_e})")
 
     # ⚠️ UN RATIO NE VEUT RIEN DIRE SEUL — ajouté le 24/09/2026.
     #
