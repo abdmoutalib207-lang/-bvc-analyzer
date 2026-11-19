@@ -80,11 +80,13 @@
       .fiche-centre{grid-column:1;grid-row:1}
     }
     /* ⚠️ TÉLÉPHONE EN PAYSAGE — 10/10/2026, signalé par Abd Moutalib. Couché,
-       le téléphone dépasse 640 px de large et reçoit l'en-tête COLLÉ de
-       l'ordinateur. Mesuré à 844×390 : en-tête de 474 px pour 390 visibles,
-       100 % de l'écran couvert, rien ne défile dessous. C'est la HAUTEUR qui
-       décide : sous 600 px, l'en-tête défile avec la page. */
-    @media(max-height:600px){.entete{position:static!important}}
+       le téléphone dépasse 640 px de large et recevait l'en-tête COLLÉ de
+       l'ordinateur : 474 px pour 390 visibles (mesuré à 844×390). Depuis le
+       19/11/2026 seule la ligne de la marque et du MENU est collée (.entete) ;
+       le reste (.entete-suite) défile partout. La règle « static » qui
+       protégeait le paysage et le téléphone n'a plus d'objet : elle aurait
+       emporté le MENU hors de l'écran, sans bouton flottant pour le doubler. */
+    html{scroll-padding-top:var(--h-entete,0px)}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
        l'écran et masquait le contenu au défilement ; le classement n'affichait
@@ -92,7 +94,10 @@
        badge de version et la barre MASI débordaient à droite.
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
-      .entete{position:static!important;padding:8px 12px!important}
+      .entete,.entete-suite{padding:8px 12px!important}
+      /* Bandeau défilant (19/11/2026) : 30 px de cours qui filent en haut
+         d'un écran de 844, illisibles au passage. Le classement les donne. */
+      .bandeau-defilant{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -258,18 +263,12 @@
       border-left:3px solid transparent;color:#c8d3e8;padding:12px 20px;font-family:var(--font);cursor:pointer;}
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
-    .menu-flottant{display:none;}
     /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
        ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
        52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
        niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
     @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
       .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
-    @media (max-width:640px){
-      .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
-        align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
-        box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
-    }
     /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
        d'Abd Moutalib : « une ouverture comme Netflix ». */
     .rangee{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;
@@ -5002,6 +5001,7 @@ const TickerTape = ({
   const nc = c => c > 0 ? "#00e5a0" : c < 0 ? "#ff4f5a" : "#8892a4";
   const doubled = [...items, ...items];
   return React.createElement("div", {
+    className: "bandeau-defilant",
     style: {
       background: "#060b16",
       borderBottom: "1px solid #1a2540",
@@ -5153,15 +5153,6 @@ const Menu = ({
   TABS
 }) => {
   const [ouvert, setOuvert] = useState(false);
-  const [loin, setLoin] = useState(false);
-  useEffect(() => {
-    const h = () => setLoin((window.scrollY || 0) > 320);
-    h();
-    window.addEventListener("scroll", h, {
-      passive: true
-    });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
   const lib = Object.fromEntries(TABS.map(t => [t.id, t]));
   useEffect(() => {
     if (!ouvert) return;
@@ -5214,11 +5205,7 @@ const Menu = ({
       color: "#8892a4",
       fontWeight: 400
     }
-  }, "\xB7 ", courant.replace("★ ", ""))), loin && React.createElement("button", {
-    className: "menu-flottant",
-    onClick: () => setOuvert(true),
-    "aria-label": "Ouvrir le menu"
-  }, "\u2630"), ouvert && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "\xB7 ", courant.replace("★ ", ""))), ouvert && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "menu-voile",
     onClick: () => setOuvert(false)
   }), React.createElement("nav", {
@@ -5804,31 +5791,43 @@ const Header = ({
     id: "guide",
     label: "? COMMENT LIRE"
   }];
-  return React.createElement("div", {
+  const refEntete = useRef(null);
+  React.useLayoutEffect(() => {
+    const e = refEntete.current;
+    if (!e) return;
+    const f = () => {
+      try {
+        const colle = getComputedStyle(e).position === "sticky";
+        document.documentElement.style.setProperty("--h-entete", (colle ? Math.round(e.getBoundingClientRect().height) : 0) + "px");
+      } catch (x) {}
+    };
+    f();
+    if (!window.ResizeObserver) return;
+    const ro = new ResizeObserver(f);
+    ro.observe(e);
+    return () => ro.disconnect();
+  }, []);
+  const fond = {
+    background: "linear-gradient(90deg,#0d1829,#0a1220)",
+    borderBottom: "1px solid #1a2540"
+  };
+  return React.createElement(React.Fragment, null, React.createElement("div", {
     className: "entete",
+    ref: refEntete,
     style: {
-      background: "linear-gradient(90deg,#0d1829,#0a1220)",
-      borderBottom: "1px solid #1a2540",
-      padding: "12px 20px",
+      ...fond,
+      padding: "10px 20px",
       position: "sticky",
       top: 0,
       zIndex: 100
     }
   }, React.createElement("div", {
+    className: "entete-ligne",
     style: {
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-between",
       flexWrap: "wrap",
-      gap: 10,
-      marginBottom: 10
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 14,
-      flexWrap: "wrap"
+      gap: "6px 14px"
     }
   }, React.createElement(Marque, null), React.createElement(Menu, {
     tab: tab,
@@ -5851,14 +5850,8 @@ const Header = ({
       fontFamily: "var(--font)",
       flex: "0 0 auto"
     }
-  }, "?"), React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      flexWrap: "wrap"
-    }
-  }, React.createElement("span", {
+  }, "?"), React.createElement("span", {
+    className: "entete-date",
     style: {
       fontSize: 11,
       color: "#8892a4",
@@ -5876,7 +5869,21 @@ const Header = ({
       fontWeight: 600,
       minWidth: "19ch"
     }
-  }, ts || "—")), mktStatus && React.createElement("span", {
+  }, ts || "—")))), React.createElement("div", {
+    className: "entete-suite",
+    style: {
+      ...fond,
+      padding: "10px 20px 12px"
+    }
+  }, React.createElement("div", {
+    className: "entete-etat",
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, mktStatus && React.createElement("span", {
     style: {
       background: `${mktStatus.color}18`,
       border: `1px solid ${mktStatus.color}40`,
@@ -5887,18 +5894,7 @@ const Header = ({
       fontWeight: 700,
       letterSpacing: .5
     }
-  }, "BVC ", mktStatus.label), masi ? React.createElement(CarteIndices, {
-    masi: masi
-  }) : React.createElement(CarteIndices, {
-    masi: GABARIT_MASI,
-    gabarit: true
-  }))), React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      alignItems: "center"
-    }
-  }, React.createElement("button", {
+  }, "BVC ", mktStatus.label), React.createElement("button", {
     onClick: onRefresh,
     disabled: loading,
     title: "Recharger data.json depuis le serveur",
@@ -5922,16 +5918,21 @@ const Header = ({
     role: "status",
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      marginLeft: 8
+      color: "#ff4f5a"
     }
-  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez"))), React.createElement("div", {
+  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez")), masi ? React.createElement(CarteIndices, {
+    masi: masi
+  }) : React.createElement(CarteIndices, {
+    masi: GABARIT_MASI,
+    gabarit: true
+  }), React.createElement("div", {
     className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
       gap: 6,
       flexWrap: "wrap",
-      alignItems: "center"
+      alignItems: "center",
+      marginTop: 10
     }
   }, React.createElement("button", {
     onClick: onRetour,
@@ -5986,7 +5987,7 @@ const Header = ({
       alignItems: "center",
       justifyContent: "center"
     }
-  }, t.badge)))));
+  }, t.badge))))));
 };
 const Heatmap = ({
   rows,
@@ -11357,20 +11358,6 @@ const Detail = ({
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
   }) : [...rows]).sort((a, b) => tk(a).localeCompare(tk(b)));
   const refFiche = useRef(null);
-  useEffect(() => {
-    const e = document.querySelector(".entete");
-    if (!e || !window.ResizeObserver) return;
-    const f = () => {
-      try {
-        const colle = getComputedStyle(e).position === "sticky";
-        document.documentElement.style.setProperty("--h-entete", (colle ? Math.max(0, Math.round(e.getBoundingClientRect().bottom)) : 0) + "px");
-      } catch (x) {}
-    };
-    const ro = new ResizeObserver(f);
-    ro.observe(e);
-    f();
-    return () => ro.disconnect();
-  }, []);
   useEffect(() => {
     try {
       if (refFiche.current && window.matchMedia && window.matchMedia("(max-width:640px)").matches) refFiche.current.scrollIntoView({

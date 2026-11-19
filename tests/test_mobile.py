@@ -40,7 +40,9 @@ def test_les_regles_mobiles_existent():
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
     # 07/10/2026 : la rangée d'onglets disparaît sous 640 px (le MENU donne
     # toutes les vues) ; seul RETOUR reste, et seulement s'il sert.
-    for regle in (".entete{position:static", ".onglets .onglet{display:none",
+    # 19/11/2026 : « .entete{position:static » retirée — seule la ligne du
+    # MENU reste collée, sur téléphone aussi (tests/test_cadre_commun.py).
+    for regle in (".bandeau-defilant{display:none", ".onglets .onglet{display:none",
                   ".onglets.sans-retour{display:none", ".carte-indices>.carte-ind{display:none",
                   ".indices-ligne{display:flex", ".classement{min-width:0",
                   ".bandeau-masi{flex-wrap:wrap"):

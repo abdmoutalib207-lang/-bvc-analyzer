@@ -80,11 +80,13 @@
       .fiche-centre{grid-column:1;grid-row:1}
     }
     /* ⚠️ TÉLÉPHONE EN PAYSAGE — 10/10/2026, signalé par Abd Moutalib. Couché,
-       le téléphone dépasse 640 px de large et reçoit l'en-tête COLLÉ de
-       l'ordinateur. Mesuré à 844×390 : en-tête de 474 px pour 390 visibles,
-       100 % de l'écran couvert, rien ne défile dessous. C'est la HAUTEUR qui
-       décide : sous 600 px, l'en-tête défile avec la page. */
-    @media(max-height:600px){.entete{position:static!important}}
+       le téléphone dépasse 640 px de large et recevait l'en-tête COLLÉ de
+       l'ordinateur : 474 px pour 390 visibles (mesuré à 844×390). Depuis le
+       19/11/2026 seule la ligne de la marque et du MENU est collée (.entete) ;
+       le reste (.entete-suite) défile partout. La règle « static » qui
+       protégeait le paysage et le téléphone n'a plus d'objet : elle aurait
+       emporté le MENU hors de l'écran, sans bouton flottant pour le doubler. */
+    html{scroll-padding-top:var(--h-entete,0px)}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
        l'écran et masquait le contenu au défilement ; le classement n'affichait
@@ -92,7 +94,10 @@
        badge de version et la barre MASI débordaient à droite.
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
-      .entete{position:static!important;padding:8px 12px!important}
+      .entete,.entete-suite{padding:8px 12px!important}
+      /* Bandeau défilant (19/11/2026) : 30 px de cours qui filent en haut
+         d'un écran de 844, illisibles au passage. Le classement les donne. */
+      .bandeau-defilant{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -258,18 +263,12 @@
       border-left:3px solid transparent;color:#c8d3e8;padding:12px 20px;font-family:var(--font);cursor:pointer;}
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
-    .menu-flottant{display:none;}
     /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
        ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
        52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
        niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
     @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
       .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
-    @media (max-width:640px){
-      .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
-        align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
-        box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
-    }
     /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
        d'Abd Moutalib : « une ouverture comme Netflix ». */
     .rangee{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;
@@ -2812,7 +2811,7 @@ const TickerTape=({rows})=>{
   const nc=c=>c>0?"#00e5a0":c<0?"#ff4f5a":"#8892a4";
   const doubled=[...items,...items];
   return(
-    <div style={{background:"#060b16",borderBottom:"1px solid #1a2540",padding:"4px 0",overflow:"hidden",userSelect:"none"}}>
+    <div className="bandeau-defilant" style={{background:"#060b16",borderBottom:"1px solid #1a2540",padding:"4px 0",overflow:"hidden",userSelect:"none"}}>
       {/* ⚠️ La durée suit le NOMBRE de titres, sinon doubler la liste double la
           vitesse de défilement : 55 s convenaient pour 40 titres, elles font
           filer les 80 deux fois plus vite. 1,4 s par titre redonne exactement
@@ -2867,14 +2866,9 @@ const Marque=({taille=36})=>(
 
 const Menu=({tab,setTab,TABS})=>{
   const [ouvert,setOuvert]=useState(false);
-  // Le bouton rond n'apparaît qu'une fois l'en-tête sorti de l'écran : en haut
-  // de page, le bouton MENU est déjà visible, le doubler masquerait le contenu.
-  const [loin,setLoin]=useState(false);
-  useEffect(()=>{
-    const h=()=>setLoin((window.scrollY||0)>320);
-    h(); window.addEventListener("scroll",h,{passive:true});
-    return()=>window.removeEventListener("scroll",h);
-  },[]);
+  /* 19/11/2026 : plus de bouton rond flottant sur téléphone. Il doublait le
+     MENU dès que l'en-tête sortait de l'écran ; la ligne du MENU reste
+     désormais collée en haut, le doublon ne sert plus. */
   const lib=Object.fromEntries(TABS.map(t=>[t.id,t]));
   useEffect(()=>{
     if(!ouvert)return;
@@ -2892,7 +2886,6 @@ const Menu=({tab,setTab,TABS})=>{
       <span style={{fontSize:16,lineHeight:1}}>☰</span> MENU
       {courant&&<span style={{color:"#8892a4",fontWeight:400}}>· {courant.replace("★ ","")}</span>}
     </button>
-    {loin&&<button className="menu-flottant" onClick={()=>setOuvert(true)} aria-label="Ouvrir le menu">☰</button>}
     {ouvert&&<>
       <div className="menu-voile" onClick={()=>setOuvert(false)}/>
       <nav className="menu-panneau" aria-label="Menu principal">
@@ -3150,46 +3143,61 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
   // disponible toute la nuit — sans dépendre d'un déclenchement matinal, qui
   // est aujourd'hui le point faible du produit.
   const TABS=[{id:"accueil",label:"ACCUEIL"},{id:"ranking",label:"CLASSEMENT"},{id:"per",label:"PER"},{id:"briefing",label:"BRIEFING"},{id:"heatmap",label:"HEATMAP"},{id:"detail",label:"DÉTAIL"},{id:"watchlist",label:"★ FAVORIS",badge:favCount||null},{id:"weights",label:"POIDS"},{id:"news",label:"ACTUALITÉS"},{id:"monde",label:"MARCHÉS MONDIAUX"},{id:"guide",label:"? COMMENT LIRE"}];
-  return(
-    <div className="entete" style={{background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540",padding:"12px 20px",position:"sticky",top:0,zIndex:100}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
-        <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
-          <Marque/>
-          <Menu tab={tab} setTab={setTab} TABS={TABS}/>
-          {/* « ? » : visible sur téléphone aussi, où le badge et les onglets
-              du haut sont masqués ou hors écran. */}
-          <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
-            style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
-          <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-            <span style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
-              <span style={{letterSpacing:.3}}>données :</span>
-              {/* Largeur réservée (« 06/10/2026 19:56:21 ») : l'horodatage arrive
-                  après le premier rendu et poussait la suite de la ligne. */}
-              <span style={{color:"#c8d3e8",fontWeight:600,minWidth:"19ch"}}>{ts||"—"}</span>
-            </span>
-            {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-            {masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>}
-          </div>
-        </div>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          {/* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
-              souvent dire « rien de plus récent n'existe » — le pipeline
-              publie quatre fois par jour ouvré, pas en continu. Sans retour,
-              l'utilisateur croit le bouton cassé. */}
-          <button onClick={onRefresh} disabled={loading} title="Recharger data.json depuis le serveur"
-                  style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1,cursor:loading?"default":"pointer"}}>
-            {loading?"↻ Chargement…":"↻ Actualiser"}</button>
-          {majMsg&&<span style={{fontSize:10,color:majMsg.neuf?"#00e5a0":"#8892a4",whiteSpace:"nowrap"}}>{majMsg.texte}</span>}
-          {/* 22/10/2026 : plus d'« affichage statique » — la table de repli
-              n'a plus de chiffres. Soit rien n'a jamais chargé, soit c'est un
-              rafraîchissement qui a échoué et l'écran garde le data.json
-              précédent, daté par l'horodatage ci-dessus. */}
-          {fetchErr&&<span role="status" style={{fontSize:10,color:"#ff4f5a",marginLeft:8}}>{fetchErr==="rafraichissement"
-            ?"⚠ Rafraîchissement impossible — dernières données chargées conservées"
-            :"⚠ Données indisponibles, réessayez"}</span>}
-        </div>
+  /* ⚠️ SEULE LA PREMIÈRE LIGNE RESTE COLLÉE — 19/11/2026. L'en-tête entier
+     était collé : 296 px à 1440, 399 à 768 (mesuré), soit près de la moitié
+     de l'écran masquée à chaque défilement. Ne restent collés que la marque,
+     le MENU, « ? » et la date des données ; l'état de la séance, les indices,
+     Actualiser et les onglets défilent avec la page. Deux blocs FRÈRES et
+     non imbriqués : un élément collé ne sort jamais de son parent, il
+     partirait avec lui. Sa hauteur est publiée dans --h-entete (liste de la
+     fiche, scroll-padding) : mesurée, pas supposée. */
+  const refEntete=useRef(null);
+  React.useLayoutEffect(()=>{
+    const e=refEntete.current;if(!e)return;
+    const f=()=>{try{const colle=getComputedStyle(e).position==="sticky";
+      document.documentElement.style.setProperty("--h-entete",(colle?Math.round(e.getBoundingClientRect().height):0)+"px");}catch(x){}};
+    f();if(!window.ResizeObserver)return;
+    const ro=new ResizeObserver(f);ro.observe(e);return()=>ro.disconnect();
+  },[]);
+  const fond={background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540"};
+  return(<>
+    <div className="entete" ref={refEntete} style={{...fond,padding:"10px 20px",position:"sticky",top:0,zIndex:100}}>
+      <div className="entete-ligne" style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:"6px 14px"}}>
+        <Marque/>
+        <Menu tab={tab} setTab={setTab} TABS={TABS}/>
+        {/* « ? » : visible sur téléphone aussi, où les onglets du haut sont
+            masqués. */}
+        <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
+          style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
+        <span className="entete-date" style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
+          <span style={{letterSpacing:.3}}>données :</span>
+          {/* Largeur réservée (« 06/10/2026 19:56:21 ») : l'horodatage arrive
+              après le premier rendu et poussait la suite de la ligne. */}
+          <span style={{color:"#c8d3e8",fontWeight:600,minWidth:"19ch"}}>{ts||"—"}</span>
+        </span>
       </div>
-      <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+    </div>
+    <div className="entete-suite" style={{...fond,padding:"10px 20px 12px"}}>
+      <div className="entete-etat" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+        {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
+        {/* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
+            souvent dire « rien de plus récent n'existe » — le pipeline
+            publie quatre fois par jour ouvré, pas en continu. Sans retour,
+            l'utilisateur croit le bouton cassé. */}
+        <button onClick={onRefresh} disabled={loading} title="Recharger data.json depuis le serveur"
+                style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1,cursor:loading?"default":"pointer"}}>
+          {loading?"↻ Chargement…":"↻ Actualiser"}</button>
+        {majMsg&&<span style={{fontSize:10,color:majMsg.neuf?"#00e5a0":"#8892a4",whiteSpace:"nowrap"}}>{majMsg.texte}</span>}
+        {/* 22/10/2026 : plus d'« affichage statique » — la table de repli
+            n'a plus de chiffres. Soit rien n'a jamais chargé, soit c'est un
+            rafraîchissement qui a échoué et l'écran garde le data.json
+            précédent, daté par l'horodatage ci-dessus. */}
+        {fetchErr&&<span role="status" style={{fontSize:10,color:"#ff4f5a"}}>{fetchErr==="rafraichissement"
+          ?"⚠ Rafraîchissement impossible — dernières données chargées conservées"
+          :"⚠ Données indisponibles, réessayez"}</span>}
+      </div>
+      {masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>}
+      <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginTop:10}}>
         {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
             un bouton qui ne fait rien sans le dire use la confiance. */}
         <button onClick={onRetour} disabled={!peutRevenir}
@@ -3206,7 +3214,7 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
         ))}
       </div>
     </div>
-  );
+  </>);
 };
 
 // ── RANKING ───────────────────────────────────────────────────────────────────
@@ -5174,17 +5182,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
      son haut hors de l'écran (y = −192 mesuré à 390 px). On l'amène en haut
      à l'ouverture et à chaque changement de titre. */
   const refFiche=useRef(null);
-  /* La liste latérale (≥ 1200 px) se colle sous l'en-tête, dont la hauteur
-     varie (bandeau, cartes d'indices) : on la mesure plutôt que de la
-     supposer. En-tête non collé (paysage, téléphone) : 0. */
-  useEffect(()=>{
-    const e=document.querySelector(".entete");
-    if(!e||!window.ResizeObserver)return;
-    const f=()=>{try{const colle=getComputedStyle(e).position==="sticky";
-      document.documentElement.style.setProperty("--h-entete",(colle?Math.max(0,Math.round(e.getBoundingClientRect().bottom)):0)+"px");}catch(x){}};
-    const ro=new ResizeObserver(f);ro.observe(e);f();
-    return ()=>ro.disconnect();
-  },[]);
+  /* La liste latérale (≥ 1200 px) se colle sous l'en-tête : sa hauteur,
+     --h-entete, est mesurée par l'en-tête lui-même (19/11/2026). */
   useEffect(()=>{
     try{
       if(refFiche.current&&window.matchMedia&&window.matchMedia("(max-width:640px)").matches)

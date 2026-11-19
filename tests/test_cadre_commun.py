@@ -65,3 +65,56 @@ def test_plus_de_doublons_du_nombre_de_titres():
     assert "données: {src}" not in code
     assert "BVC · {univers" not in code and 'className="entete-droite"' not in code
     assert "Clôture · ${nLive} titres" not in code and "setSrc(" not in code
+
+
+def test_plus_de_bouton_de_menu_flottant():
+    """Le MENU de la ligne collée suffit : le rond flottant le doublait et
+    masquait le bas de l'écran du téléphone."""
+    code = _sans_commentaires(SRC)
+    assert "menu-flottant" not in code
+    assert "setLoin" not in code
+
+
+# ── 3. Bandeau défilant ─────────────────────────────────────────────────────
+
+def _css_telephone() -> str:
+    css = SRC[:SRC.index("</style>")]
+    i = css.index("VERSION TÉLÉPHONE")
+    return css[i:css.index("@keyframes ticker", i)]
+
+
+def test_le_bandeau_defilant_est_masque_sur_telephone_seulement():
+    tape = _entre(SRC, "const TickerTape=", "\n};\n")
+    assert 'className="bandeau-defilant"' in tape
+    assert ".bandeau-defilant{display:none!important}" in _css_telephone()
+    # ailleurs, il reste : aucune autre règle ne le masque
+    hors = SRC[:SRC.index("</style>")].replace(_css_telephone(), "")
+    assert "bandeau-defilant" not in hors
+    assert "{etatDonnees===\"ok\"&&<TickerTape rows={rows}/>}" in SRC
+
+
+# ── 4. Seule la première ligne reste collée ─────────────────────────────────
+
+def test_seule_la_premiere_ligne_est_collee():
+    """Deux blocs frères : .entete (collé : marque, MENU, ?, date) puis
+    .entete-suite (défile : état, indices, Actualiser, onglets). Un élément
+    collé ne sort pas de son parent — imbriqués, la ligne partirait avec le
+    reste."""
+    i = ENTETE.index('className="entete-suite"')
+    colle, suite = ENTETE[ENTETE.index('className="entete"'):i], ENTETE[i:]
+    assert 'className="entete"' in colle and 'position:"sticky",top:0' in colle
+    for x in ("<Marque/>", "<Menu ", 'setTab("guide")', 'className="entete-date"'):
+        assert x in colle, x
+    for x in ("<CarteIndices", "onRefresh", 'className={"onglets"', "mktStatus"):
+        assert x not in colle, f"{x} ne doit pas rester collé"
+        assert x in suite, x
+    assert "position:\"sticky\"" not in suite
+    assert "return(<>" in ENTETE, "les deux blocs doivent être frères"
+
+
+def test_plus_aucune_regle_ne_decolle_la_ligne_du_menu():
+    css = SRC[:SRC.index("</style>")]
+    assert ".entete{position:static" not in css
+    # la hauteur collée est mesurée et sert au défilement vers une ancre
+    assert "html{scroll-padding-top:var(--h-entete,0px)}" in css
+    assert '"--h-entete"' in ENTETE and SRC.count('"--h-entete"') == 1
