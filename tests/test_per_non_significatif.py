@@ -41,3 +41,12 @@ def test_le_rang_sectoriel_ecarte_un_per_non_significatif():
     assert rs._valeur({"pe": 100.0}, "pe") == 100.0      # contrôle : le seuil est inclus
     assert rs._valeur({"pb": 251.9}, "pb") == 251.9      # contrôle : seul le PER est concerné
     assert 'if(ratio==="pe"&&perNS(r.pe,r.bpa_12m??r.bpa)) return null;' in ECRAN
+
+
+def test_les_trois_seuils_sont_le_meme_nombre():
+    """Relecture du 19/11 : le seuil vit à trois endroits (fiche/classement,
+    onglet PER, rang sectoriel). S'ils divergent, ce test casse."""
+    from pipeline import rang_sectoriel as rs
+    a = int(re.search(r"const PER_MAX_NS=(\d+);", ECRAN).group(1))
+    b = int(re.search(r"const SEUIL_NS=(\d+),", ECRAN).group(1))
+    assert a == b == rs.PER_MAX_NS == 100
