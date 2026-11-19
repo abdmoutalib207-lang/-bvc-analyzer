@@ -455,6 +455,60 @@ def auditer(data: dict, fondamentaux: dict, faits: dict, bpa: dict, bougies_de=N
         out += controler_score_bvc(sym, t, bougies_de)
         out += controler_confiance(sym, t, contestes)
         out += controler_alertes(sym, t, fondamentaux.get(sym) or {}, contestes)
+        out += controler_arithmetique(sym, t, (bpa or {}).get(sym))
+    return out
+
+
+# ── maillon 5 : l'arithmétique du fichier publié ───────────────────────────
+# ⚠️ 19/11/2026 — DEUX AUDITS EXTERNES (Manus, GPT) l'ont montré par
+# injection : un PER de 37,2 au lieu de 14,8 (IAM), une variation de +6 % sous
+# la référence (MNG) ou un dividende multiplié par dix (MOX) passaient TOUS les
+# contrôles — 3 350 tests, validate.py, coherence.py et cette chaîne. C'est la
+# classe de l'incident du 09/09/2026. Chaque grandeur publiée qui se recalcule
+# depuis le fichier lui-même (ou depuis bpa.json, d'où elle vient) est
+# recalculée ici. Mesuré le 19/11 sur le fichier publié : 0 écart sur 69 PER,
+# 71 PER annuels, 66 variations, 75 rendements, 75 dividendes et tous les BPA.
+TOL_PER = 0.15          # PER arrondi au dixième ; deux arrondis successifs
+TOL_CHG = 0.02          # variation publiée au centième de point
+TOL_RDT = 0.02          # rendement publié au centième de point
+TOL_DH = 0.005          # montant par action au centime
+
+
+def controler_arithmetique(sym, t, bpa_sym) -> list:
+    out = []
+    p = _num(t.get("price"))
+    b = _num(t.get("bpa"))
+    b12 = _num(t.get("bpa_12m"))
+    base = b12 if b12 is not None else b
+    for champ, bpa_ref in (("pe", base), ("pe_annuel", b)):
+        v = _num(t.get(champ))
+        if v is None:
+            continue
+        att = _per(p, bpa_ref)
+        if att is None or abs(v - att) > TOL_PER:
+            out.append(_inc(sym, f"arith.{champ}", ERREUR,
+                            f"{champ} publié ≠ cours ÷ BPA", v, att))
+    ref = _num(t.get("reference"))
+    c = _num(t.get("chg"))
+    if c is not None and ref and p:
+        att = round((p - ref) / ref * 100, 2)
+        if abs(c - att) > TOL_CHG:
+            out.append(_inc(sym, "arith.chg", ERREUR,
+                            "variation publiée ≠ (cours − référence) ÷ référence", c, att))
+    d, ddh = _num(t.get("div")), _num(t.get("div_dh"))
+    if d is not None and ddh is not None and p:
+        att = round(ddh / p * 100, 2)
+        if abs(d - att) > TOL_RDT:
+            out.append(_inc(sym, "arith.div", ERREUR,
+                            "rendement publié ≠ dividende ÷ cours", d, att))
+    # Le dividende et les BPA viennent de bpa.json (relevés sur pièce, page
+    # citée) : la fiche publiée doit les reprendre tels quels.
+    if isinstance(bpa_sym, dict):
+        for champ in ("div_dh", "bpa", "bpa_12m"):
+            pub, src = _num(t.get(champ)), _num(bpa_sym.get(champ))
+            if (pub is None) != (src is None) or (pub is not None and abs(pub - src) > TOL_DH):
+                out.append(_inc(sym, f"arith.{champ}_source", ERREUR,
+                                f"{champ} publié ≠ bpa.json (relevé sur pièce)", t.get(champ), bpa_sym.get(champ)))
     return out
 
 
