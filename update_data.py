@@ -2785,9 +2785,12 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
     du jour. Mesuré le 19/11 : servie = référence × actions à 0,0 % près (médiane
     sur 65 titres). Comparées telles quelles, l'écart publié recopiait la
     variation du jour (56 titres sur 80) et ne disait rien. Ramenée au cours du
-    jour, la valeur servie ne diffère plus de la nôtre que par le NOMBRE
-    D'ACTIONS — ce que ce champ doit signaler (nôtre ÷ servie − 1 au 19/11 : STR −21,5 %,
-    ZLD +18,7 %, LHM −5,0 %). Sans référence (source non CDG ou périmée), la
+    jour, un écart restant signale SOIT un nombre d'actions différent, SOIT une
+    valeur servie PÉRIMÉE — le champ ne sait pas trancher. ⚠️ Au 19/11 (nôtre ÷
+    servie − 1 : STR −21,5 %, ZLD +18,7 %, LHM −5,0 %), c'était la seconde : la
+    valeur servie correspondait à un ANCIEN cours (LHM 41 005 = 1 750 × nos
+    23 431 240 actions), et nos capitalisations concordent avec MASI Screener
+    (STR 191, ZLD 154, LHM 38 966 au cours de référence). Sans référence (source non CDG ou périmée), la
     valeur servie ne peut pas être ramenée au même instant : l'écart n'est pas
     publié plutôt que de recopier la variation du jour."""
     if cap_source == "calculee_bourse_officielle":
