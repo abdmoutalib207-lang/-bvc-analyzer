@@ -51,6 +51,8 @@ RATIOS = ("pe", "pb", "div")
 # Le rang 1 doit donc désigner le titre le plus attrayant, pas le plus grand
 # nombre, sinon le classement se lit à l'envers.
 PLUS_BAS_EST_MIEUX = {"pe", "pb"}
+# Seuil du PER non significatif (terminal : PER_MAX_NS ; MASI Screener : PER_MAX).
+PER_MAX_NS = 100
 
 
 def _valeur(t: dict, ratio: str):
@@ -68,6 +70,12 @@ def _valeur(t: dict, ratio: str):
     except (TypeError, ValueError):
         return None
     if ratio in PLUS_BAS_EST_MIEUX and v <= 0:
+        return None
+    # ⚠️ 19/11/2026 — Au-delà de 100x, un PER est NON SIGNIFICATIF (bénéfice
+    # quasi nul face au cours ; même seuil que l'onglet PER du terminal et que
+    # MASI Screener). RDS à 251,9 sortait « +1 218,8 % vs secteur » et tirait la
+    # médiane de l'immobilier.
+    if ratio == "pe" and v > PER_MAX_NS:
         return None
     if ratio == "div" and v < 0:
         return None

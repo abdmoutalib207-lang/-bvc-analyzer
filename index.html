@@ -1487,6 +1487,9 @@ const lsEcrire = (k, v) => {
   } catch (e) {}
 };
 const fmt = (n, d = 2) => n == null || !isFinite(n) ? "—" : (+n).toFixed(d);
+const PER_MAX_NS = 100;
+const perNS = (pe, bpa) => pe != null && isFinite(pe) ? pe > PER_MAX_NS ? `PER de ${Math.round(pe)}x : non significatif (au-delà de ${PER_MAX_NS}x, bénéfice quasi nul face au cours)` : pe <= 0 ? "Résultat négatif ou nul : PER non significatif" : null : bpa != null && isFinite(bpa) && bpa <= 0 ? "Perte : un résultat négatif n'a pas de PER (non significatif)" : null;
+const perTxt = (pe, bpa) => perNS(pe, bpa) ? "n.s." : fmt(pe, 1);
 let VERSION_PUB = "";
 const vpub = () => VERSION_PUB ? encodeURIComponent(VERSION_PUB) : String(Math.floor(Date.now() / 60000));
 const fr = (n, d = 2) => fmt(n, d).replace(".", ",");
@@ -1720,6 +1723,7 @@ const SOURCES_FOND = {
 const explRatio = (cle, r, price) => {
   const src = x => SOURCES_FOND[x] || x || "source non précisée";
   const m = r._meta || {};
+  if (cle === "pe" && perNS(r.pe, r.bpa_12m ?? r.bpa)) return `${perNS(r.pe, r.bpa_12m ?? r.bpa)}.${r.pe != null ? `\nCalcul : ${px(price)} DH ÷ BPA ${fmt(r.bpa_12m ?? r.bpa)} DH${r.pe_base ? ` (${r.pe_base})` : ""} = ${fmt(r.pe, 1)}.` : ""}`;
   if (cle === "pe") return r.pe == null ? "Pas de PER : pas de bénéfice par action positif tiré des comptes." : `PER = cours ÷ bénéfice par action.\n${px(price)} DH ÷ ${fmt(r.bpa_12m ?? r.bpa)} DH${r.pe_base ? ` (${r.pe_base})` : ""}.\nSource : ${src(m.source_fond)}.\nRéserve : PER réalisé, pas prévisionnel.${r.pe_annuel != null ? ` Exercice 2025 seul : ${fmt(r.pe_annuel, 1)}.` : ""}${r.pe_capitalisation != null && r.pe_capitalisation !== r.pe ? `\nCapitalisation ÷ résultat 12 mois (nombre d'actions actuel) : ${fmt(r.pe_capitalisation, 1)} — le BPA, lui, porte sur le nombre moyen pondéré de la période (IAS 33).` : ""}${r.bpa_reserve ? `\n⚠ ${r.bpa_reserve}` : ""}`;
   if (cle === "pb") return r.pb == null ? "Pas de P/B : fonds propres non relevés sur pièce." : `P/B = cours ÷ fonds propres part du groupe par action${m.pb_fonds_propres_au ? ` (fonds propres au ${m.pb_fonds_propres_au.split("-").reverse().join("/")}, les plus récents relevés sur pièce)` : ""}.\nSource : ${src(m.pb_source)}.${m.pb_reserve ? `\n⚠ ${m.pb_reserve}` : ""}`;
   if (cle === "div") return r.div == null ? "Dividende inconnu : aucun versement relevé sur pièce." : `Rendement = dernier dividende ÷ cours.\n${r.div_dh != null ? `${fmt(r.div_dh)} DH ÷ ${px(price)} DH.\n` : ""}Réserve : dividende déjà versé, il peut ne pas être reconduit.`;
@@ -6384,7 +6388,7 @@ const Ranking = ({
       const rows_csv = sorted.map(r => {
         const s = r.score_bvc || {};
         const v = valeurBVC(r);
-        return [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", v == null ? "" : String(v), s.etat || "non publié", s.couverture_pct ?? "", trancheTexte(r), s.version || ""];
+        return [tk(r), r.symbol, r.name || "", r.sector || "", r.price || "", r.chg || "", perNS(r.pe, r.bpa_12m ?? r.bpa) ? "n.s." : r.pe?.toFixed(1) || "", r.div?.toFixed(2) || "", r.rsi?.toFixed(1) || "", v == null ? "" : String(v), s.etat || "non publié", s.couverture_pct ?? "", trancheTexte(r), s.version || ""];
       });
       const csv = "﻿" + [cols, ...rows_csv].map(r => r.join(";")).join("\n");
       const blob = new Blob([csv], {
@@ -6759,12 +6763,13 @@ const Ranking = ({
         }
       }, v.toLocaleString("fr-FR").replace(/\u202f|,/g, " "), " titres") : null);
     })()), React.createElement("td", {
+      title: perNS(r.pe, r.bpa_12m ?? r.bpa) || undefined,
       style: {
         padding: "8px 8px",
         fontSize: 12,
-        color: r.pe > 25 ? "#ff8f00" : "#c8d3e8"
+        color: perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8"
       }
-    }, r.pe?.toFixed(1) || "—"), React.createElement("td", {
+    }, perTxt(r.pe, r.bpa_12m ?? r.bpa)), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
@@ -11904,7 +11909,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", r.pe?.toFixed(1) || "—", r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", perTxt(r.pe, r.bpa_12m ?? r.bpa), perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", r.div ? `${r.div.toFixed(1)}%` : "—", r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"], ["Upside Base", ecart(r.base), r.base != null && (r.base - price) / price > 0 ? "#00e5a0" : "#ff4f5a"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -11933,7 +11938,7 @@ const Detail = ({
       color: "#5a6478",
       marginTop: 1
     }
-  }, "exercice 2025 : ", fmt(r.pe_annuel, 1)), ratio === "pe" && r.pe_exception && React.createElement("div", {
+  }, "exercice 2025 : ", perTxt(r.pe_annuel, r.bpa)), ratio === "pe" && r.pe_exception && React.createElement("div", {
     title: `Exception déclarée : résultat 12 mois ${r.pe_exception.base} (${r.pe_exception.formule}) au lieu du résultat publié${r.pe_exception.rnpg_12m_publie != null ? ` (${fmt(r.pe_exception.rnpg_12m_publie, 1)} MDH)` : ""}. Motif : ${r.pe_exception.motif || "—"} Réserve : ${r.pe_exception.reserve || "—"}`,
     style: {
       fontSize: 9,
@@ -11944,6 +11949,7 @@ const Detail = ({
   }, "exception : ", r.pe_exception.base), (() => {
     const e = (r.rang_secteur || {})[ratio];
     if (!e) return null;
+    if (ratio === "pe" && perNS(r.pe, r.bpa_12m ?? r.bpa)) return null;
     const cher = ratio === "div" ? e.ecart_pct < 0 : e.ecart_pct > 0;
     return React.createElement("div", {
       title: `Médiane ${e.secteur} : ${e.mediane_secteur}`,
