@@ -93,7 +93,6 @@
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
       .entete{position:static!important;padding:8px 12px!important}
-      .badge-version,.entete-droite{display:none!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -5760,7 +5759,6 @@ const Header = ({
   tab,
   setTab,
   ts,
-  src,
   onRefresh,
   loading,
   fetchErr,
@@ -5768,27 +5766,9 @@ const Header = ({
   favCount,
   masi,
   majMsg,
-  univers,
   peutRevenir,
   onRetour
 }) => {
-  const [pulse, setPulse] = useState(false);
-  const [clock, setClock] = useState("");
-  useEffect(() => {
-    const t = setInterval(() => setPulse(p => !p), 1800);
-    return () => clearInterval(t);
-  }, []);
-  useEffect(() => {
-    const tick = () => setClock(maroc().toLocaleString("fr-FR", {
-      timeZone: "UTC",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }));
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, []);
   const TABS = [{
     id: "accueil",
     label: "ACCUEIL"
@@ -5871,23 +5851,7 @@ const Header = ({
       fontFamily: "var(--font)",
       flex: "0 0 auto"
     }
-  }, "?"), React.createElement("span", {
-    className: "badge-version",
-    title: "Score BVC : six facteurs not\xE9s sur 100 \u2014 moyennes mobiles 35, momentum (RSI) 15, MACD 10, activit\xE9 10, liquidit\xE9 15, rentabilit\xE9 (ROE) 15. Score descriptif, pas une pr\xE9vision.",
-    style: {
-      background: "rgba(0,229,160,.1)",
-      border: "1px solid rgba(0,229,160,.3)",
-      borderRadius: 4,
-      padding: "3px 10px",
-      fontSize: 11,
-      color: "#00e5a0",
-      letterSpacing: .5
-    }
-  }, "v6.4 \u2014 SCORE BVC ", React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "\xB7 6 facteurs, descriptif")), React.createElement("div", {
+  }, "?"), React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "center",
@@ -5896,18 +5860,6 @@ const Header = ({
     }
   }, React.createElement("span", {
     style: {
-      fontSize: 13,
-      color: "#00e5a0",
-      fontWeight: 700,
-      letterSpacing: 1,
-      minWidth: 72
-    }
-  }, clock), React.createElement("span", {
-    style: {
-      color: "#1a2540"
-    }
-  }, "|"), React.createElement("span", {
-    style: {
       fontSize: 11,
       color: "#8892a4",
       display: "flex",
@@ -5915,16 +5867,6 @@ const Header = ({
       gap: 5
     }
   }, React.createElement("span", {
-    style: {
-      display: "inline-block",
-      width: 7,
-      height: 7,
-      borderRadius: "50%",
-      background: pulse ? "#00e5a0" : "transparent",
-      border: "1px solid #00e5a0",
-      transition: "background .4s"
-    }
-  }), React.createElement("span", {
     style: {
       letterSpacing: .3
     }
@@ -5956,12 +5898,7 @@ const Header = ({
       gap: 8,
       alignItems: "center"
     }
-  }, src && React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4"
-    }
-  }, "donn\xE9es: ", src), React.createElement("button", {
+  }, React.createElement("button", {
     onClick: onRefresh,
     disabled: loading,
     title: "Recharger data.json depuis le serveur",
@@ -5988,17 +5925,7 @@ const Header = ({
       color: "#ff4f5a",
       marginLeft: 8
     }
-  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez")), React.createElement("div", {
-    className: "entete-droite",
-    style: {
-      textAlign: "right",
-      fontSize: 11
-    }
-  }, React.createElement("div", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "BVC \xB7 ", univers ?? STATIC.length, " titres"))), React.createElement("div", {
+  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez"))), React.createElement("div", {
     className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
@@ -13540,7 +13467,6 @@ function App() {
     });
   }, []);
   const [ts, setTs] = useState("");
-  const [src, setSrc] = useState("connexion…");
   const [loading, setLoading] = useState(false);
   const [fetchErr, setFetchErr] = useState(null);
   const [mktStatus, setMktStatus] = useState(getMarketStatus());
@@ -13590,7 +13516,6 @@ function App() {
   const loadData = useCallback(async (manuel = false) => {
     setLoading(true);
     let pipelineLoaded = false;
-    let nLive = 0;
     try {
       const d = await fetch("data.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
       if (d && d.updated && d.updated !== VERSION_PUB) {
@@ -13673,7 +13598,6 @@ function App() {
         REGIME_TECH = d.regime_technique || null;
         mergeLive(m);
         setEtatDonnees("ok");
-        nLive = d.tickers.filter(t => t.price > 0).length;
         if (d.masi) setMasi(m => ({
           ...(m || {}),
           ...d.masi,
@@ -13709,9 +13633,6 @@ function App() {
         if (liveMap && Object.keys(liveMap).length > 0) {
           mergeLive(liveMap);
           if (!pipelineLoaded) setEtatDonnees(e => e === "ok" ? "ok" : "indisponible");
-          const nIdb = Object.keys(liveMap).length;
-          const srcs = Object.values(liveMap).map(v => v.src).filter(Boolean);
-          const mainSrc = srcs[0] || "live";
           setTs(maroc().toLocaleString("fr-FR", {
             timeZone: "UTC",
             day: "2-digit",
@@ -13721,7 +13642,6 @@ function App() {
             minute: "2-digit",
             second: "2-digit"
           }));
-          setSrc(`${mainSrc} · ${nIdb} live ●`);
           setFetchErr(null);
           setLoading(false);
           return;
@@ -13729,9 +13649,6 @@ function App() {
       } catch {}
     }
     if (pipelineLoaded) {
-      const ageMin = nLive > 0 ? 0 : Infinity;
-      const label = mktNow.label === "CLÔTURE" ? `Clôture · ${nLive} titres` : `Pipeline · ${nLive} titres`;
-      setSrc(label);
       setFetchErr(null);
       setLoading(false);
       return;
@@ -13739,7 +13656,6 @@ function App() {
     const dejaCharge = dernierUpd.current !== null;
     setFetchErr(dejaCharge ? "rafraichissement" : "indisponible");
     setEtatDonnees(e => e === "ok" ? "ok" : "indisponible");
-    setSrc(dejaCharge ? "⚠ rafraîchissement impossible" : "⚠ données indisponibles");
     setLoading(false);
   }, [mergeLive, annonce]);
   useEffect(() => {
@@ -13792,13 +13708,11 @@ function App() {
   }, React.createElement(Intro, null), etatDonnees === "ok" && React.createElement(TickerTape, {
     rows: rows
   }), React.createElement(Header, {
-    univers: rows.length,
     tab: tab,
     setTab: changeTab,
     peutRevenir: peutRevenir,
     onRetour: revenir,
     ts: ts,
-    src: src,
     onRefresh: () => loadData(true),
     loading: loading,
     fetchErr: fetchErr,

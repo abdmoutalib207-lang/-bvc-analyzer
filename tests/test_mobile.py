@@ -48,7 +48,7 @@ def test_les_regles_mobiles_existent():
     assert 'className={"onglets"+(peutRevenir?"":" sans-retour")}' in SRC
     # Les classes utilisées par le CSS sont bien posées dans le JSX.
     for classe in ("entete", "onglet", "carte-ind", "indices-ligne", "classement", "bandeau-masi",
-                   "badge-version", "entete-droite",     # choix-score : sélecteur de pondération retiré le 06/11/2026
+                   # badge-version et entete-droite : retirés du cadre le 19/11/2026
                    "nom-societe", "secteur-societe"):
         assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe
 

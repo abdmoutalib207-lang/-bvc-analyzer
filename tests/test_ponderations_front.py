@@ -90,11 +90,14 @@ def test_le_contrat_de_data_json_porte_le_score_bvc():
 
 # ── 2. Le Score BVC prend la place ──────────────────────────────────────────
 
-def test_l_en_tete_annonce_le_score_bvc_et_non_la_ponderation_v53():
+def test_l_en_tete_n_annonce_plus_la_ponderation_v53():
+    """19/11/2026 (cadre commun, inventaire du bruit) : le badge « v6.4 —
+    SCORE BVC » quitte l'en-tête ; le Score BVC se présente dans le
+    classement et le guide. Reste interdite toute pondération v5.3."""
     entete = _sans_commentaires(SRC)
     entete = entete[entete.index("const Header=("):]
     entete = entete[:entete.index("\n};\n")]
-    assert "v6.4 — SCORE BVC" in entete
+    assert "v6.4" not in entete
     assert "FOND 72" not in entete and "TECH 28" not in entete
 
 
