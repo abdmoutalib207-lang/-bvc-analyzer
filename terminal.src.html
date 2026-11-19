@@ -1194,6 +1194,28 @@ const meta=r=>{const m=(r&&r._meta)||null;
    briefing le neutralise (`reellement_cote`), l'affichage le montrait comme
    « 0,00 % », une stabilité qui n'a pas été observée (R9). */
 const varSeance=r=>meta(r).stale?null:r.chg;
+/* ⚠️ AFFICHAGES FAUX — 19/11/2026 (inventaire du bruit, lot 1.1). Des
+   formats qui disaient autre chose que le chiffre ; affichage seulement, ni
+   donnée ni score touchés. Fonctions pures, testées sous node
+   (tests/test_affichages_faux.py).
+   - Stochastique : au-dessus de 80 la fiche écrivait « survente », soit le
+     contraire (16 titres le 19/11, NEJ à 100). On dit la ZONE, pas une
+     lecture : « surachat / survente » est du vocabulaire interprétatif. */
+const zoneStoch=k=>k==null||!isFinite(k)?"":k>80?"zone haute":k<20?"zone basse":"neutre";
+/* - Bandeau : une variation nulle s'écrivait « —0.00% », qui se lit −0,00 %
+     (8 titres le 19/11 : ARD, INV, MOX…). Zéro n'a pas de flèche. */
+const varBandeau=c=>c===0?"0,00 %":`${c>0?"▲":"▼"}${Math.abs(c).toFixed(2)}%`;
+/* - Dividende. Au classement, un rendement NON RELEVÉ s'écrivait « —% »
+     (6 titres). Sur la fiche, un rendement relevé à ZÉRO s'écrivait « — »,
+     confondu avec « non relevé » (17 titres) : « — » est réservé à l'absence. */
+const divClassement=d=>d==null||!isFinite(d)?"—":`${(+d).toFixed(1)}%`;
+const divFiche=d=>d==null||!isFinite(d)?"—":+d===0?"0 %":`${(+d).toFixed(1)}%`;
+/* - Actualités : le flux porte le même article deux fois (deux sources, ou
+     deux passages de la même) ; IAM en montrait 2 doublons sur 6. Même titre
+     une fois normalisé (casse, accents, ponctuation, espaces) = une entrée, la
+     première du flux. */
+const cleTitreArticle=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+const dedoublonnerArticles=l=>{const vus=new Set();return (l||[]).filter(a=>{const k=cleTitreArticle(a&&a.title);if(!k)return true;if(vus.has(k))return false;vus.add(k);return true;});};
 /* ⚠️ ROE « SANS OBJET » — 22/10/2026 (audit du 22/10, lot A). La fiche
    d'AFM affichait un ROE 2025 de 103,2 % que la note écarte
    (`ROE_SANS_OBJET`, pipeline/smart_money/fond_score.py), et celle d'AGM le
@@ -2824,7 +2846,7 @@ const TickerTape=({rows})=>{
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
             <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{tk(r)}</span>
             <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
-            <span style={{color:nc(r.chg)}}>{varSeance(r)==null?NON_COTE:<>{r.chg>0?"▲":r.chg<0?"▼":"—"}{Math.abs(r.chg||0).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
+            <span style={{color:nc(r.chg)}}>{varSeance(r)==null?NON_COTE:varBandeau(r.chg)}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
           </span>
         ))}
       </div>
@@ -2841,7 +2863,7 @@ const RUBRIQUES=[
     {id:"accueil",icone:"⌂",aide:"La séance en un coup d'œil, en rangées"},
     {id:"guide",icone:"?",aide:"Score BVC, couleur, confiance, fréquences — et ce que l'outil ne fait pas"}]},
   {titre:"Marché",vues:[
-    {id:"ranking",icone:"▤",aide:"Les 80 titres, leur Score BVC et sa tranche"},
+    {id:"ranking",icone:"▤",aide:"Tous les titres cotés, leur Score BVC et sa tranche"},
     {id:"per",icone:"÷",aide:"Les titres rangés par PER, à côté de la médiane de leur secteur"},
     {id:"heatmap",icone:"▦",aide:"La séance d'un coup d'œil, par secteur"},
     {id:"watchlist",icone:"★",aide:"Vos titres suivis"},
@@ -3073,7 +3095,10 @@ const RechercheAccueil=({rows,ouvrir})=>{
       </div>}
     </div>);
 };
-const Rangee=({titre,sous,vers,setTab,items})=>{
+/* `tri` (19/11/2026) : « Tout voir › » ouvre le classement dans l'ordre de la
+   rangée. Sous « Plus fortes hausses », il l'ouvrait trié par Score BVC — la
+   liste annoncée n'y était pas. */
+const Rangee=({titre,sous,vers,setTab,items,tri,setSort})=>{
   if(!items.length)return null;
   return(
     <section style={{marginBottom:18}}>
@@ -3082,12 +3107,12 @@ const Rangee=({titre,sous,vers,setTab,items})=>{
           <span style={{fontSize:14,fontWeight:700,color:"#e6edf7",letterSpacing:.6}}>{titre}</span>
           {sous&&<span style={{fontSize:11,color:"#5a6478",marginLeft:10}}>{sous}</span>}
         </div>
-        {vers&&<button onClick={()=>setTab(vers)} style={{background:"none",border:"none",color:"#4db8ff",fontSize:12,cursor:"pointer",fontFamily:"var(--font)"}}>Tout voir ›</button>}
+        {vers&&<button onClick={()=>{if(tri&&setSort)setSort(tri);setTab(vers);}} style={{background:"none",border:"none",color:"#4db8ff",fontSize:12,cursor:"pointer",fontFamily:"var(--font)"}}>Tout voir ›</button>}
       </div>
       <div className="rangee">{items}</div>
     </section>);
 };
-const Accueil=({rows,fav,ouvrir,setTab})=>{
+const Accueil=({rows,fav,ouvrir,setTab,setSort})=>{
   const [b,setB]=useState(undefined);
   useEffect(()=>{
     // La lecture la plus récente ; à séance égale, celle de clôture, qui porte
@@ -3129,9 +3154,9 @@ const Accueil=({rows,fav,ouvrir,setTab})=>{
       {b===undefined&&<Squelette blocs={[1,1]} titre="Chargement de l'accueil"/>}
       <Rangee titre="Critères remplis aujourd'hui" sous="critères mesurés" vers="briefing" setTab={setTab}
         items={surv.map(z=>t(par[z.symbol],(z.criteres||[]).map(c=>c.texte).join(" · ")))}/>
-      <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" setTab={setTab} items={hausses.map(r=>t(r))}/>
-      <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" setTab={setTab} items={baisses.map(r=>t(r))}/>
-      <Rangee titre="Score BVC le plus élevé" sous="descriptif, pas une prévision · confiance ≥ 2" vers="ranking" setTab={setTab}
+      <Rangee titre="Plus fortes hausses" sous="séance du jour" vers="ranking" tri="var" setSort={setSort} setTab={setTab} items={hausses.map(r=>t(r))}/>
+      <Rangee titre="Plus fortes baisses" sous="séance du jour" vers="ranking" tri="var_asc" setSort={setSort} setTab={setTab} items={baisses.map(r=>t(r))}/>
+      <Rangee titre="Score BVC le plus élevé" sous="descriptif, pas une prévision · confiance ≥ 2" vers="ranking" tri="bvc" setSort={setSort} setTab={setTab}
         items={notes.map(r=>t(r,`Score BVC ${exactBVC(valeurBVC(r))}/100 · ${trancheBVC(r).plage}`))}/>
       <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
     </div>);
@@ -3328,6 +3353,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       return vb-va;
     }
     if(sort==="var") return (varSeance(b)??-Infinity)-(varSeance(a)??-Infinity)||0;
+    /* Croissant — « Tout voir » des plus fortes baisses (19/11/2026). Une
+       variation absente (non coté, cours ancien) reste en fin de liste. */
+    if(sort==="var_asc") return (varSeance(a)??Infinity)-(varSeance(b)??Infinity)||0;
     if(sort==="rsi"){
       /* Un RSI absent n'est ni bas ni haut : en fin de liste. */
       const ra=a.rsi??a.rsi14,rb=b.rsi??b.rsi14;
@@ -3406,9 +3434,11 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       {/* ── Tri ────────────────────────────────────────────────── */}
       <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:12,color:"#8892a4",letterSpacing:1}}>TRIER PAR</span>
-        {SORTS.map(([id,lbl])=>(
-          <button key={id} onClick={()=>setSort(id)} style={{background:sort===id?"rgba(0,229,160,.12)":"transparent",border:sort===id?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:sort===id?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{lbl}{sort===id?" ▼":""}</button>
-        ))}
+        {SORTS.map(([id,lbl])=>{
+          // VAR% couvre les deux sens : ▼ décroissant, ▲ croissant (accueil).
+          const on=sort===id||(id==="var"&&sort==="var_asc");
+          return <button key={id} onClick={()=>setSort(id)} aria-pressed={on} style={{background:on?"rgba(0,229,160,.12)":"transparent",border:on?"1px solid rgba(0,229,160,.4)":"1px solid #1a2540",color:on?"#00e5a0":"#8892a4",padding:"3px 10px",borderRadius:4,fontSize:11}}>{lbl}{on?(sort==="var_asc"?" ▲":" ▼"):""}</button>;
+        })}
         {/* Le tri par PER a sa vue (03/11/2026) : base, BPA, médiane du
             secteur et titres non classés ne tiennent pas dans ce tableau. */}
         {!isWatchlist&&<button onClick={()=>setTab("per")} title="Classement par PER, avec la médiane du secteur et les titres non classés"
@@ -3503,7 +3533,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       </>;})()}
                   </td>
                   <td title={perNS(r.pe,r.bpa_12m??r.bpa)||undefined} style={{padding:"8px 8px",fontSize:12,color:perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":r.pe>25?"#ff8f00":"#c8d3e8"}}>{perTxt(r.pe,r.bpa_12m??r.bpa)}</td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
+                  <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{divClassement(r.div)}</td>
                   {/* SCORE BVC (06/11/2026) : partie entière sur 100, grise à
                       confiance ≤ 1. « — » sans valeur, le motif au survol. */}
                   <td style={{padding:"8px 8px"}}>
@@ -5125,7 +5155,7 @@ const TickerNews=({sym})=>{
     let vivant=true;setArticles([]);setOk(false);
     fetch("news.json?t="+vpub())
       .then(r=>r.ok?r.json():null)
-      .then(d=>{if(!vivant)return;if(d?.articles)setArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym)).slice(0,6));setOk(true);})
+      .then(d=>{if(!vivant)return;if(d?.articles)setArticles(dedoublonnerArticles((d.articles||[]).filter(a=>(a.tickers||[]).includes(sym))).slice(0,6));setOk(true);})
       .catch(()=>{if(vivant)setOk(true);});
     return()=>{vivant=false;};
   },[sym]);
@@ -5241,6 +5271,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 {fav.includes(sym)?"★":"☆"}
               </button>
             </div>
+            {/* L'IDENTITÉ sous le code (19/11/2026, lot 1.1) : la fiche ne
+                portait que « RDS · 171.05 DH » — un code que le lecteur doit
+                connaître pour savoir de quelle société il lit le score. */}
+            {(r.name||r.sector)&&<div className="fiche-identite" style={{fontSize:13,lineHeight:1.35,color:"#c8d3e8",marginBottom:6,textWrap:"balance",overflowWrap:"anywhere"}}>
+              {r.name||tk(r)}{r.sector&&<span style={{color:"#8892a4"}}> · {r.sector}</span>}</div>}
             {/* L'essentiel AVANT le score (audit externe du 12/11/2026) : date
                 du cours, montant échangé, réserve principale. La pastille
                 ⚠ JJ/MM d'un cours ancien y est : elle quitte la ligne du cours
@@ -5408,7 +5443,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",divFiche(r.div),r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
@@ -5434,6 +5469,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                   {(()=>{const e=(r.rang_secteur||{})[ratio];
                     if(!e) return null;
                     if(ratio==="pe"&&perNS(r.pe,r.bpa_12m??r.bpa)) return null;   // PER n.s. : pas de rang (19/11)
+                    if(ratio==="div"&&+r.div===0) return null;   // aucun dividende : « −100 % vs secteur » ne dit rien de plus (19/11)
                     const cher=(ratio==="div")?e.ecart_pct<0:e.ecart_pct>0;
                     return <div title={`Médiane ${e.secteur} : ${e.mediane_secteur}`}
                         style={{fontSize:9,marginTop:2,color:cher?"#ff8f00":"#00e5a0"}}>
@@ -5591,7 +5627,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>STOCH</div>
                         <div style={{fontSize:11,color:r.stoch_k>80?"#ff4f5a":r.stoch_k<20?"#00e5a0":"#ffd740",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
-                        <div style={{fontSize:9,color:"#8892a4"}}>{r.stoch_k>80?"survente":r.stoch_k<20?"survente":"neutre"}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{zoneStoch(r.stoch_k)}</div>
                       </div>
                     )}
                   </div>
@@ -6360,7 +6396,7 @@ function App(){
         {etatDonnees!=="ok"&&VUES_SUR_DONNEES.includes(tab)
           ?<EtatDonnees etat={etatDonnees} loading={loading} onRetry={()=>loadData()}/>
           :<>
-        {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
+        {tab==="accueil"  &&<Accueil rows={rows} fav={fav} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab} setSort={setSort}/>}
         {tab==="ranking"  &&<Ranking rows={rows} sort={sort} setSort={setSort} setSel={choisirTitre} setTab={changeTab} fav={fav} toggleFav={toggleFav}/>}
         {tab==="per"      &&<ClassementPER rows={rows} setSel={choisirTitre} setTab={changeTab}/>}
         {tab==="heatmap"  &&<Heatmap rows={rows} setSel={sym=>{choisirTitre(sym);changeTab("detail");}} setTab={changeTab}/>}
