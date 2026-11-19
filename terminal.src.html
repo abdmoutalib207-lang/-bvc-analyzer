@@ -919,13 +919,26 @@ async function fetchMASI(){
 // part des titres ayant battu le MASI à 20 séances ne se distingue pas d'une
 // tranche à l'autre. Aucun mot d'action n'est écrit —
 // `tests/test_couleurs_sans_recommandation.py` le vérifie sur index.html.
+//
+// ⚠️ 19/11/2026 — ÉCHELLE NEUTRE (feuille de route, lot 1.4). Jusque-là,
+// « 75 et plus » était peint du VERT DES HAUSSES (#00e5a0) et l'échelle
+// allait du vert à l'orange : la couleur se lisait « bon / mauvais », ce que
+// la mesure dément. Le vert et le rouge sont réservés aux variations de cours
+// et aux alertes ; le score va du gris au bleu de plus en plus soutenu.
+// Contraste ≥ 4,5:1 sur tous les fonds, y compris la carte teintée de la
+// fiche ; tranches voisines distinctes en deutéranopie, protanopie et
+// tritanopie simulées — l'ancienne échelle confondait 60–74 et 40–59 en
+// protanopie. `tests/test_couleurs_neutres.py` le vérifie.
 const TRANCHES_BVC=[
-  {id:"t75",min:75,       c:"#00e5a0",plage:"≥ 75"},
-  {id:"t60",min:60,       c:"#b5e655",plage:"60–74"},
-  {id:"t40",min:40,       c:"#ffd740",plage:"40–59"},
-  {id:"t0", min:-Infinity,c:"#ff8f00",plage:"< 40"},
+  {id:"t75",min:75,       c:"#5585ff",plage:"≥ 75"},
+  {id:"t60",min:60,       c:"#5fa6f0",plage:"60–74"},
+  {id:"t40",min:40,       c:"#8fb3dc",plage:"40–59"},
+  {id:"t0", min:-Infinity,c:"#b0b8c6",plage:"< 40"},
 ];
 const TRANCHE_NC={id:"nc",c:"#8892a4",plage:"non calculé"};
+// Couleur d'une tranche par son identifiant (légendes, « Comment lire ») :
+// jamais une couleur recopiée à la main, qui divergerait de la table.
+const couleurPlage=id=>([...TRANCHES_BVC,TRANCHE_NC].find(t=>t.id===id)||TRANCHE_NC).c;
 // Valeur publiée, ou null : PARTIEL et NON_CALCULABLE n'ont pas de valeur.
 const valeurBVC=r=>{const s=r&&r.score_bvc;const v=s?s.valeur:null;return v!=null&&isFinite(v)?+v:null;};
 const trancheBVC=r=>{const v=valeurBVC(r);return v==null?TRANCHE_NC:TRANCHES_BVC.find(t=>v>=t.min);};
@@ -3680,7 +3693,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
-        <span style={{color:"#00e5a0"}}>●</span> SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 · momentum 15 · MACD 10 · activité 10 · liquidité 15 · rentabilité 15) — <span style={{color:"#ffd740"}}>score descriptif, pas une prévision</span> ; « — » = non calculé (cours périmé, titre suspendu ou couverture insuffisante) &nbsp;|&nbsp;
+        <span style={{color:TRANCHES_BVC[0].c}}>●</span> SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 · momentum 15 · MACD 10 · activité 10 · liquidité 15 · rentabilité 15) — <span style={{color:"#ffd740"}}>score descriptif, pas une prévision</span> ; « — » = non calculé (cours périmé, titre suspendu ou couverture insuffisante) &nbsp;|&nbsp;
         <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
         <span style={{color:"#ff4f5a"}}>⚠️</span> RSI rouge = prudence &nbsp;|&nbsp; PE = Price/Earnings · DIV = dividende &nbsp;|&nbsp; Clic → vue détaillée
       </div>
@@ -4845,10 +4858,13 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
   const vTxt=s.valeur!=null&&isFinite(s.valeur)?`${exactBVC(s.valeur)}/100`:"—";
   const etatTxt={CALCULABLE:"CALCULABLE",PARTIEL:"PARTIEL",NON_CALCULABLE:"NON CALCULABLE"}[s.etat]||s.etat;
   const fac=s.facteurs||{};
-  const couleur=(pts,w)=>pts==null?"#2a3550":pts<=0?"#4a566f":pts>=w-1e-9?"#00e5a0":"#ffd740";
+  // Barres des facteurs : la même échelle neutre que les tranches (19/11/2026).
+  // Un facteur plein n'est pas une « victoire » : plus de vert ici.
+  const PLEIN="#5585ff",PARTIEL="#8fb3dc",ZERO="#4a566f";
+  const couleur=(pts,w)=>pts==null?"#2a3550":pts<=0?ZERO:pts>=w-1e-9?PLEIN:PARTIEL;
   return(
     <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
-      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>{sansValeur?"Composition du Score BVC":"Score BVC"} <span style={{color:ok?"#00e5a0":"#ffd740"}}>· {etatTxt}</span></div>
+      <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>{sansValeur?"Composition du Score BVC":"Score BVC"} <span style={{color:ok?"#c8d3e8":"#ffd740"}}>· {etatTxt}</span></div>
       {s.semaine&&s.semaine.fin&&<div style={{fontSize:11,color:"#8892a4",marginTop:2}}>Score de la semaine · clôture du {jjmmaaaa(s.semaine.fin)}{s.semaine.cours_du&&s.semaine.cours_du!==s.semaine.fin?` (dernier échange le ${jjmmaaaa(s.semaine.cours_du)})`:""}</div>}
       {!sansValeur&&<div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
         <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
@@ -4871,7 +4887,7 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
             </div>
             <div style={{fontSize:10,color:"#6b7a99",marginTop:2,overflowWrap:"anywhere"}}>{f.mesure}</div>
           </div>);})}
-        <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>Couleurs : proportion de points obtenus dans chaque facteur, sans prévision de rendement. <span style={{color:"#00e5a0"}}>vert</span> = plein · <span style={{color:"#ffd740"}}>jaune</span> = partiel · <span style={{color:"#4a566f"}}>gris</span> = 0 point.</div>
+        <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>Couleurs : proportion de points obtenus dans chaque facteur, sans prévision de rendement. <span aria-hidden="true" style={{color:PLEIN}}>■</span> <span style={{color:PLEIN}}>bleu soutenu</span> = plein · <span aria-hidden="true" style={{color:PARTIEL}}>■</span> <span style={{color:PARTIEL}}>bleu pâle</span> = partiel · <span aria-hidden="true" style={{color:ZERO}}>■</span> gris = 0 point.</div>
       </>}
     </div>);
 };
@@ -5900,7 +5916,7 @@ const Guide=({setTab})=>{
         <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre un score descriptif et des fréquences passées.
       </div>
       <L titre="Score BVC /100">Six facteurs notés : <T>moyennes mobiles</T> 35 (cours au-dessus de ses MM20, MM50, MM200) · <T>momentum</T> 15 (RSI 14) · <T>MACD</T> 10 · <T>activité</T> 10 (volume du jour) · <T>liquidité</T> 15 (montant échangé) · <T>rentabilité</T> 15 (ROE sur comptes déposés). <T c="#ffd740">Score descriptif, pas une prévision</T> : il décrit la situation du titre à la dernière séance. Classement : partie entière ; fiche : valeur exacte et composition, facteur par facteur. <T>—</T> : non calculé — cours périmé ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des facteurs</a></L>
-      <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sans mot d'action : <T c="#00e5a0">● 75 et plus</T> · <T c="#b5e655">● 60 à 74</T> · <T c="#ffd740">● 40 à 59</T> · <T c="#ff8f00">● sous 40</T> · <T c="#8892a4">◌ non calculé</T>. La couleur situe le score ; elle ne dit pas quoi faire. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
+      <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sur une échelle neutre qui va du gris au bleu de plus en plus soutenu, sans mot d'action : <T c={couleurPlage("t75")}>● 75 et plus</T> · <T c={couleurPlage("t60")}>● 60 à 74</T> · <T c={couleurPlage("t40")}>● 40 à 59</T> · <T c={couleurPlage("t0")}>● sous 40</T> · <T c={couleurPlage("nc")}>◌ non calculé</T>. La couleur situe le score dans sa tranche ; elle ne dit pas quoi faire. Le vert et le rouge sont réservés aux hausses et aux baisses de cours. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Ce que le score a mesuré">Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 séances plus tard, frais de 2 % compris : 31,9 % sous 40 · 30,6 % de 40 à 59 · 32,6 % de 60 à 74 · 33,7 % à 75 et plus — pour 32,1 % en moyenne. Aucun écart robuste — la tranche 40–59 frôle le seuil de 5 % selon une méthode (p = 0,049) et le manque selon l'autre (p = 0,053) : <T>le score décrit la situation, il ne distingue pas les gagnants.</T> Mesure faite sans le facteur rentabilité (ROE 2025 inconnu en 2023-2024).</L>
       <L titre="Classement par PER">PER = cours ÷ bénéfice par action, réalisé (12 mois glissants ou exercice 2025, selon la colonne « base »). <T>Un PER ne se compare qu'à celui de son secteur</T> : la médiane du secteur est donnée à côté, à partir de 4 PER classés. Une perte, un PER absent ou au-delà de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas classé, il est listé à part avec son motif. Un PER bas ne dit rien de l'évolution du titre. <a onClick={()=>setTab&&setTab("per")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Ouvrir le classement</a></L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC et relevés · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
