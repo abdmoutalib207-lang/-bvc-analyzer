@@ -402,9 +402,13 @@ def test_titre_court_sur_la_ligne_et_legende_datee():
         assert faux not in (leg + suite).lower(), faux
 
 
-def test_la_legende_passe_a_10_px_sur_telephone():
-    """Trois lignes par niveau à 390 px avant ; deux au plus visé."""
-    assert "@media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}" in SRC
+def test_la_legende_suit_le_plancher_de_12_px_sur_telephone():
+    """21/10/2026 : 10 px, deux lignes au plus par niveau à 390 px.
+    19/11/2026 (cadre commun) : le plancher du téléphone passe à 12 px. Mesuré
+    sur IAM, ATW, MNG, CMT, BCP à 390 px : 15 niveaux sur 16 tenaient en deux
+    lignes à 10 px, 7 sur 16 à 12 px (les autres en trois). Lisibilité
+    d'abord ; le retrait de 6 px reste."""
+    assert "@media (max-width:640px){.legende-sr .sr-ligne{font-size:12px;}" in SRC
     assert ".legende-sr{padding-left:6px!important;padding-right:6px!important;}" in SRC
     assert 'className="sr-ligne"' in _bloc(SRC, "const LegendeSR=(")
 

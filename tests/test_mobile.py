@@ -40,7 +40,9 @@ def test_les_regles_mobiles_existent():
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
     # 07/10/2026 : la rangée d'onglets disparaît sous 640 px (le MENU donne
     # toutes les vues) ; seul RETOUR reste, et seulement s'il sert.
-    for regle in (".entete{position:static", ".onglets .onglet{display:none",
+    # 19/11/2026 : « .entete{position:static » retirée — seule la ligne du
+    # MENU reste collée, sur téléphone aussi (tests/test_cadre_commun.py).
+    for regle in (".bandeau-defilant{display:none", ".onglets .onglet{display:none",
                   ".onglets.sans-retour{display:none", ".carte-indices>.carte-ind{display:none",
                   ".indices-ligne{display:flex", ".classement{min-width:0",
                   ".bandeau-masi{flex-wrap:wrap"):
@@ -48,7 +50,7 @@ def test_les_regles_mobiles_existent():
     assert 'className={"onglets"+(peutRevenir?"":" sans-retour")}' in SRC
     # Les classes utilisées par le CSS sont bien posées dans le JSX.
     for classe in ("entete", "onglet", "carte-ind", "indices-ligne", "classement", "bandeau-masi",
-                   "badge-version", "entete-droite",     # choix-score : sélecteur de pondération retiré le 06/11/2026
+                   # badge-version et entete-droite : retirés du cadre le 19/11/2026
                    "nom-societe", "secteur-societe"):
         assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe
 
@@ -70,7 +72,7 @@ def test_ouverture_et_volume_restent_lisibles_sur_telephone():
     """Demande du 30/09/2026 : les colonnes OUVERT et VOLUME sont masquées
     sur téléphone, leurs valeurs passent sous la clôture et la variation."""
     assert SRC.count('className="mobile-seul"') == 2
-    assert "ouv. {r.open?px(r.open)" in SRC and "{volumeCourt(r)}" in SRC
+    assert "ouv. {r.open?px(r.open)" in SRC and "{nombreInsecable(volumeCourt(r))}" in SRC
     avant_media = SRC[:SRC.index("@media(max-width:640px)")]
     assert ".mobile-seul{display:none}" in avant_media
 
@@ -94,7 +96,9 @@ def test_la_variation_montre_sa_reference():
 def test_la_carte_des_indices_reserve_sa_place_au_chargement():
     """07/10/2026 : sans carte tant que `masi` était vide, l'en-tête grandissait
     à son arrivée (CLS 0,82 mesuré à 1440 px). Le gabarit garde la place."""
-    assert "masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>" in SRC
+    # 19/11/2026 : les deux reçoivent l'état de la séance et ↻ (ligne du téléphone).
+    assert ("masi?<CarteIndices masi={masi} avant={badge} apres={actualiser}/>"
+            ":<CarteIndices masi={GABARIT_MASI} gabarit avant={badge} apres={actualiser}/>") in SRC
     assert "[data-gabarit] .carte-ind *" in SRC
 
 
@@ -102,7 +106,7 @@ def test_la_colonne_couleur_tient_dans_l_ecran_du_telephone():
     """07/10/2026 : à 390 px la colonne COULEUR finissait à 409 px. Le
     remplissage posé sur TOUT son contenu (rond compris) la portait à 92 px."""
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
-    assert "td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}" in css
+    assert "td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}" in css  # 12 px depuis le 19/11/2026
     assert "padding:3px 5px!important" not in css
     assert ".classement .ligne-ticker{flex-wrap:wrap" in css and 'className="ligne-ticker"' in SRC
 
@@ -144,12 +148,16 @@ def test_la_fiche_sur_telephone_commence_par_la_fiche():
 
 def test_plancher_de_police_sur_telephone():
     """07/10/2026 : 413 textes sous 10 px dans le classement à 390 px, le plus
-    petit à 8. Toute taille en ligne de 8 à 9,5 px passe à 10 sous 640 px."""
+    petit à 8. Toute taille en ligne de 8 à 9,5 px passe à 10 sous 640 px.
+    19/11/2026 : le plancher passe à 12 px, de 8 à 11,5 px — détail dans
+    tests/test_cadre_commun.py::test_plancher_de_12_px_sur_telephone."""
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
     assert ('[style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],'
-            '[style*="font-size: 9.5px"]{font-size:10px!important}') in css
+            '[style*="font-size: 9.5px"],') in css
+    assert '[style*="font-size: 11.5px"]{font-size:12px!important}' in css
     tailles = {float(x) for x in re.findall(r"fontSize:(\d+(?:\.\d+)?)[,}]", SRC)}
-    assert not {t for t in tailles if t < 10} - {8, 8.5, 9, 9.5}, "nouvelle taille < 10 px non couverte"
+    assert not {t for t in tailles if t < 12} - {8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5}, \
+        "nouvelle taille < 12 px non couverte"
 
 
 def test_recherche_et_noms_de_societes():

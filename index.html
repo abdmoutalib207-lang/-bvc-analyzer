@@ -80,11 +80,13 @@
       .fiche-centre{grid-column:1;grid-row:1}
     }
     /* ⚠️ TÉLÉPHONE EN PAYSAGE — 10/10/2026, signalé par Abd Moutalib. Couché,
-       le téléphone dépasse 640 px de large et reçoit l'en-tête COLLÉ de
-       l'ordinateur. Mesuré à 844×390 : en-tête de 474 px pour 390 visibles,
-       100 % de l'écran couvert, rien ne défile dessous. C'est la HAUTEUR qui
-       décide : sous 600 px, l'en-tête défile avec la page. */
-    @media(max-height:600px){.entete{position:static!important}}
+       le téléphone dépasse 640 px de large et recevait l'en-tête COLLÉ de
+       l'ordinateur : 474 px pour 390 visibles (mesuré à 844×390). Depuis le
+       19/11/2026 seule la ligne de la marque et du MENU est collée (.entete) ;
+       le reste (.entete-suite) défile partout. La règle « static » qui
+       protégeait le paysage et le téléphone n'a plus d'objet : elle aurait
+       emporté le MENU hors de l'écran, sans bouton flottant pour le doubler. */
+    html{scroll-padding-top:var(--h-entete,0px)}
     /* ⚠️ VERSION TÉLÉPHONE — 29/09/2026, sur captures d'Abd Moutalib (iPhone).
        Trois défauts : l'en-tête COLLÉ en haut couvrait plus de la moitié de
        l'écran et masquait le contenu au défilement ; le classement n'affichait
@@ -92,8 +94,27 @@
        badge de version et la barre MASI débordaient à droite.
        Tout passe par ces classes : sur ordinateur, RIEN ne change. */
     @media(max-width:640px){
-      .entete{position:static!important;padding:8px 12px!important}
-      .badge-version,.entete-droite{display:none!important}
+      .entete,.entete-suite{padding:8px 12px!important}
+      /* Bandeau défilant (19/11/2026) : 30 px de cours qui filent en haut
+         d'un écran de 844, illisibles au passage. Le classement les donne. */
+      .bandeau-defilant{display:none!important}
+      /* Ligne collée du téléphone (19/11/2026), une seule rangée : l'emblème
+         sans le mot, MENU sans le nom de la vue, « ? », la date à droite.
+         L'état de la séance et ↻ rejoignent la ligne des indices. */
+      .entete{padding:6px 12px!important}
+      .entete-suite{padding:4px 12px 6px!important}
+      .entete .marque img{width:32px;height:32px}
+      .entete-ligne{gap:6px 8px!important;flex-wrap:nowrap!important}
+      .entete .marque-mot,.entete .menu-courant{display:none!important}
+      .entete-date{margin-left:auto;min-width:0!important}
+      .entete-etat>.etat-seance,.entete-etat>.btn-maj{display:none!important}
+      .btn-maj-lib{display:none}
+      /* Sans capsule ni marge : le fond de l'en-tête suffit. 1re rangée :
+         MASI et volume ; 2e : état de la séance, MASI 20 ▾, 📈, ↻ — boutons
+         de 26 px dont la zone de toucher garde 44 px (::after). */
+      .indices-ligne{border:0!important;background:none!important;padding:0!important;min-height:0!important;row-gap:2px!important}
+      .indices-ligne button{min-height:26px!important}
+      .indices-ligne button::after{inset:-9px -3px!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -103,7 +124,7 @@
       .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:0!important}
       .carte-indices>.carte-ind{display:none!important}
       .indices-ligne{display:flex!important}
       /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
@@ -111,8 +132,21 @@
       .selecteur-titres{display:none!important}
       /* Plancher de police (07/10/2026) : 413 textes sous 10 px dans le
          classement à 390 px, le plus petit à 8. Les tailles sont posées en
-         ligne ; on relève ici toutes celles de 8 à 9,5 px. */
-      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
+         ligne ; on relève ici toutes celles de 8 à 11,5 px.
+         ⚠️ 19/11/2026 (cadre commun) : le plancher passe de 10 à 12 px —
+         82 % du texte de l'accueil, 84 % du classement et 94 % de la fiche
+         IAM étaient sous 12 px à 390 px (mesuré). Les règles par classe qui
+         posent moins de 12 px sont relevées juste après. */
+      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"],
+      [style*="font-size: 10px"],[style*="font-size: 10.5px"],[style*="font-size: 11px"],[style*="font-size: 11.5px"]{font-size:12px!important}
+      .tdb-titre,.tdb-src,.tdb-puce,.ef-b,.ef-t,.ef-t thead th,.ef-t .ef-grp,.ef-c small{font-size:12px!important}
+      /* Textes SVG (attribut font-size, que la feuille de style surclasse) :
+         jauge RSI et graphique des états financiers, sans viewBox mis à
+         l'échelle — l'unité y vaut un pixel. */
+      svg text[font-size="8"],svg text[font-size="10"],svg text[font-size="11"]{font-size:12px}
+      /* Exposants (⚠, ∑, ° des états financiers) : « smaller » les mettait à
+         10 px, or ⚠ est une réserve — elle doit se lire. */
+      sup{font-size:12px}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
          colonnes (POIDS et la seconde colonne de score sont retirées). */
@@ -121,7 +155,7 @@
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
       .classement th:nth-child(10),.classement td:nth-child(10){display:none}
-      .classement td,.classement th{padding:7px 3px!important}
+      .classement td,.classement th{padding:7px 2px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
       .classement-per{min-width:0!important}
@@ -154,10 +188,17 @@
       .secteur-societe{display:none!important}
       /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
          reconnaître une société sans prendre la largeur d'une colonne. */
-      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:12px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
-      .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
+      .nom-societe{max-width:66px!important;font-size:12px!important}
+      .classement td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}
+      /* Plancher de 12 px (19/11/2026) : le classement mesurait alors 409 px
+         et le classement PER 413 pour 362 disponibles (mesuré à 390). Les
+         mentions secondaires (OPA, réf., couv., n=, date du cours) passent à
+         la ligne au lieu d'élargir leur colonne. */
+      .classement .marqueur-offre{white-space:normal!important}
+      .classement td:nth-child(5) div,.classement td:nth-child(9) div{white-space:normal!important}
+      .classement-per td,.classement-per td *,.classement-per th{white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -259,18 +300,15 @@
       border-left:3px solid transparent;color:#c8d3e8;padding:12px 20px;font-family:var(--font);cursor:pointer;}
     .menu-item:hover{background:rgba(77,184,255,.07);box-shadow:none!important;}
     .menu-item.actif{border-left-color:#00e5a0;background:rgba(0,229,160,.08);color:#00e5a0;}
-    .menu-flottant{display:none;}
     /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
        ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
        52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
-       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
-    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
+       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré).
+       19/11/2026 : 12 px, plancher du téléphone. Mesuré sur IAM, ATW, MNG,
+       CMT, BCP : 7 niveaux sur 16 en deux lignes (15 sur 16 à 10 px), les
+       autres en trois. */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:12px;}
       .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
-    @media (max-width:640px){
-      .menu-flottant{display:flex;position:fixed;left:14px;bottom:18px;z-index:250;width:56px;height:56px;border-radius:50%;
-        align-items:center;justify-content:center;background:#00e5a0;color:#080d1a;border:none;
-        box-shadow:0 6px 20px rgba(0,229,160,.35),0 2px 6px rgba(0,0,0,.5);font-size:22px;}
-    }
     /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
        d'Abd Moutalib : « une ouverture comme Netflix ». */
     .rangee{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;
@@ -1057,6 +1095,48 @@ function getMarketStatus() {
     isOpen: false
   };
 }
+function horodatage(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const m = maroc(d),
+    z = n => String(n).padStart(2, "0");
+  const j = z(m.getUTCDate()),
+    mo = z(m.getUTCMonth() + 1),
+    a = m.getUTCFullYear(),
+    h = z(m.getUTCHours()),
+    mi = z(m.getUTCMinutes());
+  return {
+    jour: `${a}-${mo}-${j}`,
+    court: `${j}/${mo}`,
+    heure: `${h}h${mi}`,
+    minutes: m.getUTCHours() * 60 + m.getUTCMinutes(),
+    complet: `${j}/${mo}/${a} ${h}:${mi}:${z(m.getUTCSeconds())}`
+  };
+}
+const libelleDonnees = h => h ? `Données du ${h.court} à ${h.heure}` : "Données : —";
+function etatSeance(statut, seance, h) {
+  if (statut && statut.isOpen) return {
+    texte: "Séance en cours · cours différés",
+    ton: "seance"
+  };
+  if (!seance || !h) return null;
+  const jm = `${seance.slice(8, 10)}/${seance.slice(5, 7)}`;
+  if (h.jour > seance || h.jour === seance && h.minutes >= 940) return {
+    texte: `Clôture du ${jm}`,
+    ton: "cloture"
+  };
+  return {
+    texte: `Séance du ${jm} · clôture pas encore publiée`,
+    ton: "attente"
+  };
+}
+const TONS_ETAT = {
+  seance: "#ffd740",
+  cloture: "#c8d3e8",
+  attente: "#ff8f00"
+};
+const largeurMots = (h, b, i) => [`${h} en hausse`, `${b} en baisse`, `${i} inchangée${i > 1 ? "s" : ""}`];
 const CBC_BASE = "https://www.casablanca-bourse.com/bourseweb";
 async function fetchMASI() {
   try {
@@ -2023,18 +2103,18 @@ const SousMesures = ({
     }, s.libelle, " ", React.createElement("b", null, fmt(s.valeur, 2), " %")), s.periode && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "P\xE9riode : ", s.periode), s.formule && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478",
+        color: "#8892a4",
         overflowWrap: "anywhere"
       }
     }, "Calcul : ", s.formule), src.length > 0 && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478",
+        color: "#8892a4",
         overflowWrap: "anywhere"
       }
     }, "Source : ", src.join(" ; ")));
@@ -2239,7 +2319,9 @@ const GABARIT_MASI = {
 };
 const CarteIndices = ({
   masi,
-  gabarit = false
+  gabarit = false,
+  avant = null,
+  apres = null
 }) => {
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
   const fleche = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
@@ -2277,6 +2359,43 @@ const CarteIndices = ({
       localStorage.setItem("bvc_masi_graphe", graphe ? "1" : "0");
     } catch {}
   }, [graphe]);
+  const [plus, setPlus] = useState(() => {
+    try {
+      return localStorage.getItem("bvc_indices_plus") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("bvc_indices_plus", plus ? "1" : "0");
+    } catch {}
+  }, [plus]);
+  const mots = largeurMots(masi.hausses, masi.baisses, masi.inchanges ?? 0);
+  const largeur = React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#00e5a0",
+      whiteSpace: "nowrap"
+    }
+  }, mots[0]), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " · "), React.createElement("span", {
+    style: {
+      color: "#ff4f5a",
+      whiteSpace: "nowrap"
+    }
+  }, mots[1]), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " · "), React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      whiteSpace: "nowrap"
+    }
+  }, mots[2]));
   const varia = v => v == null ? null : React.createElement("b", {
     style: {
       color: coul(v),
@@ -2311,15 +2430,21 @@ const CarteIndices = ({
     }
   }, nb(masi.value)), varia(ch)), masi.stale && React.createElement("span", {
     style: {
-      fontSize: 10,
+      fontSize: 12,
       fontWeight: 700,
       color: "#ffd740"
     }
-  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
+  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), volume && React.createElement("span", {
     style: {
-      color: "#1a2540"
+      color: "#8892a4",
+      whiteSpace: "nowrap"
+    },
+    title: "Volume du march\xE9 central (hors blocs et transferts)"
+  }, "vol. ", React.createElement("b", {
+    style: {
+      color: "#e8eef8"
     }
-  }, "|"), React.createElement("span", {
+  }, volume)), plus && m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
     style: {
       whiteSpace: "nowrap",
       display: "inline-flex",
@@ -2337,48 +2462,37 @@ const CarteIndices = ({
     }
   }, nb(m20.value)), varia(m20.change_pct)), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
     style: {
-      fontSize: 10,
+      fontSize: 12,
       color: "#ff8f00"
     }
-  }, "\u26A0 ", jj(m20.asof))), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("span", {
+  }, "\u26A0 ", jj(m20.asof))), plus && masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement("span", null, largeur), avant, React.createElement("span", {
     style: {
-      color: "#1a2540"
+      marginLeft: "auto",
+      display: "inline-flex",
+      gap: 6,
+      alignItems: "center"
     }
-  }, "|"), React.createElement("span", {
+  }, React.createElement("button", {
+    onClick: () => setPlus(v => !v),
+    "aria-expanded": plus,
+    title: plus ? "Masquer le MASI 20 et la largeur du marché" : "Afficher le MASI 20 et la largeur du marché",
     style: {
-      color: "#00e5a0",
-      fontWeight: 700
+      fontSize: 12,
+      padding: "0 8px",
+      borderRadius: 3,
+      fontFamily: "var(--font)",
+      flex: "0 0 auto",
+      whiteSpace: "nowrap",
+      background: plus ? "rgba(77,184,255,.15)" : "transparent",
+      border: `1px solid ${plus ? "rgba(77,184,255,.4)" : "#1a2540"}`,
+      color: plus ? "#4db8ff" : "#8892a4"
     }
-  }, masi.hausses, "\u25B2"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, masi.inchanges ?? 0, "="), React.createElement("span", {
-    style: {
-      color: "#ff4f5a",
-      fontWeight: 700
-    }
-  }, masi.baisses, "\u25BC")), volume && React.createElement(React.Fragment, null, React.createElement("span", {
-    style: {
-      color: "#1a2540"
-    }
-  }, "|"), React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      whiteSpace: "nowrap"
-    },
-    title: "Volume du march\xE9 central (hors blocs et transferts)"
-  }, "vol. ", React.createElement("b", {
-    style: {
-      color: "#e8eef8"
-    }
-  }, volume))), React.createElement("button", {
+  }, "MASI 20 ", plus ? "▴" : "▾"), React.createElement("button", {
     onClick: () => setGraphe(v => !v),
     title: "Graphique du MASI",
     "aria-label": "Graphique du MASI",
     style: {
-      marginLeft: "auto",
-      fontSize: 11,
+      fontSize: 12,
       padding: "0 8px",
       borderRadius: 3,
       fontFamily: "var(--font)",
@@ -2387,7 +2501,7 @@ const CarteIndices = ({
       border: `1px solid ${graphe ? "rgba(77,184,255,.4)" : "#1a2540"}`,
       color: graphe ? "#4db8ff" : "#8892a4"
     }
-  }, "\uD83D\uDCC8")), React.createElement("div", {
+  }, "\uD83D\uDCC8"), apres)), React.createElement("div", {
     className: "carte-ind",
     style: carte
   }, React.createElement("div", {
@@ -2405,7 +2519,7 @@ const CarteIndices = ({
   }, "MASI"), masi.asof && React.createElement("span", {
     style: {
       fontSize: 10,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "s\xE9ance du ", jj(masi.asof)), React.createElement("button", {
     onClick: () => setGraphe(v => !v),
@@ -2493,9 +2607,11 @@ const CarteIndices = ({
   }, React.createElement("span", {
     style: {
       ...etiquette,
-      fontWeight: 700
+      fontWeight: 700,
+      textTransform: "none",
+      letterSpacing: .3
     }
-  }, "MASI\xA020"), m20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
+  }, "Indice MASI\xA020 (20 grandes valeurs)"), m20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
     title: `Le MASI 20 affiché porte la séance du ${m20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`,
     style: {
       color: "#ff8f00",
@@ -2541,7 +2657,7 @@ const CarteIndices = ({
       color: "#ffd740",
       lineHeight: 1.5
     }
-  }, "Synth\xE8se de s\xE9ance pas encore consolid\xE9e", masi.transactions != null ? ` : ${masi.transactions.toLocaleString("fr-FR")} transactions comptées` : "", " \u2014 volume et largeur \xE0 venir."), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Synth\xE8se de s\xE9ance pas encore consolid\xE9e \u2014 volume et largeur \xE0 venir."), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
     title: `${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges || 0} inchangées sur ${masi.valeurs_traitees || tot} valeurs traitées`,
     style: {
       display: "flex",
@@ -2568,26 +2684,11 @@ const CarteIndices = ({
     }
   })), React.createElement("div", {
     style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 11,
-      marginTop: 4
+      fontSize: 12,
+      marginTop: 4,
+      lineHeight: 1.5
     }
-  }, React.createElement("span", {
-    style: {
-      color: "#00e5a0",
-      fontWeight: 700
-    }
-  }, masi.hausses, " \u25B2"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, masi.inchanges ?? 0, " ="), React.createElement("span", {
-    style: {
-      color: "#ff4f5a",
-      fontWeight: 700
-    }
-  }, masi.baisses, " \u25BC"))), masi.volume_mad != null && React.createElement("div", {
+  }, largeur)), masi.volume_mad != null && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 11,
@@ -2599,7 +2700,7 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, volume), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
+  }, volume))), graphe && !gabarit && React.createElement("div", {
     style: {
       ...carte,
       gridColumn: "1/-1",
@@ -2611,6 +2712,14 @@ const montantEntier = dh => dh == null || !isFinite(dh) ? "—" : `${Math.round(
 const montantCompact = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
 const montantCourt = montantEntier;
 const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
+const nombreInsecable = t => {
+  const k = typeof t === "string" ? t.lastIndexOf(" ") : -1;
+  return k > 0 ? React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      whiteSpace: "nowrap"
+    }
+  }, t.slice(0, k)), t.slice(k)) : t;
+};
 function CompanyLogo({
   sym,
   logo,
@@ -2806,7 +2915,7 @@ const RedFlags = ({
     }
   }, "\u25CF ", x.raison), React.createElement("span", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10
     }
   }, " \xB7 ", x.theme)), React.createElement("div", {
@@ -2819,7 +2928,7 @@ const RedFlags = ({
     }
   }, "\u2014 ", x.seuil)), x.source && React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10
     }
   }, x.source)))), a.evaluable && (a.non_evalues || []).length > 0 && React.createElement("div", {
@@ -2830,7 +2939,7 @@ const RedFlags = ({
     }
   }, "Non \xE9valu\xE9, faute de ratio calcul\xE9 sur les comptes : ", a.non_evalues.join(", "), "."), a.evaluable && React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10,
       marginTop: 6
     }
@@ -3189,7 +3298,7 @@ const SignauxTechniques = ({
       }
     }, React.createElement("span", {
       style: {
-        color: actif ? "#ffd740" : "#5a6478",
+        color: actif ? "#ffd740" : "#8892a4",
         fontWeight: 700,
         minWidth: 14
       }
@@ -3200,7 +3309,7 @@ const SignauxTechniques = ({
       }
     }, x.libelle, " ", React.createElement("span", {
       style: {
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "\xB7 ", x.condition)), React.createElement("span", {
       style: {
@@ -3291,7 +3400,7 @@ const SignauxTechniques = ({
     }
   }, v2.score.toLocaleString("fr-FR")), React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "/10"), v2.rang_mom120 != null && React.createElement("span", {
     style: {
@@ -4509,7 +4618,7 @@ const StockChart = ({
       const t = axe[Math.max(0, Math.min(nAxe - 1, i))];
       if (t && suspDe[t]) {
         const x = suspDe[t];
-        refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(t)}</span></div>` + `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif && !tel ? " · " + x.motif : ""}</span></div>` + `<div style="color:#5a6478">${x.source || ""}${x.reprise ? " · reprise le " + dateFR(x.reprise) : ""}</div>`;
+        refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(t)}</span></div>` + `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif && !tel ? " · " + x.motif : ""}</span></div>` + `<div style="color:#8892a4">${x.source || ""}${x.reprise ? " · reprise le " + dateFR(x.reprise) : ""}</div>`;
         return;
       }
       const k = t && iBougie[t] != null ? iBougie[t] : Math.max(0, Math.min(n - 1, i));
@@ -5018,6 +5127,7 @@ const TickerTape = ({
   const nc = c => c > 0 ? "#00e5a0" : c < 0 ? "#ff4f5a" : "#8892a4";
   const doubled = [...items, ...items];
   return React.createElement("div", {
+    className: "bandeau-defilant",
     style: {
       background: "#060b16",
       borderBottom: "1px solid #1a2540",
@@ -5142,6 +5252,7 @@ const Marque = ({
     filter: "drop-shadow(0 0 6px rgba(0,229,160,.25))"
   }
 })), React.createElement("span", {
+  className: "marque-mot",
   style: {
     display: "inline-flex",
     flexDirection: "column",
@@ -5169,15 +5280,6 @@ const Menu = ({
   TABS
 }) => {
   const [ouvert, setOuvert] = useState(false);
-  const [loin, setLoin] = useState(false);
-  useEffect(() => {
-    const h = () => setLoin((window.scrollY || 0) > 320);
-    h();
-    window.addEventListener("scroll", h, {
-      passive: true
-    });
-    return () => window.removeEventListener("scroll", h);
-  }, []);
   const lib = Object.fromEntries(TABS.map(t => [t.id, t]));
   useEffect(() => {
     if (!ouvert) return;
@@ -5226,15 +5328,12 @@ const Menu = ({
       lineHeight: 1
     }
   }, "\u2630"), " MENU", courant && React.createElement("span", {
+    className: "menu-courant",
     style: {
       color: "#8892a4",
       fontWeight: 400
     }
-  }, "\xB7 ", courant.replace("★ ", ""))), loin && React.createElement("button", {
-    className: "menu-flottant",
-    onClick: () => setOuvert(true),
-    "aria-label": "Ouvrir le menu"
-  }, "\u2630"), ouvert && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "\xB7 ", courant.replace("★ ", ""))), ouvert && React.createElement(React.Fragment, null, React.createElement("div", {
     className: "menu-voile",
     onClick: () => setOuvert(false)
   }), React.createElement("nav", {
@@ -5270,7 +5369,7 @@ const Menu = ({
   }, React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       letterSpacing: 1.2,
       textTransform: "uppercase",
       padding: "6px 20px"
@@ -5644,7 +5743,7 @@ const Rangee = ({
   }, titre), sous && React.createElement("span", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginLeft: 10
     }
   }, sous)), vers && React.createElement("button", {
@@ -5787,7 +5886,6 @@ const Header = ({
   tab,
   setTab,
   ts,
-  src,
   onRefresh,
   loading,
   fetchErr,
@@ -5795,27 +5893,9 @@ const Header = ({
   favCount,
   masi,
   majMsg,
-  univers,
   peutRevenir,
   onRetour
 }) => {
-  const [pulse, setPulse] = useState(false);
-  const [clock, setClock] = useState("");
-  useEffect(() => {
-    const t = setInterval(() => setPulse(p => !p), 1800);
-    return () => clearInterval(t);
-  }, []);
-  useEffect(() => {
-    const tick = () => setClock(maroc().toLocaleString("fr-FR", {
-      timeZone: "UTC",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }));
-    tick();
-    const t = setInterval(tick, 1000);
-    return () => clearInterval(t);
-  }, []);
   const TABS = [{
     id: "accueil",
     label: "ACCUEIL"
@@ -5851,31 +5931,78 @@ const Header = ({
     id: "guide",
     label: "? COMMENT LIRE"
   }];
-  return React.createElement("div", {
-    className: "entete",
+  const refEntete = useRef(null);
+  React.useLayoutEffect(() => {
+    const e = refEntete.current;
+    if (!e) return;
+    const f = () => {
+      try {
+        const colle = getComputedStyle(e).position === "sticky";
+        document.documentElement.style.setProperty("--h-entete", (colle ? Math.round(e.getBoundingClientRect().height) : 0) + "px");
+      } catch (x) {}
+    };
+    f();
+    if (!window.ResizeObserver) return;
+    const ro = new ResizeObserver(f);
+    ro.observe(e);
+    return () => ro.disconnect();
+  }, []);
+  const fond = {
+    background: "linear-gradient(90deg,#0d1829,#0a1220)",
+    borderBottom: "1px solid #1a2540"
+  };
+  const h = horodatage(ts);
+  const etat = etatSeance(mktStatus, masi && masi.asof, h);
+  const badge = etat && React.createElement("span", {
+    className: "etat-seance",
     style: {
-      background: "linear-gradient(90deg,#0d1829,#0a1220)",
-      borderBottom: "1px solid #1a2540",
-      padding: "12px 20px",
+      background: `${TONS_ETAT[etat.ton]}14`,
+      border: `1px solid ${TONS_ETAT[etat.ton]}55`,
+      borderRadius: 4,
+      padding: "2px 8px",
+      fontSize: 12,
+      color: TONS_ETAT[etat.ton],
+      fontWeight: 600,
+      whiteSpace: "nowrap"
+    }
+  }, etat.texte);
+  const actualiser = React.createElement("button", {
+    className: "btn-maj",
+    onClick: onRefresh,
+    disabled: loading,
+    title: "Recharger data.json depuis le serveur",
+    "aria-label": "Actualiser",
+    style: {
+      background: "rgba(77,184,255,.12)",
+      border: "1px solid rgba(77,184,255,.35)",
+      color: "#4db8ff",
+      borderRadius: 4,
+      padding: "5px 12px",
+      fontSize: 12,
+      opacity: loading ? .7 : 1,
+      cursor: loading ? "default" : "pointer",
+      flex: "0 0 auto"
+    }
+  }, "\u21BB", React.createElement("span", {
+    className: "btn-maj-lib"
+  }, loading ? " Chargement…" : " Actualiser"));
+  return React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "entete",
+    ref: refEntete,
+    style: {
+      ...fond,
+      padding: "10px 20px",
       position: "sticky",
       top: 0,
       zIndex: 100
     }
   }, React.createElement("div", {
+    className: "entete-ligne",
     style: {
       display: "flex",
       alignItems: "center",
-      justifyContent: "space-between",
       flexWrap: "wrap",
-      gap: 10,
-      marginBottom: 10
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 14,
-      flexWrap: "wrap"
+      gap: "6px 14px"
     }
   }, React.createElement(Marque, null), React.createElement(Menu, {
     tab: tab,
@@ -5899,110 +6026,29 @@ const Header = ({
       flex: "0 0 auto"
     }
   }, "?"), React.createElement("span", {
-    className: "badge-version",
-    title: "Score BVC : six facteurs not\xE9s sur 100 \u2014 moyennes mobiles 35, momentum (RSI) 15, MACD 10, activit\xE9 10, liquidit\xE9 15, rentabilit\xE9 (ROE) 15. Score descriptif, pas une pr\xE9vision.",
+    className: "entete-date",
+    title: h ? `Publication de data.json : ${h.complet}, heure de Casablanca` : undefined,
     style: {
-      background: "rgba(0,229,160,.1)",
-      border: "1px solid rgba(0,229,160,.3)",
-      borderRadius: 4,
-      padding: "3px 10px",
-      fontSize: 11,
-      color: "#00e5a0",
-      letterSpacing: .5
+      fontSize: 12,
+      color: "#c8d3e8",
+      minWidth: "24ch",
+      whiteSpace: "nowrap"
     }
-  }, "v6.4 \u2014 SCORE BVC ", React.createElement("span", {
+  }, libelleDonnees(h)))), React.createElement("div", {
+    className: "entete-suite",
     style: {
-      color: "#8892a4"
+      ...fond,
+      padding: "10px 20px 12px"
     }
-  }, "\xB7 6 facteurs, descriptif")), React.createElement("div", {
+  }, React.createElement("div", {
+    className: "entete-etat",
     style: {
       display: "flex",
       alignItems: "center",
-      gap: 10,
+      gap: 8,
       flexWrap: "wrap"
     }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 13,
-      color: "#00e5a0",
-      fontWeight: 700,
-      letterSpacing: 1,
-      minWidth: 72
-    }
-  }, clock), React.createElement("span", {
-    style: {
-      color: "#1a2540"
-    }
-  }, "|"), React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: "#8892a4",
-      display: "flex",
-      alignItems: "center",
-      gap: 5
-    }
-  }, React.createElement("span", {
-    style: {
-      display: "inline-block",
-      width: 7,
-      height: 7,
-      borderRadius: "50%",
-      background: pulse ? "#00e5a0" : "transparent",
-      border: "1px solid #00e5a0",
-      transition: "background .4s"
-    }
-  }), React.createElement("span", {
-    style: {
-      letterSpacing: .3
-    }
-  }, "donn\xE9es :"), React.createElement("span", {
-    style: {
-      color: "#c8d3e8",
-      fontWeight: 600,
-      minWidth: "19ch"
-    }
-  }, ts || "—")), mktStatus && React.createElement("span", {
-    style: {
-      background: `${mktStatus.color}18`,
-      border: `1px solid ${mktStatus.color}40`,
-      borderRadius: 4,
-      padding: "3px 10px",
-      fontSize: 11,
-      color: mktStatus.color,
-      fontWeight: 700,
-      letterSpacing: .5
-    }
-  }, "BVC ", mktStatus.label), masi ? React.createElement(CarteIndices, {
-    masi: masi
-  }) : React.createElement(CarteIndices, {
-    masi: GABARIT_MASI,
-    gabarit: true
-  }))), React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      alignItems: "center"
-    }
-  }, src && React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: "#8892a4"
-    }
-  }, "donn\xE9es: ", src), React.createElement("button", {
-    onClick: onRefresh,
-    disabled: loading,
-    title: "Recharger data.json depuis le serveur",
-    style: {
-      background: "rgba(77,184,255,.12)",
-      border: "1px solid rgba(77,184,255,.35)",
-      color: "#4db8ff",
-      borderRadius: 4,
-      padding: "5px 14px",
-      fontSize: 12,
-      opacity: loading ? .7 : 1,
-      cursor: loading ? "default" : "pointer"
-    }
-  }, loading ? "↻ Chargement…" : "↻ Actualiser"), majMsg && React.createElement("span", {
+  }, badge, actualiser, majMsg && React.createElement("span", {
     style: {
       fontSize: 10,
       color: majMsg.neuf ? "#00e5a0" : "#8892a4",
@@ -6012,26 +6058,25 @@ const Header = ({
     role: "status",
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      marginLeft: 8
+      color: "#ff4f5a"
     }
-  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez")), React.createElement("div", {
-    className: "entete-droite",
-    style: {
-      textAlign: "right",
-      fontSize: 11
-    }
-  }, React.createElement("div", {
-    style: {
-      color: "#8892a4"
-    }
-  }, "BVC \xB7 ", univers ?? STATIC.length, " titres"))), React.createElement("div", {
+  }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez")), masi ? React.createElement(CarteIndices, {
+    masi: masi,
+    avant: badge,
+    apres: actualiser
+  }) : React.createElement(CarteIndices, {
+    masi: GABARIT_MASI,
+    gabarit: true,
+    avant: badge,
+    apres: actualiser
+  }), React.createElement("div", {
     className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
       display: "flex",
       gap: 6,
       flexWrap: "wrap",
-      alignItems: "center"
+      alignItems: "center",
+      marginTop: 10
     }
   }, React.createElement("button", {
     onClick: onRetour,
@@ -6086,7 +6131,7 @@ const Header = ({
       alignItems: "center",
       justifyContent: "center"
     }
-  }, t.badge)))));
+  }, t.badge))))));
 };
 const Heatmap = ({
   rows,
@@ -6767,7 +6812,7 @@ const Ranking = ({
         color: "#8892a4",
         fontWeight: 400
       }
-    }, volumeCourt(r))), React.createElement("td", {
+    }, nombreInsecable(volumeCourt(r)))), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
@@ -6779,7 +6824,7 @@ const Ranking = ({
         dh = r.echange_dh;
       if (!v && !dh) return React.createElement("span", {
         style: {
-          color: "#5a6478"
+          color: "#8892a4"
         }
       }, "\u2014");
       const bas = (dh != null ? dh : v * (r.price || 0)) < 100000;
@@ -6792,7 +6837,7 @@ const Ranking = ({
       }, dh != null ? montantCourt(dh) : v ? `${v.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—"), dh != null && v ? React.createElement("div", {
         style: {
           fontSize: 9.5,
-          color: "#5a6478"
+          color: "#8892a4"
         }
       }, v.toLocaleString("fr-FR").replace(/\u202f|,/g, " "), " titres") : null);
     })()), React.createElement("td", {
@@ -7361,7 +7406,7 @@ const ClassementPER = ({
     }, baseCourte(l.base), l.base && l.base.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
       style: {
         fontSize: 9.5,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "exercice 2025 : ", nf(r.pe_annuel))), React.createElement("td", {
       className: "per-bpa",
@@ -7408,7 +7453,7 @@ const ClassementPER = ({
       title: `Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`,
       style: {
         fontSize: 10,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "n=", M.n, React.createElement("br", null), "trop peu")));
   }), !lignes.length && React.createElement("tr", null, React.createElement("td", {
@@ -7524,7 +7569,7 @@ const SourceCotation = ({
   return React.createElement("span", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, h && React.createElement(React.Fragment, null, "obs. ", h.slice(8, 10), "/", h.slice(5, 7), " ", h.slice(11, 16), " UTC"), d && React.createElement(React.Fragment, null, " \xB7 ", d), u && React.createElement(React.Fragment, null, " \xB7 ", React.createElement("a", {
     href: u,
@@ -8992,7 +9037,7 @@ const SeanceDetail = ({
       style: {
         fontSize: 11.5,
         textAlign: "right",
-        color: x.n ? "#e6edf7" : "#5a6478"
+        color: x.n ? "#e6edf7" : "#8892a4"
       }
     }, x.nf != null ? React.createElement(React.Fragment, null, x.nf, React.createElement("span", {
       style: {
@@ -9278,7 +9323,7 @@ const Lecture = ({
   }, "Lecture de la s\xE9ance"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 10
     }
   }, r.auteur === "claude" ? "Rédigée par Claude à partir des faits publiés ci-dessous — chaque chiffre a été contrôlé." : "Générée automatiquement à partir des faits publiés ci-dessous."), blocs.map((b, i) => {
@@ -9387,7 +9432,7 @@ const ASurveiller = ({
   }, "Crit\xE8res remplis aujourd'hui"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 10
     }
   }, "Chaque titre remplit au moins un crit\xE8re mesur\xE9 ; class\xE9s par nombre de crit\xE8res, puis par montant \xE9chang\xE9.", a.n_candidats > (a.a_publie || []).length + (a.a_bouge || []).length && React.createElement(React.Fragment, null, " ", a.n_candidats, " titres en remplissaient un.")), groupes.map(([titre, l]) => React.createElement("div", {
@@ -9416,7 +9461,7 @@ const ASurveiller = ({
     style: {
       textAlign: "left",
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       fontWeight: 400,
       letterSpacing: .6,
       textTransform: "uppercase",
@@ -9439,7 +9484,7 @@ const ASurveiller = ({
       padding: "6px 8px 6px 0",
       fontFamily: "monospace",
       whiteSpace: "nowrap",
-      color: z.chg == null ? "#5a6478" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
+      color: z.chg == null ? "#8892a4" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
     }
   }, z.chg == null ? "non coté" : `${z.chg > 0 ? "+" : ""}${fmt(z.chg).replace(".", ",")} %`), React.createElement("td", {
     style: {
@@ -9483,7 +9528,7 @@ const ASurveiller = ({
   }), z.criteres.every(c => c.code === "volume") && React.createElement("span", {
     style: {
       fontSize: 11,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "volume inhabituel"))))))))));
 };
@@ -9626,7 +9671,7 @@ const Briefing = ({
     }
   }, semaine ? `${h.semaine?.n || 0} séance${(h.semaine?.n || 0) > 1 ? "s" : ""} cotée${(h.semaine?.n || 0) > 1 ? "s" : ""}${h.semaine?.seances?.length ? ` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length - 1]}` : ""}` : React.createElement(React.Fragment, null, src.seance || "—", src.ecrit_a && React.createElement("span", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 11,
       marginLeft: 8
     }
@@ -9831,7 +9876,7 @@ const Briefing = ({
   }, React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 6
     }
   }, t), l.map(x => React.createElement("div", {
@@ -9877,7 +9922,7 @@ const Briefing = ({
   }, "Publications retenues"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 12
     }
   }, "S\xE9lection du collecteur \u2014 les publications susceptibles de d\xE9placer un cours.", a.fenetre && React.createElement(React.Fragment, null, " Fen\xEAtre du ", a.fenetre.du, " au ", a.fenetre.au, "."), " ", "Titre et lien seulement : le texte appartient \xE0 sa source."), liens.length === 0 ? React.createElement("div", {
@@ -9907,7 +9952,7 @@ const Briefing = ({
   }, x.titre), React.createElement("div", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478",
+      color: "#8892a4",
       display: "flex",
       gap: 8,
       flexWrap: "wrap",
@@ -9982,7 +10027,7 @@ const MarchesMondiaux = () => {
   }, g.titre), g.lignes.length === 0 && React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "Non servi par la source \xE0 ce passage."), g.lignes.map(l => React.createElement("div", {
     key: l.ticker,
@@ -10027,7 +10072,7 @@ const MarchesMondiaux = () => {
   }))))))), React.createElement("div", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans le Score BVC."));
 };
@@ -10241,7 +10286,7 @@ const RisqueMesure = ({
   }, q.motif.texte, ".") : React.createElement(React.Fragment, null, motifAn && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       lineHeight: 1.5,
       marginBottom: 7
     }
@@ -10270,13 +10315,13 @@ const RisqueMesure = ({
     }, k), React.createElement("div", {
       style: {
         fontSize: 13,
-        color: ok ? "#c8d3e8" : "#5a6478",
+        color: ok ? "#c8d3e8" : "#8892a4",
         fontWeight: 700
       }
     }, ok ? val(m) : "—"), React.createElement("div", {
       style: {
         fontSize: 9,
-        color: ok ? "#8892a4" : "#5a6478",
+        color: ok ? "#8892a4" : "#8892a4",
         marginTop: 1,
         lineHeight: 1.4
       }
@@ -10417,7 +10462,7 @@ const DernierSemestre = ({
   })) : React.createElement(React.Fragment, null, " \u2014 aucun relev\xE9 du premier semestre 2026 n'est inscrit pour ce titre."), c.motif_source && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4,
       overflowWrap: "anywhere"
     }
@@ -10476,7 +10521,7 @@ const DernierSemestre = ({
       }
     }, l.libelle, plusieurs && React.createElement("sup", {
       style: {
-        color: "#5a6478",
+        color: "#8892a4",
         marginLeft: 2
       }
     }, (l.source || 0) + 1)), React.createElement("td", {
@@ -10499,14 +10544,14 @@ const DernierSemestre = ({
         padding: "6px 0 6px 4px",
         textAlign: "right",
         whiteSpace: "nowrap",
-        color: v == null ? "#5a6478" : VC(num)
+        color: v == null ? "#8892a4" : VC(num)
       },
       title: v == null ? l.variation_motif || "non calculable" : ""
     }, v == null ? "n.s." : v));
   }))), (c.lignes || []).some(l => l.variation_pct == null && l.variation_motif && l.unite !== "%") && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "n.s. : ", [...new Set((c.lignes || []).filter(l => l.variation_pct == null && l.variation_motif && l.unite !== "%").map(l => l.variation_motif))].join(" ; "), "."), (c.reserves || []).length > 0 && React.createElement("div", {
@@ -10590,7 +10635,7 @@ const DernierSemestre = ({
     extra: s.formule
   }))), React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Chiffres recopi\xE9s des comptes d\xE9pos\xE9s ; variations et marges calcul\xE9es ici, rien n'entre dans le Score BVC."))));
@@ -10913,7 +10958,7 @@ const EtatsFinanciers = ({
   }, "\xC9tats financiers"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 10
     }
   }, "Chargement des chiffres relev\xE9s\u2026")) : null;
@@ -11007,7 +11052,7 @@ const EtatsFinanciers = ({
     }
   }, lu.valeur), efVar(gc[bi].g) && React.createElement("span", {
     style: {
-      color: gc[bi].g === "ns" ? "#5a6478" : VC(gc[bi].g),
+      color: gc[bi].g === "ns" ? "#8892a4" : VC(gc[bi].g),
       marginLeft: 6
     }
   }, efVar(gc[bi].g), " sur un an"), React.createElement("span", null, " \xB7 ", lu.statut.split(" — ")[0], " \xB7 "), React.createElement("button", {
@@ -11085,7 +11130,7 @@ const EtatsFinanciers = ({
       y: T + b.zero - 5,
       textAnchor: "middle",
       fontSize: "11",
-      fill: "#5a6478"
+      fill: "#8892a4"
     }, "\u2014"), B && React.createElement("text", {
       className: on ? "" : "ef-val",
       x: x,
@@ -11173,7 +11218,7 @@ const EtatsFinanciers = ({
       "aria-label": `${l.libelle}, ${P[i].libelle} : ${efAvecUnite(c.v, l.unite)} — source et statut`
     }, React.createElement("span", {
       style: {
-        color: !efA(c.v) ? "#5a6478" : l.calcul ? "#aab4c8" : null
+        color: !efA(c.v) ? "#8892a4" : l.calcul ? "#aab4c8" : null
       }
     }, efCase(c.v, l.unite)), m && React.createElement("sup", {
       style: {
@@ -11182,7 +11227,7 @@ const EtatsFinanciers = ({
       }
     }, m[0]), vg && React.createElement("small", {
       style: {
-        color: c.g === "ns" ? "#5a6478" : VC(c.g)
+        color: c.g === "ns" ? "#8892a4" : VC(c.g)
       }
     }, vg)));
   }))])))), React.createElement("div", {
@@ -11337,7 +11382,7 @@ const EtatsFinanciers = ({
     }
   }, l.libelle), " \u2014 ", [...new Set(efTextes(e, v.cellules[l.cle].map(c => c.n)))].join(" ")))), React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.")));
@@ -11462,20 +11507,6 @@ const Detail = ({
     return (d.symbol || d.ticker || "").includes(q) || tk(d).includes(q) || (d.name || "").toUpperCase().includes(q);
   }) : [...rows]).sort((a, b) => tk(a).localeCompare(tk(b)));
   const refFiche = useRef(null);
-  useEffect(() => {
-    const e = document.querySelector(".entete");
-    if (!e || !window.ResizeObserver) return;
-    const f = () => {
-      try {
-        const colle = getComputedStyle(e).position === "sticky";
-        document.documentElement.style.setProperty("--h-entete", (colle ? Math.max(0, Math.round(e.getBoundingClientRect().bottom)) : 0) + "px");
-      } catch (x) {}
-    };
-    const ro = new ResizeObserver(f);
-    ro.observe(e);
-    f();
-    return () => ro.disconnect();
-  }, []);
   useEffect(() => {
     try {
       if (refFiche.current && window.matchMedia && window.matchMedia("(max-width:640px)").matches) refFiche.current.scrollIntoView({
@@ -11719,7 +11750,7 @@ const Detail = ({
     style: {
       marginTop: 8,
       fontSize: 10,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "formule ", r.score_bvc.version)), React.createElement(ScoreBVC, {
     s: r.score_bvc,
@@ -11792,7 +11823,7 @@ const Detail = ({
       }
     }, val), extra && React.createElement("span", {
       style: {
-        color: "#5a6478",
+        color: "#8892a4",
         fontSize: 10
       }
     }, " ", extra)));
@@ -11842,13 +11873,13 @@ const Detail = ({
     }, "Conventionnels \xB7 arithm\xE9tique sur une s\xE9ance"), React.createElement("div", {
       style: {
         fontSize: 9.5,
-        color: "#5a6478",
+        color: "#8892a4",
         marginBottom: 5
       }
     }, "Largement employ\xE9s, mais ils ne mesurent rien par eux-m\xEAmes."), L("R2 · R1", `${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`), L("Pivot", fr(cv.pivots.pivot), `séance du ${cv.pivots._seance || "—"}`, "#ffd740"), L("S1 · S2", `${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)), !cv.pivots && React.createElement("div", {
       style: {
         fontSize: 10,
-        color: "#5a6478",
+        color: "#8892a4",
         fontStyle: "italic"
       }
     }, "Pivots non publi\xE9s : la derni\xE8re s\xE9ance a une amplitude nulle \u2014 le titre a cot\xE9 \xE0 un prix unique, ou n'a pas cot\xE9."));
@@ -11947,7 +11978,7 @@ const Detail = ({
       }
     }, c.titre, React.createElement("br", null), React.createElement("span", {
       style: {
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, c.source, " \xB7 le moteur signale le d\xE9p\xF4t, il n'en lit pas les chiffres")));
   })(), React.createElement("div", {
@@ -11982,7 +12013,7 @@ const Detail = ({
     title: `PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`,
     style: {
       fontSize: 9,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 1
     }
   }, "exercice 2025 : ", perTxt(r.pe_annuel, r.bpa)), ratio === "pe" && r.pe_exception && React.createElement("div", {
@@ -12096,18 +12127,18 @@ const Detail = ({
     }, "sans objet"), React.createElement("div", {
       style: {
         fontSize: 8,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "pour ce m\xE9tier")) : React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 13,
-        color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
+        color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#8892a4",
         fontWeight: 700
       }
     }, x ? `${fmt(x.valeur, 1)}%` : "—"), x && React.createElement("div", {
       style: {
         fontSize: 8,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "au ", x.date.split("-").reverse().join("/"))));
   })), r.ratios_publies.reserve_cac && React.createElement("div", {
@@ -12199,7 +12230,7 @@ const Detail = ({
       }, v), React.createElement("div", {
         style: {
           fontSize: 8,
-          color: so ? "#5a6478" : "#ff8f00",
+          color: so ? "#8892a4" : "#ff8f00",
           lineHeight: 1.35,
           marginTop: 1,
           textWrap: "pretty"
@@ -13447,7 +13478,7 @@ const ChangementsFavoris = ({
     }
   }, (a.tickers || []).filter(t => fav.includes(t)).map(codeDe).join(", ")), " \xB7 publication AMMC : ", a.title || a.titre, " ", React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "(", (a.date || "").slice(0, 10).split("-").reverse().join("/"), ")"))));
 };
@@ -13459,9 +13490,9 @@ const MentionLegale = () => React.createElement("footer", {
     padding: "18px 20px",
     borderTop: "1px solid rgba(255,255,255,.08)",
     background: "rgba(255,255,255,.02)",
-    fontSize: 11,
+    fontSize: 13,
     lineHeight: 1.7,
-    color: "#6b7689",
+    color: "#8892a4",
     fontFamily: "'IBM Plex Mono',monospace"
   }
 }, React.createElement("div", {
@@ -13482,7 +13513,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "BVC Analyzer est un ", React.createElement("strong", {
   style: {
-    color: "#8892a4"
+    color: "#c8d3e8"
   }
 }, "outil d'analyse quantitative \xE0 vocation informative"), ". Les scores, signaux et indicateurs pr\xE9sent\xE9s ne constituent ni un conseil en investissement, ni une recommandation personnalis\xE9e, ni une offre ou sollicitation d'achat ou de vente d'instruments financiers."), React.createElement("p", {
   style: {
@@ -13587,7 +13618,6 @@ function App() {
     });
   }, []);
   const [ts, setTs] = useState("");
-  const [src, setSrc] = useState("connexion…");
   const [loading, setLoading] = useState(false);
   const [fetchErr, setFetchErr] = useState(null);
   const [mktStatus, setMktStatus] = useState(getMarketStatus());
@@ -13637,7 +13667,6 @@ function App() {
   const loadData = useCallback(async (manuel = false) => {
     setLoading(true);
     let pipelineLoaded = false;
-    let nLive = 0;
     try {
       const d = await fetch("data.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
       if (d && d.updated && d.updated !== VERSION_PUB) {
@@ -13720,7 +13749,6 @@ function App() {
         REGIME_TECH = d.regime_technique || null;
         mergeLive(m);
         setEtatDonnees("ok");
-        nLive = d.tickers.filter(t => t.price > 0).length;
         if (d.masi) setMasi(m => ({
           ...(m || {}),
           ...d.masi,
@@ -13734,13 +13762,7 @@ function App() {
           minute: "2-digit",
           second: "2-digit"
         }) : "";
-        const dateStr = upd ? maroc(upd).toLocaleString("fr-FR", {
-          timeZone: "UTC",
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric"
-        }) : "";
-        setTs(dateStr && timeStr ? `${dateStr} ${timeStr}` : "");
+        setTs(d.updated || "");
         if (manuel) {
           const neuf = dernierUpd.current !== null && d.updated !== dernierUpd.current;
           annonce(neuf ? `✓ mis à jour · ${timeStr}` : `déjà à jour · données de ${timeStr}`, neuf);
@@ -13756,19 +13778,7 @@ function App() {
         if (liveMap && Object.keys(liveMap).length > 0) {
           mergeLive(liveMap);
           if (!pipelineLoaded) setEtatDonnees(e => e === "ok" ? "ok" : "indisponible");
-          const nIdb = Object.keys(liveMap).length;
-          const srcs = Object.values(liveMap).map(v => v.src).filter(Boolean);
-          const mainSrc = srcs[0] || "live";
-          setTs(maroc().toLocaleString("fr-FR", {
-            timeZone: "UTC",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-          }));
-          setSrc(`${mainSrc} · ${nIdb} live ●`);
+          setTs(new Date().toISOString());
           setFetchErr(null);
           setLoading(false);
           return;
@@ -13776,9 +13786,6 @@ function App() {
       } catch {}
     }
     if (pipelineLoaded) {
-      const ageMin = nLive > 0 ? 0 : Infinity;
-      const label = mktNow.label === "CLÔTURE" ? `Clôture · ${nLive} titres` : `Pipeline · ${nLive} titres`;
-      setSrc(label);
       setFetchErr(null);
       setLoading(false);
       return;
@@ -13786,7 +13793,6 @@ function App() {
     const dejaCharge = dernierUpd.current !== null;
     setFetchErr(dejaCharge ? "rafraichissement" : "indisponible");
     setEtatDonnees(e => e === "ok" ? "ok" : "indisponible");
-    setSrc(dejaCharge ? "⚠ rafraîchissement impossible" : "⚠ données indisponibles");
     setLoading(false);
   }, [mergeLive, annonce]);
   useEffect(() => {
@@ -13839,13 +13845,11 @@ function App() {
   }, React.createElement(Intro, null), etatDonnees === "ok" && React.createElement(TickerTape, {
     rows: rows
   }), React.createElement(Header, {
-    univers: rows.length,
     tab: tab,
     setTab: changeTab,
     peutRevenir: peutRevenir,
     onRetour: revenir,
     ts: ts,
-    src: src,
     onRefresh: () => loadData(true),
     loading: loading,
     fetchErr: fetchErr,
