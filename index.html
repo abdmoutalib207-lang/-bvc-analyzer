@@ -132,8 +132,21 @@
       .selecteur-titres{display:none!important}
       /* Plancher de police (07/10/2026) : 413 textes sous 10 px dans le
          classement à 390 px, le plus petit à 8. Les tailles sont posées en
-         ligne ; on relève ici toutes celles de 8 à 9,5 px. */
-      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
+         ligne ; on relève ici toutes celles de 8 à 11,5 px.
+         ⚠️ 19/11/2026 (cadre commun) : le plancher passe de 10 à 12 px —
+         82 % du texte de l'accueil, 84 % du classement et 94 % de la fiche
+         IAM étaient sous 12 px à 390 px (mesuré). Les règles par classe qui
+         posent moins de 12 px sont relevées juste après. */
+      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"],
+      [style*="font-size: 10px"],[style*="font-size: 10.5px"],[style*="font-size: 11px"],[style*="font-size: 11.5px"]{font-size:12px!important}
+      .tdb-titre,.tdb-src,.tdb-puce,.ef-b,.ef-t,.ef-t thead th,.ef-t .ef-grp,.ef-c small{font-size:12px!important}
+      /* Textes SVG (attribut font-size, que la feuille de style surclasse) :
+         jauge RSI et graphique des états financiers, sans viewBox mis à
+         l'échelle — l'unité y vaut un pixel. */
+      svg text[font-size="8"],svg text[font-size="10"],svg text[font-size="11"]{font-size:12px}
+      /* Exposants (⚠, ∑, ° des états financiers) : « smaller » les mettait à
+         10 px, or ⚠ est une réserve — elle doit se lire. */
+      sup{font-size:12px}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
          colonnes (POIDS et la seconde colonne de score sont retirées). */
@@ -142,7 +155,7 @@
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
       .classement th:nth-child(10),.classement td:nth-child(10){display:none}
-      .classement td,.classement th{padding:7px 3px!important}
+      .classement td,.classement th{padding:7px 2px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
       .classement-per{min-width:0!important}
@@ -175,10 +188,17 @@
       .secteur-societe{display:none!important}
       /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
          reconnaître une société sans prendre la largeur d'une colonne. */
-      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:12px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
-      .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
+      .nom-societe{max-width:66px!important;font-size:12px!important}
+      .classement td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}
+      /* Plancher de 12 px (19/11/2026) : le classement mesurait alors 409 px
+         et le classement PER 413 pour 362 disponibles (mesuré à 390). Les
+         mentions secondaires (OPA, réf., couv., n=, date du cours) passent à
+         la ligne au lieu d'élargir leur colonne. */
+      .classement .marqueur-offre{white-space:normal!important}
+      .classement td:nth-child(5) div,.classement td:nth-child(9) div{white-space:normal!important}
+      .classement-per td,.classement-per td *,.classement-per th{white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -283,8 +303,11 @@
     /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
        ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
        52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
-       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
-    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
+       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré).
+       19/11/2026 : 12 px, plancher du téléphone. Mesuré sur IAM, ATW, MNG,
+       CMT, BCP : 7 niveaux sur 16 en deux lignes (15 sur 16 à 10 px), les
+       autres en trois. */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:12px;}
       .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
     /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
        d'Abd Moutalib : « une ouverture comme Netflix ». */
@@ -2065,18 +2088,18 @@ const SousMesures = ({
     }, s.libelle, " ", React.createElement("b", null, fmt(s.valeur, 2), " %")), s.periode && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "P\xE9riode : ", s.periode), s.formule && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478",
+        color: "#8892a4",
         overflowWrap: "anywhere"
       }
     }, "Calcul : ", s.formule), src.length > 0 && React.createElement("span", {
       style: {
         display: "block",
-        color: "#5a6478",
+        color: "#8892a4",
         overflowWrap: "anywhere"
       }
     }, "Source : ", src.join(" ; ")));
@@ -2481,7 +2504,7 @@ const CarteIndices = ({
   }, "MASI"), masi.asof && React.createElement("span", {
     style: {
       fontSize: 10,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "s\xE9ance du ", jj(masi.asof)), React.createElement("button", {
     onClick: () => setGraphe(v => !v),
@@ -2674,6 +2697,14 @@ const montantEntier = dh => dh == null || !isFinite(dh) ? "—" : `${Math.round(
 const montantCompact = dh => dh >= 1e9 ? `${(dh / 1e9).toFixed(2).replace(".", ",")} Md DH` : dh >= 1e6 ? `${(dh / 1e6).toFixed(1).replace(".", ",")} M DH` : dh >= 1e3 ? `${Math.round(dh / 1e3)} k DH` : `${Math.round(dh)} DH`;
 const montantCourt = montantEntier;
 const volumeCourt = r => r.echange_dh != null ? montantCourt(r.echange_dh) : r.vol ? `${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—";
+const nombreInsecable = t => {
+  const k = typeof t === "string" ? t.lastIndexOf(" ") : -1;
+  return k > 0 ? React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      whiteSpace: "nowrap"
+    }
+  }, t.slice(0, k)), t.slice(k)) : t;
+};
 function CompanyLogo({
   sym,
   logo,
@@ -2869,7 +2900,7 @@ const RedFlags = ({
     }
   }, "\u25CF ", x.raison), React.createElement("span", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10
     }
   }, " \xB7 ", x.theme)), React.createElement("div", {
@@ -2882,7 +2913,7 @@ const RedFlags = ({
     }
   }, "\u2014 ", x.seuil)), x.source && React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10
     }
   }, x.source)))), a.evaluable && (a.non_evalues || []).length > 0 && React.createElement("div", {
@@ -2893,7 +2924,7 @@ const RedFlags = ({
     }
   }, "Non \xE9valu\xE9, faute de ratio calcul\xE9 sur les comptes : ", a.non_evalues.join(", "), "."), a.evaluable && React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 10,
       marginTop: 6
     }
@@ -3252,7 +3283,7 @@ const SignauxTechniques = ({
       }
     }, React.createElement("span", {
       style: {
-        color: actif ? "#ffd740" : "#5a6478",
+        color: actif ? "#ffd740" : "#8892a4",
         fontWeight: 700,
         minWidth: 14
       }
@@ -3263,7 +3294,7 @@ const SignauxTechniques = ({
       }
     }, x.libelle, " ", React.createElement("span", {
       style: {
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "\xB7 ", x.condition)), React.createElement("span", {
       style: {
@@ -3354,7 +3385,7 @@ const SignauxTechniques = ({
     }
   }, v2.score.toLocaleString("fr-FR")), React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "/10"), v2.rang_mom120 != null && React.createElement("span", {
     style: {
@@ -4572,7 +4603,7 @@ const StockChart = ({
       const t = axe[Math.max(0, Math.min(nAxe - 1, i))];
       if (t && suspDe[t]) {
         const x = suspDe[t];
-        refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(t)}</span></div>` + `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif && !tel ? " · " + x.motif : ""}</span></div>` + `<div style="color:#5a6478">${x.source || ""}${x.reprise ? " · reprise le " + dateFR(x.reprise) : ""}</div>`;
+        refTooltip.current.innerHTML = `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name ? "· " + r.name : ""} · J · ${dateFR(t)}</span></div>` + `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif && !tel ? " · " + x.motif : ""}</span></div>` + `<div style="color:#8892a4">${x.source || ""}${x.reprise ? " · reprise le " + dateFR(x.reprise) : ""}</div>`;
         return;
       }
       const k = t && iBougie[t] != null ? iBougie[t] : Math.max(0, Math.min(n - 1, i));
@@ -5323,7 +5354,7 @@ const Menu = ({
   }, React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       letterSpacing: 1.2,
       textTransform: "uppercase",
       padding: "6px 20px"
@@ -5695,7 +5726,7 @@ const Rangee = ({
   }, titre), sous && React.createElement("span", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginLeft: 10
     }
   }, sous)), vers && React.createElement("button", {
@@ -6749,7 +6780,7 @@ const Ranking = ({
         color: "#8892a4",
         fontWeight: 400
       }
-    }, volumeCourt(r))), React.createElement("td", {
+    }, nombreInsecable(volumeCourt(r)))), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
@@ -6761,7 +6792,7 @@ const Ranking = ({
         dh = r.echange_dh;
       if (!v && !dh) return React.createElement("span", {
         style: {
-          color: "#5a6478"
+          color: "#8892a4"
         }
       }, "\u2014");
       const bas = (dh != null ? dh : v * (r.price || 0)) < 100000;
@@ -6774,7 +6805,7 @@ const Ranking = ({
       }, dh != null ? montantCourt(dh) : v ? `${v.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—"), dh != null && v ? React.createElement("div", {
         style: {
           fontSize: 9.5,
-          color: "#5a6478"
+          color: "#8892a4"
         }
       }, v.toLocaleString("fr-FR").replace(/\u202f|,/g, " "), " titres") : null);
     })()), React.createElement("td", {
@@ -7343,7 +7374,7 @@ const ClassementPER = ({
     }, baseCourte(l.base), l.base && l.base.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
       style: {
         fontSize: 9.5,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "exercice 2025 : ", nf(r.pe_annuel))), React.createElement("td", {
       className: "per-bpa",
@@ -7390,7 +7421,7 @@ const ClassementPER = ({
       title: `Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`,
       style: {
         fontSize: 10,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "n=", M.n, React.createElement("br", null), "trop peu")));
   }), !lignes.length && React.createElement("tr", null, React.createElement("td", {
@@ -7506,7 +7537,7 @@ const SourceCotation = ({
   return React.createElement("span", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, h && React.createElement(React.Fragment, null, "obs. ", h.slice(8, 10), "/", h.slice(5, 7), " ", h.slice(11, 16), " UTC"), d && React.createElement(React.Fragment, null, " \xB7 ", d), u && React.createElement(React.Fragment, null, " \xB7 ", React.createElement("a", {
     href: u,
@@ -8974,7 +9005,7 @@ const SeanceDetail = ({
       style: {
         fontSize: 11.5,
         textAlign: "right",
-        color: x.n ? "#e6edf7" : "#5a6478"
+        color: x.n ? "#e6edf7" : "#8892a4"
       }
     }, x.nf != null ? React.createElement(React.Fragment, null, x.nf, React.createElement("span", {
       style: {
@@ -9260,7 +9291,7 @@ const Lecture = ({
   }, "Lecture de la s\xE9ance"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 10
     }
   }, r.auteur === "claude" ? "Rédigée par Claude à partir des faits publiés ci-dessous — chaque chiffre a été contrôlé." : "Générée automatiquement à partir des faits publiés ci-dessous."), blocs.map((b, i) => {
@@ -9369,7 +9400,7 @@ const ASurveiller = ({
   }, "Crit\xE8res remplis aujourd'hui"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 10
     }
   }, "Chaque titre remplit au moins un crit\xE8re mesur\xE9 ; class\xE9s par nombre de crit\xE8res, puis par montant \xE9chang\xE9.", a.n_candidats > (a.a_publie || []).length + (a.a_bouge || []).length && React.createElement(React.Fragment, null, " ", a.n_candidats, " titres en remplissaient un.")), groupes.map(([titre, l]) => React.createElement("div", {
@@ -9398,7 +9429,7 @@ const ASurveiller = ({
     style: {
       textAlign: "left",
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       fontWeight: 400,
       letterSpacing: .6,
       textTransform: "uppercase",
@@ -9421,7 +9452,7 @@ const ASurveiller = ({
       padding: "6px 8px 6px 0",
       fontFamily: "monospace",
       whiteSpace: "nowrap",
-      color: z.chg == null ? "#5a6478" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
+      color: z.chg == null ? "#8892a4" : z.chg > 0 ? "#00e5a0" : z.chg < 0 ? "#ff4f5a" : "#8892a4"
     }
   }, z.chg == null ? "non coté" : `${z.chg > 0 ? "+" : ""}${fmt(z.chg).replace(".", ",")} %`), React.createElement("td", {
     style: {
@@ -9465,7 +9496,7 @@ const ASurveiller = ({
   }), z.criteres.every(c => c.code === "volume") && React.createElement("span", {
     style: {
       fontSize: 11,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "volume inhabituel"))))))))));
 };
@@ -9608,7 +9639,7 @@ const Briefing = ({
     }
   }, semaine ? `${h.semaine?.n || 0} séance${(h.semaine?.n || 0) > 1 ? "s" : ""} cotée${(h.semaine?.n || 0) > 1 ? "s" : ""}${h.semaine?.seances?.length ? ` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length - 1]}` : ""}` : React.createElement(React.Fragment, null, src.seance || "—", src.ecrit_a && React.createElement("span", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       fontSize: 11,
       marginLeft: 8
     }
@@ -9813,7 +9844,7 @@ const Briefing = ({
   }, React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 6
     }
   }, t), l.map(x => React.createElement("div", {
@@ -9859,7 +9890,7 @@ const Briefing = ({
   }, "Publications retenues"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginBottom: 12
     }
   }, "S\xE9lection du collecteur \u2014 les publications susceptibles de d\xE9placer un cours.", a.fenetre && React.createElement(React.Fragment, null, " Fen\xEAtre du ", a.fenetre.du, " au ", a.fenetre.au, "."), " ", "Titre et lien seulement : le texte appartient \xE0 sa source."), liens.length === 0 ? React.createElement("div", {
@@ -9889,7 +9920,7 @@ const Briefing = ({
   }, x.titre), React.createElement("div", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478",
+      color: "#8892a4",
       display: "flex",
       gap: 8,
       flexWrap: "wrap",
@@ -9964,7 +9995,7 @@ const MarchesMondiaux = () => {
   }, g.titre), g.lignes.length === 0 && React.createElement("div", {
     style: {
       fontSize: 12,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "Non servi par la source \xE0 ce passage."), g.lignes.map(l => React.createElement("div", {
     key: l.ticker,
@@ -10009,7 +10040,7 @@ const MarchesMondiaux = () => {
   }))))))), React.createElement("div", {
     style: {
       fontSize: 10.5,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "Source : TradingView (scanner public), relev\xE9 le ", heure(d.releve_utc), ". Sous chaque valeur : l'heure de l'observation, le diff\xE9r\xE9 que la source d\xE9clare, et un lien pour la v\xE9rifier chez elle. Contexte seulement : n'entre pas dans le Score BVC."));
 };
@@ -10223,7 +10254,7 @@ const RisqueMesure = ({
   }, q.motif.texte, ".") : React.createElement(React.Fragment, null, motifAn && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       lineHeight: 1.5,
       marginBottom: 7
     }
@@ -10252,13 +10283,13 @@ const RisqueMesure = ({
     }, k), React.createElement("div", {
       style: {
         fontSize: 13,
-        color: ok ? "#c8d3e8" : "#5a6478",
+        color: ok ? "#c8d3e8" : "#8892a4",
         fontWeight: 700
       }
     }, ok ? val(m) : "—"), React.createElement("div", {
       style: {
         fontSize: 9,
-        color: ok ? "#8892a4" : "#5a6478",
+        color: ok ? "#8892a4" : "#8892a4",
         marginTop: 1,
         lineHeight: 1.4
       }
@@ -10399,7 +10430,7 @@ const DernierSemestre = ({
   })) : React.createElement(React.Fragment, null, " \u2014 aucun relev\xE9 du premier semestre 2026 n'est inscrit pour ce titre."), c.motif_source && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4,
       overflowWrap: "anywhere"
     }
@@ -10458,7 +10489,7 @@ const DernierSemestre = ({
       }
     }, l.libelle, plusieurs && React.createElement("sup", {
       style: {
-        color: "#5a6478",
+        color: "#8892a4",
         marginLeft: 2
       }
     }, (l.source || 0) + 1)), React.createElement("td", {
@@ -10481,14 +10512,14 @@ const DernierSemestre = ({
         padding: "6px 0 6px 4px",
         textAlign: "right",
         whiteSpace: "nowrap",
-        color: v == null ? "#5a6478" : VC(num)
+        color: v == null ? "#8892a4" : VC(num)
       },
       title: v == null ? l.variation_motif || "non calculable" : ""
     }, v == null ? "n.s." : v));
   }))), (c.lignes || []).some(l => l.variation_pct == null && l.variation_motif && l.unite !== "%") && React.createElement("div", {
     style: {
       fontSize: 10,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "n.s. : ", [...new Set((c.lignes || []).filter(l => l.variation_pct == null && l.variation_motif && l.unite !== "%").map(l => l.variation_motif))].join(" ; "), "."), (c.reserves || []).length > 0 && React.createElement("div", {
@@ -10572,7 +10603,7 @@ const DernierSemestre = ({
     extra: s.formule
   }))), React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Chiffres recopi\xE9s des comptes d\xE9pos\xE9s ; variations et marges calcul\xE9es ici, rien n'entre dans le Score BVC."))));
@@ -10895,7 +10926,7 @@ const EtatsFinanciers = ({
   }, "\xC9tats financiers"), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 10
     }
   }, "Chargement des chiffres relev\xE9s\u2026")) : null;
@@ -10989,7 +11020,7 @@ const EtatsFinanciers = ({
     }
   }, lu.valeur), efVar(gc[bi].g) && React.createElement("span", {
     style: {
-      color: gc[bi].g === "ns" ? "#5a6478" : VC(gc[bi].g),
+      color: gc[bi].g === "ns" ? "#8892a4" : VC(gc[bi].g),
       marginLeft: 6
     }
   }, efVar(gc[bi].g), " sur un an"), React.createElement("span", null, " \xB7 ", lu.statut.split(" — ")[0], " \xB7 "), React.createElement("button", {
@@ -11067,7 +11098,7 @@ const EtatsFinanciers = ({
       y: T + b.zero - 5,
       textAnchor: "middle",
       fontSize: "11",
-      fill: "#5a6478"
+      fill: "#8892a4"
     }, "\u2014"), B && React.createElement("text", {
       className: on ? "" : "ef-val",
       x: x,
@@ -11155,7 +11186,7 @@ const EtatsFinanciers = ({
       "aria-label": `${l.libelle}, ${P[i].libelle} : ${efAvecUnite(c.v, l.unite)} — source et statut`
     }, React.createElement("span", {
       style: {
-        color: !efA(c.v) ? "#5a6478" : l.calcul ? "#aab4c8" : null
+        color: !efA(c.v) ? "#8892a4" : l.calcul ? "#aab4c8" : null
       }
     }, efCase(c.v, l.unite)), m && React.createElement("sup", {
       style: {
@@ -11164,7 +11195,7 @@ const EtatsFinanciers = ({
       }
     }, m[0]), vg && React.createElement("small", {
       style: {
-        color: c.g === "ns" ? "#5a6478" : VC(c.g)
+        color: c.g === "ns" ? "#8892a4" : VC(c.g)
       }
     }, vg)));
   }))])))), React.createElement("div", {
@@ -11319,7 +11350,7 @@ const EtatsFinanciers = ({
     }
   }, l.libelle), " \u2014 ", [...new Set(efTextes(e, v.cellules[l.cle].map(c => c.n)))].join(" ")))), React.createElement("div", {
     style: {
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 4
     }
   }, "Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.")));
@@ -11673,7 +11704,7 @@ const Detail = ({
     style: {
       marginTop: 8,
       fontSize: 10,
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "formule ", r.score_bvc.version)), React.createElement(ScoreBVC, {
     s: r.score_bvc,
@@ -11746,7 +11777,7 @@ const Detail = ({
       }
     }, val), extra && React.createElement("span", {
       style: {
-        color: "#5a6478",
+        color: "#8892a4",
         fontSize: 10
       }
     }, " ", extra)));
@@ -11796,13 +11827,13 @@ const Detail = ({
     }, "Conventionnels \xB7 arithm\xE9tique sur une s\xE9ance"), React.createElement("div", {
       style: {
         fontSize: 9.5,
-        color: "#5a6478",
+        color: "#8892a4",
         marginBottom: 5
       }
     }, "Largement employ\xE9s, mais ils ne mesurent rien par eux-m\xEAmes."), L("R2 · R1", `${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`), L("Pivot", fr(cv.pivots.pivot), `séance du ${cv.pivots._seance || "—"}`, "#ffd740"), L("S1 · S2", `${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)), !cv.pivots && React.createElement("div", {
       style: {
         fontSize: 10,
-        color: "#5a6478",
+        color: "#8892a4",
         fontStyle: "italic"
       }
     }, "Pivots non publi\xE9s : la derni\xE8re s\xE9ance a une amplitude nulle \u2014 le titre a cot\xE9 \xE0 un prix unique, ou n'a pas cot\xE9."));
@@ -11901,7 +11932,7 @@ const Detail = ({
       }
     }, c.titre, React.createElement("br", null), React.createElement("span", {
       style: {
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, c.source, " \xB7 le moteur signale le d\xE9p\xF4t, il n'en lit pas les chiffres")));
   })(), React.createElement("div", {
@@ -11936,7 +11967,7 @@ const Detail = ({
     title: `PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`,
     style: {
       fontSize: 9,
-      color: "#5a6478",
+      color: "#8892a4",
       marginTop: 1
     }
   }, "exercice 2025 : ", perTxt(r.pe_annuel, r.bpa)), ratio === "pe" && r.pe_exception && React.createElement("div", {
@@ -12049,18 +12080,18 @@ const Detail = ({
     }, "sans objet"), React.createElement("div", {
       style: {
         fontSize: 8,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "pour ce m\xE9tier")) : React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 13,
-        color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#5a6478",
+        color: x ? x.valeur >= 0 ? "#c8d3e8" : "#ff4f5a" : "#8892a4",
         fontWeight: 700
       }
     }, x ? `${fmt(x.valeur, 1)}%` : "—"), x && React.createElement("div", {
       style: {
         fontSize: 8,
-        color: "#5a6478"
+        color: "#8892a4"
       }
     }, "au ", x.date.split("-").reverse().join("/"))));
   })), r.ratios_publies.reserve_cac && React.createElement("div", {
@@ -12152,7 +12183,7 @@ const Detail = ({
       }, v), React.createElement("div", {
         style: {
           fontSize: 8,
-          color: so ? "#5a6478" : "#ff8f00",
+          color: so ? "#8892a4" : "#ff8f00",
           lineHeight: 1.35,
           marginTop: 1,
           textWrap: "pretty"
@@ -13400,7 +13431,7 @@ const ChangementsFavoris = ({
     }
   }, (a.tickers || []).filter(t => fav.includes(t)).map(codeDe).join(", ")), " \xB7 publication AMMC : ", a.title || a.titre, " ", React.createElement("span", {
     style: {
-      color: "#5a6478"
+      color: "#8892a4"
     }
   }, "(", (a.date || "").slice(0, 10).split("-").reverse().join("/"), ")"))));
 };
@@ -13412,9 +13443,9 @@ const MentionLegale = () => React.createElement("footer", {
     padding: "18px 20px",
     borderTop: "1px solid rgba(255,255,255,.08)",
     background: "rgba(255,255,255,.02)",
-    fontSize: 11,
+    fontSize: 13,
     lineHeight: 1.7,
-    color: "#6b7689",
+    color: "#8892a4",
     fontFamily: "'IBM Plex Mono',monospace"
   }
 }, React.createElement("div", {
@@ -13435,7 +13466,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "BVC Analyzer est un ", React.createElement("strong", {
   style: {
-    color: "#8892a4"
+    color: "#c8d3e8"
   }
 }, "outil d'analyse quantitative \xE0 vocation informative"), ". Les scores, signaux et indicateurs pr\xE9sent\xE9s ne constituent ni un conseil en investissement, ni une recommandation personnalis\xE9e, ni une offre ou sollicitation d'achat ou de vente d'instruments financiers."), React.createElement("p", {
   style: {

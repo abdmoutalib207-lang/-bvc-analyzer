@@ -196,3 +196,108 @@ def test_le_nombre_de_transactions_quitte_le_cadre():
 def test_la_carte_masi_20_dit_ce_qu_elle_est():
     assert "Indice MASI&nbsp;20 (20 grandes valeurs)" in CARTE
     assert ">MASI&nbsp;20</span>" not in CARTE.replace("letterSpacing:1}}>MASI&nbsp;20</span>", "")
+
+
+# ── 5. Lisibilité ───────────────────────────────────────────────────────────
+
+def _luminance(h: str) -> float:
+    c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    c = [x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def _contraste(texte: str, fond: str) -> float:
+    a, b = sorted((_luminance(texte), _luminance(fond)), reverse=True)
+    return (a + 0.05) / (b + 0.05)
+
+
+def test_plancher_de_12_px_sur_telephone():
+    """Toute taille posée en ligne sous 12 px (8 à 11,5) remonte à 12 sous
+    640 px, et les règles par classe aussi."""
+    css = _css_telephone()
+    for t in ("8", "8.5", "9", "9.5", "10", "10.5", "11", "11.5"):
+        assert f'[style*="font-size: {t}px"]' in css, t
+    assert '[style*="font-size: 11.5px"]{font-size:12px!important}' in css
+    tailles = {float(x) for x in re.findall(r"fontSize:(\d+(?:\.\d+)?)[,}]", SRC)}
+    assert not {t for t in tailles if t < 12} - {8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5}, \
+        "nouvelle taille < 12 px non couverte par le plancher"
+    # aucune règle du bloc téléphone ne repose une taille sous 12 px
+    petites = re.findall(r"font-size:(\d+(?:\.\d+)?)px", css)
+    assert all(float(x) >= 12 for x in petites), petites   # règles (sans espace) ; les sélecteurs [style*="font-size: 8px"] ont une espace
+    for classe in (".tdb-titre", ".tdb-src", ".ef-t thead th", ".ef-c small", ".tdb-puce"):
+        assert classe in css, classe
+
+
+def test_l_avertissement_est_lisible_et_son_texte_inchange():
+    pied = _entre(SRC, "const MentionLegale=()=>(", "\n);\n")
+    assert 'fontSize:13,lineHeight:1.7,color:"#8892a4"' in pied
+    assert "#6b7689" not in pied
+    fond = "#%02x%02x%02x" % tuple(round(v + 0.02 * (255 - v)) for v in (8, 13, 26))  # #080d1a + 2 % de blanc
+    assert _contraste("#8892a4", fond) >= 4.5
+    assert _contraste("#6b7689", fond) < 4.5          # contrôle : l'ancienne teinte échouait
+    # le texte, mot pour mot (taille et couleur seulement)
+    texte = re.sub(r"<[^>]+>|\{[^}]*\}", " ", pied)
+    texte = " ".join(texte.replace("&nbsp;", " ").split())
+    for phrase in (
+        "AVERTISSEMENT",
+        "BVC Analyzer est un outil d'analyse quantitative à vocation informative . Les scores, "
+        "signaux et indicateurs présentés ne constituent ni un conseil en investissement, ni une "
+        "recommandation personnalisée, ni une offre ou sollicitation d'achat ou de vente "
+        "d'instruments financiers.",
+        "L'éditeur n'est pas agréé par l'AMMC en qualité de conseiller en investissement "
+        "financier. Les données proviennent de sources publiques tierces, sont différées et "
+        "peuvent comporter des erreurs ou des omissions ; leur exactitude n'est pas garantie. "
+        "L'indicateur de confiance ●●●○○ affiché sous chaque score indique le niveau de "
+        "vérification réellement atteint pour cette valeur.",
+        "Les performances passées ne préjugent pas des performances futures. Toute décision "
+        "d'investissement relève de votre seule responsabilité et devrait être précédée de "
+        "l'avis d'un professionnel habilité.",
+    ):
+        assert phrase in texte, phrase[:60]
+
+
+def test_le_gris_5a6478_ne_porte_plus_de_texte():
+    """#5a6478 sur le fond : 3,26:1 — sous le seuil de 4,5. Il reste
+    seulement en fond de barre (part des inchangées)."""
+    assert _contraste("#5a6478", "#080d1a") < 4.5 <= _contraste("#8892a4", "#080d1a")
+    code = _sans_commentaires(SRC)
+    for motif in (r'color:\s*"?#5a6478', r'\?"#5a6478"', r'(?<!background):"#5a6478"', r'fill="#5a6478"'):
+        assert not re.search(motif, code), motif
+    assert all('background:"#5a6478"' in l for l in code.splitlines() if "#5a6478" in l)
+
+
+def test_les_textes_svg_et_les_exposants_suivent_le_plancher():
+    """Mesuré à 390 px : il restait 84 signes sous 12 px dans la fiche IAM —
+    les textes SVG du graphique des états financiers (attribut font-size) et
+    les exposants ⚠ ∑ ° (« smaller » = 10 px). ⚠ est une réserve."""
+    css = _css_telephone()
+    attributs = {x for x in re.findall(r'fontSize="(\d+(?:\.\d+)?)"', SRC) if float(x) < 12}
+    assert attributs, "contrôle : le relevé des attributs ne trouve plus rien"
+    for x in attributs:
+        assert f'svg text[font-size="{x}"]' in css, x
+    assert "sup{font-size:12px}" in css
+
+
+def test_les_tableaux_tiennent_a_12_px_sans_couper_un_nombre():
+    """À 12 px le classement mesurait 409 px et le classement PER 413 pour
+    362 disponibles. Les mentions secondaires passent à la ligne ; un montant,
+    lui, ne se coupe jamais au milieu (« 5 172 » / « 012 DH » se lit comme
+    deux nombres)."""
+    import json
+    import shutil
+    import subprocess
+    import pytest
+    css = _css_telephone()
+    assert ".classement .marqueur-offre{white-space:normal!important}" in css
+    assert ".classement-per td,.classement-per td *,.classement-per th{white-space:normal!important}" in css
+    assert "{nombreInsecable(volumeCourt(r))}" in SRC
+    if not shutil.which("node"):
+        pytest.skip("node absent")
+    f = _entre(SRC, "const nombreInsecable=", "\n\n")
+    jsx = '<><span style={{whiteSpace:"nowrap"}}>{t.slice(0,k)}</span>{t.slice(k)}</>'
+    assert jsx in f
+    code = (f.replace(jsx, "[{nowrap:t.slice(0,k)},t.slice(k)]")
+            + "\nconsole.log(JSON.stringify([nombreInsecable('5 172 012 DH'),"
+              "nombreInsecable('—'),nombreInsecable('12 titres')]));")
+    out = json.loads(subprocess.run(["node", "-e", code], capture_output=True, text=True, check=True).stdout)
+    assert out == [[{"nowrap": "5 172 012"}, " DH"], "—", [{"nowrap": "12"}, " titres"]]

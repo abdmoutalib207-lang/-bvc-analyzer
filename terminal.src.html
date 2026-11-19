@@ -132,8 +132,21 @@
       .selecteur-titres{display:none!important}
       /* Plancher de police (07/10/2026) : 413 textes sous 10 px dans le
          classement à 390 px, le plus petit à 8. Les tailles sont posées en
-         ligne ; on relève ici toutes celles de 8 à 9,5 px. */
-      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"]{font-size:10px!important}
+         ligne ; on relève ici toutes celles de 8 à 11,5 px.
+         ⚠️ 19/11/2026 (cadre commun) : le plancher passe de 10 à 12 px —
+         82 % du texte de l'accueil, 84 % du classement et 94 % de la fiche
+         IAM étaient sous 12 px à 390 px (mesuré). Les règles par classe qui
+         posent moins de 12 px sont relevées juste après. */
+      [style*="font-size: 8px"],[style*="font-size: 8.5px"],[style*="font-size: 9px"],[style*="font-size: 9.5px"],
+      [style*="font-size: 10px"],[style*="font-size: 10.5px"],[style*="font-size: 11px"],[style*="font-size: 11.5px"]{font-size:12px!important}
+      .tdb-titre,.tdb-src,.tdb-puce,.ef-b,.ef-t,.ef-t thead th,.ef-t .ef-grp,.ef-c small{font-size:12px!important}
+      /* Textes SVG (attribut font-size, que la feuille de style surclasse) :
+         jauge RSI et graphique des états financiers, sans viewBox mis à
+         l'échelle — l'unité y vaut un pixel. */
+      svg text[font-size="8"],svg text[font-size="10"],svg text[font-size="11"]{font-size:12px}
+      /* Exposants (⚠, ∑, ° des états financiers) : « smaller » les mettait à
+         10 px, or ⚠ est une réserve — elle doit se lire. */
+      sup{font-size:12px}
       /* Le classement garde : ticker, clôture (+ ouverture), variation
          (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
          colonnes (POIDS et la seconde colonne de score sont retirées). */
@@ -142,7 +155,7 @@
       .classement th:nth-child(3),.classement td:nth-child(3),
       .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
       .classement th:nth-child(10),.classement td:nth-child(10){display:none}
-      .classement td,.classement th{padding:7px 3px!important}
+      .classement td,.classement th{padding:7px 2px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
       .classement-per{min-width:0!important}
@@ -175,10 +188,17 @@
       .secteur-societe{display:none!important}
       /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
          reconnaître une société sans prendre la largeur d'une colonne. */
-      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:8px!important}
+      .classement .logo-pastille{width:26px!important;height:26px!important;font-size:12px!important}
       .classement td:nth-child(2)>div{gap:7px!important}
-      .nom-societe{max-width:80px!important;font-size:11px!important}
-      .classement td:nth-child(11) *{font-size:10px!important;letter-spacing:0!important;white-space:normal!important}
+      .nom-societe{max-width:66px!important;font-size:12px!important}
+      .classement td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}
+      /* Plancher de 12 px (19/11/2026) : le classement mesurait alors 409 px
+         et le classement PER 413 pour 362 disponibles (mesuré à 390). Les
+         mentions secondaires (OPA, réf., couv., n=, date du cours) passent à
+         la ligne au lieu d'élargir leur colonne. */
+      .classement .marqueur-offre{white-space:normal!important}
+      .classement td:nth-child(5) div,.classement td:nth-child(9) div{white-space:normal!important}
+      .classement-per td,.classement-per td *,.classement-per th{white-space:normal!important}
       .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -283,8 +303,11 @@
     /* Légende S/R : 10 px sur téléphone, deux lignes au plus par niveau (21/10/2026).
        ⚠️ Le retrait passe de 8 à 6 px : à 390 px la ligne mesurait 318 px, soit
        52,99 signes de 6 px — le navigateur en loge 52, pas 53, et 12 % des
-       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré). */
-    @media (max-width:640px){.legende-sr .sr-ligne{font-size:10px;}
+       niveaux de la fenêtre 3A repassaient à trois lignes (mesuré).
+       19/11/2026 : 12 px, plancher du téléphone. Mesuré sur IAM, ATW, MNG,
+       CMT, BCP : 7 niveaux sur 16 en deux lignes (15 sur 16 à 10 px), les
+       autres en trois. */
+    @media (max-width:640px){.legende-sr .sr-ligne{font-size:12px;}
       .legende-sr{padding-left:6px!important;padding-right:6px!important;}}
     /* Accueil en rangées et animation d'ouverture (01/10/2026), demande
        d'Abd Moutalib : « une ouverture comme Netflix ». */
@@ -1463,9 +1486,9 @@ const SousMesures=({liste})=>{if(!Array.isArray(liste)||!liste.length)return nul
     const src=[...new Set(Object.values(s.sources||{}).filter(Boolean))];
     return <span key={s.nom} style={{display:"block",padding:"2px 0 2px 8px",borderLeft:"2px solid #2a3550",marginTop:2}}>
       <span style={{color:"#c8d3e8"}}>{s.libelle} <b>{fmt(s.valeur,2)} %</b></span>
-      {s.periode&&<span style={{display:"block",color:"#5a6478"}}>Période : {s.periode}</span>}
-      {s.formule&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Calcul : {s.formule}</span>}
-      {src.length>0&&<span style={{display:"block",color:"#5a6478",overflowWrap:"anywhere"}}>Source : {src.join(" ; ")}</span>}
+      {s.periode&&<span style={{display:"block",color:"#8892a4"}}>Période : {s.periode}</span>}
+      {s.formule&&<span style={{display:"block",color:"#8892a4",overflowWrap:"anywhere"}}>Calcul : {s.formule}</span>}
+      {src.length>0&&<span style={{display:"block",color:"#8892a4",overflowWrap:"anywhere"}}>Source : {src.join(" ; ")}</span>}
     </span>;})}</span>;};
 const MesuresBancaires=({r})=>{const c=((r.note_fond||{}).composantes)||{};
   const l=Object.values(c).flatMap(x=>Array.isArray(x.sous_mesures)?x.sous_mesures:[]);
@@ -1604,7 +1627,7 @@ const CarteIndices=({masi,gabarit=false,avant=null,apres=null})=>{
       <div className="carte-ind" style={carte}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <span style={{...etiquette,color:"#4db8ff",fontWeight:700}}>MASI</span>
-          {masi.asof&&<span style={{fontSize:10,color:"#5a6478"}}>séance du {jj(masi.asof)}</span>}
+          {masi.asof&&<span style={{fontSize:10,color:"#8892a4"}}>séance du {jj(masi.asof)}</span>}
           <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI"
             style={{marginLeft:"auto",fontSize:10,padding:"2px 8px",minHeight:0,borderRadius:3,cursor:"pointer",fontFamily:"var(--font)",
               background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>
@@ -1684,6 +1707,11 @@ const montantCompact=dh=>dh>=1e9?`${(dh/1e9).toFixed(2).replace(".",",")} Md DH`
 const montantCourt=montantEntier;
 const volumeCourt=r=>r.echange_dh!=null?montantCourt(r.echange_dh)
   :r.vol?`${r.vol.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—";
+/* Un nombre coupé en fin de ligne se lit comme deux nombres (« 5 172 » puis
+   « 012 DH », vu à 390 px le 19/11/2026) : le nombre reste d'un bloc, seule
+   l'unité peut passer à la ligne. */
+const nombreInsecable=t=>{const k=typeof t==="string"?t.lastIndexOf(" "):-1;
+  return k>0?<><span style={{whiteSpace:"nowrap"}}>{t.slice(0,k)}</span>{t.slice(k)}</>:t;};
 
 function CompanyLogo({sym,logo,sector,size=32}){
   /* ⚠️ `sym` est le code AFFICHÉ (officiel : TGC, CFG, GTM) ; `logo` est NOTRE
@@ -1793,9 +1821,9 @@ const RedFlags=({alertes})=>{
               {L.map((x,k)=>(
                 <div key={k} style={{padding:"6px 0",borderBottom:k<n-1?"1px solid #1a2540":"none"}}>
                   <div><span style={{color:NIV[x.niveau]||"#ffd740",fontWeight:700}}>● {x.raison}</span>
-                    <span style={{color:"#5a6478",fontSize:10}}> · {x.theme}</span></div>
+                    <span style={{color:"#8892a4",fontSize:10}}> · {x.theme}</span></div>
                   <div style={{marginTop:2}}>Mesuré : <b>{x.valeur}</b> <span style={{color:"#8892a4"}}>— {x.seuil}</span></div>
-                  {x.source&&<div style={{color:"#5a6478",fontSize:10}}>{x.source}</div>}
+                  {x.source&&<div style={{color:"#8892a4",fontSize:10}}>{x.source}</div>}
                 </div>
               ))}
             </div>
@@ -1805,7 +1833,7 @@ const RedFlags=({alertes})=>{
               pas de ratio calculé est DIT non évalué, jamais compté comme sain. */}
           {a.evaluable&&(a.non_evalues||[]).length>0&&<div style={{color:"#8892a4",fontSize:10,marginTop:8}}>
             Non évalué, faute de ratio calculé sur les comptes : {a.non_evalues.join(", ")}.</div>}
-          {a.evaluable&&<div style={{color:"#5a6478",fontSize:10,marginTop:6}}>
+          {a.evaluable&&<div style={{color:"#8892a4",fontSize:10,marginTop:6}}>
             Source : {a.source||"non précisée"}{a.date?` · calculés le ${dateFr(a.date)}`:""}.</div>}
           <div style={{color:"#8892a4",fontSize:10,marginTop:6}}>
             Information seulement : ces alertes n'entrent pas dans le Score BVC.</div>
@@ -1965,8 +1993,8 @@ const SignauxTechniques=({r})=>{
     const er=ERRATA.filter(e=>e.frequence===k);
     return(
     <div key={k} style={{display:"flex",gap:8,alignItems:"baseline",padding:"5px 0",borderTop:"1px solid #1a2540",opacity:actif?1:.55,flexWrap:"wrap"}}>
-      <span style={{color:actif?"#ffd740":"#5a6478",fontWeight:700,minWidth:14}}>{actif?"●":"○"}</span>
-      <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.libelle} <span style={{color:"#5a6478"}}>· {x.condition}</span></span>
+      <span style={{color:actif?"#ffd740":"#8892a4",fontWeight:700,minWidth:14}}>{actif?"●":"○"}</span>
+      <span style={{flex:"1 1 200px",color:actif?"#e8eef8":"#8892a4"}}>{x.libelle} <span style={{color:"#8892a4"}}>· {x.condition}</span></span>
       <span style={{fontSize:11,color:"#8892a4"}}><b style={{color:coul(al)}}>{al>0?"+":""}{al.toLocaleString("fr-FR")} %</b> d'écart moyen · {x.pct_gagnants.toLocaleString("fr-FR")} % gagnants (IC {ic[0].toLocaleString("fr-FR")}–{ic[1].toLocaleString("fr-FR")}) · {x.n} cas · {periodeFreq(x.periode_mesure)}</span>
       {er.map(e=><span key={e.date} title={e.cause} style={{flexBasis:"100%",fontSize:10,color:"#ffd740",paddingLeft:22}}>
         corrigé le {e.date.split("-").reverse().join("/")} : {e.avant.n} → {e.apres.n} cas, {e.avant.pct_gagnants.toLocaleString("fr-FR")} → {e.apres.pct_gagnants.toLocaleString("fr-FR")} % gagnants (historique de l'indice complété)</span>)}
@@ -1987,7 +2015,7 @@ const SignauxTechniques=({r})=>{
       ):(<>
         <div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginBottom:6}}>
           <span style={{fontSize:12,color:"#8892a4"}}>Nouvelle note technique (essai)</span>
-          <b style={{fontSize:20,color:"#e8eef8"}}>{v2.score.toLocaleString("fr-FR")}</b><span style={{color:"#5a6478"}}>/10</span>
+          <b style={{fontSize:20,color:"#e8eef8"}}>{v2.score.toLocaleString("fr-FR")}</b><span style={{color:"#8892a4"}}>/10</span>
           {v2.rang_mom120!=null&&<span style={{fontSize:11,color:"#8892a4",marginLeft:"auto"}}>force sur 6 mois : mieux que {Math.round(v2.rang_mom120*100)} % de la cote</span>}
         </div>
         {ligne("cassure",!!v2.cassure_recente)}
@@ -2632,7 +2660,7 @@ const StockChart=({r})=>{
         refTooltip.current.innerHTML=
           `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name?"· "+r.name:""} · J · ${dateFR(t)}</span></div>`+
           `<div><span style="color:#ffd740">Suspendu (AMMC/Bourse)</span> <span style="color:#8892a4">— pas de cotation ce jour${x.motif&&!tel?" · "+x.motif:""}</span></div>`+
-          `<div style="color:#5a6478">${x.source||""}${x.reprise?" · reprise le "+dateFR(x.reprise):""}</div>`;
+          `<div style="color:#8892a4">${x.source||""}${x.reprise?" · reprise le "+dateFR(x.reprise):""}</div>`;
         return;
       }
       const k=t&&iBougie[t]!=null?iBougie[t]:Math.max(0,Math.min(n-1,i));
@@ -2954,7 +2982,7 @@ const Menu=({tab,setTab,TABS})=>{
         </div>
         {RUBRIQUES.map(r=>(
           <div key={r.titre} style={{marginTop:10}}>
-            <div style={{fontSize:10,color:"#5a6478",letterSpacing:1.2,textTransform:"uppercase",padding:"6px 20px"}}>{r.titre}</div>
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1.2,textTransform:"uppercase",padding:"6px 20px"}}>{r.titre}</div>
             {r.vues.filter(v=>lib[v.id]).map(v=>(
               <button key={v.id} className={"menu-item"+(tab===v.id?" actif":"")} onClick={()=>choisir(v.id)}>
                 <span style={{width:22,textAlign:"center",fontSize:15,color:tab===v.id?"#00e5a0":"#4db8ff"}}>{v.icone}</span>
@@ -3130,7 +3158,7 @@ const Rangee=({titre,sous,vers,setTab,items})=>{
       <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:10,padding:"0 2px"}}>
         <div>
           <span style={{fontSize:14,fontWeight:700,color:"#e6edf7",letterSpacing:.6}}>{titre}</span>
-          {sous&&<span style={{fontSize:11,color:"#5a6478",marginLeft:10}}>{sous}</span>}
+          {sous&&<span style={{fontSize:11,color:"#8892a4",marginLeft:10}}>{sous}</span>}
         </div>
         {vers&&<button onClick={()=>setTab(vers)} style={{background:"none",border:"none",color:"#4db8ff",fontSize:12,cursor:"pointer",fontFamily:"var(--font)"}}>Tout voir ›</button>}
       </div>
@@ -3538,7 +3566,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                     {r.reference!=null&&<div style={{fontSize:9.5,color:"#8892a4",fontWeight:400,whiteSpace:"nowrap"}}
                       title="Cours de référence : clôture de la séance précédente, base de la variation (servi par la synthèse de séance)">
                       réf. {px(r.reference)}</div>}
-                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>{volumeCourt(r)}</div></td>
+                    <div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",fontWeight:400}}>{nombreInsecable(volumeCourt(r))}</div></td>
                   {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
                       Le classement montrait la variation sans jamais dire sur
                       combien d'échanges elle s'était faite. Un titre à +3 %
@@ -3550,13 +3578,13 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       d'Addoha en valent 336. */}
                   <td style={{padding:"8px 8px",fontSize:12,color:"#c8d3e8",whiteSpace:"nowrap"}}>
                     {(()=>{const v=r.vol,dh=r.echange_dh;
-                      if(!v&&!dh) return <span style={{color:"#5a6478"}}>—</span>;
+                      if(!v&&!dh) return <span style={{color:"#8892a4"}}>—</span>;
                       const bas=(dh!=null?dh:v*(r.price||0))<100000;
                       return <>
                         <div style={{color:bas?"#ff8f00":"#c8d3e8",fontWeight:600}}
                           title={bas?"Moins de 100 000 DH échangés : la confiance est plafonnée à 2 sur 5.":""}>
                           {dh!=null?montantCourt(dh):v?`${v.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres`:"—"}</div>
-                        {dh!=null&&v?<div style={{fontSize:9.5,color:"#5a6478"}}>
+                        {dh!=null&&v?<div style={{fontSize:9.5,color:"#8892a4"}}>
                           {v.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres</div>:null}
                       </>;})()}
                   </td>
@@ -3780,7 +3808,7 @@ const ClassementPER=({rows,setSel,setTab})=>{
                   <div className="per-mobile" style={{fontSize:9.5,color:"#6b7a99"}}>{l.base&&l.base.startsWith("12")?"12 mois":l.base||"—"}</div>
                 </td>
                 <td className="per-base" style={{padding:"8px 8px",fontSize:11,color:"#8892a4",whiteSpace:"nowrap"}}>{baseCourte(l.base)}
-                  {l.base&&l.base.startsWith("12")&&r.pe_annuel!=null&&<div style={{fontSize:9.5,color:"#5a6478"}}>exercice 2025 : {nf(r.pe_annuel)}</div>}</td>
+                  {l.base&&l.base.startsWith("12")&&r.pe_annuel!=null&&<div style={{fontSize:9.5,color:"#8892a4"}}>exercice 2025 : {nf(r.pe_annuel)}</div>}</td>
                 <td className="per-bpa" style={{padding:"8px 8px",fontSize:12,color:"#c8d3e8",textAlign:"right",fontVariantNumeric:"tabular-nums"}}>{nf(l.bpa,2)}</td>
                 <td style={{padding:"8px 8px",textAlign:"right",whiteSpace:"nowrap"}}>
                   <div style={{fontSize:12.5,color:"#c8d3e8",fontWeight:600,fontVariantNumeric:"tabular-nums"}}>{nf(l.cours,2)}</div>
@@ -3790,7 +3818,7 @@ const ClassementPER=({rows,setSel,setTab})=>{
                   {M.med!=null?<>
                     <div style={{fontSize:12.5,color:"#4db8ff",fontVariantNumeric:"tabular-nums"}}>{nf(M.med)}</div>
                     <div style={{fontSize:9.5,color:"#8892a4"}}>n={M.n} · {ecart>=0?"+":"−"}{nf(Math.abs(ecart),0)} %</div>
-                  </>:<div title={`Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`} style={{fontSize:10,color:"#5a6478"}}>n={M.n}<br/>trop peu</div>}
+                  </>:<div title={`Moins de ${minSecteur} PER classés dans le secteur : pas de médiane`} style={{fontSize:10,color:"#8892a4"}}>n={M.n}<br/>trop peu</div>}
                 </td>
               </tr>);})}
             {!lignes.length&&<tr><td colSpan={7} style={{padding:"16px 8px",fontSize:12,color:"#8892a4"}}>Aucun PER classé dans ce secteur.</td></tr>}
@@ -3845,7 +3873,7 @@ const lienSource=t=>t&&t.includes(":")?`https://www.tradingview.com/symbols/${t.
 const differeDeclare=m=>{const x=/^delayed\w*?_(\d+)$/.exec(m||"");return x?`différé ${Math.round(+x[1]/60)} min`:m==="streaming"?"sans différé déclaré":null;};
 const SourceCotation=({l})=>{
   const u=lienSource(l.ticker), d=differeDeclare(l.mode_source), h=l.horodatage_utc;
-  return <span style={{fontSize:10.5,color:"#5a6478"}}>
+  return <span style={{fontSize:10.5,color:"#8892a4"}}>
     {h&&<>obs. {h.slice(8,10)}/{h.slice(5,7)} {h.slice(11,16)} UTC</>}{d&&<> · {d}</>}
     {u&&<> · <a href={u} target="_blank" rel="noopener noreferrer" style={{color:"#4db8ff",textDecoration:"none"}}
       title={`Vérifier ${l.nom||l.ticker} chez la source`}>Source ↗</a></>}
@@ -4330,7 +4358,7 @@ const SeanceDetail=({b,rows,masi,ouvrir})=>{
                 <span style={{position:"absolute",left:0,top:0,bottom:0,width:`${x.n/hMax*100}%`,background:c,opacity:x.nf!=null?.25:.85,borderRadius:2}}/>
                 {x.nf!=null&&<span style={{position:"absolute",left:0,top:0,bottom:0,width:`${x.nf/hMax*100}%`,background:c,borderRadius:2}}/>}
               </span>
-              <span className="tdb-num" style={{fontSize:11.5,textAlign:"right",color:x.n?"#e6edf7":"#5a6478"}}>
+              <span className="tdb-num" style={{fontSize:11.5,textAlign:"right",color:x.n?"#e6edf7":"#8892a4"}}>
                 {x.nf!=null?<>{x.nf}<span style={{color:"#8892a4"}}>/{x.n}</span></>:x.n}</span>
             </button>;})}
         </div>
@@ -4431,7 +4459,7 @@ const Lecture=({r})=>{
   return(
     <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>Lecture de la séance</div>
-      <div style={{fontSize:11,color:"#5a6478",marginBottom:10}}>
+      <div style={{fontSize:11,color:"#8892a4",marginBottom:10}}>
         {r.auteur==="claude"
           ?"Rédigée par Claude à partir des faits publiés ci-dessous — chaque chiffre a été contrôlé."
           :"Générée automatiquement à partir des faits publiés ci-dessous."}
@@ -4481,7 +4509,7 @@ const ASurveiller=({a})=>{
   return(
     <div style={{background:"#0d1829",border:"1px solid rgba(0,229,160,.35)",borderRadius:8,padding:16}}>
       <div style={{fontSize:10,color:"#00e5a0",letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>Critères remplis aujourd'hui</div>
-      <div style={{fontSize:11,color:"#5a6478",marginBottom:10}}>
+      <div style={{fontSize:11,color:"#8892a4",marginBottom:10}}>
         Chaque titre remplit au moins un critère mesuré ; classés par nombre de critères, puis par montant échangé.
         {a.n_candidats>(a.a_publie||[]).length+(a.a_bouge||[]).length&&<> {a.n_candidats} titres en remplissaient un.</>}
       </div>
@@ -4493,11 +4521,11 @@ const ASurveiller=({a})=>{
               dans le texte du critère. */}
           <div style={{overflowX:"auto"}}><table style={{borderCollapse:"collapse",width:"100%"}}>
             <thead><tr>{["Titre","Variation","Volume","Pourquoi"].map(x=>
-              <th key={x} style={{textAlign:"left",fontSize:10,color:"#5a6478",fontWeight:400,letterSpacing:.6,textTransform:"uppercase",padding:"3px 8px 3px 0"}}>{x}</th>)}</tr></thead>
+              <th key={x} style={{textAlign:"left",fontSize:10,color:"#8892a4",fontWeight:400,letterSpacing:.6,textTransform:"uppercase",padding:"3px 8px 3px 0"}}>{x}</th>)}</tr></thead>
             <tbody>{l.map(z=>(
               <tr key={z.symbol} style={{borderTop:"1px solid #0a1220"}}>
                 <td style={{padding:"6px 8px 6px 0",color:"#e6edf7",fontWeight:600,whiteSpace:"nowrap"}}>{codeDe(z.symbol)}</td>
-                <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.chg==null?"#5a6478":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
+                <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.chg==null?"#8892a4":z.chg>0?"#00e5a0":z.chg<0?"#ff4f5a":"#8892a4"}}>
                   {z.chg==null?"non coté":`${z.chg>0?"+":""}${fmt(z.chg).replace(".",",")} %`}</td>
                 <td style={{padding:"6px 8px 6px 0",fontFamily:"monospace",whiteSpace:"nowrap",color:z.volume_rapport>=3?"#ffd740":"#8892a4"}}
                   title="Titres échangés rapportés à la médiane des 20 dernières séances">
@@ -4507,7 +4535,7 @@ const ASurveiller=({a})=>{
                     const st={fontSize:11,padding:"1px 7px",borderRadius:10,background:"#0a1220",border:"1px solid #1a2540",color:"#c8d3e8",textDecoration:"none",whiteSpace:"nowrap"};
                     return c.url?<a key={i} href={c.url} target="_blank" rel="noopener noreferrer" style={{...st,color:"#4db8ff"}}>{c.texte}</a>
                       :<span key={i} style={st}>{c.texte}</span>;})}
-                  {z.criteres.every(c=>c.code==="volume")&&<span style={{fontSize:11,color:"#5a6478"}}>volume inhabituel</span>}
+                  {z.criteres.every(c=>c.code==="volume")&&<span style={{fontSize:11,color:"#8892a4"}}>volume inhabituel</span>}
                 </td>
               </tr>))}</tbody></table></div>
         </div>))}
@@ -4591,7 +4619,7 @@ const Briefing=({rows,masi,ouvrir})=>{
         <div style={{fontSize:13,color:"#4db8ff",marginBottom:12}}>
           {semaine
             ?`${h.semaine?.n||0} séance${(h.semaine?.n||0)>1?"s":""} cotée${(h.semaine?.n||0)>1?"s":""}${h.semaine?.seances?.length?` · ${h.semaine.seances[0]} → ${h.semaine.seances[h.semaine.seances.length-1]}`:""}`
-            :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#5a6478",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
+            :<>{src.seance||"—"}{src.ecrit_a&&<span style={{color:"#8892a4",fontSize:11,marginLeft:8}}>· écrite le {src.ecrit_a.slice(8,10)}/{src.ecrit_a.slice(5,7)} à {src.ecrit_a.slice(11)}</span>}</>}</div>
         {cVis&&cVis.rendu}
         <ul style={{margin:0,paddingLeft:18,fontSize:13.5,lineHeight:1.65,color:"#c8d3e8"}}>
           {(src.constats||[]).map((c,i)=>cVis&&cVis.pris.has(i)?null:<li key={i} style={{marginBottom:6}}>{c}</li>)}
@@ -4680,7 +4708,7 @@ const Briefing=({rows,masi,ouvrir})=>{
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
             {[["Hausses",h.hausses||[],"#00e5a0"],["Baisses",h.baisses||[],"#ff4f5a"]].map(([t,l,c])=>(
               <div key={t}>
-                <div style={{fontSize:10,color:"#5a6478",marginBottom:6}}>{t}</div>
+                <div style={{fontSize:10,color:"#8892a4",marginBottom:6}}>{t}</div>
                 {l.map(x=>(
                   <div key={x.symbol} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,padding:"3px 0"}}>
                     <span style={{color:"#c8d3e8"}}>{codeDe(x.symbol)}
@@ -4701,7 +4729,7 @@ const Briefing=({rows,masi,ouvrir})=>{
 
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Publications retenues</div>
-        <div style={{fontSize:11,color:"#5a6478",marginBottom:12}}>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:12}}>
           Sélection du collecteur — les publications susceptibles de déplacer un cours.
           {a.fenetre&&<> Fenêtre du {a.fenetre.du} au {a.fenetre.au}.</>}
           {" "}Titre et lien seulement : le texte appartient à sa source.
@@ -4714,7 +4742,7 @@ const Briefing=({rows,masi,ouvrir})=>{
                 borderBottom:i<liens.length-1?"1px solid #0a1220":"none",
                 borderLeft:`2px solid ${x.officielle?"#00e5a0":"#1a2540"}`,textDecoration:"none"}}>
               <div style={{fontSize:13,color:"#c8d3e8",marginBottom:3}}>{x.titre}</div>
-              <div style={{fontSize:10.5,color:"#5a6478",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+              <div style={{fontSize:10.5,color:"#8892a4",display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
                 {(x.tickers||[]).map(t=><span key={t} style={{color:"#4db8ff",fontWeight:600}}>{codeDe(t)}</span>)}
                 <span>{x.source}</span><span>·</span><span>{x.date}</span>
                 {x.type&&<><span>·</span><span>{x.type}</span></>}
@@ -4747,7 +4775,7 @@ const MarchesMondiaux=()=>{
         {(d.groupes||[]).map(g=>(
           <div key={g.titre} className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:16}}>
             <div style={{fontSize:12,color:"#e6edf7",fontWeight:600,marginBottom:10}}>{g.titre}</div>
-            {g.lignes.length===0&&<div style={{fontSize:12,color:"#5a6478"}}>Non servi par la source à ce passage.</div>}
+            {g.lignes.length===0&&<div style={{fontSize:12,color:"#8892a4"}}>Non servi par la source à ce passage.</div>}
             {g.lignes.map(l=>(
               <div key={l.ticker} title={`${l.description_source} — ${heure(l.horodatage_utc)} — ${l.mode_source}`}
                 style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:"2px 10px",padding:"8px 0",borderBottom:"1px solid #0a1220",flexWrap:"wrap"}}>
@@ -4760,7 +4788,7 @@ const MarchesMondiaux=()=>{
               </div>))}
           </div>))}
       </div>
-      <div style={{fontSize:10.5,color:"#5a6478"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Sous chaque valeur : l'heure de l'observation, le différé que la source déclare, et un lien pour la vérifier chez elle. Contexte seulement : n'entre pas dans le Score BVC.</div>
+      <div style={{fontSize:10.5,color:"#8892a4"}}>Source : TradingView (scanner public), relevé le {heure(d.releve_utc)}. Sous chaque valeur : l'heure de l'observation, le différé que la source déclare, et un lien pour la vérifier chez elle. Contexte seulement : n'entre pas dans le Score BVC.</div>
     </div>);
 };
 
@@ -4847,15 +4875,15 @@ const RisqueMesure=({q})=>{
       </div>
       {q.motif&&q.motif.code==="suspendu"
         ?<div style={{fontSize:11,color:"#8892a4",lineHeight:1.5}}>{q.motif.texte}.</div>
-        :<>{motifAn&&<div style={{fontSize:10,color:"#5a6478",lineHeight:1.5,marginBottom:7}}>
+        :<>{motifAn&&<div style={{fontSize:10,color:"#8892a4",lineHeight:1.5,marginBottom:7}}>
             Volatilité, bêta, perte maximale, VaR : <b>non calculés</b> — {motifAn}.</div>}
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:7}}>
           {visibles.map(([k,m,val,detail])=>{const ok=m&&m.valeur!=null;
             return(
             <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
               <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-              <div style={{fontSize:13,color:ok?"#c8d3e8":"#5a6478",fontWeight:700}}>{ok?val(m):"—"}</div>
-              <div style={{fontSize:9,color:ok?"#8892a4":"#5a6478",marginTop:1,lineHeight:1.4}}>
+              <div style={{fontSize:13,color:ok?"#c8d3e8":"#8892a4",fontWeight:700}}>{ok?val(m):"—"}</div>
+              <div style={{fontSize:9,color:ok?"#8892a4":"#8892a4",marginTop:1,lineHeight:1.4}}>
                 {ok?<>{detail(m)}<br/>{per(m)}</>:(m&&m.motif)||"non calculé"}
               </div>
             </div>);})}
@@ -4912,7 +4940,7 @@ const DernierSemestre=({c})=>{
       </div>
       {!releve?<div style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.5}}>
           <b style={{color:"#ff8f00"}}>Non relevé</b>{c.motif?<> — <TexteLong t={c.motif}/></>:<> — aucun relevé du premier semestre 2026 n'est inscrit pour ce titre.</>}
-          {c.motif_source&&<div style={{fontSize:10,color:"#5a6478",marginTop:4,overflowWrap:"anywhere"}}>Raison lue dans : {c.motif_source}</div>}
+          {c.motif_source&&<div style={{fontSize:10,color:"#8892a4",marginTop:4,overflowWrap:"anywhere"}}>Raison lue dans : {c.motif_source}</div>}
         </div>
       :<>
         <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,fontVariantNumeric:"tabular-nums"}}>
@@ -4925,15 +4953,15 @@ const DernierSemestre=({c})=>{
           <tbody>{(c.lignes||[]).map(l=>{const v=variationFr(l);const num=l.unite==="%"?l.variation_pts:l.variation_pct;
             return(
             <tr key={l.cle} style={{borderTop:"1px solid #1a2540"}} title={l.calcul||""}>
-              <td style={{padding:"6px 4px 6px 0",color:l.unite==="%"?"#8892a4":"#c8d3e8",lineHeight:1.3}}>{l.libelle}{plusieurs&&<sup style={{color:"#5a6478",marginLeft:2}}>{(l.source||0)+1}</sup>}</td>
+              <td style={{padding:"6px 4px 6px 0",color:l.unite==="%"?"#8892a4":"#c8d3e8",lineHeight:1.3}}>{l.libelle}{plusieurs&&<sup style={{color:"#8892a4",marginLeft:2}}>{(l.source||0)+1}</sup>}</td>
               <td style={{padding:"6px 4px",textAlign:"right",color:"#8892a4",whiteSpace:"nowrap"}}>{valeurS1(l,l.s1_2025)}</td>
               <td style={{padding:"6px 4px",textAlign:"right",color:"#e8eef8",fontWeight:700,whiteSpace:"nowrap"}}>{valeurS1(l,l.s1_2026)}</td>
-              <td style={{padding:"6px 0 6px 4px",textAlign:"right",whiteSpace:"nowrap",color:v==null?"#5a6478":VC(num)}}
+              <td style={{padding:"6px 0 6px 4px",textAlign:"right",whiteSpace:"nowrap",color:v==null?"#8892a4":VC(num)}}
                 title={v==null?(l.variation_motif||"non calculable"):""}>{v==null?"n.s.":v}</td>
             </tr>);})}</tbody>
         </table>
         {(c.lignes||[]).some(l=>l.variation_pct==null&&l.variation_motif&&l.unite!=="%")&&
-          <div style={{fontSize:10,color:"#5a6478",marginTop:4}}>n.s. : {[...new Set((c.lignes||[]).filter(l=>l.variation_pct==null&&l.variation_motif&&l.unite!=="%").map(l=>l.variation_motif))].join(" ; ")}.</div>}
+          <div style={{fontSize:10,color:"#8892a4",marginTop:4}}>n.s. : {[...new Set((c.lignes||[]).filter(l=>l.variation_pct==null&&l.variation_motif&&l.unite!=="%").map(l=>l.variation_motif))].join(" ; ")}.</div>}
         {(c.reserves||[]).length>0&&<div style={{marginTop:9,display:"flex",flexDirection:"column",gap:6}}>
           {c.reserves.map((x,i)=>(
             <div key={"r"+i} style={{padding:"6px 8px",borderRadius:4,background:"rgba(255,143,0,.08)",border:"1px solid rgba(255,143,0,.3)",fontSize:10.5,color:"#ffcc80",lineHeight:1.45}}>
@@ -4949,7 +4977,7 @@ const DernierSemestre=({c})=>{
           {(c.sources||[]).map((s,i)=>(
             <div key={"s"+i} style={{marginTop:i?3:0}}>{plusieurs?<sup style={{marginRight:3}}>{i+1}</sup>:"Source : "}
               <SourceLigne u={s.url} doc={s.document} pages={s.pages} extra={s.formule}/></div>))}
-          <div style={{color:"#5a6478",marginTop:4}}>Chiffres recopiés des comptes déposés ; variations et marges calculées ici, rien n'entre dans le Score BVC.</div>
+          <div style={{color:"#8892a4",marginTop:4}}>Chiffres recopiés des comptes déposés ; variations et marges calculées ici, rien n'entre dans le Score BVC.</div>
         </div>
       </>}
     </div>);
@@ -5079,7 +5107,7 @@ const EtatsFinanciers=({sym})=>{
   React.useLayoutEffect(()=>{const el=defile.current;if(!el||!C)return;const m=e.vues[vue].periodes.length,g=efColonnes(C,m);el.scrollLeft=(m-g.k)*g.W;setOmbre(el.scrollLeft>0.5);},[C,vue,e]);
   const cadre={background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10,minWidth:0};
   if(!e) return efCouvert(ETATS_IDX,sym)?<div className="carte fiche-etats" style={{...cadre,minHeight:420}}><div style={EF_TITRE}>États financiers</div>
-    <div style={{fontSize:11,color:"#5a6478",marginTop:10}}>Chargement des chiffres relevés…</div></div>:null;
+    <div style={{fontSize:11,color:"#8892a4",marginTop:10}}>Chargement des chiffres relevés…</div></div>:null;
   const v=e.vues[vue],P=v.periodes,n=P.length,H=104,T=16,geo=C>0?efColonnes(C,n):null;
   const avec=l=>v.cellules[l.cle].some(c=>efA(c.v));
   const lignes=e.lignes.filter(avec),vides=e.lignes.filter(l=>!avec(l));
@@ -5100,7 +5128,7 @@ const EtatsFinanciers=({sym})=>{
           <button key={l.cle} type="button" className="ef-b" aria-pressed={l.cle===g.cle} onClick={()=>{setGrandeur(l.cle);setBarre(null);}}>{l.graphique}</button>)}</div>
         <div aria-live="polite" style={{fontSize:11,color:"#8892a4",lineHeight:1.5,minHeight:34}}>
           <b style={{color:"#4db8ff"}}>{P[bi].libelle}</b> · <span style={{color:"#e8eef8",fontSize:14,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{lu.valeur}</span>
-          {efVar(gc[bi].g)&&<span style={{color:gc[bi].g==="ns"?"#5a6478":VC(gc[bi].g),marginLeft:6}}>{efVar(gc[bi].g)} sur un an</span>}
+          {efVar(gc[bi].g)&&<span style={{color:gc[bi].g==="ns"?"#8892a4":VC(gc[bi].g),marginLeft:6}}>{efVar(gc[bi].g)} sur un an</span>}
           <span> · {lu.statut.split(" — ")[0]} · </span>
           <button type="button" onClick={()=>setSel({cle:g.cle,i:bi})} style={{border:0,background:"none",color:"#4db8ff",font:"inherit",cursor:"pointer",padding:"6px 0",minHeight:28}}>voir la source</button>
           {/* Règle : la dette nette calculée ne s'affiche jamais seule quand
@@ -5116,7 +5144,7 @@ const EtatsFinanciers=({sym})=>{
               <rect x={`${i*100/n}%`} width={`${100/n}%`} y="0" height={T+H+32} fill="transparent"/>
               {B?<rect x={`${(i+.19)*100/n}%`} width={`${62/n}%`} y={T+B.y} height={B.h} rx="2" fill={coul} fillOpacity={c.s==="p"?(on?1:.78):.4}
                   stroke={on?"#e8eef8":coul} strokeWidth={on?1.5:1} strokeDasharray={c.s==="p"?"none":"3 2"}/>
-                :<text x={x} y={T+b.zero-5} textAnchor="middle" fontSize="11" fill="#5a6478">—</text>}
+                :<text x={x} y={T+b.zero-5} textAnchor="middle" fontSize="11" fill="#8892a4">—</text>}
               {B&&<text className={on?"":"ef-val"} x={x} y={B.neg?T+B.y+B.h+11:T+B.y-4} textAnchor="middle" fontSize="10" fill={on?"#e8eef8":"#8892a4"}>{efCourt(c.v)}</text>}
               <text x={x} y={T+H+27} textAnchor="middle" fontSize="10" fill={on?"#e8eef8":"#8892a4"} fontWeight={on?700:400}>{P[i].libelle.replace(" 20"," ")}</text>
             </g>);})}
@@ -5136,8 +5164,8 @@ const EtatsFinanciers=({sym})=>{
               {v.cellules[l.cle].map((c,i)=>{const on=!!sel&&sel.cle===l.cle&&sel.i===i,m=efMarque(c),vg=efVar(c.g);
                 return <td key={i}><button type="button" className="ef-c" aria-pressed={on} onClick={()=>setSel(on?null:{cle:l.cle,i})}
                     aria-label={`${l.libelle}, ${P[i].libelle} : ${efAvecUnite(c.v,l.unite)} — source et statut`}>
-                  <span style={{color:!efA(c.v)?"#5a6478":l.calcul?"#aab4c8":null}}>{efCase(c.v,l.unite)}</span>{m&&<sup style={{color:m[1],marginLeft:1}}>{m[0]}</sup>}
-                  {vg&&<small style={{color:c.g==="ns"?"#5a6478":VC(c.g)}}>{vg}</small>}
+                  <span style={{color:!efA(c.v)?"#8892a4":l.calcul?"#aab4c8":null}}>{efCase(c.v,l.unite)}</span>{m&&<sup style={{color:m[1],marginLeft:1}}>{m[0]}</sup>}
+                  {vg&&<small style={{color:c.g==="ns"?"#8892a4":VC(c.g)}}>{vg}</small>}
                 </button></td>;})}
             </tr>])}</tbody>
         </table>
@@ -5168,7 +5196,7 @@ const EtatsFinanciers=({sym})=>{
         {v.couverture.relevees} valeurs relevées sur {v.couverture.cellules} cases, dans {v.couverture.documents} documents — une case non lue reste vide, jamais estimée.
         {vides.length>0&&<details style={{marginTop:3}}><summary style={{cursor:"pointer",minHeight:24}}>Sans valeur relevée sur ces périodes ({vides.length})</summary>
           {vides.map(l=><div key={l.cle} style={{marginTop:3}}><b style={{color:"#c8d3e8",fontWeight:600}}>{l.libelle}</b> — {[...new Set(efTextes(e,v.cellules[l.cle].map(c=>c.n)))].join(" ")}</div>)}</details>}
-        <div style={{color:"#5a6478",marginTop:4}}>Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.</div>
+        <div style={{color:"#8892a4",marginTop:4}}>Chiffres relus dans les documents officiels ; rien n'entre dans le Score BVC.</div>
       </div>
     </div>);
 };
@@ -5332,7 +5360,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 lecteur. */}
             {meta(r).susp&&meta(r).suspMotif&&
               <div style={{marginTop:6,fontSize:10,color:"#8892a4"}}>{meta(r).suspMotif}</div>}
-            {r.score_bvc&&r.score_bvc.version&&<div style={{marginTop:8,fontSize:10,color:"#5a6478"}}>formule {r.score_bvc.version}</div>}
+            {r.score_bvc&&r.score_bvc.version&&<div style={{marginTop:8,fontSize:10,color:"#8892a4"}}>formule {r.score_bvc.version}</div>}
           </div>
           {/* La composition du Score BVC, facteur par facteur — juste sous
               le score, en tête de fiche (06/11/2026). */}
@@ -5375,7 +5403,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",fontSize:11.5,padding:"2px 0"}}>
                   <span style={{color:"#8892a4"}}>{lbl}</span>
                   <span><span style={{color:coul||"#c8d3e8",fontFamily:"monospace",fontWeight:600}}>{val}</span>
-                    {extra&&<span style={{color:"#5a6478",fontSize:10}}> {extra}</span>}</span>
+                    {extra&&<span style={{color:"#8892a4",fontSize:10}}> {extra}</span>}</span>
                 </div>);
               return <div style={{marginBottom:12}}>
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
@@ -5394,14 +5422,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                   <div style={{background:"#0a1220",border:"1px dashed #2a3550",borderRadius:4,padding:"8px 10px"}}>
                     <div style={{fontSize:8.5,color:"#ffd740",textTransform:"uppercase",letterSpacing:.6,marginBottom:2}}>
                       Conventionnels · arithmétique sur une séance</div>
-                    <div style={{fontSize:9.5,color:"#5a6478",marginBottom:5}}>
+                    <div style={{fontSize:9.5,color:"#8892a4",marginBottom:5}}>
                       Largement employés, mais ils ne mesurent rien par eux-mêmes.</div>
                     {L("R2 · R1",`${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`)}
                     {L("Pivot",fr(cv.pivots.pivot),`séance du ${cv.pivots._seance||"—"}`,"#ffd740")}
                     {L("S1 · S2",`${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)}
                   </div>}
                 {!cv.pivots&&
-                  <div style={{fontSize:10,color:"#5a6478",fontStyle:"italic"}}>
+                  <div style={{fontSize:10,color:"#8892a4",fontStyle:"italic"}}>
                     Pivots non publiés : la dernière séance a une amplitude nulle —
                     le titre a coté à un prix unique, ou n'a pas coté.
                   </div>}
@@ -5453,7 +5481,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 </div>
                 <div style={{fontSize:10,color:"#8892a4",lineHeight:1.4}}>
                   {c.titre}<br/>
-                  <span style={{color:"#5a6478"}}>{c.source} · le moteur signale le dépôt, il n'en lit pas les chiffres</span>
+                  <span style={{color:"#8892a4"}}>{c.source} · le moteur signale le dépôt, il n'en lit pas les chiffres</span>
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
@@ -5465,7 +5493,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       les comptes semestriels ont été lus. L'annuel reste visible :
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
                   {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
-                    <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {perTxt(r.pe_annuel,r.bpa)}</div>}
+                    <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#8892a4",marginTop:1}}>exercice 2025 : {perTxt(r.pe_annuel,r.bpa)}</div>}
                   {/* ⚠️ 09/11/2026 : EXCEPTION DÉCLARÉE à la règle c. Le PER 12 mois lit
                       le résultat PUBLIÉ ; un titre qui y déroge (`pe_exception`, lu tel
                       quel dans data.json — Risma : hors éléments non courants) le dit
@@ -5529,9 +5557,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={titre}/></div>
                   {so?<><div style={{fontSize:13,color:"#8892a4",fontWeight:700}}>sans objet</div>
-                    <div style={{fontSize:8,color:"#5a6478"}}>pour ce métier</div></>:<>
-                  <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#5a6478",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
-                  {x&&<div style={{fontSize:8,color:"#5a6478"}}>au {x.date.split("-").reverse().join("/")}</div>}</>}
+                    <div style={{fontSize:8,color:"#8892a4"}}>pour ce métier</div></>:<>
+                  <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#8892a4",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
+                  {x&&<div style={{fontSize:8,color:"#8892a4"}}>au {x.date.split("-").reverse().join("/")}</div>}</>}
                 </div>);})}
             </div>
             {r.ratios_publies.reserve_cac&&(
@@ -5580,7 +5608,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div key={k} title={statut} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}{so&&<InfoCellule texte={so}/>}</div>
                   <div style={{fontSize:13,color:c,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{v}</div>
-                  <div style={{fontSize:8,color:so?"#5a6478":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"sans objet pour ce métier":statut}</div>
+                  <div style={{fontSize:8,color:so?"#8892a4":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"sans objet pour ce métier":statut}</div>
                 </div>);})}
             </div>
             <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
@@ -6062,7 +6090,7 @@ const ChangementsFavoris=({rows,fav,ouvrir})=>{
     {lignes.map(l=><div key={l.sym} style={{fontSize:12.5,color:"#c8d3e8",padding:"3px 0"}}>
       <button onClick={()=>ouvrir(l.sym)} style={{border:"none",background:"none",color:"#4db8ff",fontWeight:700,padding:"0 6px 0 0",cursor:"pointer",fontSize:12.5}}>{codeDe(l.sym)}</button>{l.c.join(" · ")}</div>)}
     {pubs.map((a,i)=><a key={i} href={a.url} target="_blank" rel="noopener noreferrer" style={{display:"block",fontSize:12,color:"#c8d3e8",padding:"3px 0",textDecoration:"none"}}>
-      <b style={{color:"#00e5a0"}}>{(a.tickers||[]).filter(t=>fav.includes(t)).map(codeDe).join(", ")}</b> · publication AMMC : {a.title||a.titre} <span style={{color:"#5a6478"}}>({(a.date||"").slice(0,10).split("-").reverse().join("/")})</span></a>)}
+      <b style={{color:"#00e5a0"}}>{(a.tickers||[]).filter(t=>fav.includes(t)).map(codeDe).join(", ")}</b> · publication AMMC : {a.title||a.titre} <span style={{color:"#8892a4"}}>({(a.date||"").slice(0,10).split("-").reverse().join("/")})</span></a>)}
   </div>;};
 
 // ── APP ───────────────────────────────────────────────────────────────────────
@@ -6076,17 +6104,21 @@ const ChangementsFavoris=({rows,fav,ouvrir})=>{
 //
 // ⚠️ Volontairement SANS bouton de fermeture. Un avertissement qu'on peut faire
 // disparaître ne protège personne — ni l'utilisateur, ni l'éditeur.
+//
+// 19/11/2026 (cadre commun) : 11 px en #6b7689, contraste 4,07:1 sur son fond
+// (sous le seuil de 4,5:1) — lu à peine. 13 px en #8892a4, 5,96:1
+// (calculé par tests/test_cadre_commun.py). Texte inchangé.
 const MentionLegale=()=>(
   <footer role="contentinfo" aria-label="Mentions légales"
     style={{marginTop:32,padding:"18px 20px",borderTop:"1px solid rgba(255,255,255,.08)",
-            background:"rgba(255,255,255,.02)",fontSize:11,lineHeight:1.7,color:"#6b7689",
+            background:"rgba(255,255,255,.02)",fontSize:13,lineHeight:1.7,color:"#8892a4",
             fontFamily:"'IBM Plex Mono',monospace"}}>
     <div style={{maxWidth:900,margin:"0 auto"}}>
       <div style={{color:"#8892a4",fontWeight:700,marginBottom:6,letterSpacing:1}}>
         AVERTISSEMENT
       </div>
       <p style={{margin:"0 0 8px"}}>
-        BVC Analyzer est un <strong style={{color:"#8892a4"}}>outil d'analyse
+        BVC Analyzer est un <strong style={{color:"#c8d3e8"}}>outil d'analyse
         quantitative à vocation informative</strong>. Les scores, signaux et
         indicateurs présentés ne constituent ni un conseil en investissement, ni
         une recommandation personnalisée, ni une offre ou sollicitation d'achat
