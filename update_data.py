@@ -2770,8 +2770,7 @@ def motifs_dividende(tickers: list, dividendes: dict, jour: str) -> int:
         j = d["detachement"]
         t.setdefault("_meta", {})["div_motif"] = (
             f"Dernier détachement au calendrier de la Bourse : {str(d.get('montant')).replace('.', ',')} "
-            f"le {j[8:10]}/{j[5:7]}/{j[:4]}. Montant non relevé sur pièce (devise ou pièce manquante) : "
-            "rendement non publié.")
+            f"par action le {j[8:10]}/{j[5:7]}/{j[:4]}. Montant non relevé sur pièce : rendement non publié.")
         n += 1
     return n
 
@@ -2787,7 +2786,10 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
     sur 65 titres). Comparées telles quelles, l'écart publié recopiait la
     variation du jour (56 titres sur 80) et ne disait rien. Ramenée au cours du
     jour, la valeur servie ne diffère plus de la nôtre que par le NOMBRE
-    D'ACTIONS — ce que ce champ doit signaler (STR +28 %, ZLD −16 %, LHM +5 %)."""
+    D'ACTIONS — ce que ce champ doit signaler (nôtre ÷ servie − 1 au 19/11 : STR −21,5 %,
+    ZLD +18,7 %, LHM −5,0 %). Sans référence (source non CDG ou périmée), la
+    valeur servie ne peut pas être ramenée au même instant : l'écart n'est pas
+    publié plutôt que de recopier la variation du jour."""
     if cap_source == "calculee_bourse_officielle":
         actions = "bourse_officielle"
     elif cap_source == "calculee_actions_introduction":
@@ -2803,6 +2805,8 @@ def _cap_detail(ticker: str, cap_source, cap_retenue, cap_servie_du_jour, ref_da
     servie = cap_servie_du_jour
     if servie and cours and reference and reference > 0:
         servie = servie * cours / reference                  # même instant que la nôtre
+    elif servie and cours is not None:
+        servie = None                                        # instants différents : pas d'écart
     out = {"cap_actions_source": actions,
            "cap_ecart_servie_pct": (round(100 * (cap_retenue / servie - 1), 2)
                                     if cap_retenue and servie else None)}

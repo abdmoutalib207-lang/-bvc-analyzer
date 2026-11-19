@@ -17,7 +17,7 @@ def test_dividende_au_calendrier_mais_rendement_non_publie():
     reg = {"ENK": [{"detachement": "2026-07-06", "montant": 2.81}],
            "IAM": [{"detachement": "2026-06-01", "montant": 4.0}]}
     assert ud.motifs_dividende(t, reg, "2026-11-19") == 1
-    assert "2,81 le 06/07/2026" in t[0]["_meta"]["div_motif"]
+    assert "2,81 par action le 06/07/2026" in t[0]["_meta"]["div_motif"]
     assert "div_motif" not in t[1]["_meta"]                  # rendement publié : rien à dire
 
 
