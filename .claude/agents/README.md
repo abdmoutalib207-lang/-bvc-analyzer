@@ -1,6 +1,7 @@
 # L'équipe BVC Analyzer — qui fait quoi, et dans quel ordre
 
-Sept agents permanents. Chacun a un périmètre **exclusif** : deux agents ne
+Treize agents permanents (quatre recrutés le 19/11/2026 pour la feuille de
+route `docs/FEUILLE_DE_ROUTE_9_SUR_10.md`). Chacun a un périmètre **exclusif** : deux agents ne
 décident jamais de la même chose. C'est ce qui évite les avis contradictoires
 et les corrections qui se marchent dessus.
 
@@ -14,6 +15,11 @@ et les corrections qui se marchent dessus.
 | `lecteur-comptes` | le chiffre lu dans un dépôt AMMC, avec sa page | la note qui en découle (R8), la fusion |
 | `verificateur-finance` | le verdict sur un chiffre ou un ratio : relevé, calcul, définition adaptée au métier | la correction elle-même, la note |
 | `chercheur-pieces` | quelle pièce source établit un chiffre (URL, page, période, unité, périmètre, citation) ; la question IR à poser, sans l'envoyer | la règle de calcul, l'intégration dans `faits_financiers.json`, la note |
+| `designer-vitrine` | ce qui s'affiche et comment (lisibilité, téléphone) | le moteur, les données, la note |
+| `collecteur-publications` | ce qui a été publié (AMMC, Bourse) et dans quel registre cela entre, sur pièce | la lecture détaillée des comptes, la fusion |
+| `operateur-production` | l'état du service : à jour ou non, depuis quand, pourquoi | la correction du moteur |
+| `gardien-conformite` | ce qui expose le projet hors du code (vie privée, droits, documents publiés, vocabulaire) | la décision juridique, réservée à Abd Moutalib |
+| `auditeur-interne` | la note hebdomadaire sur les sept axes de l'audit externe | toute correction (indépendance) |
 
 ## Les deux séquences qui structurent le travail
 
@@ -73,6 +79,10 @@ humaine (consigne permanente, et R8 pour tout ce qui touche la note).
 | File des comptes déposés à lire | `verifier_seance.yml`, résumé du run | idem, jamais bloquant |
 | Tests + compilation du terminal | `tests.yml` | chaque push |
 | Déploiement | GitHub Pages | à chaque fusion sur `main` |
+| Collecte des publications AMMC + Bourse → registres (PR) | `collecteur-publications`, tâche planifiée | chaque matin ouvré |
+| Lecture des comptes déposés → PR, jamais de fusion | `lecteur-comptes` + `verificateur-finance`, tâche planifiée | 20h17 chaque jour ouvré |
+| Rédaction du briefing de clôture | tâche planifiée | 23h40 chaque jour ouvré |
+| Auto-audit des sept axes | `auditeur-interne`, tâche planifiée | chaque samedi |
 
 ## Priorité actuelle (28/08/2026)
 
@@ -89,3 +99,9 @@ L'ordre de la feuille de route est **délibéré** :
 `gardien-donnees`, `veilleur-sources` et `relecteur-pipeline` tournent en
 continu, dès maintenant : ils protègent l'existant pendant que les trois autres
 construisent.
+
+## Feuille de route en cours — 19/11/2026
+
+La référence est `docs/FEUILLE_DE_ROUTE_9_SUR_10.md` : objectif 9/10 au
+prochain audit externe, phases, critères de fin, décisions. Chaque agent y
+retrouve ses lots ; un lot fini se coche dans la colonne « État ».
