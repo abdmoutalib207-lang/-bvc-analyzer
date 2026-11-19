@@ -211,7 +211,12 @@ def test_l_en_tete_affiche_le_volume_global():
         "le volume global de la séance n'est pas affiché")
     i = ECRAN.find("masi.volume_mad!=null&&")
     assert i > 0
-    bloc = ECRAN[i:i + 1400]
-    assert "masi.transactions" in bloc, (
+    bloc = ECRAN[i:ECRAN.index("</div>}", i)]
+    # 19/11/2026 (cadre commun) : le nombre de transactions quitte le texte
+    # de l'en-tête. Il accompagne toujours le montant — au survol (title) —
+    # et s'affiche en clair dans le tableau de bord du briefing.
+    titre = bloc[bloc.index("title={"):bloc.index("}>", bloc.index("title={"))]
+    assert "masi.transactions" in titre, (
         "le nombre de transactions n'accompagne pas le montant — sans lui, "
         "on ne distingue pas un marché d'une poignée de blocs")
+    assert '<Kpi l="Transactions" val={entier(j.transactions)}' in ECRAN

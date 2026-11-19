@@ -96,7 +96,9 @@ def test_la_variation_montre_sa_reference():
 def test_la_carte_des_indices_reserve_sa_place_au_chargement():
     """07/10/2026 : sans carte tant que `masi` était vide, l'en-tête grandissait
     à son arrivée (CLS 0,82 mesuré à 1440 px). Le gabarit garde la place."""
-    assert "masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>" in SRC
+    # 19/11/2026 : les deux reçoivent l'état de la séance et ↻ (ligne du téléphone).
+    assert ("masi?<CarteIndices masi={masi} avant={badge} apres={actualiser}/>"
+            ":<CarteIndices masi={GABARIT_MASI} gabarit avant={badge} apres={actualiser}/>") in SRC
     assert "[data-gabarit] .carte-ind *" in SRC
 
 

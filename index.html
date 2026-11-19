@@ -98,6 +98,23 @@
       /* Bandeau défilant (19/11/2026) : 30 px de cours qui filent en haut
          d'un écran de 844, illisibles au passage. Le classement les donne. */
       .bandeau-defilant{display:none!important}
+      /* Ligne collée du téléphone (19/11/2026), une seule rangée : l'emblème
+         sans le mot, MENU sans le nom de la vue, « ? », la date à droite.
+         L'état de la séance et ↻ rejoignent la ligne des indices. */
+      .entete{padding:6px 12px!important}
+      .entete-suite{padding:4px 12px 6px!important}
+      .entete .marque img{width:32px;height:32px}
+      .entete-ligne{gap:6px 8px!important;flex-wrap:nowrap!important}
+      .entete .marque-mot,.entete .menu-courant{display:none!important}
+      .entete-date{margin-left:auto;min-width:0!important}
+      .entete-etat>.etat-seance,.entete-etat>.btn-maj{display:none!important}
+      .btn-maj-lib{display:none}
+      /* Sans capsule ni marge : le fond de l'en-tête suffit. 1re rangée :
+         MASI et volume ; 2e : état de la séance, MASI 20 ▾, 📈, ↻ — boutons
+         de 26 px dont la zone de toucher garde 44 px (::after). */
+      .indices-ligne{border:0!important;background:none!important;padding:0!important;min-height:0!important;row-gap:2px!important}
+      .indices-ligne button{min-height:26px!important}
+      .indices-ligne button::after{inset:-9px -3px!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -107,7 +124,7 @@
       .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:0!important}
       .carte-indices>.carte-ind{display:none!important}
       .indices-ligne{display:flex!important}
       /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
@@ -1055,6 +1072,48 @@ function getMarketStatus() {
     isOpen: false
   };
 }
+function horodatage(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  const m = maroc(d),
+    z = n => String(n).padStart(2, "0");
+  const j = z(m.getUTCDate()),
+    mo = z(m.getUTCMonth() + 1),
+    a = m.getUTCFullYear(),
+    h = z(m.getUTCHours()),
+    mi = z(m.getUTCMinutes());
+  return {
+    jour: `${a}-${mo}-${j}`,
+    court: `${j}/${mo}`,
+    heure: `${h}h${mi}`,
+    minutes: m.getUTCHours() * 60 + m.getUTCMinutes(),
+    complet: `${j}/${mo}/${a} ${h}:${mi}:${z(m.getUTCSeconds())}`
+  };
+}
+const libelleDonnees = h => h ? `Données du ${h.court} à ${h.heure}` : "Données : —";
+function etatSeance(statut, seance, h) {
+  if (statut && statut.isOpen) return {
+    texte: "Séance en cours · cours différés",
+    ton: "seance"
+  };
+  if (!seance || !h) return null;
+  const jm = `${seance.slice(8, 10)}/${seance.slice(5, 7)}`;
+  if (h.jour > seance || h.jour === seance && h.minutes >= 940) return {
+    texte: `Clôture du ${jm}`,
+    ton: "cloture"
+  };
+  return {
+    texte: `Séance du ${jm} · clôture pas encore publiée`,
+    ton: "attente"
+  };
+}
+const TONS_ETAT = {
+  seance: "#ffd740",
+  cloture: "#c8d3e8",
+  attente: "#ff8f00"
+};
+const largeurMots = (h, b, i) => [`${h} en hausse`, `${b} en baisse`, `${i} inchangée${i > 1 ? "s" : ""}`];
 const CBC_BASE = "https://www.casablanca-bourse.com/bourseweb";
 async function fetchMASI() {
   try {
@@ -2222,7 +2281,9 @@ const GABARIT_MASI = {
 };
 const CarteIndices = ({
   masi,
-  gabarit = false
+  gabarit = false,
+  avant = null,
+  apres = null
 }) => {
   const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
   const fleche = v => v > 0 ? "▲" : v < 0 ? "▼" : "■";
@@ -2260,6 +2321,43 @@ const CarteIndices = ({
       localStorage.setItem("bvc_masi_graphe", graphe ? "1" : "0");
     } catch {}
   }, [graphe]);
+  const [plus, setPlus] = useState(() => {
+    try {
+      return localStorage.getItem("bvc_indices_plus") === "1";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("bvc_indices_plus", plus ? "1" : "0");
+    } catch {}
+  }, [plus]);
+  const mots = largeurMots(masi.hausses, masi.baisses, masi.inchanges ?? 0);
+  const largeur = React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      color: "#00e5a0",
+      whiteSpace: "nowrap"
+    }
+  }, mots[0]), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " · "), React.createElement("span", {
+    style: {
+      color: "#ff4f5a",
+      whiteSpace: "nowrap"
+    }
+  }, mots[1]), React.createElement("span", {
+    style: {
+      color: "#8892a4"
+    }
+  }, " · "), React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      whiteSpace: "nowrap"
+    }
+  }, mots[2]));
   const varia = v => v == null ? null : React.createElement("b", {
     style: {
       color: coul(v),
@@ -2294,15 +2392,21 @@ const CarteIndices = ({
     }
   }, nb(masi.value)), varia(ch)), masi.stale && React.createElement("span", {
     style: {
-      fontSize: 10,
+      fontSize: 12,
       fontWeight: 700,
       color: "#ffd740"
     }
-  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
+  }, "\u26A0 ", masi.asof ? jj(masi.asof) : "périmé"), volume && React.createElement("span", {
     style: {
-      color: "#1a2540"
+      color: "#8892a4",
+      whiteSpace: "nowrap"
+    },
+    title: "Volume du march\xE9 central (hors blocs et transferts)"
+  }, "vol. ", React.createElement("b", {
+    style: {
+      color: "#e8eef8"
     }
-  }, "|"), React.createElement("span", {
+  }, volume)), plus && m20 && m20.value != null && React.createElement(React.Fragment, null, React.createElement("span", {
     style: {
       whiteSpace: "nowrap",
       display: "inline-flex",
@@ -2320,48 +2424,37 @@ const CarteIndices = ({
     }
   }, nb(m20.value)), varia(m20.change_pct)), m20.asof && masi.asof && m20.asof !== masi.asof && React.createElement("span", {
     style: {
-      fontSize: 10,
+      fontSize: 12,
       color: "#ff8f00"
     }
-  }, "\u26A0 ", jj(m20.asof))), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("span", {
+  }, "\u26A0 ", jj(m20.asof))), plus && masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement("span", null, largeur), avant, React.createElement("span", {
     style: {
-      color: "#1a2540"
+      marginLeft: "auto",
+      display: "inline-flex",
+      gap: 6,
+      alignItems: "center"
     }
-  }, "|"), React.createElement("span", {
+  }, React.createElement("button", {
+    onClick: () => setPlus(v => !v),
+    "aria-expanded": plus,
+    title: plus ? "Masquer le MASI 20 et la largeur du marché" : "Afficher le MASI 20 et la largeur du marché",
     style: {
-      color: "#00e5a0",
-      fontWeight: 700
+      fontSize: 12,
+      padding: "0 8px",
+      borderRadius: 3,
+      fontFamily: "var(--font)",
+      flex: "0 0 auto",
+      whiteSpace: "nowrap",
+      background: plus ? "rgba(77,184,255,.15)" : "transparent",
+      border: `1px solid ${plus ? "rgba(77,184,255,.4)" : "#1a2540"}`,
+      color: plus ? "#4db8ff" : "#8892a4"
     }
-  }, masi.hausses, "\u25B2"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, masi.inchanges ?? 0, "="), React.createElement("span", {
-    style: {
-      color: "#ff4f5a",
-      fontWeight: 700
-    }
-  }, masi.baisses, "\u25BC")), volume && React.createElement(React.Fragment, null, React.createElement("span", {
-    style: {
-      color: "#1a2540"
-    }
-  }, "|"), React.createElement("span", {
-    style: {
-      color: "#8892a4",
-      whiteSpace: "nowrap"
-    },
-    title: "Volume du march\xE9 central (hors blocs et transferts)"
-  }, "vol. ", React.createElement("b", {
-    style: {
-      color: "#e8eef8"
-    }
-  }, volume))), React.createElement("button", {
+  }, "MASI 20 ", plus ? "▴" : "▾"), React.createElement("button", {
     onClick: () => setGraphe(v => !v),
     title: "Graphique du MASI",
     "aria-label": "Graphique du MASI",
     style: {
-      marginLeft: "auto",
-      fontSize: 11,
+      fontSize: 12,
       padding: "0 8px",
       borderRadius: 3,
       fontFamily: "var(--font)",
@@ -2370,7 +2463,7 @@ const CarteIndices = ({
       border: `1px solid ${graphe ? "rgba(77,184,255,.4)" : "#1a2540"}`,
       color: graphe ? "#4db8ff" : "#8892a4"
     }
-  }, "\uD83D\uDCC8")), React.createElement("div", {
+  }, "\uD83D\uDCC8"), apres)), React.createElement("div", {
     className: "carte-ind",
     style: carte
   }, React.createElement("div", {
@@ -2476,9 +2569,11 @@ const CarteIndices = ({
   }, React.createElement("span", {
     style: {
       ...etiquette,
-      fontWeight: 700
+      fontWeight: 700,
+      textTransform: "none",
+      letterSpacing: .3
     }
-  }, "MASI\xA020"), m20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
+  }, "Indice MASI\xA020 (20 grandes valeurs)"), m20.asof && masi.asof && masi.masi20.asof !== masi.asof && React.createElement("span", {
     title: `Le MASI 20 affiché porte la séance du ${m20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`,
     style: {
       color: "#ff8f00",
@@ -2524,7 +2619,7 @@ const CarteIndices = ({
       color: "#ffd740",
       lineHeight: 1.5
     }
-  }, "Synth\xE8se de s\xE9ance pas encore consolid\xE9e", masi.transactions != null ? ` : ${masi.transactions.toLocaleString("fr-FR")} transactions comptées` : "", " \u2014 volume et largeur \xE0 venir."), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, "Synth\xE8se de s\xE9ance pas encore consolid\xE9e \u2014 volume et largeur \xE0 venir."), masi.hausses != null && masi.baisses != null && tot > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
     title: `${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges || 0} inchangées sur ${masi.valeurs_traitees || tot} valeurs traitées`,
     style: {
       display: "flex",
@@ -2551,26 +2646,11 @@ const CarteIndices = ({
     }
   })), React.createElement("div", {
     style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontSize: 11,
-      marginTop: 4
+      fontSize: 12,
+      marginTop: 4,
+      lineHeight: 1.5
     }
-  }, React.createElement("span", {
-    style: {
-      color: "#00e5a0",
-      fontWeight: 700
-    }
-  }, masi.hausses, " \u25B2"), React.createElement("span", {
-    style: {
-      color: "#8892a4"
-    }
-  }, masi.inchanges ?? 0, " ="), React.createElement("span", {
-    style: {
-      color: "#ff4f5a",
-      fontWeight: 700
-    }
-  }, masi.baisses, " \u25BC"))), masi.volume_mad != null && React.createElement("div", {
+  }, largeur)), masi.volume_mad != null && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 11,
@@ -2582,7 +2662,7 @@ const CarteIndices = ({
       color: "#e8eef8",
       fontSize: 14
     }
-  }, volume), masi.transactions != null && React.createElement("span", null, " \xB7 ", masi.transactions.toLocaleString("fr-FR"), " transactions"))), graphe && !gabarit && React.createElement("div", {
+  }, volume))), graphe && !gabarit && React.createElement("div", {
     style: {
       ...carte,
       gridColumn: "1/-1",
@@ -5126,6 +5206,7 @@ const Marque = ({
     filter: "drop-shadow(0 0 6px rgba(0,229,160,.25))"
   }
 })), React.createElement("span", {
+  className: "marque-mot",
   style: {
     display: "inline-flex",
     flexDirection: "column",
@@ -5201,6 +5282,7 @@ const Menu = ({
       lineHeight: 1
     }
   }, "\u2630"), " MENU", courant && React.createElement("span", {
+    className: "menu-courant",
     style: {
       color: "#8892a4",
       fontWeight: 400
@@ -5811,6 +5893,41 @@ const Header = ({
     background: "linear-gradient(90deg,#0d1829,#0a1220)",
     borderBottom: "1px solid #1a2540"
   };
+  const h = horodatage(ts);
+  const etat = etatSeance(mktStatus, masi && masi.asof, h);
+  const badge = etat && React.createElement("span", {
+    className: "etat-seance",
+    style: {
+      background: `${TONS_ETAT[etat.ton]}14`,
+      border: `1px solid ${TONS_ETAT[etat.ton]}55`,
+      borderRadius: 4,
+      padding: "2px 8px",
+      fontSize: 12,
+      color: TONS_ETAT[etat.ton],
+      fontWeight: 600,
+      whiteSpace: "nowrap"
+    }
+  }, etat.texte);
+  const actualiser = React.createElement("button", {
+    className: "btn-maj",
+    onClick: onRefresh,
+    disabled: loading,
+    title: "Recharger data.json depuis le serveur",
+    "aria-label": "Actualiser",
+    style: {
+      background: "rgba(77,184,255,.12)",
+      border: "1px solid rgba(77,184,255,.35)",
+      color: "#4db8ff",
+      borderRadius: 4,
+      padding: "5px 12px",
+      fontSize: 12,
+      opacity: loading ? .7 : 1,
+      cursor: loading ? "default" : "pointer",
+      flex: "0 0 auto"
+    }
+  }, "\u21BB", React.createElement("span", {
+    className: "btn-maj-lib"
+  }, loading ? " Chargement…" : " Actualiser"));
   return React.createElement(React.Fragment, null, React.createElement("div", {
     className: "entete",
     ref: refEntete,
@@ -5852,24 +5969,14 @@ const Header = ({
     }
   }, "?"), React.createElement("span", {
     className: "entete-date",
+    title: h ? `Publication de data.json : ${h.complet}, heure de Casablanca` : undefined,
     style: {
-      fontSize: 11,
-      color: "#8892a4",
-      display: "flex",
-      alignItems: "center",
-      gap: 5
-    }
-  }, React.createElement("span", {
-    style: {
-      letterSpacing: .3
-    }
-  }, "donn\xE9es :"), React.createElement("span", {
-    style: {
+      fontSize: 12,
       color: "#c8d3e8",
-      fontWeight: 600,
-      minWidth: "19ch"
+      minWidth: "24ch",
+      whiteSpace: "nowrap"
     }
-  }, ts || "—")))), React.createElement("div", {
+  }, libelleDonnees(h)))), React.createElement("div", {
     className: "entete-suite",
     style: {
       ...fond,
@@ -5883,32 +5990,7 @@ const Header = ({
       gap: 8,
       flexWrap: "wrap"
     }
-  }, mktStatus && React.createElement("span", {
-    style: {
-      background: `${mktStatus.color}18`,
-      border: `1px solid ${mktStatus.color}40`,
-      borderRadius: 4,
-      padding: "3px 10px",
-      fontSize: 11,
-      color: mktStatus.color,
-      fontWeight: 700,
-      letterSpacing: .5
-    }
-  }, "BVC ", mktStatus.label), React.createElement("button", {
-    onClick: onRefresh,
-    disabled: loading,
-    title: "Recharger data.json depuis le serveur",
-    style: {
-      background: "rgba(77,184,255,.12)",
-      border: "1px solid rgba(77,184,255,.35)",
-      color: "#4db8ff",
-      borderRadius: 4,
-      padding: "5px 14px",
-      fontSize: 12,
-      opacity: loading ? .7 : 1,
-      cursor: loading ? "default" : "pointer"
-    }
-  }, loading ? "↻ Chargement…" : "↻ Actualiser"), majMsg && React.createElement("span", {
+  }, badge, actualiser, majMsg && React.createElement("span", {
     style: {
       fontSize: 10,
       color: majMsg.neuf ? "#00e5a0" : "#8892a4",
@@ -5921,10 +6003,14 @@ const Header = ({
       color: "#ff4f5a"
     }
   }, fetchErr === "rafraichissement" ? "⚠ Rafraîchissement impossible — dernières données chargées conservées" : "⚠ Données indisponibles, réessayez")), masi ? React.createElement(CarteIndices, {
-    masi: masi
+    masi: masi,
+    avant: badge,
+    apres: actualiser
   }) : React.createElement(CarteIndices, {
     masi: GABARIT_MASI,
-    gabarit: true
+    gabarit: true,
+    avant: badge,
+    apres: actualiser
   }), React.createElement("div", {
     className: "onglets" + (peutRevenir ? "" : " sans-retour"),
     style: {
@@ -13598,13 +13684,7 @@ function App() {
           minute: "2-digit",
           second: "2-digit"
         }) : "";
-        const dateStr = upd ? maroc(upd).toLocaleString("fr-FR", {
-          timeZone: "UTC",
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric"
-        }) : "";
-        setTs(dateStr && timeStr ? `${dateStr} ${timeStr}` : "");
+        setTs(d.updated || "");
         if (manuel) {
           const neuf = dernierUpd.current !== null && d.updated !== dernierUpd.current;
           annonce(neuf ? `✓ mis à jour · ${timeStr}` : `déjà à jour · données de ${timeStr}`, neuf);
@@ -13620,15 +13700,7 @@ function App() {
         if (liveMap && Object.keys(liveMap).length > 0) {
           mergeLive(liveMap);
           if (!pipelineLoaded) setEtatDonnees(e => e === "ok" ? "ok" : "indisponible");
-          setTs(maroc().toLocaleString("fr-FR", {
-            timeZone: "UTC",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit"
-          }));
+          setTs(new Date().toISOString());
           setFetchErr(null);
           setLoading(false);
           return;

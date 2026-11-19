@@ -98,6 +98,23 @@
       /* Bandeau défilant (19/11/2026) : 30 px de cours qui filent en haut
          d'un écran de 844, illisibles au passage. Le classement les donne. */
       .bandeau-defilant{display:none!important}
+      /* Ligne collée du téléphone (19/11/2026), une seule rangée : l'emblème
+         sans le mot, MENU sans le nom de la vue, « ? », la date à droite.
+         L'état de la séance et ↻ rejoignent la ligne des indices. */
+      .entete{padding:6px 12px!important}
+      .entete-suite{padding:4px 12px 6px!important}
+      .entete .marque img{width:32px;height:32px}
+      .entete-ligne{gap:6px 8px!important;flex-wrap:nowrap!important}
+      .entete .marque-mot,.entete .menu-courant{display:none!important}
+      .entete-date{margin-left:auto;min-width:0!important}
+      .entete-etat>.etat-seance,.entete-etat>.btn-maj{display:none!important}
+      .btn-maj-lib{display:none}
+      /* Sans capsule ni marge : le fond de l'en-tête suffit. 1re rangée :
+         MASI et volume ; 2e : état de la séance, MASI 20 ▾, 📈, ↻ — boutons
+         de 26 px dont la zone de toucher garde 44 px (::after). */
+      .indices-ligne{border:0!important;background:none!important;padding:0!important;min-height:0!important;row-gap:2px!important}
+      .indices-ligne button{min-height:26px!important}
+      .indices-ligne button::after{inset:-9px -3px!important}
       .bandeau-masi{flex-wrap:wrap!important;row-gap:4px}
       /* En-tête téléphone (07/10/2026) : 552 px sur 844, la 1re ligne du
          classement sous la ligne de flottaison. Le MENU donne déjà toutes
@@ -107,7 +124,7 @@
       .onglets.sans-retour{display:none!important}
       .onglets button{padding:7px 12px!important}
       .mobile-seul{display:block!important}
-      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:4px!important}
+      .carte-indices{grid-template-columns:1fr!important;gap:6px!important;margin-top:0!important}
       .carte-indices>.carte-ind{display:none!important}
       .indices-ligne{display:flex!important}
       /* La fiche (07/10/2026) : les 80 boutons de titres prenaient l'écran
@@ -734,6 +751,37 @@ function getMarketStatus(){
   if(tot>=940)return{label:"CLÔTURE",color:"#ffd740",isOpen:false};                  // 15h40 → fin journée
   return{label:"FERMÉ",color:"#ff4f5a",isOpen:false};
 }
+
+/* ⚠️ LA DATE DES DONNÉES ET L'ÉTAT DE LA SÉANCE — 19/11/2026 (cadre commun).
+   « données : 19/11/2026 16:56:21 » devient « Données du 19/11 à 16h56 » ;
+   l'horodatage complet reste au survol. Le badge « BVC CLÔTURE » devient :
+   - « Séance en cours · cours différés » de 9h30 à 15h30 — jamais « temps
+     réel » : le terminal n'affiche que des relevés publiés ;
+   - « Clôture du JJ/MM » — JJ/MM étant la SÉANCE des données (masi.asof),
+     pas la date du jour — quand les données ont été publiées après la
+     clôture de cette séance (15h40, comme getMarketStatus) ;
+   - sinon « Séance du JJ/MM · clôture pas encore publiée » : entre 15h30 et
+     le passage de 15h45 (que GitHub retarde de 30 à 50 min), les données
+     sont celles de la mi-journée ; les dire « clôture » serait faux. */
+function horodatage(iso){
+  if(!iso)return null;
+  const d=new Date(iso);if(isNaN(d.getTime()))return null;
+  const m=maroc(d),z=n=>String(n).padStart(2,"0");
+  const j=z(m.getUTCDate()),mo=z(m.getUTCMonth()+1),a=m.getUTCFullYear(),h=z(m.getUTCHours()),mi=z(m.getUTCMinutes());
+  return {jour:`${a}-${mo}-${j}`,court:`${j}/${mo}`,heure:`${h}h${mi}`,minutes:m.getUTCHours()*60+m.getUTCMinutes(),
+    complet:`${j}/${mo}/${a} ${h}:${mi}:${z(m.getUTCSeconds())}`};
+}
+const libelleDonnees=h=>h?`Données du ${h.court} à ${h.heure}`:"Données : —";
+function etatSeance(statut,seance,h){
+  if(statut&&statut.isOpen)return {texte:"Séance en cours · cours différés",ton:"seance"};
+  if(!seance||!h)return null;
+  const jm=`${seance.slice(8,10)}/${seance.slice(5,7)}`;
+  if(h.jour>seance||(h.jour===seance&&h.minutes>=940))return {texte:`Clôture du ${jm}`,ton:"cloture"};
+  return {texte:`Séance du ${jm} · clôture pas encore publiée`,ton:"attente"};
+}
+const TONS_ETAT={seance:"#ffd740",cloture:"#c8d3e8",attente:"#ff8f00"};
+/* « LA SÉANCE 15▲ 6= 45▼ » se lisait comme un code : en toutes lettres. */
+const largeurMots=(h,b,i)=>[`${h} en hausse`,`${b} en baisse`,`${i} inchangée${i>1?"s":""}`];
 
 // ── MASI INDEX ────────────────────────────────────────────────────────────────
 const CBC_BASE="https://www.casablanca-bourse.com/bourseweb";
@@ -1494,7 +1542,7 @@ const SECTOR_COL={
 const GABARIT_MASI={value:88888.88,chg:-8.88,variation_points:-888.88,veille:88888.88,ytd_pct:-88.88,
   asof:"0000-00-00",masi20:{value:8888.88,change_pct:-8.88,ytd_pct:-88.88},
   hausses:88,baisses:88,inchanges:8,volume_mad:888.8e6,transactions:8888};
-const CarteIndices=({masi,gabarit=false})=>{
+const CarteIndices=({masi,gabarit=false,avant=null,apres=null})=>{
   const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
   const fleche=v=>v>0?"▲":v<0?"▼":"■";
   const nb=(v,d=2)=>v==null?"—":(+v).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
@@ -1510,6 +1558,19 @@ const CarteIndices=({masi,gabarit=false})=>{
   // l'en-tête de chaque page. Le choix est mémorisé.
   const [graphe,setGraphe]=useState(()=>{try{return localStorage.getItem("bvc_masi_graphe")==="1";}catch{return false;}});
   useEffect(()=>{try{localStorage.setItem("bvc_masi_graphe",graphe?"1":"0");}catch{}},[graphe]);
+  /* Téléphone (19/11/2026) : l'en-tête complet doit tenir en 110 px. La
+     ligne garde l'état de la séance, le MASI et le volume ; le MASI 20 et
+     la largeur du marché s'ouvrent d'un toucher, choix mémorisé. Leur
+     avertissement de date (⚠) les suit : jamais l'un sans l'autre. */
+  const [plus,setPlus]=useState(()=>{try{return localStorage.getItem("bvc_indices_plus")==="1";}catch{return false;}});
+  useEffect(()=>{try{localStorage.setItem("bvc_indices_plus",plus?"1":"0");}catch{}},[plus]);
+  const mots=largeurMots(masi.hausses,masi.baisses,masi.inchanges??0);
+  /* Chaque compte reste d'un bloc ; le point suit le compte qu'il clôt
+     (espace insécable avant lui), la coupure se fait après. */
+  const largeur=<>
+    <span style={{color:"#00e5a0",whiteSpace:"nowrap"}}>{mots[0]}</span><span style={{color:"#8892a4"}}>{" · "}</span>
+    <span style={{color:"#ff4f5a",whiteSpace:"nowrap"}}>{mots[1]}</span><span style={{color:"#8892a4"}}>{" · "}</span>
+    <span style={{color:"#c8d3e8",whiteSpace:"nowrap"}}>{mots[2]}</span></>;
   // Téléphone (07/10/2026) : les trois cartes prenaient 282 px sur 844 ;
   // sous 640 px elles laissent place à cette ligne, défilante si besoin.
   // Les avertissements de date (⚠) y restent : un état incertain se voit.
@@ -1522,24 +1583,23 @@ const CarteIndices=({masi,gabarit=false})=>{
         <span style={{whiteSpace:"nowrap",display:"inline-flex",gap:7,alignItems:"baseline"}}>
           <span style={{color:"#4db8ff",fontWeight:700,letterSpacing:1}}>MASI</span>
           <b style={{color:"#fff",fontSize:15}}>{nb(masi.value)}</b>{varia(ch)}</span>
-        {masi.stale&&<span style={{fontSize:10,fontWeight:700,color:"#ffd740"}}>⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
-        {m20&&m20.value!=null&&<>
-          <span style={{color:"#1a2540"}}>|</span>
+        {masi.stale&&<span style={{fontSize:12,fontWeight:700,color:"#ffd740"}}>⚠ {masi.asof?jj(masi.asof):"périmé"}</span>}
+        {volume&&<span style={{color:"#8892a4",whiteSpace:"nowrap"}} title="Volume du marché central (hors blocs et transferts)">vol. <b style={{color:"#e8eef8"}}>{volume}</b></span>}
+        {plus&&m20&&m20.value!=null&&<>
           <span style={{whiteSpace:"nowrap",display:"inline-flex",gap:7,alignItems:"baseline"}}>
             <span style={{color:"#8892a4",letterSpacing:1}}>MASI&nbsp;20</span>
             <b style={{color:"#e8eef8"}}>{nb(m20.value)}</b>{varia(m20.change_pct)}</span>
-          {m20.asof&&masi.asof&&m20.asof!==masi.asof&&<span style={{fontSize:10,color:"#ff8f00"}}>⚠ {jj(m20.asof)}</span>}</>}
-        {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
-          <span style={{color:"#1a2540"}}>|</span>
-          <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses}▲</span>
-          <span style={{color:"#8892a4"}}>{masi.inchanges??0}=</span>
-          <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses}▼</span></>}
-        {volume&&<>
-          <span style={{color:"#1a2540"}}>|</span>
-          <span style={{color:"#8892a4",whiteSpace:"nowrap"}} title="Volume du marché central (hors blocs et transferts)">vol. <b style={{color:"#e8eef8"}}>{volume}</b></span></>}
-        <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI" aria-label="Graphique du MASI"
-          style={{marginLeft:"auto",fontSize:11,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",
-            background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>📈</button>
+          {m20.asof&&masi.asof&&m20.asof!==masi.asof&&<span style={{fontSize:12,color:"#ff8f00"}}>⚠ {jj(m20.asof)}</span>}</>}
+        {plus&&masi.hausses!=null&&masi.baisses!=null&&tot>0&&<span>{largeur}</span>}
+        {avant}
+        <span style={{marginLeft:"auto",display:"inline-flex",gap:6,alignItems:"center"}}>
+          <button onClick={()=>setPlus(v=>!v)} aria-expanded={plus} title={plus?"Masquer le MASI 20 et la largeur du marché":"Afficher le MASI 20 et la largeur du marché"}
+            style={{fontSize:12,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",whiteSpace:"nowrap",
+              background:plus?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${plus?"rgba(77,184,255,.4)":"#1a2540"}`,color:plus?"#4db8ff":"#8892a4"}}>MASI 20 {plus?"▴":"▾"}</button>
+          <button onClick={()=>setGraphe(v=>!v)} title="Graphique du MASI" aria-label="Graphique du MASI"
+            style={{fontSize:12,padding:"0 8px",borderRadius:3,fontFamily:"var(--font)",flex:"0 0 auto",
+              background:graphe?"rgba(77,184,255,.15)":"transparent",border:`1px solid ${graphe?"rgba(77,184,255,.4)":"#1a2540"}`,color:graphe?"#4db8ff":"#8892a4"}}>📈</button>
+          {apres}</span>
       </div>
       <div className="carte-ind" style={carte}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -1570,7 +1630,7 @@ const CarteIndices=({masi,gabarit=false})=>{
       {masi.masi20&&masi.masi20.value!=null&&
         <div className="carte-ind" style={carte} title={`MASI 20 — les vingt valeurs les plus liquides parmi les quarante plus grandes capitalisations flottantes (méthodologie de la Bourse de Casablanca).${m20.ytd_pct!=null&&masi.ytd_pct!=null?` Écart de ${nb(Math.abs(m20.ytd_pct-masi.ytd_pct),1)} point(s) avec le MASI sur l'année.`:""}`}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{...etiquette,fontWeight:700}}>MASI&nbsp;20</span>
+            <span style={{...etiquette,fontWeight:700,textTransform:"none",letterSpacing:.3}}>Indice MASI&nbsp;20 (20 grandes valeurs)</span>
             {/* Deux séances ne s'affichent jamais comme une seule : on DIT la date. */}
             {m20.asof&&masi.asof&&masi.masi20.asof!==masi.asof&&
               <span title={`Le MASI 20 affiché porte la séance du ${m20.asof}, alors que les cours publiés portent celle du ${masi.asof}.`}
@@ -1588,7 +1648,7 @@ const CarteIndices=({masi,gabarit=false})=>{
             transactions sans servir ni volume ni largeur — le moteur les
             publie alors inconnues (jamais 0) et le dit ici. */}
         {masi.synthese_partielle&&<div style={{marginTop:6,fontSize:11,color:"#ffd740",lineHeight:1.5}}>
-          Synthèse de séance pas encore consolidée{masi.transactions!=null?` : ${masi.transactions.toLocaleString("fr-FR")} transactions comptées`:""} — volume et largeur à venir.</div>}
+          Synthèse de séance pas encore consolidée — volume et largeur à venir.</div>}
         {masi.hausses!=null&&masi.baisses!=null&&tot>0&&<>
           <div title={`${masi.hausses} hausses · ${masi.baisses} baisses · ${masi.inchanges||0} inchangées sur ${masi.valeurs_traitees||tot} valeurs traitées`}
             style={{display:"flex",height:8,borderRadius:4,overflow:"hidden",marginTop:6,background:"#1a2540"}}>
@@ -1596,17 +1656,15 @@ const CarteIndices=({masi,gabarit=false})=>{
             <div style={{width:`${100*(masi.inchanges||0)/tot}%`,background:"#5a6478"}}/>
             <div style={{width:`${100*masi.baisses/tot}%`,background:"#ff4f5a"}}/>
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginTop:4}}>
-            <span style={{color:"#00e5a0",fontWeight:700}}>{masi.hausses} ▲</span>
-            <span style={{color:"#8892a4"}}>{masi.inchanges??0} =</span>
-            <span style={{color:"#ff4f5a",fontWeight:700}}>{masi.baisses} ▼</span>
-          </div>
+          <div style={{fontSize:12,marginTop:4,lineHeight:1.5}}>{largeur}</div>
         </>}
         {masi.volume_mad!=null&&
           <div style={{marginTop:6,fontSize:11,color:"#8892a4"}}
             title={`Volume du marché central de la séance, hors blocs et transferts${masi.titres_echanges!=null?` : ${masi.titres_echanges.toLocaleString("fr-FR")} titres échangés`:""}${masi.transactions!=null?` en ${masi.transactions.toLocaleString("fr-FR")} transactions`:""}.`}>
+            {/* 19/11/2026 : le nombre de transactions quitte le cadre ; il
+                reste au survol ici et en clair dans le briefing (tableau de
+                bord de la séance, « Transactions »). */}
             <b style={{color:"#e8eef8",fontSize:14}}>{volume}</b>
-            {masi.transactions!=null&&<span> · {masi.transactions.toLocaleString("fr-FR")} transactions</span>}
           </div>}
       </div>
       {graphe&&!gabarit&&<div style={{...carte,gridColumn:"1/-1",padding:"8px 10px"}}><GraphiqueMASI/></div>}
@@ -2858,7 +2916,7 @@ const RUBRIQUES=[
 const Marque=({taille=36})=>(
   <span className="marque" style={{display:"inline-flex",alignItems:"center",gap:9,flex:"0 0 auto"}}>
     <span className="eclat"><img src="assets/marque/taureau-128.png" alt="" width={taille} height={taille} style={{display:"block",filter:"drop-shadow(0 0 6px rgba(0,229,160,.25))"}}/></span>
-    <span style={{display:"inline-flex",flexDirection:"column",lineHeight:1}}>
+    <span className="marque-mot" style={{display:"inline-flex",flexDirection:"column",lineHeight:1}}>
       <span className="metal-texte" style={{fontSize:Math.round(taille*.56),fontWeight:700,letterSpacing:3}}>BVC</span>
       <span style={{fontSize:Math.max(8,Math.round(taille*.25)),fontWeight:600,letterSpacing:".32em",color:"#aeb8c8",marginTop:3}}>ANALYZER</span>
     </span>
@@ -2884,7 +2942,7 @@ const Menu=({tab,setTab,TABS})=>{
       style={{display:"flex",alignItems:"center",gap:8,background:"rgba(0,229,160,.12)",border:"1px solid rgba(0,229,160,.5)",
         color:"#00e5a0",borderRadius:6,padding:"6px 12px",fontSize:12,letterSpacing:1,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)"}}>
       <span style={{fontSize:16,lineHeight:1}}>☰</span> MENU
-      {courant&&<span style={{color:"#8892a4",fontWeight:400}}>· {courant.replace("★ ","")}</span>}
+      {courant&&<span className="menu-courant" style={{color:"#8892a4",fontWeight:400}}>· {courant.replace("★ ","")}</span>}
     </button>
     {ouvert&&<>
       <div className="menu-voile" onClick={()=>setOuvert(false)}/>
@@ -3160,6 +3218,18 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
     const ro=new ResizeObserver(f);ro.observe(e);return()=>ro.disconnect();
   },[]);
   const fond={background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540"};
+  const h=horodatage(ts);
+  const etat=etatSeance(mktStatus,masi&&masi.asof,h);
+  const badge=etat&&<span className="etat-seance" style={{background:`${TONS_ETAT[etat.ton]}14`,border:`1px solid ${TONS_ETAT[etat.ton]}55`,
+    borderRadius:4,padding:"2px 8px",fontSize:12,color:TONS_ETAT[etat.ton],fontWeight:600,whiteSpace:"nowrap"}}>{etat.texte}</span>;
+  /* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
+     souvent dire « rien de plus récent n'existe » — le pipeline publie
+     quatre fois par jour ouvré, pas en continu. Sans retour, l'utilisateur
+     croit le bouton cassé. Sur téléphone, « ↻ » seul (le libellé reste
+     dans aria-label et title). */
+  const actualiser=<button className="btn-maj" onClick={onRefresh} disabled={loading} title="Recharger data.json depuis le serveur" aria-label="Actualiser"
+    style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 12px",fontSize:12,opacity:loading?.7:1,cursor:loading?"default":"pointer",flex:"0 0 auto"}}>
+    ↻<span className="btn-maj-lib">{loading?" Chargement…":" Actualiser"}</span></button>;
   return(<>
     <div className="entete" ref={refEntete} style={{...fond,padding:"10px 20px",position:"sticky",top:0,zIndex:100}}>
       <div className="entete-ligne" style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:"6px 14px"}}>
@@ -3169,24 +3239,18 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
             masqués. */}
         <button onClick={()=>setTab("guide")} aria-label="Comment lire l'écran" title="Comment lire l'écran"
           style={{background:tab==="guide"?"rgba(77,184,255,.25)":"rgba(77,184,255,.10)",border:"1px solid rgba(77,184,255,.5)",color:"#4db8ff",borderRadius:"50%",width:32,height:32,fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:"var(--font)",flex:"0 0 auto"}}>?</button>
-        <span className="entete-date" style={{fontSize:11,color:"#8892a4",display:"flex",alignItems:"center",gap:5}}>
-          <span style={{letterSpacing:.3}}>données :</span>
-          {/* Largeur réservée (« 06/10/2026 19:56:21 ») : l'horodatage arrive
-              après le premier rendu et poussait la suite de la ligne. */}
-          <span style={{color:"#c8d3e8",fontWeight:600,minWidth:"19ch"}}>{ts||"—"}</span>
-        </span>
+        {/* Largeur réservée (24 signes) : l'horodatage arrive après le premier
+            rendu et poussait la suite de la ligne. */}
+        <span className="entete-date" title={h?`Publication de data.json : ${h.complet}, heure de Casablanca`:undefined}
+          style={{fontSize:12,color:"#c8d3e8",minWidth:"24ch",whiteSpace:"nowrap"}}>{libelleDonnees(h)}</span>
       </div>
     </div>
     <div className="entete-suite" style={{...fond,padding:"10px 20px 12px"}}>
+      {/* Sur téléphone, l'état et ↻ passent dans la ligne des indices
+          (.indices-ligne) : une ligne de moins. Les messages restent ici. */}
       <div className="entete-etat" style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-        {mktStatus&&<span style={{background:`${mktStatus.color}18`,border:`1px solid ${mktStatus.color}40`,borderRadius:4,padding:"3px 10px",fontSize:11,color:mktStatus.color,fontWeight:700,letterSpacing:.5}}>BVC {mktStatus.label}</span>}
-        {/* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
-            souvent dire « rien de plus récent n'existe » — le pipeline
-            publie quatre fois par jour ouvré, pas en continu. Sans retour,
-            l'utilisateur croit le bouton cassé. */}
-        <button onClick={onRefresh} disabled={loading} title="Recharger data.json depuis le serveur"
-                style={{background:"rgba(77,184,255,.12)",border:"1px solid rgba(77,184,255,.35)",color:"#4db8ff",borderRadius:4,padding:"5px 14px",fontSize:12,opacity:loading?.7:1,cursor:loading?"default":"pointer"}}>
-          {loading?"↻ Chargement…":"↻ Actualiser"}</button>
+        {badge}
+        {actualiser}
         {majMsg&&<span style={{fontSize:10,color:majMsg.neuf?"#00e5a0":"#8892a4",whiteSpace:"nowrap"}}>{majMsg.texte}</span>}
         {/* 22/10/2026 : plus d'« affichage statique » — la table de repli
             n'a plus de chiffres. Soit rien n'a jamais chargé, soit c'est un
@@ -3196,7 +3260,7 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
           ?"⚠ Rafraîchissement impossible — dernières données chargées conservées"
           :"⚠ Données indisponibles, réessayez"}</span>}
       </div>
-      {masi?<CarteIndices masi={masi}/>:<CarteIndices masi={GABARIT_MASI} gabarit/>}
+      {masi?<CarteIndices masi={masi} avant={badge} apres={actualiser}/>:<CarteIndices masi={GABARIT_MASI} gabarit avant={badge} apres={actualiser}/>}
       <div className={"onglets"+(peutRevenir?"":" sans-retour")} style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center",marginTop:10}}>
         {/* Retour à la vue précédente. Grisé quand il n'y a rien derrière —
             un bouton qui ne fait rien sans le dire use la confiance. */}
@@ -6235,8 +6299,7 @@ function App(){
                                 }));
         const upd=d.updated?new Date(d.updated):null;
         const timeStr=upd?maroc(upd).toLocaleString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit",second:"2-digit"}):"";
-        const dateStr=upd?maroc(upd).toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric"}):"";
-        setTs(dateStr&&timeStr?`${dateStr} ${timeStr}`:"");
+        setTs(d.updated||"");
         if(manuel){
           const neuf=dernierUpd.current!==null&&d.updated!==dernierUpd.current;
           annonce(neuf?`✓ mis à jour · ${timeStr}`
@@ -6260,7 +6323,7 @@ function App(){
              de séance — l'état reste « indisponible ». LIVE_ACTIF étant
              coupé, le cas est aujourd'hui théorique. */
           if(!pipelineLoaded)setEtatDonnees(e=>e==="ok"?"ok":"indisponible");
-          setTs(maroc().toLocaleString("fr-FR",{timeZone:"UTC",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}));
+          setTs(new Date().toISOString());
           setFetchErr(null);
           setLoading(false);return;
         }
