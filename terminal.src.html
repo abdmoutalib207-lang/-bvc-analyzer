@@ -1113,6 +1113,14 @@ function calcSR(candles,price,min=SR_MIN_CONTACTS){
 const lsLire=(k,def=null)=>{try{const v=localStorage.getItem(k);return v==null?def:v;}catch(e){return def;}};
 const lsEcrire=(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}};
 const fmt=(n,d=2)=>n==null||!isFinite(n)?"—":(+n).toFixed(d);
+// ⚠️ PER NON SIGNIFICATIF — 19/11/2026, même règle partout (comme MASI Screener :
+// au-delà de 100x, ou sur une perte, un PER ne veut rien dire). RDS affichait
+// 251,9 au classement et sur la fiche, alors que l'onglet PER le disait déjà
+// « non significatif ». Affichage seulement : la valeur publiée ne change pas.
+const PER_MAX_NS=100;
+const perNS=(pe,bpa)=>pe!=null&&isFinite(pe)?(pe>PER_MAX_NS?`PER de ${Math.round(pe)}x : non significatif (au-delà de ${PER_MAX_NS}x, bénéfice quasi nul face au cours)`:pe<=0?"Résultat négatif ou nul : PER non significatif":null)
+  :(bpa!=null&&isFinite(bpa)&&bpa<=0?"Perte : un résultat négatif n'a pas de PER (non significatif)":null);
+const perTxt=(pe,bpa)=>perNS(pe,bpa)?"n.s.":fmt(pe,1);
 // ⚠️ UNE SEULE VERSION POUR TOUTES LES FENÊTRES — 09/11/2026. data.json
 // était relu à chaque ouverture (?t=Date.now()), mais le briefing, les
 // actualités, les figures et les fréquences portaient une clé à l'HEURE : le
@@ -1275,6 +1283,7 @@ const SOURCES_FOND={faits_ammc:"faits financiers relevés page par page dans les
   calculee_actions_introduction:"cours du jour × nombre d'actions après l'introduction en bourse (note d'opération visée par l'AMMC)",
   servie:"capitalisation servie par la source de cotation (dernier recours)"};
 const explRatio=(cle,r,price)=>{const src=x=>SOURCES_FOND[x]||x||"source non précisée";const m=r._meta||{};
+  if(cle==="pe"&&perNS(r.pe,r.bpa_12m??r.bpa))return `${perNS(r.pe,r.bpa_12m??r.bpa)}.${r.pe!=null?`\nCalcul : ${px(price)} DH ÷ BPA ${fmt(r.bpa_12m??r.bpa)} DH${r.pe_base?` (${r.pe_base})`:""} = ${fmt(r.pe,1)}.`:""}`;
   if(cle==="pe")return r.pe==null?"Pas de PER : pas de bénéfice par action positif tiré des comptes.":
     `PER = cours ÷ bénéfice par action.\n${px(price)} DH ÷ ${fmt(r.bpa_12m??r.bpa)} DH${r.pe_base?` (${r.pe_base})`:""}.\nSource : ${src(m.source_fond)}.\nRéserve : PER réalisé, pas prévisionnel.${r.pe_annuel!=null?` Exercice 2025 seul : ${fmt(r.pe_annuel,1)}.`:""}${r.pe_capitalisation!=null&&r.pe_capitalisation!==r.pe?`\nCapitalisation ÷ résultat 12 mois (nombre d'actions actuel) : ${fmt(r.pe_capitalisation,1)} — le BPA, lui, porte sur le nombre moyen pondéré de la période (IAS 33).`:""}${r.bpa_reserve?`\n⚠ ${r.bpa_reserve}`:""}`;
   if(cle==="pb")return r.pb==null?"Pas de P/B : fonds propres non relevés sur pièce.":
@@ -3362,7 +3371,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
           // l'a produit, et un score sans sa formule est ininterprétable. Une
           // valeur absente s'écrit vide, jamais 0 ; l'état dit pourquoi.
           const cols=["TICKER BVC","CODE INTERNE","NOM","SECTEUR","PRIX","VAR%","PE","DIV%","RSI","SCORE_BVC","ETAT_SCORE_BVC","COUVERTURE_PCT","TRANCHE","VERSION_SCORE_BVC"];
-          const rows_csv=sorted.map(r=>{const s=r.score_bvc||{};const v=valeurBVC(r);return [tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",r.pe?.toFixed(1)||"",r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",v==null?"":String(v),s.etat||"non publié",s.couverture_pct??"",trancheTexte(r),s.version||""];});
+          const rows_csv=sorted.map(r=>{const s=r.score_bvc||{};const v=valeurBVC(r);return [tk(r),r.symbol,r.name||"",r.sector||"",r.price||"",r.chg||"",(perNS(r.pe,r.bpa_12m??r.bpa)?"n.s.":r.pe?.toFixed(1)||""),r.div?.toFixed(2)||"",r.rsi?.toFixed(1)||"",v==null?"":String(v),s.etat||"non publié",s.couverture_pct??"",trancheTexte(r),s.version||""];});
           const csv="﻿"+[cols,...rows_csv].map(r=>r.join(";")).join("\n");
           const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
           const url=URL.createObjectURL(blob);
@@ -3491,7 +3500,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                           {v.toLocaleString("fr-FR").replace(/\u202f|,/g," ")} titres</div>:null}
                       </>;})()}
                   </td>
-                  <td style={{padding:"8px 8px",fontSize:12,color:r.pe>25?"#ff8f00":"#c8d3e8"}}>{r.pe?.toFixed(1)||"—"}</td>
+                  <td title={perNS(r.pe,r.bpa_12m??r.bpa)||undefined} style={{padding:"8px 8px",fontSize:12,color:perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":r.pe>25?"#ff8f00":"#c8d3e8"}}>{perTxt(r.pe,r.bpa_12m??r.bpa)}</td>
                   <td style={{padding:"8px 8px",fontSize:12,color:r.div>4?"#00e5a0":"#c8d3e8"}}>{r.div?.toFixed(1)||"—"}%</td>
                   {/* SCORE BVC (06/11/2026) : partie entière sur 100, grise à
                       confiance ≤ 1. « — » sans valeur, le motif au survol. */}
@@ -3578,7 +3587,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
 // seuil que `rang_sectoriel.min_pairs`) — en dessous, un rang serait un
 // tirage au sort.
 function classerPER(rows){
-  const SEUIL_NS=100, MIN_SECTEUR=4;
+  const SEUIL_NS=100, MIN_SECTEUR=4;   // = PER_MAX_NS (test_per_non_significatif)
   const nf=(x,d)=>(+x).toFixed(d).replace(".",",");
   const classes=[], nonClasses=[];
   for(const r of rows||[]){
@@ -5397,7 +5406,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 </div>
               </a>;})()}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",r.pe?.toFixed(1)||"—",r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
+              {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":r.pe>25?"#ff8f00":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",r.div?`${r.div.toFixed(1)}%`:"—",r.div>4?"#00e5a0":"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"],["Upside Base",ecart(r.base),r.base!=null&&((r.base-price)/price)>0?"#00e5a0":"#ff4f5a"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
@@ -5405,7 +5414,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       les comptes semestriels ont été lus. L'annuel reste visible :
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
                   {ratio==="pe"&&r.pe_base?.startsWith("12")&&r.pe_annuel!=null&&
-                    <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {fmt(r.pe_annuel,1)}</div>}
+                    <div title={`PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`} style={{fontSize:9,color:"#5a6478",marginTop:1}}>exercice 2025 : {perTxt(r.pe_annuel,r.bpa)}</div>}
                   {/* ⚠️ 09/11/2026 : EXCEPTION DÉCLARÉE à la règle c. Le PER 12 mois lit
                       le résultat PUBLIÉ ; un titre qui y déroge (`pe_exception`, lu tel
                       quel dans data.json — Risma : hors éléments non courants) le dit
@@ -5422,6 +5431,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       qu'un titre. */}
                   {(()=>{const e=(r.rang_secteur||{})[ratio];
                     if(!e) return null;
+                    if(ratio==="pe"&&perNS(r.pe,r.bpa_12m??r.bpa)) return null;   // PER n.s. : pas de rang (19/11)
                     const cher=(ratio==="div")?e.ecart_pct<0:e.ecart_pct>0;
                     return <div title={`Médiane ${e.secteur} : ${e.mediane_secteur}`}
                         style={{fontSize:9,marginTop:2,color:cher?"#ff8f00":"#00e5a0"}}>
