@@ -474,6 +474,18 @@ TOL_RDT = 0.02          # rendement publié au centième de point
 TOL_DH = 0.005          # montant par action au centime
 
 
+def _reference_de_reprise(sym, jour):
+    """Même règle que `update_data.reference_de_reprise` (registre SUSPENSIONS)."""
+    try:
+        from bvc_config import SUSPENSIONS
+    except Exception:                                    # noqa: BLE001 — audit hors dépôt
+        return None
+    for p in SUSPENSIONS.get(sym, []) or []:
+        if p.get("reprise") and jour == p["reprise"] and _num(p.get("reference_impliquee")):
+            return float(p["reference_impliquee"])
+    return None
+
+
 def controler_arithmetique(sym, t, bpa_sym) -> list:
     out = []
     p = _num(t.get("price"))
@@ -488,13 +500,30 @@ def controler_arithmetique(sym, t, bpa_sym) -> list:
         if att is None or abs(v - att) > TOL_PER:
             out.append(_inc(sym, f"arith.{champ}", ERREUR,
                             f"{champ} publié ≠ cours ÷ BPA", v, att))
+    # ⚠️ La variation se recoupe avec prudence (relecture du 19/11) : le moteur
+    # la calcule sur la dernière BOUGIE, le fichier publie la référence de
+    # l'OPÉRATEUR. Les deux divergent légitimement (bougie manquante, garde
+    # R10, opération sur titres). Une alarme bloque les 81 titres : seul un
+    # SENS contraire est une ERREUR (la variation dit « hausse » quand le cours
+    # est sous sa référence — l'injection MNG) ; un écart de grandeur reste un
+    # AVERTISSEMENT. Un titre suspendu est sauté (chg forcé à 0, référence
+    # rediffusée) ; le jour d'une reprise inscrite au registre (R11), la
+    # référence est celle de la pièce.
     ref = _num(t.get("reference"))
     c = _num(t.get("chg"))
-    if c is not None and ref and p:
+    meta = t.get("_meta") or {}
+    ref_reprise = _reference_de_reprise(sym, meta.get("prix_asof"))
+    if ref_reprise:
+        ref = ref_reprise
+    if c is not None and ref and p and not meta.get("suspendu"):
         att = round((p - ref) / ref * 100, 2)
-        if abs(c - att) > TOL_CHG:
+        tol = max(TOL_CHG, 100 * 0.011 / ref)          # un centime d'écart (et son arrondi) sur la référence
+        if (c > tol and att < -tol) or (c < -tol and att > tol):
             out.append(_inc(sym, "arith.chg", ERREUR,
-                            "variation publiée ≠ (cours − référence) ÷ référence", c, att))
+                            "variation publiée de sens contraire à (cours − référence)", c, att))
+        elif abs(c - att) > tol:
+            out.append(_inc(sym, "arith.chg_ecart", AVERT,
+                            "variation publiée ≠ (cours − référence) ÷ référence (base bougie ≠ référence ?)", c, att))
     d, ddh = _num(t.get("div")), _num(t.get("div_dh"))
     if d is not None and ddh is not None and p:
         att = round(ddh / p * 100, 2)
