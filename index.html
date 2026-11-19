@@ -1236,22 +1236,22 @@ async function fetchMASI() {
 const TRANCHES_BVC = [{
   id: "t75",
   min: 75,
-  c: "#00e5a0",
+  c: "#5585ff",
   plage: "≥ 75"
 }, {
   id: "t60",
   min: 60,
-  c: "#b5e655",
+  c: "#5fa6f0",
   plage: "60–74"
 }, {
   id: "t40",
   min: 40,
-  c: "#ffd740",
+  c: "#8fb3dc",
   plage: "40–59"
 }, {
   id: "t0",
   min: -Infinity,
-  c: "#ff8f00",
+  c: "#b0b8c6",
   plage: "< 40"
 }];
 const TRANCHE_NC = {
@@ -1259,6 +1259,7 @@ const TRANCHE_NC = {
   c: "#8892a4",
   plage: "non calculé"
 };
+const couleurPlage = id => ([...TRANCHES_BVC, TRANCHE_NC].find(t => t.id === id) || TRANCHE_NC).c;
 const valeurBVC = r => {
   const s = r && r.score_bvc;
   const v = s ? s.valeur : null;
@@ -5831,7 +5832,7 @@ const Accueil = ({
     onClick: () => setTab("briefing"),
     style: {
       marginTop: 14,
-      background: "#00e5a0",
+      background: "#4db8ff",
       color: "#080d1a",
       border: "none",
       borderRadius: 6,
@@ -6541,7 +6542,7 @@ const Ranking = ({
       color: "#8892a4",
       letterSpacing: .5
     }
-  }, "RSI"), [["survendu", "<30 survendu", "#00e5a0"], ["surachete", ">70 suracheté", "#ff4f5a"]].map(([z, lbl, c]) => React.createElement("button", {
+  }, "RSI"), [["survendu", "<30 survendu", "#4db8ff"], ["surachete", ">70 suracheté", "#4db8ff"]].map(([z, lbl, c]) => React.createElement("button", {
     key: z,
     onClick: () => setRsiZone(rsiZone === z ? null : z),
     style: {
@@ -6845,13 +6846,13 @@ const Ranking = ({
       style: {
         padding: "8px 8px",
         fontSize: 12,
-        color: perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8"
+        color: perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : "#c8d3e8"
       }
     }, perTxt(r.pe, r.bpa_12m ?? r.bpa)), React.createElement("td", {
       style: {
         padding: "8px 8px",
         fontSize: 12,
-        color: r.div > 4 ? "#00e5a0" : "#c8d3e8"
+        color: "#c8d3e8"
       }
     }, divClassement(r.div)), React.createElement("td", {
       style: {
@@ -6954,7 +6955,7 @@ const Ranking = ({
     }
   }, React.createElement("span", {
     style: {
-      color: "#00e5a0"
+      color: TRANCHES_BVC[0].c
     }
   }, "\u25CF"), " SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 \xB7 momentum 15 \xB7 MACD 10 \xB7 activit\xE9 10 \xB7 liquidit\xE9 15 \xB7 rentabilit\xE9 15) \u2014 ", React.createElement("span", {
     style: {
@@ -10100,7 +10101,10 @@ const ScoreBVC = ({
     NON_CALCULABLE: "NON CALCULABLE"
   }[s.etat] || s.etat;
   const fac = s.facteurs || {};
-  const couleur = (pts, w) => pts == null ? "#2a3550" : pts <= 0 ? "#4a566f" : pts >= w - 1e-9 ? "#00e5a0" : "#ffd740";
+  const PLEIN = "#5585ff",
+    PARTIEL = "#8fb3dc",
+    ZERO = "#4a566f";
+  const couleur = (pts, w) => pts == null ? "#2a3550" : pts <= 0 ? ZERO : pts >= w - 1e-9 ? PLEIN : PARTIEL;
   return React.createElement("div", {
     className: "score-bvc",
     style: {
@@ -10118,7 +10122,7 @@ const ScoreBVC = ({
     }
   }, sansValeur ? "Composition du Score BVC" : "Score BVC", " ", React.createElement("span", {
     style: {
-      color: ok ? "#00e5a0" : "#ffd740"
+      color: ok ? "#c8d3e8" : "#ffd740"
     }
   }, "\xB7 ", etatTxt)), s.semaine && s.semaine.fin && React.createElement("div", {
     style: {
@@ -10218,18 +10222,29 @@ const ScoreBVC = ({
       lineHeight: 1.5
     }
   }, "Couleurs : proportion de points obtenus dans chaque facteur, sans pr\xE9vision de rendement. ", React.createElement("span", {
+    "aria-hidden": "true",
     style: {
-      color: "#00e5a0"
+      color: PLEIN
     }
-  }, "vert"), " = plein \xB7 ", React.createElement("span", {
+  }, "\u25A0"), " ", React.createElement("span", {
     style: {
-      color: "#ffd740"
+      color: PLEIN
     }
-  }, "jaune"), " = partiel \xB7 ", React.createElement("span", {
+  }, "bleu soutenu"), " = plein \xB7 ", React.createElement("span", {
+    "aria-hidden": "true",
     style: {
-      color: "#4a566f"
+      color: PARTIEL
     }
-  }, "gris"), " = 0 point.")));
+  }, "\u25A0"), " ", React.createElement("span", {
+    style: {
+      color: PARTIEL
+    }
+  }, "bleu p\xE2le"), " = partiel \xB7 ", React.createElement("span", {
+    "aria-hidden": "true",
+    style: {
+      color: ZERO
+    }
+  }, "\u25A0"), " gris = 0 point.")));
 };
 const RisqueMesure = ({
   q
@@ -11987,7 +12002,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 7
     }
-  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", perTxt(r.pe, r.bpa_12m ?? r.bpa), perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : r.pe > 25 ? "#ff8f00" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", divFiche(r.div), r.div > 4 ? "#00e5a0" : "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"]].map(([k, v, c, ratio]) => React.createElement("div", {
+  }, [[r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PE Ratio", perTxt(r.pe, r.bpa_12m ?? r.bpa), perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : "#c8d3e8", "pe"], ["P/Book", r.pb?.toFixed(2) || "—", "#c8d3e8", "pb"], ["Dividende", divFiche(r.div), "#c8d3e8", "div"], ["Cap. Boursière", r.cap ? fmtM(r.cap) : "—", "#4db8ff", "cap"]].map(([k, v, c, ratio]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -12029,13 +12044,12 @@ const Detail = ({
     if (!e) return null;
     if (ratio === "pe" && perNS(r.pe, r.bpa_12m ?? r.bpa)) return null;
     if (ratio === "div" && +r.div === 0) return null;
-    const cher = ratio === "div" ? e.ecart_pct < 0 : e.ecart_pct > 0;
     return React.createElement("div", {
       title: `Médiane ${e.secteur} : ${e.mediane_secteur}`,
       style: {
         fontSize: 9,
         marginTop: 2,
-        color: cher ? "#ff8f00" : "#00e5a0"
+        color: "#c8d3e8"
       }
     }, e.rang, React.createElement("span", {
       style: {
@@ -12194,7 +12208,7 @@ const Detail = ({
   }, "export IDBourse DATA+ du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—", ", non v\xE9rifi\xE9")), (() => {
     const roeCalc = r.ratios_publies && r.ratios_publies.roe_2025 && r.ratios_publies.roe_2025.valeur != null;
     const dateExport = r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "date inconnue";
-    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), r.fwd.per_26e > 25 ? "#ff8f00" : "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), r.fwd.per_27e > 25 ? "#ff8f00" : "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", r.fwd.dy_26e > 4 ? "#00e5a0" : "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", r.fwd.dy_27e > 4 ? "#00e5a0" : "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", roeSansObjet(r) ? "sans objet" : r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", roeSansObjet(r) ? "#8892a4" : r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a", roeSansObjet(r) ? `ROE sans objet : ${roeSansObjet(r)}` : null]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
+    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", roeSansObjet(r) ? "sans objet" : r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", roeSansObjet(r) ? "#8892a4" : r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a", roeSansObjet(r) ? `ROE sans objet : ${roeSansObjet(r)}` : null]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
     return React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         display: "grid",
@@ -12956,17 +12970,17 @@ const Guide = ({
     }
   }, "D\xE9tail des facteurs")), React.createElement(L, {
     titre: "Couleur du score"
-  }, "Le Score BVC est color\xE9 selon sa tranche, sans mot d'action : ", React.createElement(T, {
-    c: "#00e5a0"
+  }, "Le Score BVC est color\xE9 selon sa tranche, sur une \xE9chelle neutre qui va du gris au bleu de plus en plus soutenu, sans mot d'action : ", React.createElement(T, {
+    c: couleurPlage("t75")
   }, "\u25CF 75 et plus"), " \xB7 ", React.createElement(T, {
-    c: "#b5e655"
+    c: couleurPlage("t60")
   }, "\u25CF 60 \xE0 74"), " \xB7 ", React.createElement(T, {
-    c: "#ffd740"
+    c: couleurPlage("t40")
   }, "\u25CF 40 \xE0 59"), " \xB7 ", React.createElement(T, {
-    c: "#ff8f00"
+    c: couleurPlage("t0")
   }, "\u25CF sous 40"), " \xB7 ", React.createElement(T, {
-    c: "#8892a4"
-  }, "\u25CC non calcul\xE9"), ". La couleur situe le score ; elle ne dit pas quoi faire. ", React.createElement(T, {
+    c: couleurPlage("nc")
+  }, "\u25CC non calcul\xE9"), ". La couleur situe le score dans sa tranche ; elle ne dit pas quoi faire. Le vert et le rouge sont r\xE9serv\xE9s aux hausses et aux baisses de cours. ", React.createElement(T, {
     c: "#8892a4"
   }, "Donn\xE9es insuffisantes"), " : confiance 0 ou 1, score gris. ", React.createElement(T, {
     c: "#ff6b6b"
