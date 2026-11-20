@@ -21,8 +21,10 @@ Règles testées ici, sans navigateur :
 
 1. Les poids et les seuils affichés sont CEUX DU MOTEUR du Score BVC —
    l'attendu est lu dans le module, pas recopié de l'écran.
-2. Les fréquences affichées sont CELLES DE L'ARTEFACT daté
-   datasets/backtests/score_bvc_2026-11-03.json (R12).
+2. Les fréquences ne sont plus écrites dans l'écran : il les LIT dans
+   datasets/backtests/score_bvc_mesure_courante.json (lot 1.7) ; la
+   synchronisation avec l'artefact daté est gardée par
+   tests/test_mesure_synchronisee.py.
 3. La page « Comment lire l'écran » existe, est atteignable depuis l'en-tête,
    et dit en clair ce que l'outil ne fait pas.
 """
@@ -42,7 +44,7 @@ from pipeline import score_descriptif as sd  # noqa: E402
 SRC = (RACINE / "terminal.src.html").read_text(encoding="utf-8")
 COMPILE = (RACINE / "index.html").read_text(encoding="utf-8")
 MOTEUR = (RACINE / "update_data.py").read_text(encoding="utf-8")
-ARTEFACT = json.loads((RACINE / "datasets/backtests/score_bvc_2026-11-03.json").read_text(encoding="utf-8"))
+ARTEFACT = json.loads((RACINE / "datasets/backtests/score_bvc_2026-11-03.json").read_text(encoding="utf-8"))  # gel hors échantillon (frais, horizon)
 
 
 def _entre(src, debut, fin):
@@ -94,28 +96,15 @@ def test_onglet_poids_les_seuils_sont_ceux_du_moteur():
     assert f"au moins {sb.COUVERTURE_MIN} % du poids" in ONGLET_POIDS
 
 
-def test_onglet_poids_les_frequences_sont_celles_de_l_artefact():
-    """R12 : chaque chiffre affiché se relit dans l'artefact daté."""
-    b = ARTEFACT["resultats"]["sans_rentabilite"]["score_bvc"]
-    m = re.search(r"const MESURE_BVC=\{n:(\d+),dates:(\d+),du:\"([^\"]+)\",au:\"([^\"]+)\",base:([\d.]+),tranches:\[(.*?)\]\};",
-                  ONGLET_POIDS, re.S)
-    assert m, "MESURE_BVC introuvable"
-    n, dates, du, au, base, corps = m.groups()
-    assert int(n) == b["observations_total"] == 43031
-    assert int(dates) == b["dates"]
-    cal = ARTEFACT["entrees"]["calendrier"]
-    assert du == "/".join(reversed(cal["du"].split("-"))) and au == "/".join(reversed(cal["au"].split("-")))
-    assert float(base) == round(b["taux_de_base_global"] * 100, 1)
-    lus = re.findall(r'\["([^"]+)",(\d+),([\d.]+)\]', corps)
-    attendu = {k.replace(" – ", "–"): v for k, v in b["tranches"].items()}
-    assert [t for t, _, _ in lus] == list(attendu), lus
-    for t, nn, p in lus:
-        assert int(nn) == attendu[t]["n"], t
-        assert float(p) == round(attendu[t]["frequence_surperformance"] * 100, 1), t
-        # « aucun écart ne se distingue du hasard » : l'artefact le dit, tranche par tranche
-        assert attendu[t]["ecart_significatif_5pct"] is False, t
+def test_onglet_poids_lit_la_mesure_dans_le_fichier_publie():
+    """Lot 1.7 : plus aucun chiffre de mesure dans l'onglet ; il lit le fichier
+    publié (voir tests/test_mesure_synchronisee.py pour l'exactitude)."""
+    assert "let MESURE_BVC=null" in ONGLET_POIDS
+    assert "datasets/backtests/score_bvc_mesure_courante.json" in ONGLET_POIDS
+    assert "useMesureBVC()" in ONGLET_POIDS
+    assert "Mesure indisponible" in ONGLET_POIDS
     assert ARTEFACT["frais_aller_retour"] == 0.02 and ARTEFACT["horizon_seances"] == 20
-    assert "ne distingue pas les gagnants" in ONGLET_POIDS
+    assert "M.conclusion.texte" in ONGLET_POIDS
     # Les tranches affichées sont celles du backtest
     tr = re.search(r"TRANCHES = \((.*?)\)\n", (RACINE / "pipeline/backtest_score_descriptif.py").read_text(encoding="utf-8"))
     assert [int(x) for x in re.findall(r'\("[^"]+", (\d+),', tr.group(1))] == [0, 40, 60, 75]
@@ -150,12 +139,9 @@ def test_le_guide_decrit_le_score_bvc_et_non_la_note_v53():
         assert re.search(rf"{re.escape(nom.replace('_', ' '))}</T> {w}\b", GUIDE, re.I), nom
     assert "Score descriptif, pas une prévision" in GUIDE
     assert f"sous {sb.COUVERTURE_MIN} % du poids" in GUIDE
-    b = ARTEFACT["resultats"]["sans_rentabilite"]["score_bvc"]
-    assert f"{b['observations_total']:,}".replace(",", " ") in GUIDE          # 43 031
-    for k, v in b["tranches"].items():
-        assert f"{v['frequence_surperformance'] * 100:.1f}".replace(".", ",") + " %" in GUIDE, k
-    assert f"{b['taux_de_base_global'] * 100:.1f}".replace(".", ",") + " % en moyenne" in GUIDE
-    assert "ne distingue pas les gagnants" in GUIDE
+    # La mesure est lue dans le fichier publié, pas écrite dans le guide.
+    assert "useMesureBVC()" in GUIDE and "M.tranches.map" in GUIDE and "M.conclusion.texte" in GUIDE
+    assert "Mesure indisponible" in GUIDE
     for ancien in ("Note /10", "≈ 72 %", "≈ 28 %", "6,5", "Note non comparable"):
         assert ancien not in GUIDE, ancien
 

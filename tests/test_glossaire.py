@@ -209,9 +209,13 @@ def test_les_reserves_du_guide_restent():
     assert "recoupée" in g["non_verifie"]["def"]
     assert "non de la dernière séance" in g["date_ancienne"]["def"]
     guide = _entre(SRC, "const Guide=(", "\n};\n")
-    for phrase in ("ne prédit pas", "conseil en investissement", "Score descriptif, pas une prévision",
-                   "ne distingue pas les gagnants"):
+    for phrase in ("ne prédit pas", "conseil en investissement", "Score descriptif, pas une prévision"):
         assert phrase in guide, phrase
+    # Lot 1.7 : « ne distingue pas les gagnants » vient du fichier de mesure
+    # (conclusion déduite des tests de l'artefact), plus d'une phrase figée.
+    assert "M.conclusion.texte" in guide
+    from pipeline import mesure_courante as mc
+    assert "ne distingue pas les gagnants" in mc.construire(mc.dernier_artefact())["conclusion"]["texte"]
 
 
 # ── 5. Les termes de l'écran renvoient à la source unique ───────────────────
