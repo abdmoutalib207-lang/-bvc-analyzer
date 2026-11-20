@@ -5683,8 +5683,10 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
      l'échelle du cours (opération sur titres, cible périmée). Sans garde,
      `null - price` valait 0 et l'écart s'affichait -100%. */
   const objectifs=r.bear!=null&&r.base!=null&&r.bull!=null;
-  const ecart=v=>v==null||!price?"—":`${((v-price)/price*100).toFixed(1)}%`;
-  const upside=objectifs?((r.bull-price)/price*100).toFixed(1):null;
+  /* 20/11/2026 (lot 1.4) : l'écart porte son signe dans les deux sens. La
+     tuile « BULL » forçait un « + » devant le sien (`+${upside}%`), et
+     aurait écrit « +-3.2% » pour une hypothèse haute sous le cours. */
+  const ecart=v=>{if(v==null||!price)return"—";const e=(v-price)/price*100;return `${e>0?"+":""}${e.toFixed(1)}%`;};
   const pos=objectifs&&r.bull!==r.bear
     ?Math.min(98,Math.max(2,(price-r.bear)/(r.bull-r.bear)*100)):50;
   const sym=r.symbol||r.ticker;
@@ -6228,7 +6230,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               :<>
             {!objectifs&&<div style={{fontSize:11,color:"#ff8f00",marginBottom:10}}>Objectifs indisponibles — {r.objectifs_motif||"cible périmée écartée"}</div>}
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-              {[["BEAR",r.bear,"#ff4f5a",ecart(r.bear)],["BASE",r.base,"#ffd740",ecart(r.base)],["BULL",r.bull,"#00e5a0",upside==null?"—":`+${upside}%`]].map(([lbl,val,c,pct])=>(
+              {/* 20/11/2026 (lot 1.4) : « BEAR / BASE / BULL » en rouge, jaune
+                  et vert — le vocabulaire et les couleurs d'un pari. Trois
+                  hypothèses de prix, décrites par leur position, d'un même
+                  gris clair ; l'écart au cours garde son signe. */}
+              {[["BASSE",r.bear,"#c8d3e8",ecart(r.bear)],["CENTRALE",r.base,"#c8d3e8",ecart(r.base)],["HAUTE",r.bull,"#c8d3e8",ecart(r.bull)]].map(([lbl,val,c,pct])=>(
                 <div key={lbl} style={{background:"#0a1220",borderRadius:6,padding:"10px 8px",border:`1px solid ${c}20`,textAlign:"center"}}>
                   <div style={{fontSize:9,color:"#8892a4",marginBottom:3,letterSpacing:1}}>{lbl}</div>
                   <div style={{fontSize:18,fontWeight:700,color:c,marginBottom:2}}>{px(val)}</div>
@@ -6237,11 +6243,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               ))}
             </div>
             <div style={{position:"relative",margin:"4px 0"}}>
-              <div style={{background:"linear-gradient(90deg,#ff4f5a,#ffd740,#00e5a0)",height:8,borderRadius:4}}/>
+              <div style={{background:"#1a2540",height:8,borderRadius:4}}/>
               <div style={{position:"absolute",left:`${pos}%`,top:"50%",transform:"translate(-50%,-50%)",width:14,height:14,borderRadius:"50%",background:"#fff",border:"3px solid #0d1829",boxShadow:"0 0 8px rgba(255,255,255,.5)"}}/>
             </div>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#8892a4",marginTop:5}}>
-              <span>Bear {px(r.bear)}</span><span style={{color:"#ffd740",fontWeight:600}}>▲ {px(price)} DH</span><span>Bull {px(r.bull)}</span>
+              <span>basse {px(r.bear)}</span><span style={{color:"#e8eef8",fontWeight:600}}>cours {px(price)} DH</span><span>haute {px(r.bull)}</span>
             </div></>}
           </div>
           </Pli>

@@ -12450,8 +12450,11 @@ const Detail = ({
   const h90 = r.h90 || r.high90;
   const l90 = r.l90 || r.low90;
   const objectifs = r.bear != null && r.base != null && r.bull != null;
-  const ecart = v => v == null || !price ? "—" : `${((v - price) / price * 100).toFixed(1)}%`;
-  const upside = objectifs ? ((r.bull - price) / price * 100).toFixed(1) : null;
+  const ecart = v => {
+    if (v == null || !price) return "—";
+    const e = (v - price) / price * 100;
+    return `${e > 0 ? "+" : ""}${e.toFixed(1)}%`;
+  };
   const pos = objectifs && r.bull !== r.bear ? Math.min(98, Math.max(2, (price - r.bear) / (r.bull - r.bear) * 100)) : 50;
   const sym = r.symbol || r.ticker;
   const rsiVal = r.rsi ?? r.rsi14 ?? null;
@@ -13683,7 +13686,7 @@ const Detail = ({
       gap: 8,
       marginBottom: 12
     }
-  }, [["BEAR", r.bear, "#ff4f5a", ecart(r.bear)], ["BASE", r.base, "#ffd740", ecart(r.base)], ["BULL", r.bull, "#00e5a0", upside == null ? "—" : `+${upside}%`]].map(([lbl, val, c, pct]) => React.createElement("div", {
+  }, [["BASSE", r.bear, "#c8d3e8", ecart(r.bear)], ["CENTRALE", r.base, "#c8d3e8", ecart(r.base)], ["HAUTE", r.bull, "#c8d3e8", ecart(r.bull)]].map(([lbl, val, c, pct]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0a1220",
@@ -13718,7 +13721,7 @@ const Detail = ({
     }
   }, React.createElement("div", {
     style: {
-      background: "linear-gradient(90deg,#ff4f5a,#ffd740,#00e5a0)",
+      background: "#1a2540",
       height: 8,
       borderRadius: 4
     }
@@ -13743,12 +13746,12 @@ const Detail = ({
       color: "#8892a4",
       marginTop: 5
     }
-  }, React.createElement("span", null, "Bear ", px(r.bear)), React.createElement("span", {
+  }, React.createElement("span", null, "basse ", px(r.bear)), React.createElement("span", {
     style: {
-      color: "#ffd740",
+      color: "#e8eef8",
       fontWeight: 600
     }
-  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull)))))), React.createElement("details", {
+  }, "cours ", px(price), " DH"), React.createElement("span", null, "haute ", px(r.bull)))))), React.createElement("details", {
     className: "avance carte",
     style: {
       background: "#0d1829",

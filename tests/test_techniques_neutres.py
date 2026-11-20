@@ -240,3 +240,36 @@ def test_supports_et_resistances_restent_distingues_par_le_mot():
     c = re.search(r'const SR_COUL="(#[0-9a-f]{6})";', SRC).group(1)
     for nom, f in FONDS.items():
         assert contraste(c, f) >= 4.5, nom
+
+
+# ── 3. Scénarios de prix ────────────────────────────────────────────────────
+# Aucun titre n'en publie au 19/11 (objectifs retirés le 01/10/2026) : le bloc
+# ne s'affiche pas, mais il reviendrait tel quel si le moteur en republiait.
+
+def _scenarios(src: str = SRC) -> str:
+    return _bloc('<Pli titre="Scénarios de prix"', "</Pli>", src)
+
+
+def test_les_scenarios_ne_parient_plus():
+    assert controle(_scenarios()) == []
+    s = _sans_commentaires(_scenarios())
+    for lbl in ('["BASSE",r.bear,', '["CENTRALE",r.base,', '["HAUTE",r.bull,'):
+        assert lbl in s, lbl
+    assert "linear-gradient" not in s                        # plus de rouge → vert
+    assert "▲" not in s                                      # le cours n'est pas une hausse
+    # Le texte qui dit pourquoi rien n'est publié reste.
+    assert "les objectifs saisis à la main ont été retirés le 01/10/2026" in s
+
+
+def test_le_controle_voit_les_scenarios_d_avant():
+    assert controle('{[["BEAR",r.bear,"#ff4f5a",ecart(r.bear)],["BULL",r.bull,"#00e5a0",`+${upside}%`]]}'
+                    '<span>Bear {px(r.bear)}</span>')
+
+
+@NODE
+def test_l_ecart_au_cours_porte_son_signe():
+    """L'ancienne tuile « BULL » forçait un « + » : « +-3.2% » sous le cours."""
+    i = SRC.index("const ecart=v=>")
+    f = SRC[i:SRC.index("\n", i)]
+    res = _node(f"const price=100;{f}\nconsole.log(JSON.stringify([112.34,96.8,100,null].map(ecart)));")
+    assert res == ["+12.3%", "-3.2%", "0.0%", "—"]
