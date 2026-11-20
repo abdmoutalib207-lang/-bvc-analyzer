@@ -203,14 +203,13 @@ def test_la_mesure_citee_est_celle_de_l_artefact():
     if m is None:
         import pytest
         pytest.skip("artefact du backtest absent")
-    brut = json.loads(bm.MESURE_SCORE_BVC.read_text(encoding="utf-8"))
-    r = brut["resultats"]["sans_rentabilite"]["score_bvc"]
-    assert m["n"] == r["observations_total"] == sum(x["n"] for x in r["tranches"].values())
+    pt = json.loads(bm.MESURE_SCORE_BVC.read_text(encoding="utf-8"))
+    assert m["n"] == pt["observations"] == sum(x["n"] for x in pt["tranches"])
     p = bm.phrase_mesure(m)
-    assert bm._nb(r["observations_total"], 0) in p
-    for cle, tr in r["tranches"].items():
-        assert bm._pc(tr["frequence_surperformance"]) in p, cle
-    assert bm._pc(r["taux_de_base_global"]) in p
+    assert bm._nb(pt["observations"], 0) in p
+    for t in pt["tranches"]:
+        assert bm._pc(t["part_battu_masi_pct"]) in p, t["plage"]
+    assert bm._pc(pt["base_pct"]) in p
     assert "sans le facteur rentabilité" in p and "pas une promesse" in p
 
 
@@ -221,7 +220,7 @@ def test_la_mesure_n_est_pas_citee_pour_une_autre_formule():
     for x in titres:
         x["score_bvc"]["version"] = "bvc-score-v2"
     a = bm.analyser({"masi": {}}, titres)
-    assert a["mesure"] is None and "Ce que le score a mesuré" not in bm.texte(a)
+    assert a["mesure"] is None and "mesure indisponible" in bm.texte(a)
     assert bm.mesure_score_bvc("/chemin/absent.json") is None
 
 
@@ -279,4 +278,4 @@ def test_une_mesure_illisible_se_signale(capsys, tmp_path):
     faux = tmp_path / "illisible.json"
     faux.write_text("{pas du json", encoding="utf-8")
     assert bm.mesure_score_bvc(faux) is None
-    assert "mesure du Score BVC illisible" in capsys.readouterr().err
+    assert "mesure du Score BVC indisponible" in capsys.readouterr().err

@@ -36,11 +36,13 @@ séances, par exemple —, ses points sont retirés du dénominateur : le score 
 ramené à 100 sur ce qui est disponible, et la **couverture** (part des 100
 points réellement mesurée) est publiée avec lui.
 
-**Ce que le score ne fait pas.** Mesuré sur 43 031 observations
-(`datasets/backtests/score_bvc_2026-11-03.json`), la part des titres ayant
-battu le MASI à 20 séances, frais de 2 % compris, est de 31,9 % sous 40,
-30,6 % de 40 à 59, 32,6 % de 60 à 74 et 33,7 % à 75 et plus, pour 32,1 % en
-moyenne. **Aucune tranche ne se distingue du hasard à 5 %** : le score décrit
+**Ce que le score ne fait pas.** Mesuré sur 9 462 observations — un titre
+échangé à chaque clôture de semaine, du 09/06/2023 au 13/11/2026
+(`datasets/backtests/score_bvc_hebdo_2026-11-19.json`, repris dans
+`score_bvc_mesure_courante.json` que lisent le terminal et le courriel) —, la
+part des titres ayant battu le MASI à 20 séances, frais de 2 % compris, est de
+32,0 % sous 40, 31,6 % de 40 à 59, 33,1 % de 60 à 74 et 33,6 % à 75 et plus,
+pour 32,5 % en moyenne. **Aucune tranche ne se distingue du hasard à 5 %** : le score décrit
 la situation d'un titre, il ne distingue pas les gagnants. Un test hors
 échantillon est gelé depuis le 03/11/2026 (formule figée, entrées postérieures
 au 04/11) ; son effectif ne sera suffisant que vers l'automne 2027.
