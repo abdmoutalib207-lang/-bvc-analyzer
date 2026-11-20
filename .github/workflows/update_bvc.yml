@@ -85,6 +85,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      forcer_ecriture:
+        description: 'Publier data.json même sans séance (code fusionné un jour férié)'
+        required: false
+        default: 'false'
+        type: boolean
 
 permissions:
   contents: write
@@ -401,6 +406,27 @@ jobs:
             if [ -d pipeline/candles ] && [ "$(ls pipeline/candles/*.json 2>/dev/null | wc -l)" -gt 0 ]; then
               git add pipeline/candles/
             fi
+            # ⚠️ LOT 3.3 — PAS D'ÉCRITURE SANS SÉANCE (20/11/2026). Mesuré sur
+            # 30 jours : 26 commits de ce workflow un week-end ou un férié, dont
+            # AUCUN ne changeait un cours, une variation, un volume ni une date
+            # de séance — seulement l'horodatage. La garde compare le data.json
+            # généré à celui de HEAD (= origin/main après le reset ci-dessus) ;
+            # sans séance nouvelle ni cours modifié, on désindexe tout et l'on
+            # ne garde que les fichiers hors cotation (actualités, marchés
+            # mondiaux, change, dépôts AMMC), sous un message `news:`.
+            # Une erreur de la garde fait échouer le pas (bash -e) : jamais
+            # « pas de séance » par défaut. Détail : pipeline/garde_hors_seance.py.
+            GARDE=$(python3 pipeline/garde_hors_seance.py cotation)
+            echo "$GARDE"
+            MESSAGE="data: BVC update"
+            if [ "${{ github.event.inputs.forcer_ecriture }}" != "true" ] \
+                && ! echo "$GARDE" | grep -q "^cotation=true"; then
+              git reset -q
+              for f in news.json marches_mondiaux.json datasets/change_mad_tnd.json pipeline/depots_ammc.json; do
+                [ -f "$f" ] && git add "$f"
+              done
+              MESSAGE="news: actualités et marchés, sans séance"
+            fi
             if git diff --cached --quiet; then
               echo "Aucun changement — skip commit"
               exit 0
@@ -408,13 +434,16 @@ jobs:
             # État du service (lots 3.1 et 3.5, 20/11/2026) : écrit ICI, une
             # fois établi qu'un autre fichier part déjà — il n'est jamais seul
             # dans un commit (quota Pages). Un échec n'empêche pas data.json.
-            if python3 pipeline/etat_service.py; then
+            # Sans séance, il ne part pas : il dérive de data.json (lot 3.3).
+            if [ "$MESSAGE" != "data: BVC update" ]; then
+              echo "Sans séance — état du service non réécrit"
+            elif python3 pipeline/etat_service.py; then
               git add etat_service.json
             else
               echo "::warning::État du service non produit — data.json publié sans lui"
             fi
             HEURE=$(python3 -c "from bvc_config import heure_maroc; print(heure_maroc().strftime('%Y-%m-%d %H:%M'))")
-            git commit -m "data: BVC update ${HEURE} (Casablanca)"
+            git commit -m "${MESSAGE} ${HEURE} (Casablanca)"
             git push origin HEAD:main && echo "✅ Pushé" && exit 0
             echo "⚠️ Push échoué (tentative $attempt/3), retry..."
             sleep $((attempt * 3))

@@ -48,6 +48,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # ⚠️ Lot 3.3 (20/11/2026) — pas d'écriture sans séance. Les 2 commits
+          # d'un jour férié en 30 jours n'avaient aucune bougie : seulement
+          # `_updated` et `h90`, fenêtre calendaire qui glisse d'un jour. Sans
+          # séance du jour publiée NI chandelle modifiée, rien ne part. Une
+          # chandelle réparée (lancement à la main) passe toujours.
+          SEANCE=$(python3 pipeline/garde_hors_seance.py seance)
+          echo "$SEANCE"
+          if ! echo "$SEANCE" | grep -q "^seance=true" \
+              && [ -z "$(git status --porcelain -- pipeline/candles/)" ]; then
+            exit 0
+          fi
           git add pipeline/historical_data.json pipeline/candles/
           git diff --cached --stat
           git commit -m "data: historical_data.json + candles $(date +%Y-%m-%d)" || echo "Rien a committer"
