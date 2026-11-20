@@ -356,12 +356,15 @@ def test_la_liste_hors_seance_du_workflow_est_celle_du_module():
 
 
 def test_la_garde_n_avale_pas_ses_erreurs(tmp_path):
-    """R5 : un data.json généré illisible fait échouer la garde — jamais
-    « pas de séance » par défaut, qui jetterait la séance en silence."""
+    """R5 : un data.json généré illisible n'est jamais lu comme « pas de
+    séance » (ce qui jetterait la séance en silence) ni avalé : la garde le
+    dit sur stderr et laisse partir l'écriture, que les contrôles bloquants
+    du workflow jugeront."""
     (tmp_path / "data.json").write_text("{tronqué", encoding="utf-8")
     env = dict(os.environ, PYTHONPATH=str(RACINE))
     r = subprocess.run([sys.executable, str(RACINE / "pipeline" / "garde_hors_seance.py"),
                         "cotation", "--date", "2026-11-18"],
                        cwd=tmp_path, capture_output=True, text=True, env=env)
-    assert r.returncode != 0
     assert "cotation=false" not in r.stdout
+    assert "cotation=true" in r.stdout
+    assert "data.json généré illisible" in r.stderr

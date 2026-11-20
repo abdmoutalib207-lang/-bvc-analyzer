@@ -200,7 +200,15 @@ def main(argv=None) -> int:
               + ("" if ok else " — pas de séance aujourd'hui, rien à publier (lot 3.3)"))
         return 0
 
-    genere = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    # Un data.json généré absent ou illisible n'est pas un motif pour taire
+    # une séance : la garde le dit sur stderr (R5) et laisse la décision aux
+    # contrôles bloquants du workflow, comme le prévoit `decider`.
+    try:
+        genere = json.loads((racine / "data.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"::warning::garde hors séance : data.json généré illisible ({e})",
+              file=sys.stderr)
+        genere = None
     ok, pourquoi = decider(genere, pub, jour)
     print(f"cotation={'true' if ok else 'false'}")
     print(pourquoi)
