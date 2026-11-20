@@ -1632,6 +1632,11 @@ const meta = r => {
 };
 const varSeance = r => meta(r).stale ? null : r.chg;
 const zoneStoch = k => k == null || !isFinite(k) ? "" : k > 80 ? "zone haute" : k < 20 ? "zone basse" : "neutre";
+const RSI_JAUGE = "#4db8ff";
+const MACD_HISTO = "#8892a455";
+const SR_COUL = "#c8d3e8";
+const zoneRSI = v => v == null || !isFinite(v) ? "" : v > 70 ? "AU-DESSUS DE 70" : v < 30 ? "SOUS 30" : "ENTRE 30 ET 70";
+const positionMACD = (m, s) => m == null || s == null || !isFinite(m) || !isFinite(s) ? "" : m > s ? "> sa moyenne" : m < s ? "< sa moyenne" : "= sa moyenne";
 const varBandeau = c => c === 0 ? "0,00 %" : `${c > 0 ? "▲" : "▼"}${Math.abs(c).toFixed(2)}%`;
 const divClassement = d => d == null || !isFinite(d) ? "—" : `${(+d).toFixed(1)}%`;
 const divFiche = d => d == null || !isFinite(d) ? "—" : +d === 0 ? "0 %" : `${(+d).toFixed(1)}%`;
@@ -3206,14 +3211,26 @@ const RSIGauge = ({
     }
   }, "moins de 15 s\xE9ances cot\xE9es"));
   const v = Math.min(100, Math.max(0, value));
-  const color = v > 70 ? "#ff4f5a" : v < 30 ? "#00e5a0" : "#ffd740";
-  const label = v > 70 ? "SURACHETÉ" : v < 30 ? "SURVENDU" : "NEUTRE";
+  const color = RSI_JAUGE;
+  const label = zoneRSI(v);
   const a = -Math.PI + Math.PI * (v / 100);
   const cx = 60,
     cy = 58,
     r = 44;
   const ex = cx + r * Math.cos(a),
     ey = cy + r * Math.sin(a);
+  const seuil = s => {
+    const b = -Math.PI + Math.PI * (s / 100);
+    return React.createElement("line", {
+      key: s,
+      x1: cx + (r - 7) * Math.cos(b),
+      y1: cy + (r - 7) * Math.sin(b),
+      x2: cx + (r + 7) * Math.cos(b),
+      y2: cy + (r + 7) * Math.sin(b),
+      stroke: "#8892a4",
+      strokeWidth: "1.5"
+    });
+  };
   return React.createElement("div", {
     style: {
       textAlign: "center"
@@ -3221,7 +3238,9 @@ const RSIGauge = ({
   }, React.createElement("svg", {
     width: "120",
     height: "70",
-    viewBox: "0 0 120 75"
+    viewBox: "0 0 120 75",
+    role: "img",
+    "aria-label": `RSI sur 14 séances : ${v.toFixed(0)}, ${label}`
   }, React.createElement("path", {
     d: `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`,
     fill: "none",
@@ -3234,7 +3253,7 @@ const RSIGauge = ({
     stroke: color,
     strokeWidth: "10",
     strokeLinecap: "round"
-  }), React.createElement("circle", {
+  }), [30, 70].map(seuil), React.createElement("circle", {
     cx: ex,
     cy: ey,
     r: 5,
@@ -3243,7 +3262,7 @@ const RSIGauge = ({
     x: cx,
     y: cy + 2,
     textAnchor: "middle",
-    fill: color,
+    fill: "#e8eef8",
     fontSize: "17",
     fontWeight: "700",
     fontFamily: "var(--font)"
@@ -3694,7 +3713,7 @@ const SignauxTechniques = ({
   const v2 = r.score_tech_v2,
     neu = r.technique_neutralise,
     reg = REGIME_TECH;
-  const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
+  const coul = () => "#e8eef8";
   const ERRATA = freq && freq.errata || [];
   const ligne = (k, actif) => {
     const x = STATS_SIGNAUX[k];
@@ -3785,7 +3804,7 @@ const SignauxTechniques = ({
       marginLeft: "auto",
       fontSize: 11,
       fontWeight: 700,
-      color: reg.tendance ? "#00e5a0" : "#ff8f00"
+      color: "#c8d3e8"
     }
   }, "March\xE9 ", reg.tendance ? "EN TENDANCE" : "HORS TENDANCE")), neu ? React.createElement("div", {
     style: {
@@ -3860,7 +3879,7 @@ const LegendeSR = ({
 }) => {
   if (!sr || !candles || !candles.length) return null;
   const an = new Date(candles[0].x).getUTCFullYear() !== new Date(candles[candles.length - 1].x).getUTCFullYear();
-  const lignes = [...[...sr.res].reverse().map(L => ["Résistance", "#ff4f5a", L]), ...[...sr.sup].reverse().map(L => ["Support", "#00e5a0", L])];
+  const lignes = [...[...sr.res].reverse().map(L => ["Résistance", SR_COUL, L]), ...[...sr.sup].reverse().map(L => ["Support", SR_COUL, L])];
   return React.createElement("div", {
     className: "legende-sr",
     style: {
@@ -3940,8 +3959,7 @@ const FIG_APRES = {
   fibo_rebond_382_618: "après un tel rebond",
   fibo_au_dela_786: "après un tel retracement"
 };
-const figCoul = s => s > 0 ? "#00e5a0" : s < 0 ? "#ff4f5a" : "#b388ff";
-const figSens = e => e.orientation_classique === "haussiere" ? 1 : e.orientation_classique === "baissiere" ? -1 : /_haut$/.test(e.signal || "") ? 1 : /_bas$/.test(e.signal || "") ? -1 : 0;
+const FIG_COUL = "#b388ff";
 const figJour = (iso, an) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}${an && iso.slice(0, 4) !== an ? "/" + iso.slice(2, 4) : ""}` : "—";
 const figPct = x => (+x).toLocaleString("fr-FR", {
   maximumFractionDigits: 1
@@ -4161,7 +4179,7 @@ const figFormes = (pris, dates, t, focus, tel) => {
       fin = arme || !fd ? der : I(fd) ?? der;
     const ic = e.date_cassure ? I(e.date_cassure) : null;
     if (k === "figures") {
-      const c = figCoul(figSens(e)),
+      const c = FIG_COUL,
         piv = e.pivots || [];
       const pts = piv.map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
       if (pts.length < 2) return;
@@ -4605,7 +4623,7 @@ const LegendeFigures = ({
   }, "Aucun \xE9l\xE9ment sur la fen\xEAtre ", period, hors > 0 ? ` — ${hors} plus ancien${hors > 1 ? "s" : ""} : élargir la fenêtre` : "", "."), pris.map(([k, e, id], n) => {
     const faible = e.statut === "invalidee" || e.statut === "expiree" || e.statut === "comble";
     const estompe = focusVu != null && focusVu !== id;
-    const c = k === "figures" ? figCoul(figSens(e)) : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
+    const c = k === "figures" ? FIG_COUL : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
     const txt = k === "figures" ? figLegende(e, fp, liq, an) : k === "lignes" ? ligneLegende(e, fp, liq, an) : gapLegende(e, fp, liq, an);
     return React.createElement("div", {
       key: id || k + n,
@@ -5111,7 +5129,7 @@ const StockChart = ({
     }).setData(candles.map((c, i) => macdData.hist[i] != null ? {
       time: toDate(c.x),
       value: macdData.hist[i],
-      color: (macdData.hist[i] || 0) >= 0 ? "#00e5a045" : "#ff4f5a45"
+      color: MACD_HISTO
     } : null).filter(Boolean));
     macdChart.addLineSeries({
       color: "#8892a440",
@@ -5224,14 +5242,14 @@ const StockChart = ({
     };
     srData.sup.forEach(L => x.lignes.push(cs.createPriceLine({
       price: L.niveau,
-      color: "#00e5a060",
+      color: SR_COUL + "60",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
       title: `S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
     srData.res.forEach(L => x.lignes.push(cs.createPriceLine({
       price: L.niveau,
-      color: "#ff4f5a60",
+      color: SR_COUL + "60",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
       title: `R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
@@ -5367,7 +5385,7 @@ const StockChart = ({
     onClick: () => setShowIchi(v => !v)
   }, "ICHI"), React.createElement(Btn, {
     on: showSR,
-    c: "#00e5a0",
+    c: SR_COUL,
     titre: "Supports et r\xE9sistances : sommets et creux des s\xE9ances \xE9chang\xE9es, trac\xE9s s'ils ont \xE9t\xE9 touch\xE9s au moins 2 fois \u2014 d\xE9tail dat\xE9 sous le graphique",
     onClick: () => setShowSR(v => !v)
   }, "S/R"), React.createElement(Btn, {
@@ -5409,9 +5427,13 @@ const StockChart = ({
     style: {
       marginLeft: "auto",
       fontSize: 9,
-      color: isLive ? "#00e5a0" : "#8892a4"
+      color: "#8892a4"
     }
-  }, isLive && "● ", "RSI:", (r.rsi ?? r.rsi14) != null ? (r.rsi ?? r.rsi14).toFixed(0) : "—", " \xB7 MA20:", r.ma20 ? px(r.ma20) : "—", " \xB7 MA50:", r.ma50 ? px(r.ma50) : "—", " \xB7 MA200:", r.ma200 ? px(r.ma200) : "—")), showFib && React.createElement("div", {
+  }, isLive && React.createElement("span", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, "\u25CF "), "RSI:", (r.rsi ?? r.rsi14) != null ? (r.rsi ?? r.rsi14).toFixed(0) : "—", " \xB7 MA20:", r.ma20 ? px(r.ma20) : "—", " \xB7 MA50:", r.ma50 ? px(r.ma50) : "—", " \xB7 MA200:", r.ma200 ? px(r.ma200) : "—")), showFib && React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6755,8 +6777,8 @@ const Ranking = ({
       r = r.filter(x => correspondTitre(x, search));
     }
     if (trancheFiltre != null) r = r.filter(x => trancheBVC(x).id === trancheFiltre);
-    if (rsiZone === "survendu") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
-    if (rsiZone === "surachete") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
+    if (rsiZone === "bas") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
+    if (rsiZone === "haut") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
     return r;
   }, [rows, sector, search, group, trancheFiltre, rsiZone]);
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
@@ -6935,11 +6957,12 @@ const Ranking = ({
     },
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30",
+      color: "#c8d3e8",
+      border: "1px solid #2a3550",
       borderRadius: 3,
       padding: "3px 8px",
-      background: "transparent"
+      background: "transparent",
+      cursor: "pointer"
     }
   }, "\u2715 R\xE9initialiser"), React.createElement("span", {
     style: {
@@ -7038,9 +7061,11 @@ const Ranking = ({
     }
   }, React.createElement(Terme, {
     id: "rsi"
-  }, "RSI")), [["survendu", "<30 survendu", "#4db8ff"], ["surachete", ">70 suracheté", "#4db8ff"]].map(([z, lbl, c]) => React.createElement("button", {
+  }, "RSI")), [["bas", "< 30", "RSI inférieur à 30", "#4db8ff"], ["haut", "> 70", "RSI supérieur à 70", "#4db8ff"]].map(([z, lbl, aria, c]) => React.createElement("button", {
     key: z,
     onClick: () => setRsiZone(rsiZone === z ? null : z),
+    "aria-pressed": rsiZone === z,
+    "aria-label": aria,
     style: {
       fontSize: 10,
       padding: "3px 10px",
@@ -7816,8 +7841,8 @@ const ClassementPER = ({
     onClick: () => setSecteur("ALL"),
     style: {
       ...btn(false),
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30"
+      color: "#c8d3e8",
+      border: "1px solid #2a3550"
     }
   }, "\u2715 Secteur")), secteur !== "ALL" && (() => {
     const m = medianes[secteur] || {
@@ -12428,8 +12453,11 @@ const Detail = ({
   const h90 = r.h90 || r.high90;
   const l90 = r.l90 || r.low90;
   const objectifs = r.bear != null && r.base != null && r.bull != null;
-  const ecart = v => v == null || !price ? "—" : `${((v - price) / price * 100).toFixed(1)}%`;
-  const upside = objectifs ? ((r.bull - price) / price * 100).toFixed(1) : null;
+  const ecart = v => {
+    if (v == null || !price) return "—";
+    const e = (v - price) / price * 100;
+    return `${e > 0 ? "+" : ""}${e.toFixed(1)}%`;
+  };
   const pos = objectifs && r.bull !== r.bear ? Math.min(98, Math.max(2, (price - r.bear) / (r.bull - r.bear) * 100)) : 50;
   const sym = r.symbol || r.ticker;
   const rsiVal = r.rsi ?? r.rsi14 ?? null;
@@ -13169,11 +13197,11 @@ const Detail = ({
     }
   }, "\u2508 FIB"), " \xA0 ", React.createElement("span", {
     style: {
-      color: "#00e5a0"
+      color: SR_COUL
     }
   }, "\u2500\u2500 S support"), " \xA0 ", React.createElement("span", {
     style: {
-      color: "#ff4f5a"
+      color: SR_COUL
     }
   }, "\u2500\u2500 R r\xE9sistance"), " \xA0 ", React.createElement("span", {
     style: {
@@ -13249,7 +13277,7 @@ const Detail = ({
       gridTemplateColumns: "1fr 1fr",
       gap: 6
     }
-  }, [["Haut 90j", h90 != null ? px(h90) : "—", "#00e5a0"], ["H 52s", r.h52w ? px(r.h52w) : "—", "#00e5a0"], ["Bas 90j", l90 != null ? px(l90) : "—", "#ff4f5a"], ["B 52s", r.l52w ? px(r.l52w) : "—", "#ff4f5a"]].map(([k, v, c]) => React.createElement("div", {
+  }, [["Haut 90j", h90 != null ? px(h90) : "—", "#c8d3e8"], ["H 52s", r.h52w ? px(r.h52w) : "—", "#c8d3e8"], ["Bas 90j", l90 != null ? px(l90) : "—", "#c8d3e8"], ["B 52s", r.l52w ? px(r.l52w) : "—", "#c8d3e8"]].map(([k, v, c]) => React.createElement("div", {
     key: k,
     style: {
       background: "#0a1220",
@@ -13294,7 +13322,7 @@ const Detail = ({
   }, "MACD")), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: r.macd > 0 ? "#00e5a0" : "#ff4f5a",
+      color: "#c8d3e8",
       fontWeight: 700
     }
   }, r.macd > 0 ? "+" : "", r.macd?.toFixed(2)), React.createElement("div", {
@@ -13302,7 +13330,7 @@ const Detail = ({
       fontSize: 9,
       color: "#8892a4"
     }
-  }, r.macd > 0 && r.macd > (r.macd_signal || 0) ? "haussier" : "baissier")), r.bb_upper != null && React.createElement("div", {
+  }, positionMACD(r.macd, r.macd_signal))), r.bb_upper != null && React.createElement("div", {
     style: {
       background: "#0a1220",
       borderRadius: 4,
@@ -13344,7 +13372,7 @@ const Detail = ({
   }, "STOCH")), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: r.stoch_k > 80 ? "#ff4f5a" : r.stoch_k < 20 ? "#00e5a0" : "#ffd740",
+      color: "#c8d3e8",
       fontWeight: 700
     }
   }, r.stoch_k?.toFixed(0)), React.createElement("div", {
@@ -13376,7 +13404,7 @@ const Detail = ({
   }, "OBV")), React.createElement("div", {
     style: {
       fontSize: 11,
-      color: r.obv > 0 ? "#00e5a0" : "#ff4f5a",
+      color: "#c8d3e8",
       fontWeight: 700
     }
   }, r.obv > 0 ? "+" : "", (r.obv / 1000).toFixed(0), "K"), React.createElement("div", {
@@ -13473,12 +13501,12 @@ const Detail = ({
     }, React.createElement("div", {
       style: {
         fontSize: 8.5,
-        color: "#00e5a0",
+        color: "#4db8ff",
         textTransform: "uppercase",
         letterSpacing: .6,
         marginBottom: 5
       }
-    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
+    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
       style: {
         background: "#0a1220",
         border: "1px dashed #2a3550",
@@ -13661,7 +13689,7 @@ const Detail = ({
       gap: 8,
       marginBottom: 12
     }
-  }, [["BEAR", r.bear, "#ff4f5a", ecart(r.bear)], ["BASE", r.base, "#ffd740", ecart(r.base)], ["BULL", r.bull, "#00e5a0", upside == null ? "—" : `+${upside}%`]].map(([lbl, val, c, pct]) => React.createElement("div", {
+  }, [["BASSE", r.bear, "#c8d3e8", ecart(r.bear)], ["CENTRALE", r.base, "#c8d3e8", ecart(r.base)], ["HAUTE", r.bull, "#c8d3e8", ecart(r.bull)]].map(([lbl, val, c, pct]) => React.createElement("div", {
     key: lbl,
     style: {
       background: "#0a1220",
@@ -13696,7 +13724,7 @@ const Detail = ({
     }
   }, React.createElement("div", {
     style: {
-      background: "linear-gradient(90deg,#ff4f5a,#ffd740,#00e5a0)",
+      background: "#1a2540",
       height: 8,
       borderRadius: 4
     }
@@ -13721,12 +13749,12 @@ const Detail = ({
       color: "#8892a4",
       marginTop: 5
     }
-  }, React.createElement("span", null, "Bear ", px(r.bear)), React.createElement("span", {
+  }, React.createElement("span", null, "basse ", px(r.bear)), React.createElement("span", {
     style: {
-      color: "#ffd740",
+      color: "#e8eef8",
       fontWeight: 600
     }
-  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull)))))), React.createElement("details", {
+  }, "cours ", px(price), " DH"), React.createElement("span", null, "haute ", px(r.bull)))))), React.createElement("details", {
     className: "avance carte",
     style: {
       background: "#0d1829",
@@ -14400,8 +14428,8 @@ const NewsFeed = () => {
     onClick: () => setTicker("ALL"),
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30",
+      color: "#c8d3e8",
+      border: "1px solid #2a3550",
       borderRadius: 3,
       padding: "2px 8px",
       background: "transparent",
