@@ -62,7 +62,11 @@
        vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
     @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
     @media(max-width:767px){.detail-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px}}
-    @media(min-width:768px){.fiche-graphique{order:-1}}
+    /* Fiche en trois étages (19/11/2026) : le graphique ouvre l'étage « Détail »,
+       il n'a plus à remonter par `order`. Plis du téléphone : flèche seule. */
+    .pli>summary{list-style:none}
+    .pli>summary::-webkit-details-marker{display:none}
+    .pli[open]>summary .pli-fleche{display:inline-block;transform:rotate(90deg)}
     @media(min-width:1200px){
       .fiche-gabarit{display:grid;grid-template-columns:272px minmax(0,1fr);gap:12px;align-items:start}
       .fiche-liste{position:sticky;top:calc(var(--h-entete,0px) + 8px);max-height:calc(100vh - var(--h-entete,0px) - 16px);
@@ -1855,9 +1859,8 @@ const reservePrincipale = r => {
 const ResumeNote = ({
   r
 }) => {
-  const m = meta(r);
-  const dh = m.echange_median_dh;
   const al = (r.alertes || {}).liste || [];
+  if (!al.length) return null;
   const NIV = {
     "critique": "#ff4f5a",
     "élevé": "#ff8f00",
@@ -1872,11 +1875,7 @@ const ResumeNote = ({
       lineHeight: 1.6,
       margin: "2px 0 4px"
     }
-  }, dh != null && React.createElement("div", null, "Liquidit\xE9 : ", montantEntier(dh), " \xE9chang\xE9s par s\xE9ance (m\xE9diane 20 j)", dh < 100000 && React.createElement("span", {
-    style: {
-      color: "#ff8f00"
-    }
-  }, " \u2014 faible")), al.map((x, i) => React.createElement("div", {
+  }, al.map((x, i) => React.createElement("div", {
     key: i,
     className: "alerte-verifiee"
   }, React.createElement("span", {
@@ -1958,6 +1957,7 @@ const EnTeteEssentiel = ({
     }
   }, React.createElement("div", {
     "data-essentiel": "date",
+    "data-date": "cours",
     title: heureCours(r)
   }, !m.asof ? React.createElement("span", {
     style: {
@@ -10124,7 +10124,7 @@ const ScoreBVC = ({
     style: {
       color: ok ? "#c8d3e8" : "#ffd740"
     }
-  }, "\xB7 ", etatTxt)), s.semaine && s.semaine.fin && React.createElement("div", {
+  }, "\xB7 ", etatTxt)), !sansValeur && s.semaine && s.semaine.fin && React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
@@ -10156,7 +10156,11 @@ const ScoreBVC = ({
       color: "#8892a4",
       marginTop: 4
     }
-  }, s.motif), ORDRE_FACTEURS_BVC.some(k => fac[k]) && React.createElement(React.Fragment, null, React.createElement("div", {
+  }, s.motif), ORDRE_FACTEURS_BVC.some(k => fac[k]) && React.createElement(React.Fragment, null, sansValeur ? React.createElement("div", {
+    style: {
+      height: 8
+    }
+  }) : React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
@@ -10244,7 +10248,13 @@ const ScoreBVC = ({
     style: {
       color: ZERO
     }
-  }, "\u25A0"), " gris = 0 point.")));
+  }, "\u25A0"), " gris = 0 point.")), s.version && React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 10,
+      color: "#8892a4"
+    }
+  }, "formule ", s.version));
 };
 const RisqueMesure = ({
   q
@@ -10292,7 +10302,10 @@ const RisqueMesure = ({
       fontSize: 9,
       color: "#8892a4"
     }
-  }, "nos chandelles \xB7 derni\xE8re s\xE9ance ", jj(q.asof))), q.motif && q.motif.code === "suspendu" ? React.createElement("div", {
+  }, "nos chandelles \xB7 ", React.createElement(DateChiffre, {
+    quoi: "risque",
+    d: q.asof
+  }))), q.motif && q.motif.code === "suspendu" ? React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
@@ -11493,6 +11506,289 @@ const TickerNews = ({
     }
   }, fmtD(a.date))))));
 };
+const DATES_FICHE = {
+  cours: "cours du",
+  score: "semaine close le",
+  comptes: "comptes au",
+  risque: "mesuré au"
+};
+const DateChiffre = ({
+  quoi,
+  d,
+  libelle,
+  suite
+}) => {
+  const l = libelle || DATES_FICHE[quoi];
+  return React.createElement("span", {
+    className: "date-chiffre",
+    "data-date": quoi,
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      fontVariantNumeric: "tabular-nums",
+      textTransform: "none",
+      letterSpacing: 0,
+      fontWeight: 400,
+      lineHeight: 1.35
+    }
+  }, d ? React.createElement(React.Fragment, null, l, " ", React.createElement("span", {
+    style: {
+      whiteSpace: "nowrap"
+    }
+  }, jjmmaaaa(d))) : `${l.replace(/\s+(du|le|au)$/, "")} : date inconnue`, suite);
+};
+const DateScore = ({
+  s
+}) => {
+  if (!s) return null;
+  const w = s.semaine || {};
+  return React.createElement(DateChiffre, {
+    quoi: "score",
+    d: w.fin,
+    suite: w.cours_du && w.fin && w.cours_du !== w.fin ? React.createElement(React.Fragment, null, " (dernier \xE9change le ", React.createElement("span", {
+      style: {
+        whiteSpace: "nowrap"
+      }
+    }, jjmmaaaa(w.cours_du)), ")") : null
+  });
+};
+const arreteComptes = r => {
+  const b = String(r && r.pe_base || "");
+  const iso = /\d{4}-\d{2}-\d{2}/.exec(b);
+  return iso ? {
+    d: iso[0]
+  } : b ? {
+    texte: b
+  } : null;
+};
+const DatePER = ({
+  r
+}) => {
+  if (r.pe == null && !perNS(r.pe, r.bpa_12m ?? r.bpa)) return null;
+  const a = arreteComptes(r);
+  return React.createElement("div", null, a && a.texte ? React.createElement("span", {
+    className: "date-chiffre",
+    "data-date": "comptes",
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      lineHeight: 1.35
+    }
+  }, "comptes : ", a.texte) : React.createElement(DateChiffre, {
+    quoi: "comptes",
+    d: a && a.d
+  }));
+};
+const TroisChiffres = ({
+  r,
+  price
+}) => {
+  const [ex, setEx] = useState(null);
+  const bpa = r.bpa_12m ?? r.bpa;
+  const cases = [["pe", r.pe_base && r.pe_base.startsWith("12") ? "PER 12 mois" : "PER", perTxt(r.pe, bpa), !!perNS(r.pe, bpa)], ["div", "Rendement du dividende", divFiche(r.div), false], ["cap", "Capitalisation", r.cap ? fmtM(r.cap) : "—", false]];
+  const texte = ex ? explRatio(ex, r, price) : null;
+  return React.createElement("div", {
+    className: "trois-chiffres",
+    style: {
+      marginTop: 8
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3,minmax(0,1fr))",
+      gap: 6
+    }
+  }, cases.map(([cle, lib, val, ns]) => {
+    const t = explRatio(cle, r, price);
+    return React.createElement("div", {
+      key: cle,
+      "data-chiffre": cle,
+      style: {
+        background: "#0a1220",
+        borderRadius: 4,
+        padding: "6px 7px",
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#8892a4",
+        lineHeight: 1.3
+      }
+    }, lib, t && React.createElement("button", {
+      type: "button",
+      "aria-label": `Explication : ${lib}`,
+      "aria-expanded": ex === cle,
+      onClick: () => setEx(x => x === cle ? null : cle),
+      style: {
+        marginLeft: 2,
+        border: "none",
+        background: "none",
+        color: ex === cle ? "#4db8ff" : "#8892a4",
+        fontSize: 12,
+        padding: "0 4px",
+        minWidth: 24,
+        minHeight: 24,
+        cursor: "pointer",
+        verticalAlign: "middle"
+      }
+    }, "\u24D8")), React.createElement("div", {
+      style: {
+        fontSize: 15,
+        fontWeight: 700,
+        color: ns || val === "—" ? "#8892a4" : "#e8eef8",
+        fontVariantNumeric: "tabular-nums",
+        lineHeight: 1.3
+      }
+    }, val), cle === "pe" && React.createElement(DatePER, {
+      r: r
+    }), cle === "pe" && r.pe_exception && React.createElement("div", {
+      title: `Motif : ${r.pe_exception.motif || "—"} Réserve : ${r.pe_exception.reserve || "—"}`,
+      style: {
+        fontSize: 10,
+        color: "#ff8f00",
+        lineHeight: 1.3
+      }
+    }, "exception : ", r.pe_exception.base));
+  })), texte && React.createElement("div", {
+    role: "note",
+    style: {
+      fontSize: 11.5,
+      color: "#c8d3e8",
+      lineHeight: 1.45,
+      whiteSpace: "pre-line",
+      background: "#0a1220",
+      border: "1px solid #1a2540",
+      borderRadius: 4,
+      padding: "6px 8px",
+      marginTop: 6
+    }
+  }, texte));
+};
+const SourcesRatios = ({
+  r
+}) => {
+  const m = meta(r);
+  const l = [["PER", m.source_fond], ["P/B", m.pb_source], ["capitalisation", m.cap_source]].filter(([, s]) => SOURCES_FOND[s]).map(([k, s]) => `${k} — ${SOURCES_FOND[s]}`);
+  return l.length ? React.createElement("div", {
+    className: "sources-ratios",
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      lineHeight: 1.5,
+      marginTop: 8
+    }
+  }, "Sources : ", l.join(" ; "), ".") : null;
+};
+const REQ_TELEPHONE = "(max-width:767px)";
+const useTelephone = () => {
+  const lire = () => {
+    try {
+      return window.matchMedia(REQ_TELEPHONE).matches;
+    } catch (e) {
+      return false;
+    }
+  };
+  const [t, setT] = useState(lire);
+  useEffect(() => {
+    let m;
+    try {
+      m = window.matchMedia(REQ_TELEPHONE);
+    } catch (e) {
+      return;
+    }
+    const f = () => setT(m.matches);
+    if (m.addEventListener) m.addEventListener("change", f);else if (m.addListener) m.addListener(f);
+    return () => {
+      if (m.removeEventListener) m.removeEventListener("change", f);else if (m.removeListener) m.removeListener(f);
+    };
+  }, []);
+  return t;
+};
+const Pli = ({
+  titre,
+  resume,
+  children
+}) => {
+  const tel = useTelephone();
+  const [ouvert, setOuvert] = useState(false);
+  if (!tel) return React.createElement(React.Fragment, null, children);
+  return React.createElement("details", {
+    className: "pli",
+    open: ouvert,
+    onToggle: e => setOuvert(e.currentTarget.open)
+  }, React.createElement("summary", {
+    style: {
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      minHeight: 44,
+      padding: "8px 12px",
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      fontSize: 13,
+      color: "#c8d3e8"
+    }
+  }, React.createElement("span", {
+    "aria-hidden": "true",
+    className: "pli-fleche",
+    style: {
+      color: "#4db8ff",
+      width: 10
+    }
+  }, "\u25B8"), React.createElement("span", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, titre, resume && React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontSize: 12
+    }
+  }, " \xB7 ", resume))), ouvert && React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginTop: 8
+    }
+  }, children));
+};
+const EtageTitre = ({
+  nom,
+  sous
+}) => React.createElement("div", {
+  className: "etage-titre",
+  style: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: "2px 8px",
+    flexWrap: "wrap",
+    fontSize: 11,
+    color: "#8892a4",
+    margin: "0 2px 6px"
+  }
+}, React.createElement("span", {
+  style: {
+    color: "#c8d3e8",
+    fontWeight: 600,
+    letterSpacing: 1.5,
+    textTransform: "uppercase"
+  }
+}, nom), sous && React.createElement("span", null, sous));
+const resumeSemestre = c => {
+  if (!c) return null;
+  if (c.etat !== "releve") return "non relevé";
+  const n = (c.reserves || []).length;
+  return n ? React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\u26A0 ", n, " r\xE9serve", n > 1 ? "s" : "") : null;
+};
 const Detail = ({
   rows,
   sel,
@@ -11501,6 +11797,17 @@ const Detail = ({
   toggleFav = () => {}
 }) => {
   const [detSearch, setDetSearch] = useState("");
+  const tel = useTelephone();
+  const [ixEtats, setIxEtats] = useState(ETATS_IDX);
+  useEffect(() => {
+    let vivant = true;
+    if (!ixEtats) chargerEtats("").then(() => {
+      if (vivant) setIxEtats(ETATS_IDX);
+    });
+    return () => {
+      vivant = false;
+    };
+  }, []);
   const r = rows.find(x => (x.symbol || x.ticker) === sel) || rows[0];
   const vBVC = valeurBVC(r);
   const s = vBVC == null || meta(r).conf <= 1 ? NEUTRE : teinte(trancheBVC(r).c);
@@ -11618,43 +11925,66 @@ const Detail = ({
       flexDirection: "column",
       gap: 10
     }
+  }, React.createElement("section", {
+    className: "etage etage-bref",
+    "data-etage": "bref",
+    "aria-label": "En bref"
   }, React.createElement("div", {
+    className: "fiche-bref",
     style: {
       background: `linear-gradient(135deg,${s.bg},#0d1829)`,
       border: `1px solid ${s.bd}`,
       borderRadius: 8,
-      padding: 16,
-      textAlign: "center"
+      padding: "10px 12px 12px",
+      textAlign: "left"
     }
-  }, React.createElement("div", {
+  }, React.createElement(EtageTitre, {
+    nom: "En bref"
+  }), React.createElement("div", {
     style: {
       display: "flex",
-      justifyContent: "center",
-      marginBottom: 10
+      alignItems: "center",
+      gap: 10
     }
   }, React.createElement(CompanyLogo, {
     sym: tk(r),
     logo: r.symbol,
     sector: r.sector,
-    size: 56
-  })), React.createElement("div", {
+    size: 40
+  }), React.createElement("div", {
+    style: {
+      minWidth: 0,
+      flex: 1
+    }
+  }, React.createElement("div", {
     className: "fiche-cours",
     style: {
-      fontSize: 12,
+      fontSize: 13,
       color: "#8892a4",
-      letterSpacing: 2,
-      marginBottom: 4,
+      marginBottom: 2,
       display: "flex",
       alignItems: "center",
-      justifyContent: "center",
-      gap: 8
+      justifyContent: "space-between",
+      gap: 8,
+      fontVariantNumeric: "tabular-nums"
     }
-  }, React.createElement("span", null, tk(r), " \xB7 ", px(price), " DH ", React.createElement("span", {
+  }, React.createElement("span", null, React.createElement("span", {
+    style: {
+      color: "#c8d3e8",
+      letterSpacing: 1
+    }
+  }, tk(r)), " \xB7 ", React.createElement("b", {
+    style: {
+      color: "#e8eef8",
+      fontSize: 15
+    }
+  }, px(price), " DH"), " ", React.createElement("span", {
     style: {
       color: VC(r.chg),
-      fontWeight: 600
+      fontWeight: 600,
+      whiteSpace: "nowrap"
     }
-  }, varSeance(r) == null ? "—" : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : "▼", " ", Math.abs(r.chg).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
+  }, varSeance(r) == null ? "—" : r.chg === 0 ? "0.00%" : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : "▼", " ", Math.abs(r.chg).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
     title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
     style: {
       marginLeft: 3
@@ -11688,11 +12018,18 @@ const Detail = ({
     style: {
       color: "#8892a4"
     }
-  }, " \xB7 ", r.sector)), React.createElement(EnTeteEssentiel, {
+  }, " \xB7 ", r.sector)))), React.createElement(EnTeteEssentiel, {
     key: sym,
     r: r,
     seance: seance
   }), React.createElement("div", {
+    className: "bref-score",
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 12
+    }
+  }, React.createElement("div", {
     className: "score-bvc-tete",
     style: {
       fontSize: 52,
@@ -11700,34 +12037,18 @@ const Detail = ({
       color: couleurChiffre(r),
       textShadow: meta(r).conf <= 1 || vBVC == null ? "none" : `0 0 30px ${s.fg}40`,
       lineHeight: 1,
-      fontVariantNumeric: "tabular-nums"
+      fontVariantNumeric: "tabular-nums",
+      flex: "0 0 auto"
     }
   }, exactBVC(vBVC)), React.createElement("div", {
     style: {
-      fontSize: 11,
-      color: "#8892a4",
-      margin: "4px 0 6px"
+      minWidth: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: 4
     }
-  }, "Score BVC / 100 \xB7 ", etatBVC(r), " \u2014 descriptif, pas une pr\xE9vision"), vBVC == null && React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      color: "#ff8f00",
-      lineHeight: 1.4,
-      margin: "0 auto 8px",
-      maxWidth: 260
-    }
-  }, r.score_bvc ? r.score_bvc.motif || `Score BVC ${etatBVC(r)}` : "Score BVC non publié pour ce titre", ". Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), React.createElement(ResumeNote, {
-    r: r
-  }), React.createElement(DetailConfiance, {
-    r: r
-  }), React.createElement("div", {
-    style: {
-      marginBottom: 10
-    }
-  }, React.createElement(Confiance, {
-    r: r,
-    sz: 13
-  })), meta(r).susp ? React.createElement(Chip, {
+  }, meta(r).susp ? React.createElement(Chip, {
     label: meta(r).statut_juridique ? `${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}` : `SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`,
     bg: "rgba(255,107,107,.12)",
     fg: "#ff6b6b",
@@ -11755,19 +12076,62 @@ const Detail = ({
   }) : React.createElement(PastilleBVC, {
     r: r,
     sz: 12
-  }), meta(r).susp && meta(r).suspMotif && React.createElement("div", {
+  }), React.createElement(DateScore, {
+    s: r.score_bvc
+  }))), React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "#8892a4",
+      margin: "6px 0 4px"
+    }
+  }, "Score BVC / 100 \xB7 ", etatBVC(r), " \u2014 descriptif, pas une pr\xE9vision"), vBVC == null && React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: "#ff8f00",
+      lineHeight: 1.4,
+      margin: "0 0 6px"
+    }
+  }, r.score_bvc ? r.score_bvc.motif || `Score BVC ${etatBVC(r)}` : "Score BVC non publié pour ce titre", ". Aucune valeur approch\xE9e n'est affich\xE9e \xE0 la place."), meta(r).susp && meta(r).suspMotif && React.createElement("div", {
     style: {
       marginTop: 6,
       fontSize: 10,
       color: "#8892a4"
     }
-  }, meta(r).suspMotif), r.score_bvc && r.score_bvc.version && React.createElement("div", {
+  }, meta(r).suspMotif), React.createElement("div", {
+    className: "bref-fiabilite",
     style: {
-      marginTop: 8,
-      fontSize: 10,
-      color: "#8892a4"
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginTop: 2
     }
-  }, "formule ", r.score_bvc.version)), React.createElement(ScoreBVC, {
+  }, React.createElement(Confiance, {
+    r: r,
+    sz: 13
+  }), React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, React.createElement(DetailConfiance, {
+    r: r
+  }))), React.createElement(TroisChiffres, {
+    key: sym,
+    r: r,
+    price: price
+  }))), React.createElement("section", {
+    className: "etage etage-comprendre",
+    "data-etage": "comprendre",
+    "aria-label": "Comprendre",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10
+    }
+  }, React.createElement(EtageTitre, {
+    nom: "Comprendre",
+    sous: "composition du score, ratios et leurs sources"
+  }), React.createElement(ScoreBVC, {
     s: r.score_bvc,
     conf: meta(r).conf,
     sansValeur: true
@@ -11811,93 +12175,6 @@ const Detail = ({
         marginLeft: 6
       }
     }, "\xB7 confiance plafonn\xE9e \u2014 un ordre courant d\xE9placerait le cours")));
-  })(), (() => {
-    const nv = r.niveaux;
-    if (!nv) return null;
-    const f = nv.faits || {},
-      cv = nv.conventions || {},
-      bs = f.bornes_seance;
-    const L = (lbl, val, extra, coul) => React.createElement("div", {
-      key: lbl,
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "baseline",
-        fontSize: 11.5,
-        padding: "2px 0"
-      }
-    }, React.createElement("span", {
-      style: {
-        color: "#8892a4"
-      }
-    }, lbl), React.createElement("span", null, React.createElement("span", {
-      style: {
-        color: coul || "#c8d3e8",
-        fontFamily: "monospace",
-        fontWeight: 600
-      }
-    }, val), extra && React.createElement("span", {
-      style: {
-        color: "#8892a4",
-        fontSize: 10
-      }
-    }, " ", extra)));
-    return React.createElement("div", {
-      style: {
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#8892a4",
-        letterSpacing: 1,
-        marginBottom: 8,
-        textTransform: "uppercase"
-      }
-    }, "Niveaux"), React.createElement("div", {
-      style: {
-        background: "#0a1220",
-        border: "1px solid #1a2540",
-        borderRadius: 4,
-        padding: "8px 10px",
-        marginBottom: 6
-      }
-    }, React.createElement("div", {
-      style: {
-        fontSize: 8.5,
-        color: "#00e5a0",
-        textTransform: "uppercase",
-        letterSpacing: .6,
-        marginBottom: 5
-      }
-    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
-      style: {
-        background: "#0a1220",
-        border: "1px dashed #2a3550",
-        borderRadius: 4,
-        padding: "8px 10px"
-      }
-    }, React.createElement("div", {
-      style: {
-        fontSize: 8.5,
-        color: "#ffd740",
-        textTransform: "uppercase",
-        letterSpacing: .6,
-        marginBottom: 2
-      }
-    }, "Conventionnels \xB7 arithm\xE9tique sur une s\xE9ance"), React.createElement("div", {
-      style: {
-        fontSize: 9.5,
-        color: "#8892a4",
-        marginBottom: 5
-      }
-    }, "Largement employ\xE9s, mais ils ne mesurent rien par eux-m\xEAmes."), L("R2 · R1", `${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`), L("Pivot", fr(cv.pivots.pivot), `séance du ${cv.pivots._seance || "—"}`, "#ffd740"), L("S1 · S2", `${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)), !cv.pivots && React.createElement("div", {
-      style: {
-        fontSize: 10,
-        color: "#8892a4",
-        fontStyle: "italic"
-      }
-    }, "Pivots non publi\xE9s : la derni\xE8re s\xE9ance a une amplitude nulle \u2014 le titre a cot\xE9 \xE0 un prix unique, ou n'a pas cot\xE9."));
   })(), React.createElement("div", {
     style: {
       fontSize: 10,
@@ -11929,7 +12206,7 @@ const Detail = ({
         textTransform: "none",
         letterSpacing: 0
       }
-    }, "\xB7 ", m.fond_asof, " ", React.createElement("b", null, "(", a, " j)"));
+    }, "\xB7 relev\xE9s le ", jjmmaaaa(m.fond_asof), " ", React.createElement("b", null, "(", a, " j)"));
   })()), (r._meta || {}).comptes_absents && React.createElement("div", {
     title: r._meta.comptes_absents.source,
     style: {
@@ -12024,7 +12301,13 @@ const Detail = ({
       color: c,
       fontWeight: 700
     }
-  }, v), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
+  }, v), ratio === "pe" && React.createElement(DatePER, {
+    r: r
+  }), ratio === "pb" && r.pb != null && meta(r).pb_fonds_propres_au && React.createElement("div", null, React.createElement(DateChiffre, {
+    quoi: "comptes",
+    libelle: "fonds propres au",
+    d: meta(r).pb_fonds_propres_au
+  })), ratio === "pe" && r.pe_base?.startsWith("12") && r.pe_annuel != null && React.createElement("div", {
     title: `PER sur ${r.pe_base} ; exercice 2025 seul : ${r.pe_annuel}`,
     style: {
       fontSize: 9,
@@ -12056,22 +12339,41 @@ const Detail = ({
         color: "#8892a4"
       }
     }, "/", e.pairs, " \xB7 ", e.ecart_pct > 0 ? "+" : "", e.ecart_pct, "% vs secteur"));
-  })()))))), React.createElement("div", {
-    className: "fiche-centre",
+  })()))), React.createElement(SourcesRatios, {
+    r: r
+  })), React.createElement("div", {
+    className: "carte fiche-alertes",
+    style: {
+      background: "#0d1829",
+      border: "1px solid #1a2540",
+      borderRadius: 8,
+      padding: 12,
+      fontFamily: "var(--font)",
+      fontSize: 12,
+      lineHeight: 1.9
+    }
+  }, React.createElement("div", {
     style: {
       display: "flex",
-      flexDirection: "column",
-      gap: 10
+      gap: 6,
+      flexWrap: "wrap",
+      alignItems: "center"
     }
-  }, React.createElement(RisqueMesure, {
-    q: r.risque
-  }), React.createElement(DernierSemestre, {
-    c: r.comptes_s1
-  }), React.createElement(EtatsFinanciers, {
-    sym: sym
-  }), React.createElement(ASavoir, {
-    items: r.a_savoir
-  }), r.ratios_publies && React.createElement("div", {
+  }, React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: "#8892a4",
+      letterSpacing: 1,
+      textTransform: "uppercase",
+      marginRight: 4
+    }
+  }, "Alertes sur les comptes"), React.createElement(RedFlags, {
+    alertes: r.alertes
+  })), React.createElement(ResumeNote, {
+    r: r
+  }), React.createElement(MesuresBancaires, {
+    r: r
+  })), r.ratios_publies && React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -12168,8 +12470,21 @@ const Detail = ({
       lineHeight: 1.4,
       cursor: "help"
     }
-  }, React.createElement("b", null, "\u26A0 R\xE9serve des commissaires aux comptes"), " \u2014 ", r.ratios_publies.reserve_cac.texte)), r.fwd && React.createElement("div", {
-    className: "carte",
+  }, React.createElement("b", null, "\u26A0 R\xE9serve des commissaires aux comptes"), " \u2014 ", r.ratios_publies.reserve_cac.texte)))), React.createElement("section", {
+    className: "fiche-centre etage etage-detail",
+    "data-etage": "detail",
+    "aria-label": "D\xE9tail",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      minWidth: 0
+    }
+  }, React.createElement(EtageTitre, {
+    nom: "D\xE9tail",
+    sous: tel ? "touchez un titre pour l'ouvrir" : "graphique, indicateurs, risque, comptes, pièces"
+  }), React.createElement("div", {
+    className: "carte fiche-graphique",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -12178,87 +12493,63 @@ const Detail = ({
     }
   }, React.createElement("div", {
     style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "baseline",
-      marginBottom: 10,
-      gap: 8,
-      flexWrap: "wrap"
-    }
-  }, React.createElement("div", {
-    style: {
       fontSize: 10,
       color: "#8892a4",
       letterSpacing: 1,
+      marginBottom: 6,
       textTransform: "uppercase"
     }
-  }, "Pr\xE9visionnel ", React.createElement("span", {
+  }, "Graphique \u2014 chandeliers, volume, MACD \xB7 indicateurs au choix"), React.createElement(StockChart, {
+    r: r
+  }), React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: "#8892a4",
+      marginTop: 6
+    }
+  }, React.createElement("span", {
     style: {
       color: "#4db8ff"
     }
-  }, "IDBourse DATA+"), " ", React.createElement("span", {
+  }, "\u2500\u2500 MA20"), " \xA0 ", React.createElement("span", {
     style: {
-      color: "#ff8f00"
+      color: "#b388ff"
     }
-  }, "non v\xE9rifi\xE9")), React.createElement("div", {
+  }, "\u2500\u2500 MA50"), " \xA0 ", React.createElement("span", {
     style: {
-      fontSize: 9,
-      color: "#ff8f00"
+      color: "#ff9800"
     }
-  }, "export IDBourse DATA+ du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—", ", non v\xE9rifi\xE9")), (() => {
-    const roeCalc = r.ratios_publies && r.ratios_publies.roe_2025 && r.ratios_publies.roe_2025.valeur != null;
-    const dateExport = r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "date inconnue";
-    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", roeSansObjet(r) ? "sans objet" : r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", roeSansObjet(r) ? "#8892a4" : r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a", roeSansObjet(r) ? `ROE sans objet : ${roeSansObjet(r)}` : null]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
-    return React.createElement(React.Fragment, null, React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 7
-      }
-    }, cases.map(([k, v, c, so]) => {
-      const statut = so || (/20(2[6-9])e$/.test(k) ? `estimation DATA+ du ${dateExport}, non vérifiée` : `export DATA+ du ${dateExport}, non vérifié`);
-      return React.createElement("div", {
-        key: k,
-        title: statut,
-        style: {
-          background: "#0a1220",
-          borderRadius: 4,
-          padding: "6px 8px"
-        }
-      }, React.createElement("div", {
-        style: {
-          fontSize: 8,
-          color: "#8892a4",
-          marginBottom: 2,
-          textTransform: "uppercase"
-        }
-      }, k, so && React.createElement(InfoCellule, {
-        texte: so
-      })), React.createElement("div", {
-        style: {
-          fontSize: 13,
-          color: c,
-          fontWeight: 700,
-          fontVariantNumeric: "tabular-nums"
-        }
-      }, v), React.createElement("div", {
-        style: {
-          fontSize: 8,
-          color: so ? "#8892a4" : "#ff8f00",
-          lineHeight: 1.35,
-          marginTop: 1,
-          textWrap: "pretty"
-        }
-      }, so ? "sans objet pour ce métier" : statut));
-    })), React.createElement("div", {
-      style: {
-        fontSize: 9,
-        color: "#8892a4",
-        marginTop: 9,
-        lineHeight: 1.5
-      }
-    }, "Chiffres repris tels quels de l'export, non recoup\xE9s avec les comptes, non retenus dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.", roeCalc && (roeSansObjet(r) ? " ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)." : " ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")));
-  })()), React.createElement("div", {
+  }, "\u2500\u2500 MA200"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#ffd740"
+    }
+  }, "\u2508 FIB"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, "\u2500\u2500 S support"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#ff4f5a"
+    }
+  }, "\u2500\u2500 R r\xE9sistance"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#b388ff"
+    }
+  }, "\u2500\u2500 FIG figure"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "\u2500\u2500 TEND oblique"), " \xA0 ", React.createElement("span", {
+    style: {
+      color: "#ffb74d"
+    }
+  }, "\u25A8 GAP"), " \xA0 | ", React.createElement("span", {
+    style: {
+      color: "#00e5a0"
+    }
+  }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement(Pli, {
+    titre: "Indicateurs techniques et niveaux"
+  }, React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -12463,34 +12754,128 @@ const Detail = ({
     }
   }, r.adx > 40 ? "tendance forte" : r.adx > 25 ? "tendance" : r.adx > 20 ? "émergente" : "range", r.adx_pdi > r.adx_mdi ? " ▲" : " ▼")))), React.createElement(RSIGauge, {
     value: rsiVal
-  }))), React.createElement("details", {
-    className: "avance carte",
+  }))), r.niveaux && React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
       borderRadius: 8,
-      padding: "8px 12px"
+      padding: 12
     }
-  }, React.createElement("summary", {
-    style: {
-      cursor: "pointer",
-      fontSize: 12,
-      color: "#4db8ff",
-      minHeight: 28,
-      display: "flex",
-      alignItems: "center"
-    }
-  }, "Analyse avanc\xE9e \u2014 signaux techniques en essai (hors score)"), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 10,
-      marginTop: 8
-    }
-  }, React.createElement(SignauxTechniques, {
-    r: r
-  }))), React.createElement("div", {
-    className: "carte fiche-graphique",
+  }, (() => {
+    const nv = r.niveaux;
+    if (!nv) return null;
+    const f = nv.faits || {},
+      cv = nv.conventions || {},
+      bs = f.bornes_seance;
+    const L = (lbl, val, extra, coul) => React.createElement("div", {
+      key: lbl,
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        fontSize: 11.5,
+        padding: "2px 0"
+      }
+    }, React.createElement("span", {
+      style: {
+        color: "#8892a4"
+      }
+    }, lbl), React.createElement("span", null, React.createElement("span", {
+      style: {
+        color: coul || "#c8d3e8",
+        fontFamily: "monospace",
+        fontWeight: 600
+      }
+    }, val), extra && React.createElement("span", {
+      style: {
+        color: "#8892a4",
+        fontSize: 10
+      }
+    }, " ", extra)));
+    return React.createElement("div", {
+      style: {
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#8892a4",
+        letterSpacing: 1,
+        marginBottom: 8,
+        textTransform: "uppercase"
+      }
+    }, "Niveaux"), React.createElement("div", {
+      style: {
+        background: "#0a1220",
+        border: "1px solid #1a2540",
+        borderRadius: 4,
+        padding: "8px 10px",
+        marginBottom: 6
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 8.5,
+        color: "#00e5a0",
+        textTransform: "uppercase",
+        letterSpacing: .6,
+        marginBottom: 5
+      }
+    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
+      style: {
+        background: "#0a1220",
+        border: "1px dashed #2a3550",
+        borderRadius: 4,
+        padding: "8px 10px"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 8.5,
+        color: "#ffd740",
+        textTransform: "uppercase",
+        letterSpacing: .6,
+        marginBottom: 2
+      }
+    }, "Conventionnels \xB7 arithm\xE9tique sur une s\xE9ance"), React.createElement("div", {
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        marginBottom: 5
+      }
+    }, "Largement employ\xE9s, mais ils ne mesurent rien par eux-m\xEAmes."), L("R2 · R1", `${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`), L("Pivot", fr(cv.pivots.pivot), `séance du ${cv.pivots._seance || "—"}`, "#ffd740"), L("S1 · S2", `${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)), !cv.pivots && React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: "#8892a4",
+        fontStyle: "italic"
+      }
+    }, "Pivots non publi\xE9s : la derni\xE8re s\xE9ance a une amplitude nulle \u2014 le titre a cot\xE9 \xE0 un prix unique, ou n'a pas cot\xE9."));
+  })())), r.risque && React.createElement(Pli, {
+    titre: "Risque mesur\xE9 (1 an)"
+  }, React.createElement(RisqueMesure, {
+    q: r.risque
+  })), r.comptes_s1 && React.createElement(Pli, {
+    titre: "Dernier semestre (S1 2026)",
+    resume: resumeSemestre(r.comptes_s1)
+  }, React.createElement(DernierSemestre, {
+    c: r.comptes_s1
+  })), efCouvert(ixEtats, sym) && React.createElement(Pli, {
+    titre: "\xC9tats financiers"
+  }, React.createElement(EtatsFinanciers, {
+    sym: sym
+  })), Array.isArray(r.a_savoir) && React.createElement(Pli, {
+    titre: "\xC0 savoir",
+    resume: r.a_savoir.length ? `${r.a_savoir.length} fait${r.a_savoir.length > 1 ? "s" : ""}` : "rien de particulier"
+  }, React.createElement(ASavoir, {
+    items: r.a_savoir
+  })), r.fwd && React.createElement(Pli, {
+    titre: "Pr\xE9visionnel IDBourse DATA+",
+    resume: React.createElement("span", {
+      style: {
+        color: "#ff8f00"
+      }
+    }, "non v\xE9rifi\xE9")
+  }, r.fwd && React.createElement("div", {
+    className: "carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
@@ -12499,61 +12884,90 @@ const Detail = ({
     }
   }, React.createElement("div", {
     style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      marginBottom: 10,
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, React.createElement("div", {
+    style: {
       fontSize: 10,
       color: "#8892a4",
       letterSpacing: 1,
-      marginBottom: 6,
       textTransform: "uppercase"
     }
-  }, "Graphique \u2014 chandeliers, volume, MACD \xB7 indicateurs au choix"), React.createElement(StockChart, {
-    r: r
-  }), React.createElement("div", {
+  }, "Pr\xE9visionnel ", React.createElement("span", {
+    style: {
+      color: "#4db8ff"
+    }
+  }, "IDBourse DATA+"), " ", React.createElement("span", {
+    style: {
+      color: "#ff8f00"
+    }
+  }, "non v\xE9rifi\xE9")), React.createElement("div", {
     style: {
       fontSize: 9,
-      color: "#8892a4",
-      marginTop: 6
+      color: "#ff8f00"
     }
-  }, React.createElement("span", {
-    style: {
-      color: "#4db8ff"
-    }
-  }, "\u2500\u2500 MA20"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#b388ff"
-    }
-  }, "\u2500\u2500 MA50"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#ff9800"
-    }
-  }, "\u2500\u2500 MA200"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#ffd740"
-    }
-  }, "\u2508 FIB"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "\u2500\u2500 S support"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#ff4f5a"
-    }
-  }, "\u2500\u2500 R r\xE9sistance"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#b388ff"
-    }
-  }, "\u2500\u2500 FIG figure"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#4db8ff"
-    }
-  }, "\u2500\u2500 TEND oblique"), " \xA0 ", React.createElement("span", {
-    style: {
-      color: "#ffb74d"
-    }
-  }, "\u25A8 GAP"), " \xA0 | ", React.createElement("span", {
-    style: {
-      color: "#00e5a0"
-    }
-  }, "\u25CF"), " IDBourse / M\xE9dias24")), React.createElement("div", {
+  }, "export IDBourse DATA+ du ", r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "—", ", non v\xE9rifi\xE9")), (() => {
+    const roeCalc = r.ratios_publies && r.ratios_publies.roe_2025 && r.ratios_publies.roe_2025.valeur != null;
+    const dateExport = r.fwd.asof ? r.fwd.asof.split("-").reverse().join("/") : "date inconnue";
+    const cases = [["PER 2026e", fmt(r.fwd.per_26e, 1), "#c8d3e8"], ["PER 2027e", fmt(r.fwd.per_27e, 1), "#c8d3e8"], ["Rendement 2026e", r.fwd.dy_26e != null ? `${fmt(r.fwd.dy_26e, 1)}%` : "—", "#c8d3e8"], ["Rendement 2027e", r.fwd.dy_27e != null ? `${fmt(r.fwd.dy_27e, 1)}%` : "—", "#c8d3e8"], ...(roeCalc ? [] : [["ROE 2025", roeSansObjet(r) ? "sans objet" : r.fwd.roe_25 != null ? `${fmt(r.fwd.roe_25, 1)}%` : "—", roeSansObjet(r) ? "#8892a4" : r.fwd.roe_25 >= 0 ? "#c8d3e8" : "#ff4f5a", roeSansObjet(r) ? `ROE sans objet : ${roeSansObjet(r)}` : null]]), ["Marge nette 2025", r.fwd.marge_nette_25 != null ? `${fmt(r.fwd.marge_nette_25, 1)}%` : "—", r.fwd.marge_nette_25 >= 0 ? "#c8d3e8" : "#ff4f5a"]];
+    return React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 7
+      }
+    }, cases.map(([k, v, c, so]) => {
+      const statut = so || (/20(2[6-9])e$/.test(k) ? `estimation DATA+ du ${dateExport}, non vérifiée` : `export DATA+ du ${dateExport}, non vérifié`);
+      return React.createElement("div", {
+        key: k,
+        title: statut,
+        style: {
+          background: "#0a1220",
+          borderRadius: 4,
+          padding: "6px 8px"
+        }
+      }, React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: "#8892a4",
+          marginBottom: 2,
+          textTransform: "uppercase"
+        }
+      }, k, so && React.createElement(InfoCellule, {
+        texte: so
+      })), React.createElement("div", {
+        style: {
+          fontSize: 13,
+          color: c,
+          fontWeight: 700,
+          fontVariantNumeric: "tabular-nums"
+        }
+      }, v), React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: so ? "#8892a4" : "#ff8f00",
+          lineHeight: 1.35,
+          marginTop: 1,
+          textWrap: "pretty"
+        }
+      }, so ? "sans objet pour ce métier" : statut));
+    })), React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: "#8892a4",
+        marginTop: 9,
+        lineHeight: 1.5
+      }
+    }, "Chiffres repris tels quels de l'export, non recoup\xE9s avec les comptes, non retenus dans le score. Un tiret signale une valeur \xE9cart\xE9e comme invraisemblable.", roeCalc && (roeSansObjet(r) ? " ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)." : " ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")));
+  })())), React.createElement(Pli, {
+    titre: "Sc\xE9narios de prix",
+    resume: r.bear == null && r.base == null && r.bull == null ? "aucun publié" : null
+  }, React.createElement("div", {
     className: "carte",
     style: {
       background: "#0d1829",
@@ -12653,39 +13067,37 @@ const Detail = ({
       color: "#ffd740",
       fontWeight: 600
     }
-  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull))))), React.createElement("div", {
-    className: "carte",
+  }, "\u25B2 ", px(price), " DH"), React.createElement("span", null, "Bull ", px(r.bull)))))), React.createElement("details", {
+    className: "avance carte",
     style: {
       background: "#0d1829",
       border: "1px solid #1a2540",
       borderRadius: 8,
-      padding: 12,
-      fontFamily: "var(--font)",
-      fontSize: 12,
-      lineHeight: 1.9
+      padding: "8px 12px"
     }
-  }, React.createElement("div", {
+  }, React.createElement("summary", {
     style: {
+      cursor: "pointer",
+      fontSize: 12,
+      color: "#4db8ff",
+      minHeight: 28,
       display: "flex",
-      gap: 6,
-      flexWrap: "wrap",
       alignItems: "center"
     }
-  }, React.createElement("span", {
+  }, "Analyse avanc\xE9e \u2014 signaux techniques en essai (hors score)"), React.createElement("div", {
     style: {
-      fontSize: 10,
-      color: "#8892a4",
-      letterSpacing: 1,
-      textTransform: "uppercase",
-      marginRight: 4
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginTop: 8
     }
-  }, "Alertes sur les comptes"), React.createElement(RedFlags, {
-    alertes: r.alertes
-  })), React.createElement(MesuresBancaires, {
+  }, React.createElement(SignauxTechniques, {
     r: r
-  })), React.createElement(TickerNews, {
+  }))), React.createElement(Pli, {
+    titre: "Actualit\xE9s du titre"
+  }, React.createElement(TickerNews, {
     sym: sym
-  })))));
+  }))))));
 };
 const FACTEURS_BVC = [["moyennes_mobiles", "Moyennes mobiles", 35, "Cours au-dessus de sa MM20 → 15 · de sa MM50 → 10 · de sa MM200 → 10, sinon 0. Une moyenne indisponible (MM200 : 200 séances) ne compte pas."], ["momentum", "Momentum (RSI 14)", 15, "RSI entre 45 et 70 → 15 · entre 30 et 45 → 7,5 · sous 30 ou au-dessus de 70 → 0."], ["macd", "MACD (12, 26, 9)", 10, "MACD au-dessus de son signal et histogramme en hausse → 10 · au-dessus seulement → 5 · sinon 0."], ["activité", "Activité (volume)", 10, "Volume du jour ÷ médiane des 20 séances précédentes : de 0,8 à 3 → 10 · sous 0,8 → 5 · au-delà de 3 → 2."], ["liquidité", "Liquidité", 15, "Montant médian échangé sur 20 séances : ≥ 5 MDH → 15 · ≥ 1 MDH → 7,5 · sinon 0."], ["rentabilité", "Rentabilité (ROE)", 15, "ROE de l'exercice 2025 sur comptes déposés à l'AMMC : ≥ 12 % → 15 · ≥ 5 % → 7,5 · sinon 0."]];
 const MESURE_BVC = {
