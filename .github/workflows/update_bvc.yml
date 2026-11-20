@@ -405,6 +405,14 @@ jobs:
               echo "Aucun changement — skip commit"
               exit 0
             fi
+            # État du service (lots 3.1 et 3.5, 20/11/2026) : écrit ICI, une
+            # fois établi qu'un autre fichier part déjà — il n'est jamais seul
+            # dans un commit (quota Pages). Un échec n'empêche pas data.json.
+            if python3 pipeline/etat_service.py; then
+              git add etat_service.json
+            else
+              echo "::warning::État du service non produit — data.json publié sans lui"
+            fi
             HEURE=$(python3 -c "from bvc_config import heure_maroc; print(heure_maroc().strftime('%Y-%m-%d %H:%M'))")
             git commit -m "data: BVC update ${HEURE} (Casablanca)"
             git push origin HEAD:main && echo "✅ Pushé" && exit 0
