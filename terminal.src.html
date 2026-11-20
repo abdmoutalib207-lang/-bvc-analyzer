@@ -1321,6 +1321,12 @@ const zoneStoch=k=>k==null||!isFinite(k)?"":k>80?"zone haute":k<20?"zone basse":
    seuil — et sa définition est celle du GLOSSAIRE. Valeurs et seuils
    inchangés. Testé par tests/test_techniques_neutres.py. */
 const RSI_JAUGE="#4db8ff";
+/* Histogramme du MACD (écart à sa moyenne) : la hauteur et le côté du zéro
+   disent déjà le signe ; un seul gris. Supports et résistances : un niveau
+   de prix passé, pas une zone d'achat ou de vente ; un seul gris clair, le
+   mot (« S » / « R », « Support » / « Résistance ») les distingue. */
+const MACD_HISTO="#8892a455";
+const SR_COUL="#c8d3e8";
 const zoneRSI=v=>v==null||!isFinite(v)?"":v>70?"AU-DESSUS DE 70":v<30?"SOUS 30":"ENTRE 30 ET 70";
 /* MACD : position par rapport à sa propre moyenne sur 9 séances (la « ligne
    de signal » des manuels ; le glossaire dit « sa moyenne sur 9 séances »).
@@ -2297,8 +2303,8 @@ const pctFR=x=>(x*100).toFixed(1).replace(".",",");
 const LegendeSR=({sr,candles,period})=>{
   if(!sr||!candles||!candles.length)return null;
   const an=new Date(candles[0].x).getUTCFullYear()!==new Date(candles[candles.length-1].x).getUTCFullYear();
-  const lignes=[...[...sr.res].reverse().map(L=>["Résistance","#ff4f5a",L]),
-                ...[...sr.sup].reverse().map(L=>["Support","#00e5a0",L])];
+  const lignes=[...[...sr.res].reverse().map(L=>["Résistance",SR_COUL,L]),
+                ...[...sr.sup].reverse().map(L=>["Support",SR_COUL,L])];
   return(
     <div className="legende-sr" style={{marginTop:6,padding:"5px 8px",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,fontSize:11,lineHeight:1.5,color:"#c8d3e8",fontVariantNumeric:"tabular-nums"}}>
       <div style={{fontSize:9,color:"#8892a4",letterSpacing:.6,textTransform:"uppercase",marginBottom:2}}>S/R · fenêtre {period} · séances échangées seulement</div>
@@ -2338,9 +2344,14 @@ const FIG_COURT={double_creux:"2C",double_sommet:"2S",ete:"ETE",ete_inversee:"ET
 const FIG_APRES={triangle_sym_haut:"après une cassure par le haut",triangle_sym_bas:"après une cassure par le bas",
   canal_rebond_support:"après un rebond sur le support",canal_cassure_bas:"après une cassure du support par le bas",
   fibo_rebond_382_618:"après un tel rebond",fibo_au_dela_786:"après un tel retracement"};
-const figCoul=s=>s>0?"#00e5a0":s<0?"#ff4f5a":"#b388ff";
-const figSens=e=>e.orientation_classique==="haussiere"?1:e.orientation_classique==="baissiere"?-1
-  :/_haut$/.test(e.signal||"")?1:/_bas$/.test(e.signal||"")?-1:0;
+/* ⚠️ 20/11/2026 (lot 1.4) — Une figure était peinte du vert des hausses
+   quand son « orientation classique » est haussière (double creux, ETE
+   inversée…) et du rouge des baisses sinon : la couleur annonçait la suite
+   que les manuels prêtent à la figure, ce que la fréquence affichée à côté
+   ne promet pas. Toutes les figures prennent la couleur du bouton FIG. Les
+   GAPS gardent vert et rouge : un gap est un saut de COURS constaté, à la
+   hausse ou à la baisse, comme une bougie. */
+const FIG_COUL="#b388ff";
 const figJour=(iso,an)=>iso?`${iso.slice(8,10)}/${iso.slice(5,7)}${an&&iso.slice(0,4)!==an?"/"+iso.slice(2,4):""}`:"—";
 const figPct=x=>(+x).toLocaleString("fr-FR",{maximumFractionDigits:1});
 const figMin=fp=>(fp&&fp.methode&&fp.methode.min_cas_pour_publier)||30;
@@ -2501,7 +2512,7 @@ const figFormes=(pris,dates,t,focus,tel)=>{
     const arme=e.statut==="armee",fd=figFin(e),fin=arme||!fd?der:(I(fd)??der);
     const ic=e.date_cassure?I(e.date_cassure):null;
     if(k==="figures"){
-      const c=figCoul(figSens(e)),piv=e.pivots||[];
+      const c=FIG_COUL,piv=e.pivots||[];
       const pts=piv.map(p=>[I(p.date),p.prix]).filter(p=>p[0]!=null);
       if(pts.length<2)return;
       const i0=pts[0][0],tri=/^triangle_/.test(e.type);
@@ -2663,7 +2674,7 @@ const LegendeFigures=({vue,etatF,fp,show,period,passees,basculePassees,focus,cho
     {pris.map(([k,e,id],n)=>{
       const faible=e.statut==="invalidee"||e.statut==="expiree"||e.statut==="comble";
       const estompe=focusVu!=null&&focusVu!==id;
-      const c=k==="figures"?figCoul(figSens(e)):k==="lignes"?"#4db8ff":e.type==="gap_baissier"?"#ff4f5a":"#00e5a0";
+      const c=k==="figures"?FIG_COUL:k==="lignes"?"#4db8ff":e.type==="gap_baissier"?"#ff4f5a":"#00e5a0";
       const txt=k==="figures"?figLegende(e,fp,liq,an):k==="lignes"?ligneLegende(e,fp,liq,an):gapLegende(e,fp,liq,an);
       return(
         <div key={id||k+n} className="fig-ligne" data-type={e.type} data-statut={e.statut} data-id={id}
@@ -2926,7 +2937,7 @@ const StockChart=({r})=>{
     macdChart.__s.setData(mapS(i=>macdData.macd[i]));
     macdChart.addLineSeries({color:"#ffd740",lineWidth:1.5,lineStyle:LW.LineStyle.Dashed,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(i=>macdData.signal[i]));
     macdChart.addHistogramSeries({priceLineVisible:false,lastValueVisible:false}).setData(
-      candles.map((c,i)=>macdData.hist[i]!=null?{time:toDate(c.x),value:macdData.hist[i],color:(macdData.hist[i]||0)>=0?"#00e5a045":"#ff4f5a45"}:null).filter(Boolean)
+      candles.map((c,i)=>macdData.hist[i]!=null?{time:toDate(c.x),value:macdData.hist[i],color:MACD_HISTO}:null).filter(Boolean)
     );
     macdChart.addLineSeries({color:"#8892a440",lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(mapS(()=>0));
 
@@ -3007,8 +3018,8 @@ const StockChart=({r})=>{
     // Titre court sur la ligne (« S 89,90 · 4× ») ; le détail daté est dans
     // la légende sous le graphique — une infobulle ne s'ouvre pas au doigt.
     const srData=(showSR&&sr)||{sup:[],res:[]};
-    srData.sup.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:"#00e5a060",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
-    srData.res.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:"#ff4f5a60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
+    srData.sup.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:SR_COUL+"60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
+    srData.res.forEach(L=>x.lignes.push(cs.createPriceLine({price:L.niveau,color:SR_COUL+"60",lineWidth:1,lineStyle:LW.LineStyle.Dashed,title:`R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`})));
   },[sym,period,liveCandles,etat,plein,showBB,showIchi,showSR,showFib,fibAncres,fibAttente,mas,sr]);
 
   /* Ce que FIG · TEND · GAP montrent sur la fenêtre affichée — calculé une
@@ -3062,7 +3073,7 @@ const StockChart=({r})=>{
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={showBB} c="#ffd740" titre="Bandes de Bollinger (20, 2σ)" onClick={()=>setShowBB(v=>!v)}>BB</Btn>
         <Btn on={showIchi} c="#ff6f40" titre="Ichimoku (Tenkan 9 / Kijun 26)" onClick={()=>setShowIchi(v=>!v)}>ICHI</Btn>
-        <Btn on={showSR} c="#00e5a0" titre="Supports et résistances : sommets et creux des séances échangées, tracés s'ils ont été touchés au moins 2 fois — détail daté sous le graphique" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
+        <Btn on={showSR} c={SR_COUL} titre="Supports et résistances : sommets et creux des séances échangées, tracés s'ils ont été touchés au moins 2 fois — détail daté sous le graphique" onClick={()=>setShowSR(v=>!v)}>S/R</Btn>
         <Btn on={showFib} c="#ffd740" titre="Fibonacci façon TradingView : extrêmes de la fenêtre affichée, ou deux clics sur le graphique (point 1 puis point 0). Extensions 1,272 · 1,414 · 1,618 en violet." onClick={()=>setShowFib(v=>!v)}>FIB</Btn>
         <Btn on={showFig} c="#b388ff" titre="Figures chartistes — épaule-tête-épaule (ETE) et ETE inversée, double creux (2C), double sommet (2S), triangles, tasse avec anse, rebonds de Fibonacci : motifs constatés sur les 60 dernières séances échangées, avec leurs dates. Détail et fréquences passées sous le graphique." onClick={()=>basculeFig(setShowFig)}>FIG</Btn>
         <Btn on={showTend} c="#4db8ff" titre="Lignes de tendance — obliques (droite par deux sommets descendants, ou deux creux montants) et canaux ascendants (la droite et sa parallèle), prolongées jusqu'à la dernière séance. Détail daté sous le graphique." onClick={()=>basculeFig(setShowTend)}>TEND</Btn>
@@ -6004,7 +6015,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique — chandeliers, volume, MACD · indicateurs au choix</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── <Terme id="mm">MA20</Terme></span> &nbsp; <span style={{color:"#b388ff"}}>── <Terme id="mm">MA50</Terme></span> &nbsp; <span style={{color:"#ff9800"}}>── <Terme id="mm">MA200</Terme></span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
+              <span style={{color:"#4db8ff"}}>── <Terme id="mm">MA20</Terme></span> &nbsp; <span style={{color:"#b388ff"}}>── <Terme id="mm">MA50</Terme></span> &nbsp; <span style={{color:"#ff9800"}}>── <Terme id="mm">MA200</Terme></span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:SR_COUL}}>── S support</span> &nbsp; <span style={{color:SR_COUL}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
 
@@ -6109,9 +6120,13 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
 
                 <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
-                  <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
+                  {/* 20/11/2026 (lot 1.4) : « Établis » et les bornes de la
+                      séance étaient en vert des hausses ; un fait établi n'est
+                      pas une hausse. Bleu pour l'en-tête, face au jaune des
+                      « Conventionnels » ; bornes dans le gris clair des niveaux. */}
+                  <div style={{fontSize:8.5,color:"#4db8ff",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
                     Établis · ce que le marché a fait, ou ce que la règle interdit</div>
-                  {bs&&L(`Prochaine séance, bornes ±${bs.pct!=null?String(bs.pct).replace(".",","):"10"} %`,`${fr(bs.plancher)} — ${fr(bs.plafond)}`,bs.groupe?`groupe ${bs.groupe} (${bs.cycle}), seuil AMMC`:"seuil AMMC","#00e5a0")}
+                  {bs&&L(`Prochaine séance, bornes ±${bs.pct!=null?String(bs.pct).replace(".",","):"10"} %`,`${fr(bs.plancher)} — ${fr(bs.plafond)}`,bs.groupe?`groupe ${bs.groupe} (${bs.cycle}), seuil AMMC`:"seuil AMMC")}
                   {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
                     L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
                   {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>

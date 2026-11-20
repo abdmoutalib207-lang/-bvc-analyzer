@@ -1633,6 +1633,8 @@ const meta = r => {
 const varSeance = r => meta(r).stale ? null : r.chg;
 const zoneStoch = k => k == null || !isFinite(k) ? "" : k > 80 ? "zone haute" : k < 20 ? "zone basse" : "neutre";
 const RSI_JAUGE = "#4db8ff";
+const MACD_HISTO = "#8892a455";
+const SR_COUL = "#c8d3e8";
 const zoneRSI = v => v == null || !isFinite(v) ? "" : v > 70 ? "AU-DESSUS DE 70" : v < 30 ? "SOUS 30" : "ENTRE 30 ET 70";
 const positionMACD = (m, s) => m == null || s == null || !isFinite(m) || !isFinite(s) ? "" : m > s ? "au-dessus de sa moyenne" : m < s ? "au-dessous de sa moyenne" : "égal à sa moyenne";
 const varBandeau = c => c === 0 ? "0,00 %" : `${c > 0 ? "▲" : "▼"}${Math.abs(c).toFixed(2)}%`;
@@ -3877,7 +3879,7 @@ const LegendeSR = ({
 }) => {
   if (!sr || !candles || !candles.length) return null;
   const an = new Date(candles[0].x).getUTCFullYear() !== new Date(candles[candles.length - 1].x).getUTCFullYear();
-  const lignes = [...[...sr.res].reverse().map(L => ["Résistance", "#ff4f5a", L]), ...[...sr.sup].reverse().map(L => ["Support", "#00e5a0", L])];
+  const lignes = [...[...sr.res].reverse().map(L => ["Résistance", SR_COUL, L]), ...[...sr.sup].reverse().map(L => ["Support", SR_COUL, L])];
   return React.createElement("div", {
     className: "legende-sr",
     style: {
@@ -3957,8 +3959,7 @@ const FIG_APRES = {
   fibo_rebond_382_618: "après un tel rebond",
   fibo_au_dela_786: "après un tel retracement"
 };
-const figCoul = s => s > 0 ? "#00e5a0" : s < 0 ? "#ff4f5a" : "#b388ff";
-const figSens = e => e.orientation_classique === "haussiere" ? 1 : e.orientation_classique === "baissiere" ? -1 : /_haut$/.test(e.signal || "") ? 1 : /_bas$/.test(e.signal || "") ? -1 : 0;
+const FIG_COUL = "#b388ff";
 const figJour = (iso, an) => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}${an && iso.slice(0, 4) !== an ? "/" + iso.slice(2, 4) : ""}` : "—";
 const figPct = x => (+x).toLocaleString("fr-FR", {
   maximumFractionDigits: 1
@@ -4178,7 +4179,7 @@ const figFormes = (pris, dates, t, focus, tel) => {
       fin = arme || !fd ? der : I(fd) ?? der;
     const ic = e.date_cassure ? I(e.date_cassure) : null;
     if (k === "figures") {
-      const c = figCoul(figSens(e)),
+      const c = FIG_COUL,
         piv = e.pivots || [];
       const pts = piv.map(p => [I(p.date), p.prix]).filter(p => p[0] != null);
       if (pts.length < 2) return;
@@ -4622,7 +4623,7 @@ const LegendeFigures = ({
   }, "Aucun \xE9l\xE9ment sur la fen\xEAtre ", period, hors > 0 ? ` — ${hors} plus ancien${hors > 1 ? "s" : ""} : élargir la fenêtre` : "", "."), pris.map(([k, e, id], n) => {
     const faible = e.statut === "invalidee" || e.statut === "expiree" || e.statut === "comble";
     const estompe = focusVu != null && focusVu !== id;
-    const c = k === "figures" ? figCoul(figSens(e)) : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
+    const c = k === "figures" ? FIG_COUL : k === "lignes" ? "#4db8ff" : e.type === "gap_baissier" ? "#ff4f5a" : "#00e5a0";
     const txt = k === "figures" ? figLegende(e, fp, liq, an) : k === "lignes" ? ligneLegende(e, fp, liq, an) : gapLegende(e, fp, liq, an);
     return React.createElement("div", {
       key: id || k + n,
@@ -5128,7 +5129,7 @@ const StockChart = ({
     }).setData(candles.map((c, i) => macdData.hist[i] != null ? {
       time: toDate(c.x),
       value: macdData.hist[i],
-      color: (macdData.hist[i] || 0) >= 0 ? "#00e5a045" : "#ff4f5a45"
+      color: MACD_HISTO
     } : null).filter(Boolean));
     macdChart.addLineSeries({
       color: "#8892a440",
@@ -5241,14 +5242,14 @@ const StockChart = ({
     };
     srData.sup.forEach(L => x.lignes.push(cs.createPriceLine({
       price: L.niveau,
-      color: "#00e5a060",
+      color: SR_COUL + "60",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
       title: `S ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
     })));
     srData.res.forEach(L => x.lignes.push(cs.createPriceLine({
       price: L.niveau,
-      color: "#ff4f5a60",
+      color: SR_COUL + "60",
       lineWidth: 1,
       lineStyle: LW.LineStyle.Dashed,
       title: `R ${fmtPrixFR(L.niveau)} · ${L.contacts}×`
@@ -5384,7 +5385,7 @@ const StockChart = ({
     onClick: () => setShowIchi(v => !v)
   }, "ICHI"), React.createElement(Btn, {
     on: showSR,
-    c: "#00e5a0",
+    c: SR_COUL,
     titre: "Supports et r\xE9sistances : sommets et creux des s\xE9ances \xE9chang\xE9es, trac\xE9s s'ils ont \xE9t\xE9 touch\xE9s au moins 2 fois \u2014 d\xE9tail dat\xE9 sous le graphique",
     onClick: () => setShowSR(v => !v)
   }, "S/R"), React.createElement(Btn, {
@@ -13190,11 +13191,11 @@ const Detail = ({
     }
   }, "\u2508 FIB"), " \xA0 ", React.createElement("span", {
     style: {
-      color: "#00e5a0"
+      color: SR_COUL
     }
   }, "\u2500\u2500 S support"), " \xA0 ", React.createElement("span", {
     style: {
-      color: "#ff4f5a"
+      color: SR_COUL
     }
   }, "\u2500\u2500 R r\xE9sistance"), " \xA0 ", React.createElement("span", {
     style: {
@@ -13494,12 +13495,12 @@ const Detail = ({
     }, React.createElement("div", {
       style: {
         fontSize: 8.5,
-        color: "#00e5a0",
+        color: "#4db8ff",
         textTransform: "uppercase",
         letterSpacing: .6,
         marginBottom: 5
       }
-    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC", "#00e5a0"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
+    }, "\xC9tablis \xB7 ce que le march\xE9 a fait, ou ce que la r\xE8gle interdit"), bs && L(`Prochaine séance, bornes ±${bs.pct != null ? String(bs.pct).replace(".", ",") : "10"} %`, `${fr(bs.plancher)} — ${fr(bs.plafond)}`, bs.groupe ? `groupe ${bs.groupe} (${bs.cycle}), seuil AMMC` : "seuil AMMC"), Object.entries(f.moyennes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.toUpperCase(), fr(v.niveau), `cours ${v.position} · ${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`)), Object.entries(f.extremes || {}).filter(([k]) => !k.startsWith("_")).map(([k, v]) => L(k.replace(/_/g, " "), fr(v.niveau), `${v.distance_pct > 0 ? "+" : ""}${fr(v.distance_pct, 1)} %`))), cv.pivots && React.createElement("div", {
       style: {
         background: "#0a1220",
         border: "1px dashed #2a3550",

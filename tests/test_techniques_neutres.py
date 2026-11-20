@@ -185,3 +185,58 @@ def test_le_glossaire_definit_ce_que_disent_les_etiquettes():
     assert "comparé à sa moyenne sur 9 séances" in g
     j = _zones_fiche()["jauge RSI"]
     assert '<Terme id="rsi">RSI (14)</Terme>' in j
+
+
+# ── 2. Graphique : supports et résistances, histogramme MACD, figures ───────
+
+def _zones_graphique(src: str = SRC) -> dict[str, str]:
+    return {
+        "légende datée S/R": _bloc("const LegendeSR=", "/* ── FIG · TEND · GAP", src),
+        "lignes S/R tracées": _bloc("srData.sup.forEach(", "},[sym,period", src),
+        "bouton S/R": _bloc("<Btn on={showSR}", "</Btn>", src),
+        "légende des tracés": _bloc("── S support", "── R résistance</span>", src),
+        "histogramme MACD": _bloc("macdChart.addHistogramSeries(", ".filter(Boolean)", src),
+        "niveaux établis": _bloc("{(()=>{const nv=r.niveaux;", "{cv.pivots&&", src),
+    }
+
+
+@pytest.mark.parametrize("zone", list(_zones_graphique()))
+def test_aucune_couleur_de_signal_sur_le_graphique(zone):
+    assert controle(_zones_graphique()[zone]) == []
+
+
+def test_les_figures_ne_prennent_plus_la_couleur_de_leur_orientation():
+    code = _sans_commentaires(SRC)
+    assert "figCoul" not in code and "figSens" not in code
+    assert "orientation_classique" not in code      # plus aucune lecture du champ
+    assert 'const FIG_COUL="#b388ff";' in SRC
+    assert code.count("FIG_COUL") == 3              # définition + tracé + légende
+
+
+def test_les_gaps_gardent_le_sens_du_saut_de_cours():
+    """Exception assumée : un gap est un saut de COURS constaté, à la hausse ou
+    à la baisse — vert et rouge y disent un sens de variation, comme une bougie."""
+    assert 'e.type==="gap_baissier"?"#ff4f5a":"#00e5a0"' in SRC
+
+
+AVANT_GRAPHIQUE = {
+    "S/R": 'const lignes=[...[...sr.res].reverse().map(L=>["Résistance","#ff4f5a",L]),',
+    "histogramme": 'color:(macdData.hist[i]||0)>=0?"#00e5a045":"#ff4f5a45"}',
+    "établis": '<div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase"}}>Établis</div>',
+}
+
+
+@pytest.mark.parametrize("cas", list(AVANT_GRAPHIQUE))
+def test_le_controle_voit_le_graphique_d_avant(cas):
+    assert controle(AVANT_GRAPHIQUE[cas])
+
+
+def test_supports_et_resistances_restent_distingues_par_le_mot():
+    z = _zones_graphique()
+    assert "title:`S ${fmtPrixFR(L.niveau)}" in z["lignes S/R tracées"]
+    assert "title:`R ${fmtPrixFR(L.niveau)}" in z["lignes S/R tracées"]
+    assert '["Résistance",SR_COUL,L]' in z["légende datée S/R"]
+    assert '["Support",SR_COUL,L]' in z["légende datée S/R"]
+    c = re.search(r'const SR_COUL="(#[0-9a-f]{6})";', SRC).group(1)
+    for nom, f in FONDS.items():
+        assert contraste(c, f) >= 4.5, nom
