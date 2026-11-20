@@ -1,0 +1,209 @@
+{
+ "ticker": "NRJ",
+ "societe": "Jet Energy",
+ "releve_le": "2026-11-17",
+ "agent": "lecteur-comptes",
+ "convention_page": "page = rang dans le fichier PDF (1 = première page du fichier), pas le folio imprimé",
+ "blocage": {
+  "motif": "titre introduit le 16/11/2026 : aucun compte déposé au titre d'un rapport financier ; les comptes sont dans le document de référence et la note d'opération de l'introduction",
+  "effet": "aucun fait financier, aucun P/B ; absent de pipeline/faits_financiers.json et de datasets/resultats_s1_2026.json (_ecartes)",
+  "lu_dans": "datasets/resultats_s1_2026.json › _ecartes › NRJ ; pipeline/faits_financiers.json › _defauts_connus › fonds_propres_reperes_mais_non_retenus › NRJ"
+ },
+ "pieces": [
+  {
+   "id": "dr_2026",
+   "rang_methode": 1,
+   "titre": "Document de référence relatif à l'exercice 2025 et au S1 2026, enregistré par l'AMMC le 21/10/2026 (ex. 036/2026)",
+   "url": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "sha256": "c0a4503053341c5e23fe9f5bcc2eda6ede57206b2fc56b61795f62d133dc2a15",
+   "octets": 1743209,
+   "pages": 144
+  },
+  {
+   "id": "no_2026",
+   "rang_methode": 1,
+   "titre": "Note d'opération visée par l'AMMC le 21/10/2026 (VI/EM/030/2026)",
+   "url": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_NO_030_2026.pdf",
+   "sha256": "9078b15e5f8fc108bcd0153807979eeef014805cbbec7174c9aa3fb678053099",
+   "octets": 915524,
+   "pages": 66
+  }
+ ],
+ "chiffres": [
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 71.441858,
+   "unite": "MMAD (71 441 858,22 MAD ÷ 1 000 000)",
+   "periode": "exercice 2025 (audité)",
+   "perimetre": "SOCIAL, normes marocaines ; Jet Energy ne détient aucune filiale : pas de compte consolidé ni de part du groupe",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 90,
+   "citation": "Ces états de synthèse font ressortir un montant de capitaux propres et assimilés de 184 779 691,30 MAD dont un bénéfice net de 71 441 858,22 MAD.",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 71.442,
+   "unite": "MMAD (71 442 KMAD ÷ 1 000)",
+   "periode": "exercice 2025 (2024 : 51 220)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 93,
+   "citation": "Résultat net 16 846 51 220 71 442 >100% 39,5% (en KMAD, colonnes 2023 | 2024 | 2025)",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 184.76,
+   "unite": "MMAD (184 760 KMAD ÷ 1 000)",
+   "periode": "31/12/2025",
+   "perimetre": "SOCIAL ; hors capitaux propres assimilés (20 KMAD)",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 103,
+   "citation": "Total capitaux propres 62 097 113 318 184 760 82,5% 63,0% (en KMAD, colonnes 2023 | 2024 | 2025)",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_et_assimiles_sociaux",
+   "valeur": 184.779691,
+   "unite": "MMAD (184 779 691,30 MAD ÷ 1 000 000)",
+   "periode": "31/12/2025 (attestation)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 90,
+   "citation": "capitaux propres et assimilés de 184 779 691,30 MAD dont un bénéfice net de 71 441 858,22 MAD",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 50.009516,
+   "unite": "MMAD (50 009 516,13 MAD ÷ 1 000 000)",
+   "periode": "S1 2026 (examen limité, 13/08/2026, sans réserve)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 92,
+   "citation": "capitaux propres et assimilés totalisant 177 635 720,85 MAD, dont un bénéfice net de 50 009 516,13 MAD",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "resultat_net_social",
+   "valeur": 50.01,
+   "unite": "MMAD (50 010 KMAD ÷ 1 000)",
+   "periode": "S1 2026 (S1 2025 : 35 839)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 94,
+   "citation": "Résultat net 35 839 50 010 39,5% (en KMAD, colonnes S1 2025 | S1-2026)",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 177.616,
+   "unite": "MMAD (177 616 KMAD ÷ 1 000)",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL ; hors capitaux propres assimilés (20 KMAD)",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 127,
+   "citation": "Capitaux propres 184 760 177 616 -3,9% (en KMAD, colonnes 2025 | S1-2026) ; Capital 105 000 105 000 ; Réserve légale 3 500 7 072 ; Autres réserves 4 818 4 818 ; Report à nouveau 0 10 716 ; Résultat de l'exercice 71 442 50 010",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_et_assimiles_sociaux",
+   "valeur": 177.635721,
+   "unite": "MMAD (177 635 720,85 MAD ÷ 1 000 000)",
+   "periode": "30/06/2026 (attestation)",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 92,
+   "citation": "capitaux propres et assimilés totalisant 177 635 720,85 MAD, dont un bénéfice net de 50 009 516,13 MAD",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "nombre_actions_avant_operation",
+   "valeur": 10500000,
+   "unite": "actions",
+   "periode": "au 30/06/2026, après division du nominal 100 → 10",
+   "perimetre": "Jet Energy",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_DR_036_2026.pdf",
+   "piece": "dr_2026",
+   "page": 15,
+   "citation": "le nombre d’actions passera ainsi de 1 050 000 à 10 500 000 actions, sans modification du montant total",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "nombre_actions_apres_operation",
+   "valeur": 13125000,
+   "unite": "actions",
+   "periode": "après l'introduction en bourse (16/11/2026)",
+   "perimetre": "Jet Energy",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_NO_030_2026.pdf",
+   "piece": "no_2026",
+   "page": 37,
+   "citation": "Nombre d'actions (unités) 10 500 000 2 625 000 13 125 000 [colonnes : situation avant l'Opération | impact | situation après] ; p.38 : Total 10 500 000 100% 13 125 000 100%",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_apres_operation_illustratifs",
+   "valeur": 552.991,
+   "unite": "MMAD (552 991 KMAD ÷ 1 000)",
+   "periode": "pro forma à 143 MAD par action, publié par l'émetteur (à titre illustratif)",
+   "perimetre": "SOCIAL, avant frais",
+   "source": "https://www.ammc.ma/sites/default/files/JETENERGY_IPO_NO_030_2026.pdf",
+   "piece": "no_2026",
+   "page": 38,
+   "citation": "Capitaux propres 177 616 375 375 552 991 (au prix haut de 143 MAD ; au prix bas de 125 MAD : 177 616 328 125 505 741, p.37)",
+   "releve_le": "2026-11-17"
+  }
+ ],
+ "estimations": [],
+ "calculs": [
+  {
+   "quoi": "contrôle du nombre d'actions après opération",
+   "formule": "10 500 000 + 2 625 000",
+   "resultat": 13125000,
+   "unite": "actions"
+  },
+  {
+   "quoi": "produit brut de l'introduction",
+   "formule": "2 625 000 × 143 MAD",
+   "resultat": 375.375,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "capitaux propres 30/06/2026 par les composantes (KMAD)",
+   "formule": "105 000 + 7 072 + 4 818 + 10 716 + 50 010",
+   "resultat": 177.616,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "capitaux propres 31/12/2025 par les composantes (KMAD)",
+   "formule": "105 000 + 3 500 + 4 818 + 0 + 71 442",
+   "resultat": 184.76,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "BPA 2025 sur 10 500 000 actions (le publié 68,0 vaut sur 1 050 000 actions avant division)",
+   "formule": "71,442 ÷ 10,5",
+   "resultat": 6.8,
+   "unite": "DH"
+  }
+ ],
+ "constats": [
+  "Le document de référence est au catalogue de l'AMMC sous JETENERGY_IPO_DR_036_2026.pdf et la note d'opération sous JETENERGY_IPO_NO_030_2026.pdf (page espace-emetteurs/documents-information) ; la note d'opération a la même empreinte que la copie de casablanca-bourse.com (sha256 9078b15e…).",
+  "Aucun compte consolidé : « Jet Energy ne détient aucune filiale » (DR p.44). La demande d'un « résultat net part du groupe » n'a pas d'objet ; le résultat net est SOCIAL. Ne pas le confondre avec JET (Jet Contractors, la maison mère à 78,91 % avant l'opération), titre distinct.",
+  "L'en-tête du tableau « Situation avant l'Opération » de la note d'opération p.37 porte « 30.09.2026 » alors que les montants (capitaux propres 177 616, résultat 50 010) sont ceux du 30/06/2026 : coquille de date, le montant prime (identique au DR p.127).",
+  "Le DR p.94 dit les capitaux propres « quasi stables à 177,6 MMAD » : la distribution de dividendes du semestre (excédent sur le résultat conservé : −7 144 KMAD) explique la baisse de 3,9 % ; les dividendes versés ne sont pas relevés ici.",
+  "Prix d'introduction 143 MAD, 2 625 000 actions attribuées, 375 375 000 MAD (avis de la Bourse av-2026-142 et av-2026-144, datasets/pieces/NRJ/index.json)."
+ ],
+ "conclusion": "Résultat net social 2025 71,442 MMAD et S1 2026 50,010 MMAD, capitaux propres sociaux 184,760 (31/12/2025) et 177,616 MMAD (30/06/2026), 13 125 000 actions après l'opération : tout est relevé et recoupé ; rien n'est écrit en fait parce que le livre est antérieur au produit de l'introduction (375,375 MMAD) alors que le nombre d'actions et la capitalisation le contiennent.",
+ "debloquerait": "Un bilan postérieur à l'introduction, ou la décision d'Abd Moutalib sur le pro forma publié (552,991 MMAD) avec sa réserve affichée.",
+ "question_ir": null
+}

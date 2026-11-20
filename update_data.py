@@ -2441,6 +2441,12 @@ RESERVES_PB = {
             "propres déposés (ni au 31/12/2025, ni au 30/06/2026) : le P/B rapporte la "
             "capitalisation de toutes les actions cotées à des fonds propres qui ne comprennent "
             "pas cette levée"),
+    # 17/11/2026 — attestation des commissaires aux comptes au 30/06/2026 « sous
+    # réserve » (Med_Paper_S1_26.pdf p.3), contre-vérifiée par verificateur-finance.
+    "MDP": ("les commissaires aux comptes certifient les comptes du 30/06/2026 sous réserve de "
+            "quatre situations, chiffrées au plus à 8,6 MDH hors pénalités fiscales non chiffrées, "
+            "pour 42,1 MDH de capitaux propres ; le fonds commercial (66,0 MDH) dépasse à lui "
+            "seul ces capitaux propres"),
 }
 
 
