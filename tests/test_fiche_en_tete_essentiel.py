@@ -79,9 +79,12 @@ def test_trois_elements_dans_l_ordre():
 
 
 def test_date_du_cours_et_pastille_reutilisee():
-    assert "m.asof" in EN_TETE and "cours du {jjmmaaaa(m.asof)}" in EN_TETE
+    # 20/11/2026 (lot 1.2) : « cours du JJ/MM/AAAA » devient le libellé de
+    # libelleCours — « Cours de séance du … · HHhMM · différé » ou « Clôture
+    # du … » (tests/test_cours_de_seance.py).
+    assert "m.asof" in EN_TETE and "{lc.complet}" in EN_TETE
     # cours ancien : la pastille ⚠ JJ/MM existante, pas une nouvelle
-    assert '<Perime r={r} force prefixe="cours du "' in EN_TETE
+    assert '<Perime r={r} force prefixe={lc.etat==="cloture"?"clôture du ":"cours du "}' in EN_TETE
     assert "const ancien=m.stale||(!!m.asof&&!!seance&&m.asof<seance);" in EN_TETE
     # Perime sans props garde son comportement d'avant : seulement si stale
     assert "if(!m.stale&&!force)return null;" in _composant("Perime")

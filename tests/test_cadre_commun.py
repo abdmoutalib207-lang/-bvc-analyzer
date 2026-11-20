@@ -152,24 +152,26 @@ def test_date_des_donnees_lisible():
 
 
 def test_etat_de_la_seance_sans_temps_reel():
-    """Pendant la séance : « cours différés », jamais « temps réel ».
+    """Pendant la séance : « différé », jamais « temps réel ».
     Après : « Clôture du JJ/MM », JJ/MM étant la séance DES DONNÉES. Entre la
-    clôture et la publication du passage de clôture : ni l'un ni l'autre."""
-    h = 'horodatage("{}")'
+    clôture et la publication du passage de clôture : ni l'un ni l'autre.
+    ⚠️ 20/11/2026 (lot 1.2) : le badge est écrit par `libelleCours`, qui lit
+    aussi la date du cours et l'heure du relevé (tests/test_cours_de_seance.py)."""
+    def lc(asof, releve, maintenant):
+        return f'libelleCours({{prix_asof:"{asof}"}},"{releve}",new Date("{maintenant}"))'
     r = _executer("[" + ",".join([
-        f'etatSeance({{isOpen:true}},"2026-11-19",{h.format("2026-11-19T11:02:00Z")})',
-        f'etatSeance({{isOpen:false}},"2026-11-19",{h.format("2026-11-19T16:56:21Z")})',
-        f'etatSeance({{isOpen:false}},"2026-11-19",{h.format("2026-11-19T12:46:00Z")})',
-        f'etatSeance({{isOpen:false}},"2026-11-20",{h.format("2026-11-21T09:00:00Z")})',
-        f'etatSeance({{isOpen:false}},"2026-11-19",{h.format("2026-11-20T08:10:00Z")})',
-        f'etatSeance({{isOpen:false}},null,{h.format("2026-11-19T16:56:21Z")})',
+        lc("2026-11-19", "2026-11-19T11:02:00Z", "2026-11-19T11:30:00Z"),
+        lc("2026-11-19", "2026-11-19T16:56:21Z", "2026-11-19T17:00:00Z"),
+        lc("2026-11-19", "2026-11-19T12:46:00Z", "2026-11-19T15:50:00Z"),
+        lc("2026-11-20", "2026-11-21T09:00:00Z", "2026-11-21T09:05:00Z"),
+        lc("2026-11-19", "2026-11-20T08:10:00Z", "2026-11-20T08:15:00Z"),
     ]) + "]")
-    textes = [x and x["texte"] for x in r]
-    assert textes == ["Séance en cours · cours différés", "Clôture du 19/11",
-                      "Séance du 19/11 · clôture pas encore publiée", "Clôture du 20/11",
-                      "Clôture du 19/11", None]
-    assert "etatSeance(mktStatus,masi&&masi.asof,h)" in ENTETE
-    assert "BVC {mktStatus.label}" not in ENTETE
+    textes = [x["texte"] for x in r]
+    assert textes == ["Cours de séance · 11h02 · différé", "Clôture du 19/11",
+                      "Cours de séance du 19/11 · 12h46 · clôture non publiée", "Clôture du 20/11",
+                      "Clôture du 19/11"]
+    assert "libelleCours({prix_asof:seance||masi.asof},ts,new Date())" in ENTETE
+    assert "BVC {mktStatus.label}" not in ENTETE and "etatSeance(" not in ENTETE
     for bloc in (ENTETE, CARTE, _entre(SRC, "function horodatage(iso)", "\n// ── MASI INDEX")):
         assert "temps réel" not in _sans_commentaires(bloc).lower()
 
