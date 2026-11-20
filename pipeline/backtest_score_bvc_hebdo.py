@@ -79,6 +79,7 @@ sys.path.insert(0, str(RACINE / "pipeline"))
 import backtest_score_descriptif as bs  # noqa: E402
 import backtest_score_bvc as bb  # noqa: E402
 from pipeline import score_bvc as sb  # noqa: E402
+from pipeline import mesure_courante as mc  # noqa: E402
 
 COMMANDE = "python3 pipeline/backtest_score_bvc_hebdo.py"
 SEUIL_N, SEUIL_BLOCS = 300, 30
@@ -276,6 +277,11 @@ def main(argv=None) -> int:
     f = out / f"score_bvc_hebdo_{fin}.json"
     f.write_text(json.dumps(art, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"✅ {f}  ({f.stat().st_size // 1024} Ko)")
+    # La mesure courante lue par le terminal suit l'artefact (lot 1.7) : seulement
+    # pour la sortie publique (pas un rejeu dans un dossier temporaire), et jamais
+    # vers un artefact plus ancien que celui déjà pointé.
+    if out.resolve() == Path(bs.SORTIE).resolve() and f == mc.dernier_artefact(out):
+        print(f"✅ {mc.publier(f)}")
     return 0
 
 

@@ -165,7 +165,7 @@ def test_branchement_moteur_unique_et_lecteurs_declares():
     assert src.index("note_metier_du_run(tickers_out, passe1") < src.index("_bvc_annexer(")
     ecriture = re.compile(r"""\[\s*["']score_bvc["']\s*\]\s*=(?!=)|setdefault\(\s*["']score_bvc["']""")
     for p in sorted((RACINE / "pipeline").rglob("*.py")):
-        if p.name in {"score_bvc.py", "backtest_score_bvc.py", "backtest_score_bvc_hebdo.py"}:
+        if p.name in {"score_bvc.py", "backtest_score_bvc.py", "backtest_score_bvc_hebdo.py", "mesure_courante.py"}:
             continue
         code = re.sub(r"#.*", "", p.read_text(encoding="utf-8"))
         if "score_bvc" not in code:
