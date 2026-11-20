@@ -170,10 +170,15 @@ def test_les_trois_grandeurs_du_volume_sont_distinctes():
 # ── ⚠️ L'affichage ─────────────────────────────────────────────────────────
 
 def test_le_classement_porte_une_colonne_volume():
-    """Une colonne absente ne se remarque pas — c'est bien le problème."""
-    i = ECRAN.find("const HEADS=")
+    """Une colonne absente ne se remarque pas — c'est bien le problème.
+
+    20/11/2026 — classement allégé : la colonne s'appelle « ÉCHANGÉ » et se
+    trouve derrière « Plus de colonnes » ; la fiche donne le montant dans
+    « En bref ». Elle existe toujours, c'est ce que ce test garde."""
+    i = ECRAN.find("const HEADS_PLUS=")
     entetes = ECRAN[i:ECRAN.find("]", i)]
-    assert '"VOLUME"' in entetes, "le classement n'a pas de colonne volume"
+    assert '"ÉCHANGÉ"' in entetes, "le classement n'a pas de colonne volume"
+    assert '{plus&&<td className="c-echange"' in ECRAN
 
 
 def test_la_cellule_affiche_les_deux_unites():
@@ -186,7 +191,12 @@ def test_la_cellule_affiche_les_deux_unites():
     i = ECRAN.find('{(()=>{const v=r.vol,dh=r.echange_dh;')
     assert i > 0, "la cellule de volume ne lit pas les deux champs"
     bloc = ECRAN[i:i + 1200]
-    assert "montantCourt(dh)" in bloc and "titres" in bloc
+    # 20/11/2026 : la cellule passe par `volumeCourt(r)` — montant d'abord,
+    # titres étiquetés à défaut (tests/test_mobile.py le vérifie) — au lieu
+    # d'en recopier la règle ; le nombre de titres reste dessous.
+    assert "volumeCourt(r)" in bloc and "titres" in bloc
+    j = ECRAN.find("const volumeCourt=")
+    assert "montantCourt(r.echange_dh)" in ECRAN[j:j + 200]
     # Montant EN ENTIER depuis le 14/10/2026 (demande d'Abd Moutalib) :
     # « 152 470 312 DH », plus « 152,5 M DH ».
     assert "const montantCourt=montantEntier;" in ECRAN
