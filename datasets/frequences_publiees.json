@@ -23,7 +23,7 @@
  ],
  "frequences": {
   "cassure": {
-   "libelle": "Cassure du plus haut 90 jours avec volume",
+   "libelle": "Clôture au-dessus du plus haut des 90 séances précédentes, volume > 1,5 × médiane",
    "condition": "en tendance",
    "signal": "cassure90",
    "definition_signal": "clôture au-dessus du plus haut des 90 séances précédentes ET volume > 1,5 × médiane des 50 séances précédentes",
@@ -52,7 +52,7 @@
    }
   },
   "surachat": {
-   "libelle": "Sortie de surachat du RSI (la force continue)",
+   "libelle": "RSI 14 repassé sous 70 après l'avoir dépassé la séance précédente",
    "condition": "en tendance",
    "signal": "rsi_sortie_surachat",
    "definition_signal": "le RSI 14 repasse sous 70 après avoir été au-dessus la séance précédente",
@@ -81,7 +81,7 @@
    }
   },
   "pullback_on": {
-   "libelle": "Pullback (repli en tendance haussière)",
+   "libelle": "Cours au moins 3 % sous la MA20, avec cours > MA200 et MA50 > MA200",
    "condition": "en tendance",
    "signal": "pullback",
    "definition_signal": "cours > MA200, MA50 > MA200 et cours au moins 3 % sous la MA20",
@@ -110,7 +110,7 @@
    }
   },
   "pullback_off": {
-   "libelle": "Pullback (repli en tendance haussière)",
+   "libelle": "Cours au moins 3 % sous la MA20, avec cours > MA200 et MA50 > MA200",
    "condition": "hors tendance",
    "signal": "pullback",
    "definition_signal": "cours > MA200, MA50 > MA200 et cours au moins 3 % sous la MA20",

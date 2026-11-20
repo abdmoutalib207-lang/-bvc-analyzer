@@ -44,10 +44,10 @@ SORTIE = RACINE / "datasets" / "frequences_publiees.json"
 
 # clé affichée par le terminal → (signal, régime allumé ?, libellé, condition)
 DEFS = {
-    "cassure": ("cassure90", True, "Cassure du plus haut 90 jours avec volume", "en tendance"),
-    "surachat": ("rsi_sortie_surachat", True, "Sortie de surachat du RSI (la force continue)", "en tendance"),
-    "pullback_on": ("pullback", True, "Pullback (repli en tendance haussière)", "en tendance"),
-    "pullback_off": ("pullback", False, "Pullback (repli en tendance haussière)", "hors tendance"),
+    "cassure": ("cassure90", True, "Clôture au-dessus du plus haut des 90 séances précédentes, volume > 1,5 × médiane", "en tendance"),
+    "surachat": ("rsi_sortie_surachat", True, "RSI 14 repassé sous 70 après l'avoir dépassé la séance précédente", "en tendance"),
+    "pullback_on": ("pullback", True, "Cours au moins 3 % sous la MA20, avec cours > MA200 et MA50 > MA200", "en tendance"),
+    "pullback_off": ("pullback", False, "Cours au moins 3 % sous la MA20, avec cours > MA200 et MA50 > MA200", "hors tendance"),
 }
 DEFINITIONS = {
     "cassure90": "clôture au-dessus du plus haut des 90 séances précédentes ET volume > 1,5 × médiane des 50 séances précédentes",

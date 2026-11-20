@@ -80,11 +80,11 @@ LIBELLES = {
     "tasse_anse": "Tasse avec anse",
     "triangle_ascendant": "Triangle ascendant", "triangle_descendant": "Triangle descendant",
     "triangle_sym": "Triangle symétrique",
-    "fibo_rebond_382_618": "Rebond sur le retracement 38,2-61,8 %",
+    "fibo_rebond_382_618": "Second creux à 35,2-64,8 % de retracement d'une hausse d'au moins 20 %",
     "fibo_au_dela_786": "Retracement au-delà de 78,6 %",
     "oblique_baissiere": "Oblique descendante", "oblique_haussiere": "Oblique ascendante",
     "canal_haussier": "Canal ascendant",
-    "gap_haussier": "Gap haussier", "gap_baissier": "Gap baissier",
+    "gap_haussier": "Gap au-dessus du plus haut de la veille", "gap_baissier": "Gap au-dessous du plus bas de la veille",
 }
 # Quel signal mesuré décrit « ce qui suit la cassure » de chaque type armé.
 REF_ARMEE = {"triangle_sym": ["triangle_sym_haut", "triangle_sym_bas"],
