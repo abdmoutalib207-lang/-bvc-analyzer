@@ -126,6 +126,13 @@ fermé code 1006 — ce n'est pas testable d'ici, seulement de là-bas).
 - **Le quota de publication de GitHub Pages est la ressource rare du projet**,
   environ 10 reconstructions par heure. Chaque commit le consomme. Un contrôle
   qui commiterait chaque jour consommerait ce qu'il protège.
+- **Un `git diff --cached --quiet` ne protège pas d'un horodatage.** Mesuré le
+  20/11/2026 sur 30 jours : 35 commits `data:` un week-end ou un férié, dont
+  aucun ne changeait un cours — `updated`, `timestamp`, une fenêtre `h90`
+  calendaire suffisaient à rendre le fichier « modifié ». La question n'est pas
+  « le fichier a-t-il changé ? » mais « y a-t-il une séance nouvelle à dire ? »,
+  et elle se déduit des données (`pipeline/garde_hors_seance.py`, lot 3.3),
+  jamais d'un calendrier.
 - **Casablanca est à UTC+1 toute l'année.** `datetime.now()` sur un runner GitHub
   donne l'heure UTC : l'étiqueter `+01:00` produit une heure fausse en permanence.
 
