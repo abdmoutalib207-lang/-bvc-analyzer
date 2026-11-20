@@ -12436,8 +12436,9 @@ const Detail = ({
     style: {
       fontSize: 9,
       color: "#8892a4"
-    }
-  }, r.obv > 0 ? "pression achat" : "pression vente")), r.adx != null && React.createElement("div", {
+    },
+    title: "On-Balance Volume : cumul des volumes, ajout\xE9s les jours de hausse, retranch\xE9s les jours de baisse"
+  }, r.obv > 0 ? "cumul positif" : "cumul négatif")), r.adx != null && React.createElement("div", {
     style: {
       background: "#0a1220",
       borderRadius: 4,

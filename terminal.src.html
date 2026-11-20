@@ -5739,7 +5739,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>OBV</div>
                         <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
-                        <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"pression achat":"pression vente"}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}} title="On-Balance Volume : cumul des volumes, ajoutés les jours de hausse, retranchés les jours de baisse">{r.obv>0?"cumul positif":"cumul négatif"}</div>
                       </div>
                     )}
                     {r.adx!=null&&(
