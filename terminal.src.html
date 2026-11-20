@@ -1311,6 +1311,23 @@ const varSeance=r=>meta(r).stale?null:r.chg;
      contraire (16 titres le 19/11, NEJ à 100). On dit la ZONE, pas une
      lecture : « surachat / survente » est du vocabulaire interprétatif. */
 const zoneStoch=k=>k==null||!isFinite(k)?"":k>80?"zone haute":k<20?"zone basse":"neutre";
+/* ⚠️ INDICATEURS TECHNIQUES SANS COULEUR DE SIGNAL — 20/11/2026 (feuille
+   de route, lot 1.4, suite de #372). Le vert et le rouge disent le SENS
+   D'UNE VARIATION DE COURS, et rien d'autre. La fiche peignait aussi le RSI
+   (« SURACHETÉ » rouge, « SURVENDU » vert), le MACD, l'OBV, le stochastique,
+   les plus hauts et plus bas, les supports et résistances, les scénarios
+   BEAR / BULL : un indicateur coloré comme une hausse se lit comme un feu
+   vert. Il se DÉCRIT désormais — sa valeur, sa position par rapport à un
+   seuil — et sa définition est celle du GLOSSAIRE. Valeurs et seuils
+   inchangés. Testé par tests/test_techniques_neutres.py. */
+const RSI_JAUGE="#4db8ff";
+const zoneRSI=v=>v==null||!isFinite(v)?"":v>70?"AU-DESSUS DE 70":v<30?"SOUS 30":"ENTRE 30 ET 70";
+/* MACD : position par rapport à sa propre moyenne sur 9 séances (la « ligne
+   de signal » des manuels ; le glossaire dit « sa moyenne sur 9 séances »).
+   L'ancienne étiquette écrivait « baissier » pour un MACD négatif passé
+   au-dessus de cette moyenne (IAM le 19/11 : −0,25 contre −0,80), et
+   « haussier » n'exigeait pas seulement d'être au-dessus. */
+const positionMACD=(m,s)=>m==null||s==null||!isFinite(m)||!isFinite(s)?"":m>s?"au-dessus de sa moyenne":m<s?"au-dessous de sa moyenne":"égal à sa moyenne";
 /* - Bandeau : une variation nulle s'écrivait « —0.00% », qui se lit −0,00 %
      (8 titres le 19/11 : ARD, INV, MOX…). Zéro n'a pas de flèche. */
 const varBandeau=c=>c===0?"0,00 %":`${c>0?"▲":"▼"}${Math.abs(c).toFixed(2)}%`;
@@ -1945,19 +1962,28 @@ const RSIGauge=({value})=>{
   if(value==null||!isFinite(value)) return(
     <div style={{textAlign:"center",fontSize:10,color:"#8892a4",padding:"18px 6px"}}>
       <Terme id="rsi">RSI (14)</Terme> indisponible<br/><span style={{fontSize:9}}>moins de 15 séances cotées</span></div>);
+  /* ⚠️ 20/11/2026 — UNE ZONE, PAS UN SIGNAL (lot 1.4). La jauge peignait
+     « SURACHETÉ » en rouge et « SURVENDU » en vert : le vert des hausses
+     posé sur un RSI bas se lisait comme une invitation. Le vert et le rouge
+     sont réservés aux variations de cours. La jauge est d'un seul bleu, les
+     seuils 30 et 70 sont tracés, et l'étiquette dit OÙ est le chiffre ; ce
+     qu'il mesure est dans le glossaire (« RSI (14) », sous la jauge). */
   const v=Math.min(100,Math.max(0,value));
-  const color=v>70?"#ff4f5a":v<30?"#00e5a0":"#ffd740";
-  const label=v>70?"SURACHETÉ":v<30?"SURVENDU":"NEUTRE";
+  const color=RSI_JAUGE;
+  const label=zoneRSI(v);
   const a=-Math.PI+Math.PI*(v/100);
   const cx=60,cy=58,r=44;
   const ex=cx+r*Math.cos(a),ey=cy+r*Math.sin(a);
+  const seuil=s=>{const b=-Math.PI+Math.PI*(s/100);
+    return <line key={s} x1={cx+(r-7)*Math.cos(b)} y1={cy+(r-7)*Math.sin(b)} x2={cx+(r+7)*Math.cos(b)} y2={cy+(r+7)*Math.sin(b)} stroke="#8892a4" strokeWidth="1.5"/>;};
   return(
     <div style={{textAlign:"center"}}>
-      <svg width="120" height="70" viewBox="0 0 120 75">
+      <svg width="120" height="70" viewBox="0 0 120 75" role="img" aria-label={`RSI sur 14 séances : ${v.toFixed(0)}, ${label}`}>
         <path d={`M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}`} fill="none" stroke="#1a2540" strokeWidth="10" strokeLinecap="round"/>
         <path d={`M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${ex} ${ey}`} fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"/>
+        {[30,70].map(seuil)}
         <circle cx={ex} cy={ey} r={5} fill={color}/>
-        <text x={cx} y={cy+2} textAnchor="middle" fill={color} fontSize="17" fontWeight="700" fontFamily="var(--font)">{v.toFixed(0)}</text>
+        <text x={cx} y={cy+2} textAnchor="middle" fill="#e8eef8" fontSize="17" fontWeight="700" fontFamily="var(--font)">{v.toFixed(0)}</text>
         <text x={cx} y={cy+16} textAnchor="middle" fill="#8892a4" fontSize="8" fontFamily="var(--font)">{label}</text>
       </svg>
       <div style={{fontSize:9,color:"#8892a4",marginTop:-6}}><Terme id="rsi">RSI (14)</Terme></div>
@@ -3044,12 +3070,15 @@ const StockChart=({r})=>{
         <span style={{color:"#1a2540",margin:"0 2px"}}>|</span>
         <Btn on={false} c="#8892a4" titre="Revenir à la vue entière (ou double-clic sur le graphique)" onClick={reinitialiser}>⟳</Btn>
         <Btn on={plein} c="#4db8ff" titre={plein?"Réduire (Échap)":"Agrandir le graphique"} onClick={()=>setPlein(v=>!v)}>{plein?"⤡ RÉDUIRE":"⤢ AGRANDIR"}</Btn>
-        <span style={{marginLeft:"auto",fontSize:9,color:isLive?"#00e5a0":"#8892a4"}}>
+        <span style={{marginLeft:"auto",fontSize:9,color:"#8892a4"}}>
           {/* ⚠️ Une moyenne absente s'affiche « — », jamais « 0,00 ». ⚠️ Le
               `r.rsi||…||50` reste : un RSI absent y devient 50, c'est-à-dire
               « neutre » alors que rien n'a été mesuré. Signalé, non corrigé
-              ici — il touche l'affichage de tous les titres sans historique. */}
-          {isLive&&"● "}RSI:{(r.rsi??r.rsi14)!=null?(r.rsi??r.rsi14).toFixed(0):"—"} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
+              ici — il touche l'affichage de tous les titres sans historique.
+              20/11/2026 (lot 1.4) : la ligne entière passait au vert quand la
+              source est directe, ce qui peignait RSI et moyennes du vert des
+              hausses ; seule la pastille garde la couleur de l'état. */}
+          {isLive&&<span style={{color:"#00e5a0"}}>● </span>}RSI:{(r.rsi??r.rsi14)!=null?(r.rsi??r.rsi14).toFixed(0):"—"} · MA20:{r.ma20?px(r.ma20):"—"} · MA50:{r.ma50?px(r.ma50):"—"} · MA200:{r.ma200?px(r.ma200):"—"}
         </span>
       </div>
       {showFib&&(
@@ -6000,7 +6029,9 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                   ))}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                  {[["Haut 90j",h90!=null?px(h90):"—","#00e5a0"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["Bas 90j",l90!=null?px(l90):"—","#ff4f5a"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
+                  {/* Un plus haut n'est pas une hausse : gris clair, comme les
+                      autres niveaux (lot 1.4, 20/11/2026). */}
+                  {[["Haut 90j",h90!=null?px(h90):"—","#c8d3e8"],["H 52s",r.h52w?px(r.h52w):"—","#c8d3e8"],["Bas 90j",l90!=null?px(l90):"—","#c8d3e8"],["B 52s",r.l52w?px(r.l52w):"—","#c8d3e8"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                       <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id={k.startsWith("MA")?"mm":"extremes"}>{k}</Terme></div>
                       <div style={{fontSize:12,color:c,fontWeight:700}}>{lex(v)}</div>
@@ -6013,8 +6044,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                     {r.macd!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="macd">MACD</Terme></div>
-                        <div style={{fontSize:11,color:r.macd>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.macd>0?"+":""}{r.macd?.toFixed(2)}</div>
-                        <div style={{fontSize:9,color:"#8892a4"}}>{r.macd>0&&r.macd>(r.macd_signal||0)?"haussier":"baissier"}</div>
+                        <div style={{fontSize:11,color:"#c8d3e8",fontWeight:700}}>{r.macd>0?"+":""}{r.macd?.toFixed(2)}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{positionMACD(r.macd,r.macd_signal)}</div>
                       </div>
                     )}
                     {r.bb_upper!=null&&(
@@ -6027,7 +6058,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                     {r.stoch_k!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="stoch">STOCH</Terme></div>
-                        <div style={{fontSize:11,color:r.stoch_k>80?"#ff4f5a":r.stoch_k<20?"#00e5a0":"#ffd740",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
+                        <div style={{fontSize:11,color:"#c8d3e8",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{zoneStoch(r.stoch_k)}</div>
                       </div>
                     )}
@@ -6039,7 +6070,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                     {r.obv!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="obv">OBV</Terme></div>
-                        <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
+                        <div style={{fontSize:11,color:"#c8d3e8",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"cumul positif":"cumul négatif"}</div>
                       </div>
                     )}
