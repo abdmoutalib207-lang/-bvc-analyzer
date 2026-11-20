@@ -1332,8 +1332,10 @@ const zoneRSI=v=>v==null||!isFinite(v)?"":v>70?"AU-DESSUS DE 70":v<30?"SOUS 30":
    de signal » des manuels ; le glossaire dit « sa moyenne sur 9 séances »).
    L'ancienne étiquette écrivait « baissier » pour un MACD négatif passé
    au-dessus de cette moyenne (IAM le 19/11 : −0,25 contre −0,80), et
-   « haussier » n'exigeait pas seulement d'être au-dessus. */
-const positionMACD=(m,s)=>m==null||s==null||!isFinite(m)||!isFinite(s)?"":m>s?"au-dessus de sa moyenne":m<s?"au-dessous de sa moyenne":"égal à sa moyenne";
+   « haussier » n'exigeait pas seulement d'être au-dessus. Écrit court : la
+   tuile fait 52 px de large à 390 px, « au-dessous de sa moyenne » y
+   prenait quatre lignes (mesuré au navigateur, SMI). */
+const positionMACD=(m,s)=>m==null||s==null||!isFinite(m)||!isFinite(s)?"":m>s?"> sa moyenne":m<s?"< sa moyenne":"= sa moyenne";
 /* - Bandeau : une variation nulle s'écrivait « —0.00% », qui se lit −0,00 %
      (8 titres le 19/11 : ARD, INV, MOX…). Zéro n'a pas de flèche. */
 const varBandeau=c=>c===0?"0,00 %":`${c>0?"▲":"▼"}${Math.abs(c).toFixed(2)}%`;

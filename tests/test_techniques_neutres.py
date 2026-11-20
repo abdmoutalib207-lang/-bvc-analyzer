@@ -157,8 +157,7 @@ def test_le_macd_dit_sa_position_par_rapport_a_sa_moyenne():
     « baissier » pour un MACD passé AU-DESSUS de sa moyenne."""
     cas = [[-0.251, -0.7995], [1.2417, 1.2112], [-1.3398, -1.309], [0.5, 0.5], [1, None], [None, 1]]
     res = _node(_formats() + f"\nconsole.log(JSON.stringify({json.dumps(cas)}.map(([m,s])=>positionMACD(m,s))));")
-    assert res == ["au-dessus de sa moyenne", "au-dessus de sa moyenne", "au-dessous de sa moyenne",
-                   "égal à sa moyenne", "", ""]
+    assert res == ["> sa moyenne", "> sa moyenne", "< sa moyenne", "= sa moyenne", "", ""]
 
 
 def test_les_valeurs_restent_affichees():
