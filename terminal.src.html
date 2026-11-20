@@ -294,6 +294,26 @@
       .btn-graphe::after{inset:-6px -3px!important;}
       .barre-graphe{row-gap:12px!important;}
     }
+    /* Termes du glossaire (20/11/2026, lot 1.6) : le terme reste du texte —
+       même police, même couleur, même casse que ce qui l'entoure —, souligné
+       en pointillés. Sa zone de toucher fait au moins 24 × 24 px (::after
+       centré), sans changer la hauteur de ligne ; les effets de survol des
+       boutons (ombre, éclat, enfoncement) ne s'y appliquent pas. */
+    .terme{font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;line-height:inherit;text-align:inherit;
+      padding:0;margin:0;border:0;background:none;min-height:0!important;vertical-align:baseline;cursor:help;position:relative;
+      text-decoration:underline dotted rgba(136,146,164,.75);text-decoration-thickness:1px;text-underline-offset:3px;}
+    .terme-nu{text-decoration:none;}
+    .terme:hover,.terme:active{filter:none!important;box-shadow:none!important;transform:none!important;}
+    .terme:hover{text-decoration-color:#4db8ff;}
+    .terme::after{content:"";position:absolute;inset:auto!important;top:50%!important;left:50%!important;
+      width:max(100%,24px);height:max(100%,24px);transform:translate(-50%,-50%);}
+    .infobulle{box-sizing:border-box;background:#111c30;border:1px solid #2a3550;border-radius:6px;padding:8px 10px;
+      font:400 12.5px/1.45 var(--font);color:#c8d3e8;text-align:left;text-transform:none;letter-spacing:0;white-space:normal;
+      overflow-wrap:break-word;text-wrap:pretty;box-shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.45);
+      animation:infobulle-entree 120ms ease-out;}
+    .infobulle-terme{color:#e8eef8;font-weight:700;}
+    .infobulle-detail{display:block;margin-top:5px;padding-top:5px;border-top:1px solid #1a2540;color:#8892a4;font-size:11.5px;}
+    @keyframes infobulle-entree{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
     /* Menu principal (01/10/2026), demande d'Abd Moutalib : « les boutons se
        cachent, il faut toujours les chercher ». Un bouton bien visible, un
        panneau latéral qui regroupe toutes les vues par rubrique. */
@@ -1315,7 +1335,140 @@ const dedoublonnerArticles=l=>{const vus=new Set();return (l||[]).filter(a=>{con
 const roeSansObjet=r=>{const c=(((r||{}).note_fond_metier||{}).criteres||{}).rentabilite;
   if(!c||c.etat!=="suspendu"||typeof c.motif!=="string")return null;
   const m=/^ROE sans objet\s*:\s*(.+)$/.exec(c.motif);return m?m[1]:null;};
-const NON_COTE=<span title="Pas de cotation à la dernière séance — aucune variation observée" style={{color:"#8892a4"}}>n.c.</span>;
+/* ── GLOSSAIRE : UNE SOURCE UNIQUE — 20/11/2026 (feuille de route, lot 1.6) ──
+   « La lecture doit être simple, facile » (Abd Moutalib). Chaque terme
+   technique de la fiche et du classement a sa phrase, ICI et nulle part
+   ailleurs : l'infobulle d'un terme (`Terme`, au survol, au clavier ET au
+   toucher — un `title` ne s'ouvre pas au doigt) et la section « Glossaire »
+   de « Comment lire » lisent ce même objet. Les infobulles `title=` qui
+   donnaient une définition (en-têtes du classement, n.c., ⚡, ~hist, OBV,
+   confiance, couverture, tranche) y sont fondues ; ce qui est propre à un
+   titre (date, motif, valeur) reste à côté, en `detail`.
+   Règles, testées par tests/test_glossaire.py : une phrase par terme,
+   ≤ 200 caractères, aucun mot d'action. Chaque fait a été relu dans le code
+   qui le produit (R12) : RSI, MA, MACD, Bollinger, stochastique, OBV, ADX
+   dans update_data.py (calc_*), extrêmes 90 j / 52 s (jours calendaires),
+   seuil ⚡ (|var.| ≥ 8 %, update_data.py), couverture minimale 70 %
+   (pipeline/score_descriptif.py), semaine close (pipeline/score_bvc.py),
+   risque (pipeline/risque.py : 250 séances, VaR historique à 95 %).
+   ⚠️ Le sens d'un chiffre ne se change pas ici : une phrase qui dirait
+   autre chose que le calcul est un défaut, à corriger dans la phrase. */
+const GROUPES_GLOSSAIRE=[["score","Le Score BVC"],["fiabilite","Fiabilité et état du titre"],["signes","Signes de l'écran"],
+  ["ratios","Ratios et comptes"],["seance","Séance et échanges"],["technique","Indicateurs techniques"],["risque","Risque mesuré (1 an)"]];
+const GLOSSAIRE={
+  score_bvc:{g:"score",terme:"Score BVC",def:"Note descriptive sur 100, tirée de six facteurs (moyennes mobiles, RSI, MACD, activité, liquidité, rentabilité) : elle décrit la situation du titre, ce n'est pas une prévision."},
+  tranche:{g:"score",terme:"Tranche du score",def:"Plage où tombe le Score BVC (sous 40, 40 à 59, 60 à 74, 75 et plus), du gris au bleu : la couleur situe le score, elle ne dit pas quoi faire."},
+  semaine_close:{g:"score",terme:"Semaine close",def:"Le Score BVC affiché est celui de la dernière semaine terminée, sur la dernière clôture de chaque titre cette semaine-là, et le reste jusqu'à la clôture de la suivante."},
+  couv:{g:"score",terme:"couv. (couverture)",def:"Part du poids des six facteurs que les données ont permis de calculer, les points manquants étant retirés du dénominateur ; sous 70 %, aucun Score BVC n'est publié."},
+  rupture:{g:"score",terme:"rupture",def:"Les moyennes mobiles mêlent des cours d'avant et d'après une reprise de cotation sur une référence remise à neuf : elles comparent deux régimes de prix."},
+  confiance:{g:"fiabilite",terme:"Confiance ●●●○○",def:"Fiabilité des données de 0 à 5, un point par garantie : cours de la dernière séance, fondamentaux réels, 15 séances échangées, comptes déposés à l'AMMC, 100 000 DH échangés."},
+  donnees_insuffisantes:{g:"fiabilite",terme:"Données insuffisantes",def:"Confiance de 0 ou 1 sur 5 : le Score BVC reste affiché, en gris, et ne se lit pas comme une conclusion."},
+  suspendu:{g:"fiabilite",terme:"Suspendu",def:"La cotation du titre est suspendue : son cours n'est plus échangé et son Score BVC n'est pas calculé."},
+  reprise:{g:"fiabilite",terme:"Reprise de cotation",def:"Le titre cote de nouveau depuis peu après une suspension : ses indicateurs techniques décrivent encore surtout les cours d'avant."},
+  non_verifie:{g:"fiabilite",terme:"non vérifié",def:"Chiffre repris d'une source qui n'a été recoupée ni avec les comptes déposés ni avec une seconde source."},
+  tiret:{g:"signes",terme:"—",def:"Valeur absente : non publiée, non calculée ou non relevée (source muette, historique trop court, terme manquant dans les comptes) ; rien n'est estimé à sa place."},
+  ns:{g:"signes",terme:"n.s.",def:"Non significatif : PER au-delà de 100 (bénéfice quasi nul) ou sur un résultat négatif ou nul, ou variation sur une base nulle ou négative ; le chiffre ne se compare pas."},
+  nc:{g:"signes",terme:"n.c.",def:"Non coté : le titre n'a pas échangé à la dernière séance, aucune variation n'est donc observée."},
+  eclair:{g:"signes",terme:"⚡",def:"Variation de séance d'au moins 8 %, en hausse ou en baisse : elle approche la limite de variation par séance fixée par la Bourse."},
+  date_ancienne:{g:"signes",terme:"⚠ jj/mm",def:"Le cours affiché date de ce jour-là et non de la dernière séance : le titre n'a pas été coté, ou pas relevé, depuis."},
+  hist:{g:"signes",terme:"~hist",def:"Historique insuffisant : moins de 15 séances cotées, donc RSI et moyennes mobiles absents, jamais estimés."},
+  opa:{g:"signes",terme:"OPA",def:"Offre publique sur les actions de la société, établie sur pièce (visa AMMC, avis de la Bourse) ; prix et période sur la fiche, le Score BVC n'en tient pas compte."},
+  per:{g:"ratios",terme:"PER",def:"Cours divisé par le bénéfice par action réalisé (12 mois glissants ou dernier exercice) ; il ne se compare qu'à celui des sociétés du même secteur."},
+  pb:{g:"ratios",terme:"P/B",def:"Cours divisé par les fonds propres part du groupe par action, relevés dans les derniers comptes : le prix en bourse rapporté à la valeur comptable."},
+  roe:{g:"ratios",terme:"ROE",def:"Résultat net part du groupe divisé par les fonds propres, tirés des comptes déposés ; « sans objet » pour un métier où ce rapport ne décrit rien."},
+  marge_nette:{g:"ratios",terme:"Marge nette",def:"Résultat net part du groupe divisé par le chiffre d'affaires de la même période, en pourcentage."},
+  rendement:{g:"ratios",terme:"Rendement du dividende",def:"Dernier dividende versé par action divisé par le cours, en pourcentage : un dividende passé, qui peut ne pas être reconduit."},
+  capitalisation:{g:"ratios",terme:"Capitalisation",def:"Valeur en bourse de la société : son cours multiplié par le nombre de ses actions."},
+  date_arrete:{g:"ratios",terme:"Date d'arrêté des comptes",def:"Fin de la période des comptes utilisés (exercice ou 12 mois glissants) : bénéfice et fonds propres des ratios datent de là, le cours est celui du jour."},
+  liquidite:{g:"seance",terme:"Liquidité · montant échangé",def:"Montant en dirhams échangé sur le titre (séance, ou médiane des 20 dernières) ; sous 100 000 DH par séance, la confiance est plafonnée à 2 sur 5."},
+  extremes:{g:"seance",terme:"Haut / bas 90 j · 52 s",def:"Plus haut et plus bas cours atteints sur les 90 derniers jours ou les 52 dernières semaines."},
+  rsi:{g:"technique",terme:"RSI (14)",def:"Indice de 0 à 100 qui compare l'ampleur des hausses et des baisses de clôture sur 14 séances échangées : au-dessus de 70 les hausses ont dominé, sous 30 les baisses."},
+  mm:{g:"technique",terme:"MA20 · MA50 · MA200",def:"Moyennes mobiles : moyenne des 20, 50 ou 200 dernières clôtures, qui lisse le cours ; « — » tant que l'historique est plus court que la période."},
+  macd:{g:"technique",terme:"MACD",def:"Écart entre les moyennes exponentielles du cours sur 12 et 26 séances, comparé à sa moyenne sur 9 séances : il décrit l'accélération ou le ralentissement du mouvement."},
+  bollinger:{g:"technique",terme:"Bollinger BB(20,2)",def:"Moyenne des 20 dernières clôtures plus et moins deux écarts-types : l'enveloppe dans laquelle le cours a habituellement varié."},
+  stoch:{g:"technique",terme:"STOCH (14,3)",def:"Stochastique : place de la clôture entre le plus bas et le plus haut des 14 dernières séances, de 0 (au plus bas) à 100 (au plus haut)."},
+  obv:{g:"technique",terme:"OBV",def:"On-Balance Volume : cumul des volumes, ajoutés les jours de hausse et retranchés les jours de baisse."},
+  adx:{g:"technique",terme:"ADX (14)",def:"Indice de 0 à 100 de la force d'une tendance sur 14 séances, quel qu'en soit le sens ; +DI et −DI comparent les poussées à la hausse et à la baisse."},
+  volatilite:{g:"risque",terme:"Volatilité annualisée",def:"Écart-type des variations quotidiennes de l'année écoulée, ramené à un an de 250 séances : l'ampleur habituelle des mouvements du cours."},
+  beta:{g:"risque",terme:"Bêta",def:"Sensibilité du titre au MASI sur l'année écoulée : à 1, il a varié en moyenne comme l'indice ; au-dessus de 1, davantage."},
+  perte_max:{g:"risque",terme:"Perte maximale",def:"Plus forte baisse, sur l'année écoulée, d'un sommet de clôture jusqu'au creux qui l'a suivi."},
+  var95:{g:"risque",terme:"VaR 95 % à 1 jour",def:"Perte d'une séance atteinte ou dépassée dans les 5 % des séances les plus défavorables de l'année écoulée ; la CVaR est la moyenne de ces séances."},
+};
+/* ── L'INFOBULLE : UNE SEULE POUR TOUT L'ÉCRAN ────────────────────────────
+   Un magasin minuscule (pas de crochet par terme : 80 lignes du classement
+   portent chacune plusieurs termes). Ouverture : survol à la souris, focus
+   au clavier, toucher ; le toucher ou le clic ÉPINGLE, un second toucher
+   referme, un toucher ailleurs ou Échap aussi. Dessinée dans document.body
+   (portail) et placée en `fixed` dans l'écran : ni un tableau qui défile ni
+   une carte transformée ne la rognent, et elle ne déborde jamais du bord. */
+const BULLE={etat:null,abonnes:new Set()};
+const bulleMaj=e=>{BULLE.etat=e;BULLE.abonnes.forEach(f=>f(e));};
+const bulle={
+  ouvrir(el,id,detail,mode){const e=BULLE.etat;if(e&&e.el===el&&e.mode==="epingle")return;bulleMaj({el,id,detail,mode});},
+  quitter(el,meme_epinglee){const e=BULLE.etat;if(e&&e.el===el&&(meme_epinglee||e.mode!=="epingle"))bulleMaj(null);},
+  basculer(el,id,detail){const e=BULLE.etat;if(e&&e.el===el&&e.mode==="epingle")bulleMaj(null);else bulleMaj({el,id,detail,mode:"epingle"});},
+  fermer(){if(BULLE.etat)bulleMaj(null);}};
+/* Le terme lui-même est le déclencheur : un bouton focusable, souligné en
+   pointillés, décrit par sa définition (aria-describedby → « def-<id> »,
+   rendue une fois, cachée, par InfobulleRacine). `detail` : ce qui est
+   propre à cette occurrence (date, motif, valeur), affiché sous la phrase.
+   `nu` : pas de soulignement (points de confiance, pastille, ⚡). Le clic
+   ne remonte pas : toucher « PER » dans une ligne du classement ouvre la
+   définition, pas la fiche. */
+/* Dans une LIGNE du classement, toucher la ligne ouvre la fiche : c'est le
+   geste principal du téléphone. Les valeurs répétées sur chaque ligne
+   (tranche, confiance, état, ⚠ date) y sont donc PASSIVES — infobulle au
+   survol de la souris, le toucher ouvre la fiche, où les mêmes termes
+   s'ouvrent au doigt ; leur définition est aussi sur l'en-tête de colonne.
+   Les petits signes (n.c., n.s., —, ⚡, ~hist, OPA, couv., rupture) restent
+   actifs (`actif`). Mesuré le 20/11 : le centre de la 1re ligne tombait sur
+   la tranche (1440 px), l'état (768 px) ou la date ⚠ (390 px). */
+const LigneClassement=React.createContext(false);
+const Terme=({id,detail,nu,etiquette,actif,children,style})=>{const g=GLOSSAIRE[id];const passif=React.useContext(LigneClassement)&&!actif;
+  if(!g)return children==null?null:<>{children}</>;
+  if(passif)return <span className="terme-passif" data-terme={id} aria-describedby={`def-${id}`} style={style}
+    onPointerEnter={e=>{if(e.pointerType==="mouse")bulle.ouvrir(e.currentTarget,id,detail,"survol");}}
+    onPointerLeave={e=>{if(e.pointerType==="mouse")bulle.quitter(e.currentTarget);}}
+    onPointerDown={()=>bulle.fermer()}>{children==null?g.terme:children}</span>;
+  return <button type="button" className={nu?"terme terme-nu":"terme"} data-terme={id} aria-describedby={`def-${id}`} aria-label={etiquette} style={style}
+    onPointerEnter={e=>{if(e.pointerType==="mouse")bulle.ouvrir(e.currentTarget,id,detail,"survol");}}
+    onPointerLeave={e=>{if(e.pointerType==="mouse")bulle.quitter(e.currentTarget);}}
+    onFocus={e=>bulle.ouvrir(e.currentTarget,id,detail,"focus")}
+    onBlur={e=>bulle.quitter(e.currentTarget,true)}
+    onClick={e=>{e.stopPropagation();e.preventDefault();bulle.basculer(e.currentTarget,id,detail);}}>
+    {children==null?g.terme:children}</button>;};
+/* « — » et « n.s. » rendus par un formateur (perTxt, divFiche, fmt…) : la
+   même chaîne, devenue un terme. Toute autre valeur passe telle quelle. */
+const lex=(v,detail)=>v==="—"?<Terme id="tiret" actif detail={detail}>—</Terme>:v==="n.s."?<Terme id="ns" actif detail={detail}>n.s.</Terme>:v;
+const InfobulleRacine=()=>{const [e,setE]=useState(null);const ref=useRef(null);
+  useEffect(()=>{BULLE.abonnes.add(setE);return()=>{BULLE.abonnes.delete(setE);};},[]);
+  React.useLayoutEffect(()=>{if(!e)return;
+    const placer=()=>{const b=ref.current,el=e.el;if(!b)return;if(!el||!el.isConnected){bulle.fermer();return;}
+      const r=el.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=window.innerHeight;
+      const w=Math.min(300,vw-16);b.style.width=w+"px";const h=b.offsetHeight;
+      const left=Math.max(8,Math.min(Math.round(r.left+r.width/2-w/2),vw-w-8));
+      let top=r.bottom+6;if(top+h>vh-8&&r.top-6-h>=8)top=r.top-6-h;
+      b.style.left=left+"px";b.style.top=Math.round(top)+"px";b.style.visibility="visible";};
+    placer();let f=0;const plus_tard=()=>{cancelAnimationFrame(f);f=requestAnimationFrame(placer);};
+    const veille=setInterval(()=>{if(!e.el.isConnected)bulle.fermer();},250);
+    const dehors=x=>{if(!e.el.contains(x.target))bulle.fermer();};
+    const echap=x=>{if(x.key==="Escape")bulle.fermer();};
+    document.addEventListener("pointerdown",dehors,true);document.addEventListener("keydown",echap);
+    window.addEventListener("scroll",plus_tard,true);window.addEventListener("resize",plus_tard);
+    return()=>{cancelAnimationFrame(f);clearInterval(veille);document.removeEventListener("pointerdown",dehors,true);document.removeEventListener("keydown",echap);
+      window.removeEventListener("scroll",plus_tard,true);window.removeEventListener("resize",plus_tard);};},[e]);
+  const g=e&&GLOSSAIRE[e.id];
+  return ReactDOM.createPortal(<>
+    <div hidden>{Object.keys(GLOSSAIRE).map(id=><span key={id} id={`def-${id}`}>{GLOSSAIRE[id].terme} : {GLOSSAIRE[id].def}</span>)}</div>
+    {g&&<div ref={ref} key={e.id} className="infobulle" role="tooltip" data-infobulle={e.id}
+      style={{position:"fixed",left:0,top:0,visibility:"hidden",zIndex:5000}}>
+      <b className="infobulle-terme">{g.terme}</b> {g.def}
+      {e.detail&&<span className="infobulle-detail">{e.detail}</span>}
+    </div>}</>,document.body);};
+/* Le bandeau défilant garde un texte inerte : 160 boutons qui défilent ne
+   se touchent pas, et chargeraient la tabulation. Même phrase, en title. */
+const NON_COTE_BANDEAU=<span title={GLOSSAIRE.nc.def} style={{color:"#8892a4"}}>n.c.</span>;
+const NON_COTE=<Terme id="nc" actif style={{color:"#8892a4"}}>n.c.</Terme>;
 const jjmm=d=>{const p=String(d||"").slice(0,10).split("-");return p.length===3?`${p[2]}/${p[1]}`:"";};
 /* OFFRE PUBLIQUE ÉTABLIE SUR PIÈCE — 29/10/2026 (registre OFFRES_PUBLIQUES,
    publié dans `_meta.offre_publique`). CMT sortait n°1 du classement à
@@ -1350,10 +1503,11 @@ const BandeauOffre=({r,cours})=>{const o=meta(r).offre_publique;if(!o)return nul
    même pastille, plus grande, quand la date précède la dernière séance cotée
    même si le moteur n'a pas posé `stale`. Sans ces props : inchangée. */
 const Perime=({r,force=false,prefixe="",sz=9,ml=5})=>{const m=meta(r);if(!m.stale&&!force)return null;
-  return <span title={`Cours du ${m.asof?jjmm(m.asof):"dernier run"} · source ${m.src==="cdg"?"société de bourse agréée":m.src}`}
-    style={{marginLeft:ml,fontSize:sz,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
-            borderRadius:3,padding:"1px 4px",whiteSpace:"nowrap",verticalAlign:"middle"}}>
-    ⚠ {prefixe}{m.asof?jjmm(m.asof):"périmé"}</span>;};
+  return <Terme id="date_ancienne" nu detail={`Cours du ${m.asof?jjmm(m.asof):"dernier run"} · source ${m.src==="cdg"?"société de bourse agréée":m.src}`}
+    style={{marginLeft:ml,verticalAlign:"middle"}}><span
+    style={{fontSize:sz,fontWeight:700,color:"#ffd740",border:"1px solid rgba(255,215,64,.45)",
+            borderRadius:3,padding:"1px 4px",whiteSpace:"nowrap"}}>
+    ⚠ {prefixe}{m.asof?jjmm(m.asof):"périmé"}</span></Terme>;};
 /* ── FICHE LISIBLE (14/10/2026, diagnostic externe de l'interface) ──────────
    Trois éléments repliables, au toucher (<details>, pas d'info-bulle) :
    l'heure du cours, ce que garantit la confiance, et pourquoi cette note.
@@ -1497,7 +1651,7 @@ const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=us
     </div>
     <div data-essentiel="montant" style={{marginTop:4}}>
       {dh!=null&&isFinite(dh)&&dh>0
-        ? <><span style={fort}>{montantEntier(dh)}</span> échangés{ancien&&m.asof?` le ${jjmm(m.asof)}`:""}</>
+        ? <><span style={fort}>{montantEntier(dh)}</span> <Terme id="liquidite">échangés</Terme>{ancien&&m.asof?` le ${jjmm(m.asof)}`:""}</>
         : <span style={{color:"#c8d3e8"}}>non échangé ce jour</span>}
     </div>
     {res&&<div data-essentiel="reserve" style={{marginTop:6,paddingTop:6,borderTop:"1px solid #1a2540"}}>
@@ -1542,9 +1696,9 @@ const MesuresBancaires=({r})=>{const c=((r.note_fond||{}).composantes)||{};
 /* Indicateur de confiance ●●●○○ — jamais masqué (spécification CLAUDE.md). */
 const Confiance=({r,sz=11})=>{const {conf}=meta(r);
   const col=conf<=1?"#ff4f5a":conf<=2?"#ff8f00":conf<=3?"#ffd740":"#00e5a0";
-  return <span title={`Fiabilité des données ${conf}/5 — prix du jour, fondamentaux réels, historique suffisant, comptes déposés à l’AMMC, liquidité ≥ 100 000 DH/séance`}
+  return <Terme id="confiance" nu etiquette={`Fiabilité des données : ${conf} sur 5`} detail={`Ce titre : ${conf}/5.`}><span
     style={{fontSize:sz,letterSpacing:1,color:col,userSelect:"none"}}>
-    {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span>;};
+    {"●".repeat(conf)}<span style={{color:"#2a3550"}}>{"○".repeat(5-conf)}</span></span></Terme>;};
 const Bar=({v,max=10,c,h=6})=>(
   <div style={{background:"#0d1829",borderRadius:3,height:h,overflow:"hidden"}}>
     <div style={{width:`${Math.min(100,v/max*100)}%`,height:"100%",background:c,boxShadow:`0 0 6px ${c}40`,transition:"width .5s"}}/>
@@ -1560,12 +1714,12 @@ const Chip=({label,bg,fg,bd,sz=11,wrap})=>(
    la tranche du Score BVC et sa plage. Sans valeur (PARTIEL, NON_CALCULABLE),
    l'état publié, avec son motif au survol — jamais une couleur de tranche. */
 const PastilleBVC=({r,sz=11})=>{const s=r.score_bvc;const v=valeurBVC(r);const t=trancheBVC(r);
-  if(v==null)return <span className="pastille-nc" title={s?`Score BVC ${etatBVC(r)}${s.motif?` : ${s.motif}`:""}`:"Score BVC non publié pour ce titre"}
-    style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ {s&&s.etat==="PARTIEL"?"partiel":"non calculé"}</span>;
-  return <span title={`Score BVC ${exactBVC(v)}/100${s.semaine&&s.semaine.fin?` (semaine close le ${jjmmaaaa(s.semaine.fin)})`:""} : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %. La couleur situe le score ; elle ne dit pas quoi faire.`}
+  if(v==null)return <Terme id={s&&s.etat==="PARTIEL"?"couv":"tiret"} nu detail={s?`Score BVC ${etatBVC(r)}${s.motif?` : ${s.motif}`:""}`:"Score BVC non publié pour ce titre"}><span className="pastille-nc"
+    style={{fontSize:sz,color:"#8892a4",whiteSpace:"nowrap"}}>◌ {s&&s.etat==="PARTIEL"?"partiel":"non calculé"}</span></Terme>;
+  return <Terme id="tranche" nu detail={`Score BVC ${exactBVC(v)}/100${s.semaine&&s.semaine.fin?` (semaine close le ${jjmmaaaa(s.semaine.fin)})`:""} : tranche ${t.plage}, couverture des facteurs ${s.couverture_pct} %.`}><span
     className="pastille" style={{display:"inline-flex",alignItems:"center",gap:6,whiteSpace:"nowrap",fontSize:sz,color:t.c,fontWeight:600}}>
     <span aria-hidden="true" className="rond" style={{display:"inline-block",width:sz,height:sz,borderRadius:"50%",background:t.c,boxShadow:`0 0 6px ${t.c}60`,flex:"0 0 auto"}}/>
-    <span className="pastille-texte">{t.plage}</span></span>;};
+    <span className="pastille-texte">{t.plage}</span></span></Terme>;};
 const Delta=({d})=>{
   if(d==null||isNaN(d))return<span style={{fontSize:10,padding:"1px 5px",borderRadius:3,background:"#8892a415",color:"#8892a4",border:"1px solid #8892a428",fontWeight:700}}>—</span>;
   const c=d>0?"#00e5a0":d<0?"#ff4f5a":"#8892a4";
@@ -1789,7 +1943,7 @@ const RSIGauge=({value})=>{
      transformait au passage un vrai RSI de 0 en 50. */
   if(value==null||!isFinite(value)) return(
     <div style={{textAlign:"center",fontSize:10,color:"#8892a4",padding:"18px 6px"}}>
-      RSI (14) indisponible<br/><span style={{fontSize:9}}>moins de 15 séances cotées</span></div>);
+      <Terme id="rsi">RSI (14)</Terme> indisponible<br/><span style={{fontSize:9}}>moins de 15 séances cotées</span></div>);
   const v=Math.min(100,Math.max(0,value));
   const color=v>70?"#ff4f5a":v<30?"#00e5a0":"#ffd740";
   const label=v>70?"SURACHETÉ":v<30?"SURVENDU":"NEUTRE";
@@ -1805,7 +1959,7 @@ const RSIGauge=({value})=>{
         <text x={cx} y={cy+2} textAnchor="middle" fill={color} fontSize="17" fontWeight="700" fontFamily="var(--font)">{v.toFixed(0)}</text>
         <text x={cx} y={cy+16} textAnchor="middle" fill="#8892a4" fontSize="8" fontFamily="var(--font)">{label}</text>
       </svg>
-      <div style={{fontSize:9,color:"#8892a4",marginTop:-6}}>RSI (14)</div>
+      <div style={{fontSize:9,color:"#8892a4",marginTop:-6}}><Terme id="rsi">RSI (14)</Terme></div>
     </div>
   );
 };
@@ -2953,7 +3107,7 @@ const TickerTape=({rows})=>{
             <span style={{color:"#2a3550",fontSize:8}}>◆</span>
             <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:.5}}>{tk(r)}</span>
             <span style={{color:"#4db8ff"}}>{(r.price||0).toFixed(2)}</span>
-            <span style={{color:nc(r.chg)}}>{varSeance(r)==null?NON_COTE:varBandeau(r.chg)}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC">⚡</span>}</span>
+            <span style={{color:nc(r.chg)}}>{varSeance(r)==null?NON_COTE_BANDEAU:varBandeau(r.chg)}{r.chg_alert&&<span title={GLOSSAIRE.eclair.def}>⚡</span>}</span>
           </span>
         ))}
       </div>
@@ -3509,10 +3663,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     "SCORE BVC":"c-score","CONFIANCE":"c-conf","PER":"c-per","DIVIDENDE":"c-div","RSI":"c-rsi"};
   const TRI_COLONNE={"TITRE":"az","VAR%":"var","SCORE BVC":"bvc","RSI":"rsi"};
   const DROITE=new Set(["COURS","VAR%","OUVERT","ÉCHANGÉ","PER","DIVIDENDE","RSI"]);
+  /* En-têtes (20/11/2026, lot 1.6) : un en-tête qui est un terme technique
+     ouvre sa définition (GLOSSAIRE) au survol comme au toucher ; le reste de
+     la case trie toujours. Les autres gardent leur aide au survol. */
   const TITRES_COLONNE={"TITRE":"Trier de A à Z","COURS":"Dernier cours connu (DH) — ⚠ et sa date quand il est ancien","VAR%":"Trier par variation de la séance",
-    "OUVERT":"Cours d'ouverture de la séance","ÉCHANGÉ":"Montant échangé pendant la séance (DH), nombre de titres dessous",
-    "SCORE BVC":"Trier par Score BVC (0-100, descriptif) — score de la semaine close","CONFIANCE":"Fiabilité des données, de 0 à 5",
-    "PER":"Cours ÷ bénéfice par action — « n.s. » : non significatif","DIVIDENDE":"Rendement du dividende : dividende par action ÷ cours","RSI":"Trier par RSI (14 séances)"};
+    "OUVERT":"Cours d'ouverture de la séance"};
+  const TERME_COLONNE={"ÉCHANGÉ":"liquidite","SCORE BVC":"score_bvc","CONFIANCE":"confiance","PER":"per","DIVIDENDE":"rendement","RSI":"rsi"};
   const voirRSI=plus||sort==="rsi"||rsiZone!=null;
   const nFiltres=(sector!=="ALL")+(group==="MASI1")+(trancheFiltre!=null)+(rsiZone!=null);
   const libTri=((SORTS.find(([id])=>id===sort||(id==="var"&&sort==="var_asc"))||[])[1]||"")+(triCroissant(sort)?" ▲":" ▼");
@@ -3569,14 +3725,14 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
       </div>
       {/* ── Screener : filtres par tranche du Score BVC + RSI ── */}
       <div className="reglage-tel" style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
-        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE BVC</span>
+        <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}><Terme id="tranche">SCORE BVC</Terme></span>
         {[...TRANCHES_BVC,TRANCHE_NC].map(p=>{const on=trancheFiltre===p.id;return(
           <button key={p.id} onClick={()=>setTrancheFiltre(on?null:p.id)} aria-pressed={on}
             title={p.id==="nc"?"Score BVC non calculé (partiel ou non calculable)":`Score BVC ${p.plage}`}
             style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${on?p.c:p.c+"35"}`,color:on?"#080d1a":p.c,background:on?p.c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:on?700:400,display:"inline-flex",alignItems:"center",gap:5}}>
             <span aria-hidden="true" style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:on?"#080d1a":p.c}}/>{p.plage}
           </button>);})}
-        <span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}>RSI</span>
+        <span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}><Terme id="rsi">RSI</Terme></span>
         {/* Une zone de RSI est une plage, pas un conseil : même bleu neutre
             pour les deux filtres (19/11/2026, lot 1.4 — « survendu » en
             vert se lisait comme une invitation). */}
@@ -3616,13 +3772,14 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   aria-sort={on?(triCroissant(sort)?"ascending":"descending"):undefined}
                   title={TITRES_COLONNE[h]}
                   style={{padding:"8px 8px",fontSize:10,color:on?"#00e5a0":"#8892a4",textAlign:DROITE.has(h)?"right":"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500,cursor:tri?"pointer":undefined}}>
-                  {h==="SCORE BVC"?<>SCORE<span className="mot-bvc"> BVC</span></>:h}{on?(triCroissant(sort)?" ▲":" ▼"):""}
+                  {TERME_COLONNE[h]?<Terme id={TERME_COLONNE[h]}>{h==="SCORE BVC"?<>SCORE<span className="mot-bvc"> BVC</span></>:h}</Terme>:h}{on?(triCroissant(sort)?" ▲":" ▼"):""}
                   {/* La semaine du score, une fois pour tout le tableau. */}
-                  {h==="SCORE BVC"&&semaineCommune&&<div className="semaine-score" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}>sem. au {jjmm(semaineCommune)}</div>}
+                  {h==="SCORE BVC"&&semaineCommune&&<div className="semaine-score" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="semaine_close">sem. au {jjmm(semaineCommune)}</Terme></div>}
+                  {h==="SCORE BVC"&&<div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="confiance">● confiance</Terme></div>}
                 </th>;})}
             </tr>
           </thead>
-          <tbody>
+          <tbody><LigneClassement.Provider value={true}>
             {sorted.map(r=>{
               const sym=r.symbol||r.ticker;
               const vBVC=valeurBVC(r);
@@ -3632,7 +3789,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                  il n'en invente plus (29/09/2026), il les laisse vides. */
               const isStat=rsiVal==null;
               const semR=((r.score_bvc||{}).semaine||{}).fin;
-              const variation=<span style={{whiteSpace:"nowrap",color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?NON_COTE:<>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span>;
+              const variation=<span style={{whiteSpace:"nowrap",color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?NON_COTE:<>{r.chg>0?"▲":r.chg<0?"▼":"—"} {Math.abs(r.chg||0).toFixed(2)}%</>}{r.chg_alert&&<Terme id="eclair" nu actif style={{marginLeft:3}}>⚡</Terme>}</span>;
               return(
                 <tr key={sym} onClick={()=>{setSel(sym);setTab("detail");}}
                   style={{borderBottom:"1px solid #0d1829",cursor:"pointer",transition:"background .12s"}}
@@ -3646,9 +3803,9 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       <div style={{minWidth:0}} title={r.sector?`${r.name||tk(r)} · ${r.sector}`:undefined}>
                         <div className="ligne-ticker" style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:15,color:"#fff",fontWeight:800,letterSpacing:.3}}>{tk(r)}</span>
-                          {meta(r).offre_publique&&<span className="marqueur-offre" title={texteOffre(meta(r).offre_publique,r.price||r.prix||r.close)}
-                            style={{fontSize:9,color:"#ffb74d",border:"1px solid rgba(255,143,0,.5)",background:"rgba(255,143,0,.10)",borderRadius:2,padding:"1px 4px",cursor:"help",whiteSpace:"nowrap",fontWeight:600}}>OPA {px(meta(r).offre_publique.prix)} DH</span>}
-                          {isStat&&<span title="Historique insuffisant : moins de 15 séances cotées, RSI et moyennes mobiles absents (jamais estimés)" style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px",cursor:"default"}}>~hist</span>}
+                          {meta(r).offre_publique&&<Terme id="opa" nu actif detail={texteOffre(meta(r).offre_publique,r.price||r.prix||r.close)}><span className="marqueur-offre"
+                            style={{fontSize:9,color:"#ffb74d",border:"1px solid rgba(255,143,0,.5)",background:"rgba(255,143,0,.10)",borderRadius:2,padding:"1px 4px",whiteSpace:"nowrap",fontWeight:600}}>OPA {px(meta(r).offre_publique.prix)} DH</span></Terme>}
+                          {isStat&&<Terme id="hist" nu actif><span style={{fontSize:9,color:"#8892a4",border:"1px solid #1a2540",borderRadius:2,padding:"1px 3px"}}>~hist</span></Terme>}
                           <button onClick={e=>{e.stopPropagation();toggleFav(sym);}} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                             className="etoile" aria-pressed={fav.includes(sym)}
                             style={{fontSize:14,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 1px",lineHeight:1,transition:"color .15s"}}>
@@ -3683,7 +3840,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       réf. {px(r.reference)}</div>}
                   </td>
                   {plus&&<td className="c-ouv" style={{padding:"7px 8px",fontSize:12,color:"#8892a4",textAlign:"right"}}>{/* ⚠️ Ouverture ABSENTE = « — ». Le repli `cours ÷ (1 + var.)` affichait la
-                      clôture de la VEILLE sous l'étiquette « ouvert » (30/09/2026). */}{r.open?px(r.open):"—"}</td>}
+                      clôture de la VEILLE sous l'étiquette « ouvert » (30/09/2026). */}{r.open?px(r.open):lex("—")}</td>}
                   {/* ⚠️ LE VOLUME DE LA SÉANCE — ajouté le 25/09/2026, il manquait.
                       Un titre à +3 % sur 40 titres échangés et un titre à +3 %
                       sur 40 000 ne décrivent pas la même chose.
@@ -3694,7 +3851,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       liquidité se lit aussi dans la confiance (point 5). */}
                   {plus&&<td className="c-echange" style={{padding:"7px 8px",fontSize:12,color:"#c8d3e8",whiteSpace:"nowrap",textAlign:"right"}}>
                     {(()=>{const v=r.vol,dh=r.echange_dh;
-                      if(!v&&!dh) return <span style={{color:"#8892a4"}}>—</span>;
+                      if(!v&&!dh) return <span style={{color:"#8892a4"}}>{lex("—","Aucun échange relevé à cette séance.")}</span>;
                       const bas=(dh!=null?dh:v*(r.price||0))<100000;
                       return <>
                         <div style={{color:bas?"#ff8f00":"#c8d3e8",fontWeight:600}}
@@ -3713,7 +3870,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                       <span title={vBVC==null?(r.score_bvc?`Score BVC ${etatBVC(r)}${r.score_bvc.motif?` : ${r.score_bvc.motif}`:""}`:"Score BVC non publié")
                           :`Score BVC ${exactBVC(vBVC)}/100 · ${etatBVC(r)} · couverture des facteurs ${r.score_bvc.couverture_pct} %${meta(r).conf<=1?" · données insuffisantes : à ne pas lire comme une conclusion":""}`}
                         style={{fontSize:15,color:couleurChiffre(r),fontWeight:700,fontVariantNumeric:"tabular-nums",minWidth:20}}>
-                        {entierBVC(vBVC)}
+                        {vBVC==null?lex(entierBVC(vBVC),r.score_bvc?`Score BVC ${etatBVC(r)}${r.score_bvc.motif?` : ${r.score_bvc.motif}`:""}`:"Score BVC non publié"):entierBVC(vBVC)}
                       </span>
                       {/* COULEUR : aucun mot d'action (07/10/2026). La tranche du
                           Score BVC (PastilleBVC), ou l'état de la donnée.
@@ -3722,16 +3879,16 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                           un contresens — le titre ne cote plus. */}
                       <span className="etat-score">{
                         meta(r).susp
-                        ? (meta(r).statut_juridique
+                        ? <Terme id="suspendu" nu detail={meta(r).suspMotif||undefined}>{meta(r).statut_juridique
                            ? <Chip wrap label={meta(r).statut_juridique.toUpperCase()} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>
-                           : <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>)
+                           : <Chip label="SUSPENDU" bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40"/>}</Terme>
                         /* ⚠️ Même raisonnement, deuxième cas — ajouté le 24/09.
                            Un titre qui vient de reprendre sa cotation : ce sont ses
                            indicateurs TECHNIQUES qui sont sans objet. */
                         : meta(r).reprise_recente
-                        ? <Chip wrap label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040"/>
+                        ? <Terme id="reprise" nu><Chip wrap label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040"/></Terme>
                         : meta(r).conf<=1
-                        ? <Chip wrap label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/>
+                        ? <Terme id="donnees_insuffisantes" nu><Chip wrap label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550"/></Terme>
                         : <PastilleBVC r={r}/>}</span>
                     </div>
                     {/* Audit du 12/11/2026 : la couverture et une rupture de
@@ -3739,36 +3896,35 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                         au survol ou sur la fiche. */}
                     {vBVC!=null&&(()=>{const s=r.score_bvc||{},rup=((s.facteurs||{}).moyennes_mobiles||{}).rupture,
                         partielle=typeof s.couverture_pct==="number"&&s.couverture_pct<100;
-                      return (partielle||rup)?<div style={{fontSize:9.5,color:"#ffd740",marginTop:2,whiteSpace:"nowrap"}}
-                        title={[partielle?`Calculé sur ${s.couverture_pct} % des facteurs : les points manquants sont retirés du dénominateur.`:"",
-                          rup?`${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).`:""].filter(Boolean).join(" ")}>
-                        {partielle?`couv. ${s.couverture_pct} %`:""}{partielle&&rup?" · ":""}{rup?"⚠ rupture":""}</div>:null;})()}
+                      return (partielle||rup)?<div style={{fontSize:9.5,color:"#ffd740",marginTop:2,whiteSpace:"nowrap"}}>
+                        {partielle?<Terme id="couv" actif detail={`Calculé sur ${s.couverture_pct} % des facteurs.`}>{`couv. ${s.couverture_pct} %`}</Terme>:""}{partielle&&rup?" · ":""}{rup?<Terme id="rupture" actif detail={`${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).`}>{"⚠ rupture"}</Terme>:""}</div>:null;})()}
                     {/* Une semaine autre que celle de l'en-tête se dit sur la ligne. */}
-                    {vBVC!=null&&semR&&semaineCommune&&semR!==semaineCommune&&<div style={{fontSize:9.5,color:"#ffd740",marginTop:2,whiteSpace:"nowrap"}}>sem. au {jjmm(semR)}</div>}
+                    {vBVC!=null&&semR&&semaineCommune&&semR!==semaineCommune&&<div style={{fontSize:9.5,color:"#ffd740",marginTop:2,whiteSpace:"nowrap"}}><Terme id="semaine_close" actif>sem. au {jjmm(semR)}</Terme></div>}
                     {/* Téléphone : la confiance passe sous le score — jamais cachée. */}
                     <div className="mobile-seul" style={{marginTop:2}}><Confiance r={r}/></div>
                   </td>
                   <td className="c-conf" style={{padding:"7px 8px",whiteSpace:"nowrap"}}><Confiance r={r}/></td>
-                  <td className="c-per" title={perNS(r.pe,r.bpa_12m??r.bpa)||undefined} style={{padding:"7px 8px",fontSize:12,textAlign:"right",color:perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":"#c8d3e8"}}>{perTxt(r.pe,r.bpa_12m??r.bpa)}</td>
-                  <td className="c-div" style={{padding:"7px 8px",fontSize:12,textAlign:"right",color:"#c8d3e8"}}>{divClassement(r.div)}</td>
+                  <td className="c-per" style={{padding:"7px 8px",fontSize:12,textAlign:"right",color:perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":"#c8d3e8"}}>{lex(perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)||undefined)}</td>
+                  <td className="c-div" style={{padding:"7px 8px",fontSize:12,textAlign:"right",color:"#c8d3e8"}}>{lex(divClassement(r.div))}</td>
                   {/* RSI (« Plus de colonnes », ou dès qu'on trie ou filtre sur
                       lui). Chiffre neutre depuis le 20/11/2026 : le vert et le
                       rouge sont réservés aux variations de cours, et une zone de
                       RSI est une plage, pas un conseil (lot 1.4). */}
                   {voirRSI&&<td className="c-rsi" style={{padding:"7px 8px",textAlign:"right"}}>
-                    <span style={{fontSize:12,color:isStat?"#8892a4":"#c8d3e8",fontWeight:600}}>{isStat?"—":rsiVal}</span>
+                    <span style={{fontSize:12,color:isStat?"#8892a4":"#c8d3e8",fontWeight:600}}>{isStat?lex("—","RSI absent : moins de 15 séances cotées."):rsiVal}</span>
                   </td>}
                 </tr>
               );
             })}
-          </tbody>
+          </LigneClassement.Provider></tbody>
         </table>
       </div>
       <div style={{marginTop:12,padding:"10px 14px",background:"#0d1829",border:"1px solid #1a2540",borderRadius:6,fontSize:11,color:"#8892a4",lineHeight:1.9}}>
         <span style={{color:TRANCHES_BVC[0].c}}>●</span> SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 · momentum 15 · MACD 10 · activité 10 · liquidité 15 · rentabilité 15), calculé sur la semaine close — <span style={{color:"#ffd740"}}>score descriptif, pas une prévision</span> ; « — » = non calculé (cours périmé, titre suspendu ou couverture insuffisante) &nbsp;|&nbsp;
-        CONFIANCE ●●●○○ = fiabilité des données, de 0 à 5 &nbsp;|&nbsp;
-        <span style={{color:"#8892a4"}}>~hist</span> = moins de 15 séances cotées : RSI et moyennes absents, jamais estimés &nbsp;|&nbsp;
-        PER = cours ÷ bénéfice par action (« n.s. » : non significatif) · DIVIDENDE = rendement du dividende &nbsp;|&nbsp; Clic → vue détaillée
+        {/* 20/11/2026 (lot 1.6) : CONFIANCE, ~hist, PER, n.s. et DIVIDENDE
+            étaient redéfinis ici, dans des mots à eux. Leur phrase est
+            désormais celle du GLOSSAIRE, ouverte depuis le terme lui-même. */}
+        Un terme <span style={{textDecoration:"underline dotted",textUnderlineOffset:3}}>souligné en pointillés</span> s'explique au survol ou au toucher ; toutes les définitions : <button type="button" onClick={()=>setTab("guide")} style={{color:"#4db8ff",textDecoration:"underline",fontSize:11,padding:0,minHeight:0,fontFamily:"var(--font)"}}>Comment lire</button> &nbsp;|&nbsp; Clic sur une ligne → vue détaillée
       </div>
     </div>
   );
@@ -4923,6 +5079,8 @@ const MarchesMondiaux=()=>{
 const NOMS_FACTEURS_BVC={moyennes_mobiles:"Moyennes mobiles",momentum:"Momentum (RSI)",macd:"MACD",
   "activité":"Activité (volume)","liquidité":"Liquidité","rentabilité":"Rentabilité (ROE)"};
 const ORDRE_FACTEURS_BVC=["moyennes_mobiles","momentum","macd","activité","liquidité","rentabilité"];
+// Le terme du glossaire qui définit chaque facteur (l'activité n'en a pas : « volume du jour » se lit seul).
+const TERME_FACTEUR_BVC={moyennes_mobiles:"mm",momentum:"rsi",macd:"macd","liquidité":"liquidite","rentabilité":"roe"};
 const ScoreBVC=({s,conf,sansValeur=false})=>{
   if(!s) return null;
   const ok=s.etat==="CALCULABLE";
@@ -4943,16 +5101,16 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
       {!sansValeur&&<div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
         <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
       </div>}
-      <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}>Couverture des facteurs : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
+      <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}><Terme id="couv">Couverture des facteurs</Terme> : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
       {!ok&&s.motif&&<div style={{fontSize:11,color:"#8892a4",marginTop:4}}>{s.motif}</div>}
       {ORDRE_FACTEURS_BVC.some(k=>fac[k])&&<>
         {sansValeur?<div style={{height:8}}/>:<div style={{fontSize:11,color:"#8892a4",letterSpacing:.5,margin:"12px 0 6px",textTransform:"uppercase"}}>Composition du score</div>}
         {ORDRE_FACTEURS_BVC.filter(k=>fac[k]).map(k=>{const f=fac[k];const w=f.poids;
           const pct=f.points==null||!w?0:Math.max(0,Math.min(100,f.points/w*100));
           return(
-          <div key={k} style={{marginBottom:7}} title={f.mesure}>
+          <div key={k} style={{marginBottom:7}}>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#c8d3e8",gap:8}}>
-              <span>{NOMS_FACTEURS_BVC[k]||k}</span>
+              <span>{TERME_FACTEUR_BVC[k]?<Terme id={TERME_FACTEUR_BVC[k]}>{NOMS_FACTEURS_BVC[k]||k}</Terme>:(NOMS_FACTEURS_BVC[k]||k)}</span>
               <span style={{color:"#8892a4",whiteSpace:"nowrap"}}>{f.points==null?"non disponible":`${Number(f.points).toLocaleString("fr-FR",{maximumFractionDigits:1})} / ${w} pts`}</span>
             </div>
             <div role="img" aria-label={`${NOMS_FACTEURS_BVC[k]||k} : ${f.points==null?"non disponible":Math.round(pct)+" % des points"}`}
@@ -4967,6 +5125,7 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
     </div>);
 };
 
+const TERME_RISQUE={"Volatilité annualisée":"volatilite","Bêta contre le MASI":"beta","Perte maximale":"perte_max","VaR 95 % à 1 jour":"var95"};
 const RisqueMesure=({q})=>{
   if(!q) return null;
   const jj=d=>d?d.split("-").reverse().join("/"):"—";
@@ -5002,8 +5161,8 @@ const RisqueMesure=({q})=>{
           {visibles.map(([k,m,val,detail])=>{const ok=m&&m.valeur!=null;
             return(
             <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-              <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}</div>
-              <div style={{fontSize:13,color:ok?"#c8d3e8":"#8892a4",fontWeight:700}}>{ok?val(m):"—"}</div>
+              <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{TERME_RISQUE[k]?<Terme id={TERME_RISQUE[k]}>{k}</Terme>:k}</div>
+              <div style={{fontSize:13,color:ok?"#c8d3e8":"#8892a4",fontWeight:700}}>{ok?val(m):lex("—")}</div>
               <div style={{fontSize:9,color:ok?"#8892a4":"#8892a4",marginTop:1,lineHeight:1.4}}>
                 {ok?<>{detail(m)}<br/>{per(m)}</>:(m&&m.motif)||"non calculé"}
               </div>
@@ -5376,10 +5535,13 @@ const TickerNews=({sym})=>{
    Rien n'est retiré : les blocs changent d'étage ; réserves, motifs d'absence
    et dates suivent leur chiffre. */
 const DATES_FICHE={cours:"cours du",score:"semaine close le",comptes:"comptes au",risque:"mesuré au"};
+// Le terme du glossaire porté par le libellé de la date (20/11/2026, lot 1.6).
+const TERME_DATE={score:"semaine_close",comptes:"date_arrete"};
 const DateChiffre=({quoi,d,libelle,suite})=>{const l=libelle||DATES_FICHE[quoi];
+  const lib=t=>TERME_DATE[quoi]?<Terme id={TERME_DATE[quoi]}>{t}</Terme>:t;
   return <span className="date-chiffre" data-date={quoi} style={{fontSize:11,color:"#8892a4",fontVariantNumeric:"tabular-nums",
       textTransform:"none",letterSpacing:0,fontWeight:400,lineHeight:1.35}}>
-    {d?<>{l} <span style={{whiteSpace:"nowrap"}}>{jjmmaaaa(d)}</span></>:`${l.replace(/\s+(du|le|au)$/,"")} : date inconnue`}{suite}</span>;};
+    {d?<>{lib(l)} <span style={{whiteSpace:"nowrap"}}>{jjmmaaaa(d)}</span></>:<>{lib(l.replace(/\s+(du|le|au)$/,""))} : date inconnue</>}{suite}</span>;};
 /* Date du Score BVC : la fin de la semaine close (`score_bvc.semaine.fin`) ;
    le dernier échange quand le titre n'a pas coté ce jour-là. */
 const DateScore=({s})=>{if(!s)return null;const w=s.semaine||{};
@@ -5392,7 +5554,7 @@ const arreteComptes=r=>{const b=String((r&&r.pe_base)||"");const iso=/\d{4}-\d{2
   return iso?{d:iso[0]}:b?{texte:b}:null;};
 const DatePER=({r})=>{if(r.pe==null&&!perNS(r.pe,r.bpa_12m??r.bpa))return null;const a=arreteComptes(r);
   return <div>{a&&a.texte
-    ?<span className="date-chiffre" data-date="comptes" style={{fontSize:11,color:"#8892a4",lineHeight:1.35}}>comptes : {a.texte}</span>
+    ?<span className="date-chiffre" data-date="comptes" style={{fontSize:11,color:"#8892a4",lineHeight:1.35}}><Terme id="date_arrete">comptes</Terme> : {a.texte}</span>
     :<DateChiffre quoi="comptes" d={a&&a.d}/>}</div>;};
 /* Les trois chiffres clés d'« En bref » : PER, rendement du dividende,
    capitalisation. Mêmes valeurs, mêmes « — » et « n.s. », même explication au
@@ -5407,12 +5569,12 @@ const TroisChiffres=({r,price})=>{const [ex,setEx]=useState(null);const bpa=r.bp
   const texte=ex?explRatio(ex,r,price):null;
   return <div className="trois-chiffres" style={{marginTop:8}}>
     <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:6}}>
-      {cases.map(([cle,lib,val,ns])=>{const t=explRatio(cle,r,price);return(
+      {cases.map(([cle,lib,val,ns])=>{const t=explRatio(cle,r,price);const terme={pe:"per",div:"rendement",cap:"capitalisation"}[cle];return(
         <div key={cle} data-chiffre={cle} style={{background:"#0a1220",borderRadius:4,padding:"6px 7px",minWidth:0}}>
-          <div style={{fontSize:10,color:"#8892a4",lineHeight:1.3}}>{lib}{t&&<button type="button" aria-label={`Explication : ${lib}`} aria-expanded={ex===cle}
+          <div style={{fontSize:10,color:"#8892a4",lineHeight:1.3}}><Terme id={terme}>{lib}</Terme>{t&&<button type="button" aria-label={`Explication : ${lib}`} aria-expanded={ex===cle}
             onClick={()=>setEx(x=>x===cle?null:cle)}
             style={{marginLeft:2,border:"none",background:"none",color:ex===cle?"#4db8ff":"#8892a4",fontSize:12,padding:"0 4px",minWidth:24,minHeight:24,cursor:"pointer",verticalAlign:"middle"}}>ⓘ</button>}</div>
-          <div style={{fontSize:15,fontWeight:700,color:ns||val==="—"?"#8892a4":"#e8eef8",fontVariantNumeric:"tabular-nums",lineHeight:1.3}}>{val}</div>
+          <div style={{fontSize:15,fontWeight:700,color:ns||val==="—"?"#8892a4":"#e8eef8",fontVariantNumeric:"tabular-nums",lineHeight:1.3}}>{lex(val,cle==="pe"&&ns?perNS(r.pe,bpa):undefined)}</div>
           {cle==="pe"&&<DatePER r={r}/>}
           {cle==="pe"&&r.pe_exception&&<div title={`Motif : ${r.pe_exception.motif||"—"} Réserve : ${r.pe_exception.reserve||"—"}`} style={{fontSize:10,color:"#ff8f00",lineHeight:1.3}}>exception : {r.pe_exception.base}</div>}
         </div>);})}
@@ -5550,7 +5712,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={40}/>
               <div style={{minWidth:0,flex:1}}>
             <div className="fiche-cours" style={{fontSize:13,color:"#8892a4",marginBottom:2,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,fontVariantNumeric:"tabular-nums"}}>
-              <span><span style={{color:"#c8d3e8",letterSpacing:1}}>{tk(r)}</span> · <b style={{color:"#e8eef8",fontSize:15}}>{px(price)} DH</b> <span style={{color:VC(r.chg),fontWeight:600,whiteSpace:"nowrap"}}>{varSeance(r)==null?"—":r.chg===0?"0.00%":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+              <span><span style={{color:"#c8d3e8",letterSpacing:1}}>{tk(r)}</span> · <b style={{color:"#e8eef8",fontSize:15}}>{px(price)} DH</b> <span style={{color:VC(r.chg),fontWeight:600,whiteSpace:"nowrap"}}>{varSeance(r)==null?lex("—","Pas de variation observée à la dernière séance."):r.chg===0?"0.00%":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<Terme id="eclair" nu style={{marginLeft:3}}>⚡</Terme>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 className="etoile" aria-pressed={fav.includes(sym)}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
@@ -5584,19 +5746,19 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 erreur : à confiance ≤ 1 on l'annonce comme tel plutôt que de
                 colorer un score que rien ne soutient (règle CLAUDE.md). */}
             {meta(r).susp
-              ? <Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12} wrap/>
+              ? <Terme id="suspendu" nu><Chip label={meta(r).statut_juridique?`${meta(r).statut_juridique.toUpperCase()} · suspendu depuis le ${jjmm(meta(r).suspDepuis)}`:`SUSPENDU depuis le ${jjmm(meta(r).suspDepuis)}`} bg="rgba(255,107,107,.12)" fg="#ff6b6b" bd="#ff6b6b40" sz={12} wrap/></Terme>
               : meta(r).conf<=1
               ? (meta(r).reprise_recente
-                 ? <Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
-                 : <Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/>)
+                 ? <Terme id="reprise" nu><Chip label={`REPRISE — ${meta(r).seances_depuis_reprise} séance(s)`} bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/></Terme>
+                 : <Terme id="donnees_insuffisantes" nu><Chip label="Données insuffisantes" bg="rgba(136,146,164,.12)" fg="#8892a4" bd="#2a3550" sz={12}/></Terme>)
               : meta(r).reprise_recente
-              ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
+              ? <Terme id="reprise" nu><Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/></Terme>
               : <PastilleBVC r={r} sz={12}/>}
                 <DateScore s={r.score_bvc}/>
               </div>
             </div>
             <div style={{fontSize:11,color:"#8892a4",margin:"6px 0 4px"}}>
-              Score BVC / 100 · {etatBVC(r)} — descriptif, pas une prévision
+              <Terme id="score_bvc">Score BVC</Terme> / 100 · {etatBVC(r)} — descriptif, pas une prévision
             </div>
             {/* ⚠️ Un score absent doit DIRE pourquoi. Un « — » muet se lit
                 comme une panne d'affichage ; avec son motif, comme un refus de
@@ -5641,7 +5803,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               return <div style={{marginBottom:10,padding:"6px 8px",borderRadius:4,
                   background:bas?"rgba(255,143,0,.08)":"#0a1220",
                   border:`1px solid ${bas?"rgba(255,143,0,.3)":"#1a2540"}`}}>
-                <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase",marginBottom:2}}>Échangé par séance (médiane 20 j)</div>
+                <div style={{fontSize:8,color:"#8892a4",textTransform:"uppercase",marginBottom:2}}><Terme id="liquidite">Échangé par séance (médiane 20 j)</Terme></div>
                 <div style={{fontSize:13,fontWeight:700,color:bas?"#ff8f00":"#c8d3e8"}}>
                   {montantEntier(dh)}
                   {bas&&<span style={{fontSize:10,fontWeight:400,marginLeft:6}}>· confiance plafonnée — un ordre courant déplacerait le cours</span>}
@@ -5700,8 +5862,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
               {[[r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PE Ratio",perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)?"#8892a4":"#c8d3e8","pe"],["P/Book",r.pb?.toFixed(2)||"—","#c8d3e8","pb"],["Dividende",divFiche(r.div),"#c8d3e8","div"],["Cap. Boursière",r.cap?fmtM(r.cap):"—","#4db8ff","cap"]].map(([k,v,c,ratio])=>(
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
-                  <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}><Terme id={{pe:"per",pb:"pb",div:"rendement",cap:"capitalisation"}[ratio]}>{k}</Terme><InfoCellule texte={explRatio(ratio,r,price)}/></div>
+                  <div style={{fontSize:13,color:c,fontWeight:700}}>{lex(v,ratio==="pe"?perNS(r.pe,r.bpa_12m??r.bpa)||undefined:undefined)}</div>
                   {/* Une date par chiffre (19/11/2026, lot 1.3) : le PER porte la
                       date d'arrêté de ses comptes, le P/B celle de ses fonds propres. */}
                   {ratio==="pe"&&<DatePER r={r}/>}
@@ -5782,11 +5944,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 const so=cle.startsWith("roe_")?roeSansObjet(r):null;
                 const titre=so?`ROE sans objet : ${so}`:x?`${x.formule}${x.denominateur?` — dénominateur : ${x.denominateur}`:""}\nComptes au ${x.date.split("-").reverse().join("/")}\n${Object.values(x.sources||{}).filter(Boolean).join("\n")}`:"Terme manquant dans les comptes relevés : non calculé";
                 return(
-                <div key={k} title={titre} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={titre}/></div>
+                <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}><Terme id={cle.startsWith("roe_")?"roe":"marge_nette"}>{k}</Terme><InfoCellule texte={titre}/></div>
                   {so?<><div style={{fontSize:13,color:"#8892a4",fontWeight:700}}>sans objet</div>
                     <div style={{fontSize:8,color:"#8892a4"}}>pour ce métier</div></>:<>
-                  <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#8892a4",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:"—"}</div>
+                  <div style={{fontSize:13,color:x?(x.valeur>=0?"#c8d3e8":"#ff4f5a"):"#8892a4",fontWeight:700}}>{x?`${fmt(x.valeur,1)}%`:lex("—","Terme manquant dans les comptes relevés : non calculé.")}</div>
                   {x&&<div style={{fontSize:8,color:"#8892a4"}}>au {x.date.split("-").reverse().join("/")}</div>}</>}
                 </div>);})}
             </div>
@@ -5812,7 +5974,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique — chandeliers, volume, MACD · indicateurs au choix</div>
             <StockChart r={r}/>
             <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#ff9800"}}>── MA200</span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
+              <span style={{color:"#4db8ff"}}>── <Terme id="mm">MA20</Terme></span> &nbsp; <span style={{color:"#b388ff"}}>── <Terme id="mm">MA50</Terme></span> &nbsp; <span style={{color:"#ff9800"}}>── <Terme id="mm">MA200</Terme></span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
           </div>
 
@@ -5831,16 +5993,16 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       faisait déjà correctement. */}
                   {[["MA20",r.ma20?px(r.ma20):"—","#4db8ff"],["MA50",r.ma50?px(r.ma50):"—","#b388ff"],["MA200",r.ma200?px(r.ma200):"—","#ff9800"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
-                      <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
+                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id={k.startsWith("MA")?"mm":"extremes"}>{k}</Terme></div>
+                      <div style={{fontSize:12,color:c,fontWeight:700}}>{lex(v)}</div>
                     </div>
                   ))}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
                   {[["Haut 90j",h90!=null?px(h90):"—","#00e5a0"],["H 52s",r.h52w?px(r.h52w):"—","#00e5a0"],["Bas 90j",l90!=null?px(l90):"—","#ff4f5a"],["B 52s",r.l52w?px(r.l52w):"—","#ff4f5a"]].map(([k,v,c])=>(
                     <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>{k}</div>
-                      <div style={{fontSize:12,color:c,fontWeight:700}}>{v}</div>
+                      <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id={k.startsWith("MA")?"mm":"extremes"}>{k}</Terme></div>
+                      <div style={{fontSize:12,color:c,fontWeight:700}}>{lex(v)}</div>
                     </div>
                   ))}
                 </div>
@@ -5849,21 +6011,21 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5,marginTop:6}}>
                     {r.macd!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>MACD</div>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="macd">MACD</Terme></div>
                         <div style={{fontSize:11,color:r.macd>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.macd>0?"+":""}{r.macd?.toFixed(2)}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{r.macd>0&&r.macd>(r.macd_signal||0)?"haussier":"baissier"}</div>
                       </div>
                     )}
                     {r.bb_upper!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>BB(20,2)</div>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="bollinger">BB(20,2)</Terme></div>
                         <div style={{fontSize:10,color:"#ffd740",fontWeight:700}}>{px(r.bb_upper)}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{px(r.bb_lower)}</div>
                       </div>
                     )}
                     {r.stoch_k!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>STOCH</div>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="stoch">STOCH</Terme></div>
                         <div style={{fontSize:11,color:r.stoch_k>80?"#ff4f5a":r.stoch_k<20?"#00e5a0":"#ffd740",fontWeight:700}}>{r.stoch_k?.toFixed(0)}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{zoneStoch(r.stoch_k)}</div>
                       </div>
@@ -5875,14 +6037,14 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                   <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginTop:6}}>
                     {r.obv!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>OBV</div>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="obv">OBV</Terme></div>
                         <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
-                        <div style={{fontSize:9,color:"#8892a4"}} title="On-Balance Volume : cumul des volumes, ajoutés les jours de hausse, retranchés les jours de baisse">{r.obv>0?"cumul positif":"cumul négatif"}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"cumul positif":"cumul négatif"}</div>
                       </div>
                     )}
                     {r.adx!=null&&(
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
-                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>ADX(14)</div>
+                        <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}><Terme id="adx">ADX(14)</Terme></div>
                         <div style={{fontSize:11,color:r.adx>25?"#ffd740":"#8892a4",fontWeight:700}}>{r.adx?.toFixed(0)}{r.adx_pdi!=null?` +${r.adx_pdi?.toFixed(0)}`:""}{r.adx_mdi!=null?`/-${r.adx_mdi?.toFixed(0)}`:""}</div>
                         <div style={{fontSize:9,color:"#8892a4"}}>{r.adx>40?"tendance forte":r.adx>25?"tendance":r.adx>20?"émergente":"range"}{r.adx_pdi>r.adx_mdi?" ▲":" ▼"}</div>
                       </div>
@@ -5966,7 +6128,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
           {r.fwd&&(
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
-              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span> <span style={{color:"#ff8f00"}}>non vérifié</span></div>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span> <span style={{color:"#ff8f00"}}><Terme id="non_verifie">non vérifié</Terme></span></div>
               {/* Date d'export en entier, année comprise : l'export est
                   rafraîchi à la main et vieillit. « 01/07 » seul ne dit pas
                   qu'il a sept semaines, « 01/07/2026 » le laisse voir. */}
@@ -6152,6 +6314,24 @@ const Guide=({setTab})=>{
       <L titre="Score BVC /100">Six facteurs notés : <T>moyennes mobiles</T> 35 (cours au-dessus de ses MM20, MM50, MM200) · <T>momentum</T> 15 (RSI 14) · <T>MACD</T> 10 · <T>activité</T> 10 (volume du jour) · <T>liquidité</T> 15 (montant échangé) · <T>rentabilité</T> 15 (ROE sur comptes déposés). <T c="#ffd740">Score descriptif, pas une prévision</T> : il décrit la situation du titre à la dernière séance. Classement : partie entière ; fiche : valeur exacte et composition, facteur par facteur. <T>—</T> : non calculé — cours périmé ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des facteurs</a></L>
       <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sur une échelle neutre qui va du gris au bleu de plus en plus soutenu, sans mot d'action : <T c={couleurPlage("t75")}>● 75 et plus</T> · <T c={couleurPlage("t60")}>● 60 à 74</T> · <T c={couleurPlage("t40")}>● 40 à 59</T> · <T c={couleurPlage("t0")}>● sous 40</T> · <T c={couleurPlage("nc")}>◌ non calculé</T>. La couleur situe le score dans sa tranche ; elle ne dit pas quoi faire. Le vert et le rouge sont réservés aux hausses et aux baisses de cours. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
       <L titre="Ce que le score a mesuré">Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 séances plus tard, frais de 2 % compris : 31,9 % sous 40 · 30,6 % de 40 à 59 · 32,6 % de 60 à 74 · 33,7 % à 75 et plus — pour 32,1 % en moyenne. Aucun écart robuste — la tranche 40–59 frôle le seuil de 5 % selon une méthode (p = 0,049) et le manque selon l'autre (p = 0,053) : <T>le score décrit la situation, il ne distingue pas les gagnants.</T> Mesure faite sans le facteur rentabilité (ROE 2025 inconnu en 2023-2024).</L>
+      {/* GLOSSAIRE — 20/11/2026 (lot 1.6) : toutes les définitions, lues dans
+          le même objet que les infobulles (GLOSSAIRE) ; aucune phrase n'est
+          écrite deux fois. Chaque entrée a une ancre « glossaire-<id> ». */}
+      <section className="glossaire" aria-labelledby="titre-glossaire" style={{padding:"6px 0 4px",borderTop:"1px solid #1a2540"}}>
+        <h2 id="titre-glossaire" style={{fontSize:13,color:"#e8eef8",fontWeight:700,margin:"2px 0 2px"}}>Glossaire — un terme, une phrase</h2>
+        <div style={{fontSize:11.5,color:"#8892a4",lineHeight:1.45,marginBottom:4}}>Les mêmes phrases s'ouvrent depuis chaque terme souligné en pointillés, au survol ou au toucher.</div>
+        {GROUPES_GLOSSAIRE.map(([g,nom])=>(
+          <div key={g} className="glossaire-groupe" style={{marginTop:6}}>
+            <div style={{fontSize:10.5,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",margin:"4px 0 2px"}}>{nom}</div>
+            <dl style={{margin:0}}>
+              {Object.entries(GLOSSAIRE).filter(([,x])=>x.g===g).map(([id,x])=>(
+                <div key={id} id={`glossaire-${id}`} data-glossaire={id} style={{padding:"4px 0",borderTop:"1px solid #121c30",scrollMarginTop:8}}>
+                  <dt style={{fontSize:12,color:"#4db8ff",fontWeight:700}}>{x.terme}</dt>
+                  <dd style={{margin:0,fontSize:12,color:"#c8d3e8",lineHeight:1.45,textWrap:"pretty"}}>{x.def}</dd>
+                </div>))}
+            </dl>
+          </div>))}
+      </section>
       <L titre="Classement par PER">PER = cours ÷ bénéfice par action, réalisé (12 mois glissants ou exercice 2025, selon la colonne « base »). <T>Un PER ne se compare qu'à celui de son secteur</T> : la médiane du secteur est donnée à côté, à partir de 4 PER classés. Une perte, un PER absent ou au-delà de 100 (BPA quasi nul), des comptes absents ou une cotation suspendue : le titre n'est pas classé, il est listé à part avec son motif. Un PER bas ne dit rien de l'évolution du titre. <a onClick={()=>setTab&&setTab("per")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Ouvrir le classement</a></L>
       <L titre="Fiabilité des données ●●●○○">Un point par garantie : prix de la dernière séance · fondamentaux réels · historique ≥ 15 séances échangées · comptes déposés à l'AMMC et relevés · liquidité ≥ 100 000 DH par séance. Titre peu liquide : 2/5 au plus.</L>
       <L titre="« X % gagnants (IC) · n cas » — fiche, Signaux techniques">Sur n cas passés à la BVC où le même signal est apparu, X % ont battu le MASI 60 séances après ; IC = fourchette plausible. Plus n est grand, plus c'est solide. Une fréquence passée, pas une promesse.</L>
@@ -6159,7 +6339,6 @@ const Guide=({setTab})=>{
       <L titre="FIG — figures chartistes du graphique">Motifs relevés sur les clôtures des 60 dernières séances échangées, règles fixées avant toute mesure. Un sommet ou un creux est un retournement d'au moins 6 %, et n'existe qu'à sa date de <T>confirmation</T>. <T>Double creux (2C) / double sommet (2S)</T> : deux creux (sommets) à moins de 3 % l'un de l'autre, 15 à 120 séances d'écart, séparés d'au moins 8 %. <T>ETE / ETE inversée</T> : cinq pivots, épaules à moins de 5 %, tête au-delà d'au moins 3 %. <T>Triangles</T> : quatre pivots alternés, côté plat à 2 %, côté incliné d'au moins 3 %. <T>Tasse avec anse</T> : creux de 12 à 40 %. <T>Fibonacci</T> : rebond entre 38,2 et 61,8 % d'une hausse d'au moins 20 %. La silhouette relie les pivots — pour un triangle, ses deux bornes ; la ligne de cou est en pointillés, sur l'étendue de sa figure, et une croix marque la cassure. Une figure ou une droite s'arrête à sa cassure, son invalidation ou son expiration ; seule une figure armée se prolonge jusqu'à la dernière séance. Les figures invalidées ou expirées sont tracées en pâle (« Masquer les figures passées » dans la légende) ; ETE, ETE inversée et doubles creux ou sommets portent une ligne de cou en trait plein et une aire translucide, sans aucune projection de cours ; un clic sur une ligne de la légende met sa figure en évidence. <T>Armée</T> : formée, pas encore cassée ; <T>cassure</T> : clôture au-delà de la ligne de cou ; <T>invalidée</T> : clôture au-delà du niveau d'invalidation avant ; <T>expirée</T> : 40 séances sans cassure (60 pour la tasse). Vert, rouge, violet : sens que le manuel prête au motif — un nom, pas une annonce. <T>La fréquence</T> : sur N cas passés (2023-2026), la part qui a fait mieux (motif haussier) ou moins bien (baissier) que le MASI 20 séances après la cassure, frais de 2 % d'aller-retour <T>non déduits</T>. Une figure armée n'a pas de fréquence propre : le chiffre décrit les cas où la cassure a eu lieu. Sous 30 cas : « échantillon insuffisant », aucun pourcentage.</L>
       <L titre="TEND — obliques et canaux">Mêmes sommets et creux que FIG. <T>Oblique descendante</T> : la droite qui joint deux sommets descendants écartés de 20 à 250 séances, prolongée jusqu'à la dernière séance ; cassée à la première clôture au-dessus. <T>Oblique ascendante</T> : deux creux montants, cassée à la première clôture en dessous. <T>Canal ascendant</T> : support par deux creux montants, parallèle par le sommet qui les sépare (pointillés) ; rebond = retour à moins de 2 % du support puis clôture 3 % au-dessus ; sortie par le bas = clôture 2 % sous le support. Fréquence : même lecture que FIG — après une cassure ou un rebond passé, frais non déduits, rien sous 30 cas.</L>
       <L titre="GAP — trous de cotation">Une séance dont le plus bas dépasse d'au moins 1 % le plus haut de la veille (gap haussier), ou l'inverse (baissier) ; seules les séances à extrêmes réels comptent, et jamais un écart de plus de 10 % de la clôture de la veille. La zone hachurée s'étend du plus haut de la veille au plus bas du jour du gap et s'arrête à son <T>comblement</T> : la zone entièrement traversée. <T>Partiellement comblé</T> : le cours est revenu dans la zone sans la traverser. Fréquence : la part des gaps passés comblés en 20 séances au plus ; pour un gap ouvert depuis 20 séances ou davantage, la part comblée dans les 60 séances suivant l'ouverture ; à 60 séances et au-delà, aucun taux : c'est hors de l'horizon mesuré. Un fait de marché, aucun achat supposé ; rien sous 30 cas.</L>
-      <L titre="« non vérifié » · ⚠ jj/mm"><T c="#ff8f00">non vérifié</T> : source non recoupée, prudence. <T c="#ffd740">⚠ 05/08</T> près d'un cours : il date de ce jour-là, pas de la dernière séance.</L>
     </div>
   );
 };
@@ -6730,6 +6909,7 @@ function App(){
           </>}
         <MentionLegale/>
       </div>
+      <InfobulleRacine/>
     </div>
   );
 }

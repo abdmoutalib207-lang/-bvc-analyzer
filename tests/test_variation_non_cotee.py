@@ -15,7 +15,10 @@ def test_variation_nulle_pour_un_cours_perime():
 
 
 def test_classement_et_bandeau_affichent_non_cote():
-    assert SRC.count("varSeance(r)==null?NON_COTE:") == 2
+    # 20/11/2026 (lot 1.6) : le bandeau défilant garde un « n.c. » inerte
+    # (NON_COTE_BANDEAU) ; le classement, un terme qui s'ouvre au toucher.
+    assert SRC.count("varSeance(r)==null?NON_COTE:") == 1
+    assert SRC.count("varSeance(r)==null?NON_COTE_BANDEAU:") == 1
 
 
 def test_moyenne_sectorielle_ignore_les_titres_non_cotes():

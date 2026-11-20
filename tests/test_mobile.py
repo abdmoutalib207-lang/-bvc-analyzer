@@ -45,7 +45,11 @@ def test_ouverture_et_volume_restent_lisibles_sur_telephone():
     montant dans « En bref » (« … DH échangés ») et l'ouverture dans la
     légende du graphique (O, H, B, C de la dernière séance, affichée sans
     survol). Sur ordinateur, « Plus de colonnes » les rappelle au classement."""
-    assert SRC.count('className="mobile-seul"') == 2      # variation et confiance
+    # variation et confiance dans la ligne ; 20/11/2026 (lot 1.6) : la
+    # définition de la confiance dans l'en-tête du score, sa colonne étant
+    # masquée sur téléphone.
+    assert SRC.count('className="mobile-seul"') == 3
+    assert SRC.count('<div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="confiance">') == 1
     avant_media = SRC[:SRC.index("@media(max-width:640px)")]
     assert ".mobile-seul{display:none}" in avant_media
     i = SRC.index("const EnTeteEssentiel=")
