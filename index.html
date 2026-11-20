@@ -6777,8 +6777,8 @@ const Ranking = ({
       r = r.filter(x => correspondTitre(x, search));
     }
     if (trancheFiltre != null) r = r.filter(x => trancheBVC(x).id === trancheFiltre);
-    if (rsiZone === "survendu") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
-    if (rsiZone === "surachete") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
+    if (rsiZone === "bas") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) < 30);
+    if (rsiZone === "haut") r = r.filter(x => (x.rsi ?? x.rsi14) != null && (x.rsi ?? x.rsi14) > 70);
     return r;
   }, [rows, sector, search, group, trancheFiltre, rsiZone]);
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
@@ -6957,11 +6957,12 @@ const Ranking = ({
     },
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30",
+      color: "#c8d3e8",
+      border: "1px solid #2a3550",
       borderRadius: 3,
       padding: "3px 8px",
-      background: "transparent"
+      background: "transparent",
+      cursor: "pointer"
     }
   }, "\u2715 R\xE9initialiser"), React.createElement("span", {
     style: {
@@ -7060,9 +7061,11 @@ const Ranking = ({
     }
   }, React.createElement(Terme, {
     id: "rsi"
-  }, "RSI")), [["survendu", "<30 survendu", "#4db8ff"], ["surachete", ">70 suracheté", "#4db8ff"]].map(([z, lbl, c]) => React.createElement("button", {
+  }, "RSI")), [["bas", "< 30", "RSI inférieur à 30", "#4db8ff"], ["haut", "> 70", "RSI supérieur à 70", "#4db8ff"]].map(([z, lbl, aria, c]) => React.createElement("button", {
     key: z,
     onClick: () => setRsiZone(rsiZone === z ? null : z),
+    "aria-pressed": rsiZone === z,
+    "aria-label": aria,
     style: {
       fontSize: 10,
       padding: "3px 10px",
@@ -7838,8 +7841,8 @@ const ClassementPER = ({
     onClick: () => setSecteur("ALL"),
     style: {
       ...btn(false),
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30"
+      color: "#c8d3e8",
+      border: "1px solid #2a3550"
     }
   }, "\u2715 Secteur")), secteur !== "ALL" && (() => {
     const m = medianes[secteur] || {
@@ -14425,8 +14428,8 @@ const NewsFeed = () => {
     onClick: () => setTicker("ALL"),
     style: {
       fontSize: 10,
-      color: "#ff4f5a",
-      border: "1px solid #ff4f5a30",
+      color: "#c8d3e8",
+      border: "1px solid #2a3550",
       borderRadius: 3,
       padding: "2px 8px",
       background: "transparent",

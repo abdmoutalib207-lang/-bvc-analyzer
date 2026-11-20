@@ -3654,8 +3654,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     /* Filtre par tranche du SCORE BVC (06/11/2026) : il remplace le filtre
        par palier de note v5.3. « non calculé » = pas de valeur publiée. */
     if(trancheFiltre!=null) r=r.filter(x=>trancheBVC(x).id===trancheFiltre);
-    if(rsiZone==="survendu") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);
-    if(rsiZone==="surachete") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);
+    if(rsiZone==="bas") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);
+    if(rsiZone==="haut") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);
     return r;
   },[rows,sector,search,group,trancheFiltre,rsiZone]);
 
@@ -3743,7 +3743,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
-        {(search||sector!=="ALL"||trancheFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setTrancheFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
+        {(search||sector!=="ALL"||trancheFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setTrancheFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#c8d3e8",border:"1px solid #2a3550",borderRadius:3,padding:"3px 8px",background:"transparent",cursor:"pointer"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres</span>
         <button className="reglage-tel" onClick={()=>{
           // 06/11/2026 : le Score BVC remplace la note v5.3 (v53, sig retirés).
@@ -3776,9 +3776,12 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         <span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}><Terme id="rsi">RSI</Terme></span>
         {/* Une zone de RSI est une plage, pas un conseil : même bleu neutre
             pour les deux filtres (19/11/2026, lot 1.4 — « survendu » en
-            vert se lisait comme une invitation). */}
-        {[["survendu","<30 survendu","#4db8ff"],["surachete",">70 suracheté","#4db8ff"]].map(([z,lbl,c])=>(
-          <button key={z} onClick={()=>setRsiZone(rsiZone===z?null:z)}
+            vert se lisait comme une invitation). 20/11/2026 : le libellé
+            dit la plage, pas une lecture — « survendu / suracheté » est du
+            vocabulaire interprétatif ; ce que mesure le RSI est dans le
+            glossaire (« RSI », juste avant). */}
+        {[["bas","< 30","RSI inférieur à 30","#4db8ff"],["haut","> 70","RSI supérieur à 70","#4db8ff"]].map(([z,lbl,aria,c])=>(
+          <button key={z} onClick={()=>setRsiZone(rsiZone===z?null:z)} aria-pressed={rsiZone===z} aria-label={aria}
             style={{fontSize:10,padding:"3px 10px",borderRadius:12,border:`1px solid ${rsiZone===z?c:c+"35"}`,color:rsiZone===z?"#080d1a":c,background:rsiZone===z?c:"transparent",cursor:"pointer",fontFamily:"var(--font)",transition:"all .15s",fontWeight:rsiZone===z?700:400}}>
             {lbl}
           </button>
@@ -4082,7 +4085,7 @@ const ClassementPER=({rows,setSel,setTab})=>{
           <option value="ALL">Tous les secteurs</option>
           {secteurs.map(s=>{const m=medianes[s];const k=m?m.n+m.hors:0;return <option key={s} value={s}>{s} ({k} classé{k>1?"s":""})</option>;})}
         </select>
-        {secteur!=="ALL"&&<button onClick={()=>setSecteur("ALL")} style={{...btn(false),color:"#ff4f5a",border:"1px solid #ff4f5a30"}}>✕ Secteur</button>}
+        {secteur!=="ALL"&&<button onClick={()=>setSecteur("ALL")} style={{...btn(false),color:"#c8d3e8",border:"1px solid #2a3550"}}>✕ Secteur</button>}
       </div>
       {secteur!=="ALL"&&(()=>{const m=medianes[secteur]||{n:0,med:null};return(
         <div style={{fontSize:12,color:"#c8d3e8",marginBottom:10}}>
@@ -6526,7 +6529,7 @@ const NewsFeed=()=>{
               {t==="ALL"?"TOUS":t}
             </button>
           ))}
-          {ticker!=="ALL"&&<button onClick={()=>setTicker("ALL")} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"2px 8px",background:"transparent",cursor:"pointer",marginLeft:4}}>✕</button>}
+          {ticker!=="ALL"&&<button onClick={()=>setTicker("ALL")} style={{fontSize:10,color:"#c8d3e8",border:"1px solid #2a3550",borderRadius:3,padding:"2px 8px",background:"transparent",cursor:"pointer",marginLeft:4}}>✕</button>}
           <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{filtered.length} article{filtered.length!==1?"s":""}</span>
         </div>
       )}

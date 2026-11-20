@@ -273,3 +273,36 @@ def test_l_ecart_au_cours_porte_son_signe():
     f = SRC[i:SRC.index("\n", i)]
     res = _node(f"const price=100;{f}\nconsole.log(JSON.stringify([112.34,96.8,100,null].map(ecart)));")
     assert res == ["+12.3%", "-3.2%", "0.0%", "—"]
+
+
+# ── 4. Classement : filtres RSI ; boutons qui effacent un filtre ────────────
+
+def _zones_filtres(src: str = SRC) -> dict[str, str]:
+    i = src.index('<Terme id="rsi">RSI</Terme></span>')
+    return {
+        "filtres RSI": src[i:src.index("</button>", i)],
+        "tri des filtres RSI": _bloc("if(rsiZone===", "},[rows,sector", src),
+        "✕ Réinitialiser": src[src.rindex("<button", 0, src.index("✕ Réinitialiser")):src.index("✕ Réinitialiser")],
+        "✕ Secteur": src[src.rindex("<button", 0, src.index("✕ Secteur")):src.index("✕ Secteur")],
+        "✕ titre (actualités)": _bloc('{ticker!=="ALL"&&<button onClick={()=>setTicker("ALL")}', "</button>", src),
+    }
+
+
+@pytest.mark.parametrize("zone", list(_zones_filtres()))
+def test_les_filtres_et_leurs_boutons_ne_jugent_pas(zone):
+    assert controle(_zones_filtres()[zone]) == []
+
+
+def test_les_filtres_rsi_disent_leur_plage():
+    z = _zones_filtres()
+    assert '["bas","< 30","RSI inférieur à 30",' in z["filtres RSI"]
+    assert '["haut","> 70","RSI supérieur à 70",' in z["filtres RSI"]
+    assert "aria-pressed={rsiZone===z}" in z["filtres RSI"]
+    # Les seuils du tri sont inchangés.
+    assert 'if(rsiZone==="bas") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)<30);' in SRC
+    assert 'if(rsiZone==="haut") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);' in SRC
+
+
+def test_le_controle_voit_les_filtres_d_avant():
+    assert controle('{[["survendu","<30 survendu","#4db8ff"],["surachete",">70 suracheté","#4db8ff"]]}')
+    assert controle('<button style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30"}}>')

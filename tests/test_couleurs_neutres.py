@@ -266,7 +266,11 @@ def test_le_rang_dans_le_secteur_ne_dit_plus_cher_ou_pas_cher():
 
 def test_les_filtres_rsi_ne_jugent_plus():
     bloc = _bloc('<span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}><Terme id="rsi">RSI</Terme></span>', "))}")
-    assert "survendu" in bloc and "suracheté" in bloc
+    # 20/11/2026 (suite du lot, tests/test_techniques_neutres.py) : le libellé
+    # dit la plage, plus « survendu / suracheté ».
+    assert '"< 30"' in bloc and '"> 70"' in bloc
+    code = re.sub(r"\{/\*.*?\*/\}", "", bloc, flags=re.S)      # hors commentaires
+    assert "survendu" not in code and "suracheté" not in code
     for c in (HAUSSE, *BAISSES):
         assert c not in bloc.lower(), c
 
