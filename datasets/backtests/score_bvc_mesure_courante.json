@@ -1,0 +1,100 @@
+{
+ "schema": "mesure_score_bvc/1",
+ "_quoi": "Pointeur lu par le terminal ; chiffres recopiés de l'artefact référencé, jamais recalculés ici.",
+ "_commande": "python3 pipeline/mesure_courante.py",
+ "artefact": "datasets/backtests/score_bvc_hebdo_2026-11-19.json",
+ "artefact_sha256": "3fbd31a57b89c920763c36cd24da0275ac88b6a331721434d3e685a020b81f2f",
+ "date_artefact": "2026-11-19",
+ "version_score": "bvc-score-v1",
+ "variante": "sans_rentabilite",
+ "definition": "Observation = un titre échangé à la clôture d'une semaine close ; part des cas ayant fait mieux que le MASI 20 séances plus tard, dividendes réinvestis, frais d'aller-retour déduits.",
+ "horizon_seances": 20,
+ "frais_aller_retour_pct": 2.0,
+ "periode": {
+  "calendrier_du": "2023-06-05",
+  "calendrier_au": "2026-11-19",
+  "premiere_semaine": "2023-06-09",
+  "derniere_semaine": "2026-11-13",
+  "du_fr": "05/06/2023",
+  "au_fr": "19/11/2026"
+ },
+ "observations": 9462,
+ "dates_d_entree": 176,
+ "base_pct": 32.5,
+ "tranches": [
+  {
+   "plage": "< 40",
+   "n": 3154,
+   "dates": 167,
+   "part_battu_masi_pct": 32.0,
+   "ic95_blocs_pct": [
+    29.3,
+    35.0
+   ],
+   "p_newey_west": 0.4335,
+   "p_bootstrap_blocs": 0.4338,
+   "effectif_suffisant": true
+  },
+  {
+   "plage": "40–59",
+   "n": 2152,
+   "dates": 168,
+   "part_battu_masi_pct": 31.6,
+   "ic95_blocs_pct": [
+    27.8,
+    35.1
+   ],
+   "p_newey_west": 0.342,
+   "p_bootstrap_blocs": 0.3233,
+   "effectif_suffisant": true
+  },
+  {
+   "plage": "60–74",
+   "n": 2451,
+   "dates": 169,
+   "part_battu_masi_pct": 33.1,
+   "ic95_blocs_pct": [
+    30.2,
+    35.9
+   ],
+   "p_newey_west": 0.9552,
+   "p_bootstrap_blocs": 0.957,
+   "effectif_suffisant": true
+  },
+  {
+   "plage": "≥ 75",
+   "n": 1705,
+   "dates": 164,
+   "part_battu_masi_pct": 33.6,
+   "ic95_blocs_pct": [
+    30.6,
+    36.5
+   ],
+   "p_newey_west": 0.9704,
+   "p_bootstrap_blocs": 0.9705,
+   "effectif_suffisant": true
+  }
+ ],
+ "correlation_rang": {
+  "moyenne": -0.0329,
+  "p_newey_west": 0.0538,
+  "jours": 166
+ },
+ "conclusion": {
+  "tranche_distincte_a_5pct": [],
+  "texte": "Aucune tranche ne se distingue de façon robuste du taux moyen (aucune sous 5 % selon les deux méthodes) : le Score BVC décrit la situation, il ne distingue pas les gagnants."
+ },
+ "hors_echantillon": {
+  "artefact": "datasets/backtests/score_bvc_2026-11-03.json",
+  "formule_figee_au": "2026-11-03",
+  "entrees_a_partir_du": "2026-11-04",
+  "effectif_suffisant": "vers l'automne 2027",
+  "texte": "Test hors échantillon gelé : formule figée au 03/11/2026, entrées à partir du 04/11/2026 ; effectif suffisant vers l'automne 2027. Tant qu'il n'est pas atteint, aucune conclusion."
+ },
+ "reserves": [
+  "Descriptif, pas une prévision.",
+  "Un seul cycle de marché (environ trois ans) ; univers des titres cotés aujourd'hui (biais du survivant).",
+  "Mesure faite sans le facteur rentabilité : le ROE 2025 n'était pas connu en 2023-2024.",
+  "Observations hebdomadaires qui se chevauchent : fourchettes par blocs de 20 séances."
+ ]
+}
