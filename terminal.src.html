@@ -940,9 +940,10 @@ async function fetchMASI(){
 // arrondi écrirait « 75 » pour un 74,5 de la tranche 60–74 (trois titres au
 // 06/11) ; la fiche donne la valeur exacte.
 //
-// ⚠️ Une couleur SITUE un score, elle ne dit pas quoi faire. Mesuré sur
-// 43 031 observations (datasets/backtests/score_bvc_2026-11-03.json) : la
-// part des titres ayant battu le MASI à 20 séances ne se distingue pas d'une
+// ⚠️ Une couleur SITUE un score, elle ne dit pas quoi faire. La mesure
+// (part des titres ayant battu le MASI à 20 séances, par tranche) est lue dans
+// datasets/backtests/score_bvc_mesure_courante.json, qui pointe l'artefact daté ;
+// aucun chiffre n'en est écrit ici (lot 1.7). Elle ne se distingue pas d'une
 // tranche à l'autre. Aucun mot d'action n'est écrit —
 // `tests/test_couleurs_sans_recommandation.py` le vérifie sur index.html.
 //
@@ -6230,9 +6231,11 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
    (pipeline/score_bvc.py) et les seuils ceux de pipeline/score_descriptif.py :
    `tests/test_guide_et_poids.py` relit le module et les compare. Si le moteur
    change, le test casse avant l'écran.
-   Les fréquences viennent de datasets/backtests/score_bvc_2026-11-03.json
-   (variante sans rentabilité, la seule sans biais d'anticipation) : vérifiées
-   dans l'artefact le 06/11/2026 (R12). */
+   Les fréquences ne sont PLUS écrites ici (lot 1.7, 20/11/2026) : elles sont
+   lues dans datasets/backtests/score_bvc_mesure_courante.json, qui référence
+   l'artefact daté (variante sans rentabilité, la seule sans biais
+   d'anticipation). Fichier absent ou illisible : « mesure indisponible ».
+   tests/test_mesure_synchronisee.py garde la synchronisation. */
 const FACTEURS_BVC=[
   // [clé, nom, poids, règle]
   ["moyennes_mobiles","Moyennes mobiles",35,"Cours au-dessus de sa MM20 → 15 · de sa MM50 → 10 · de sa MM200 → 10, sinon 0. Une moyenne indisponible (MM200 : 200 séances) ne compte pas."],
@@ -6242,11 +6245,22 @@ const FACTEURS_BVC=[
   ["liquidité","Liquidité",15,"Montant médian échangé sur 20 séances : ≥ 5 MDH → 15 · ≥ 1 MDH → 7,5 · sinon 0."],
   ["rentabilité","Rentabilité (ROE)",15,"ROE de l'exercice 2025 sur comptes déposés à l'AMMC : ≥ 12 % → 15 · ≥ 5 % → 7,5 · sinon 0."],
 ];
-// Part des observations ayant battu le MASI à 20 séances, frais de 2 % compris.
-const MESURE_BVC={n:43031,dates:818,du:"05/06/2023",au:"03/11/2026",base:32.1,tranches:[
-  ["< 40",14574,31.9],["40–59",9840,30.6],["60–74",10933,32.6],["≥ 75",7684,33.7]]};
+// Mesure du Score BVC : lue dans le fichier publié, jamais écrite ici (lot 1.7).
+// Un fichier absent, illisible ou d'un autre schéma donne null : « mesure indisponible ».
+let MESURE_BVC=null, MESURE_BVC_P=null;
+const mesureValide=j=>!!(j&&j.schema==="mesure_score_bvc/1"&&Array.isArray(j.tranches)&&j.tranches.length&&Number.isFinite(j.observations)&&Number.isFinite(j.base_pct)&&j.tranches.every(t=>Number.isFinite(t.n)&&Number.isFinite(t.part_battu_masi_pct))&&j.periode&&j.conclusion&&j.conclusion.texte);
+const chargerMesureBVC=()=>MESURE_BVC_P||(MESURE_BVC_P=fetch("datasets/backtests/score_bvc_mesure_courante.json?t="+vpub())
+  .then(x=>x.ok?x.json():null).then(j=>{MESURE_BVC=mesureValide(j)?j:null;return MESURE_BVC;}).catch(()=>null));
+const useMesureBVC=()=>{
+  const [m,setM]=useState(MESURE_BVC);
+  const [fini,setFini]=useState(!!MESURE_BVC);
+  useEffect(()=>{if(!MESURE_BVC)chargerMesureBVC().then(j=>{setM(j);setFini(true);});},[]);
+  return [m,fini];
+};
+const dateFr=d=>d&&d.length>=10?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
 const pctFr=x=>x.toLocaleString("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1});
 const Weights=()=>{
+  const [M,mesureChargee]=useMesureBVC();
   return(
     <div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:12}}>
@@ -6264,24 +6278,26 @@ const Weights=()=>{
       </div>
       <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
         <div style={{fontSize:13,color:"#c8d3e8",fontWeight:600,marginBottom:4}}>CE QUE LE SCORE A MESURÉ</div>
-        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>Part des cas qui ont fait mieux que le MASI 20 séances plus tard (dividendes réinvestis, frais de 2 % aller-retour déduits) — {MESURE_BVC.n.toLocaleString("fr-FR")} observations sur {MESURE_BVC.dates} séances d'entrée, calendrier du {MESURE_BVC.du} au {MESURE_BVC.au}.</div>
+        {!M?<div className="mesure-indisponible" style={{fontSize:12.5,color:"#8892a4",lineHeight:1.6}}>{mesureChargee?"Mesure indisponible : le fichier de mesure n'a pas pu être lu. Aucun chiffre n'est affiché plutôt qu'un chiffre périmé.":"Chargement de la mesure…"}</div>:<>
+        <div style={{fontSize:11,color:"#8892a4",marginBottom:10,lineHeight:1.6}}>Part des cas qui ont fait mieux que le MASI {M.horizon_seances} séances plus tard (dividendes réinvestis, frais de {String(M.frais_aller_retour_pct).replace(".",",")} % aller-retour déduits) — {M.observations.toLocaleString("fr-FR")} observations (un titre échangé à la clôture de chaque semaine close) sur {M.dates_d_entree} dates d'entrée, du {dateFr(M.periode.premiere_semaine)} au {dateFr(M.periode.derniere_semaine)}. Mesure du {dateFr(M.date_artefact)}.</div>
         <div style={{overflowX:"auto"}}>
           <table style={{width:"100%",borderCollapse:"collapse"}}>
             <thead><tr style={{borderBottom:"1px solid #1a2540"}}>{["Score BVC","Observations","Ont battu le MASI"].map(h=><th key={h} style={{padding:"7px 10px",fontSize:10,color:"#8892a4",textAlign:"left",fontWeight:500}}>{h}</th>)}</tr></thead>
-            <tbody>{MESURE_BVC.tranches.map(([t,n,p])=>{const c=(TRANCHES_BVC.find(x=>x.plage===t)||TRANCHE_NC).c;return(
+            <tbody>{M.tranches.map(({plage:t,n,part_battu_masi_pct:p})=>{const c=(TRANCHES_BVC.find(x=>x.plage===t)||TRANCHE_NC).c;return(
               <tr key={t} style={{borderBottom:"1px solid #0d1829"}}>
                 <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8"}}><span style={{display:"inline-block",width:8,height:8,borderRadius:"50%",background:c,marginRight:7}}/>{t}</td>
                 <td style={{padding:"8px 10px",fontSize:13,color:"#c8d3e8",fontVariantNumeric:"tabular-nums"}}>{n.toLocaleString("fr-FR")}</td>
                 <td style={{padding:"8px 10px",fontSize:14,color:"#e8eef8",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{pctFr(p)} %</td>
               </tr>);})}
               <tr><td style={{padding:"8px 10px",fontSize:12,color:"#8892a4"}}>Toutes tranches</td>
-                <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4",fontVariantNumeric:"tabular-nums"}}>{MESURE_BVC.n.toLocaleString("fr-FR")}</td>
-                <td style={{padding:"8px 10px",fontSize:13,color:"#8892a4",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{pctFr(MESURE_BVC.base)} %</td></tr>
+                <td style={{padding:"8px 10px",fontSize:12,color:"#8892a4",fontVariantNumeric:"tabular-nums"}}>{M.observations.toLocaleString("fr-FR")}</td>
+                <td style={{padding:"8px 10px",fontSize:13,color:"#8892a4",fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{pctFr(M.base_pct)} %</td></tr>
             </tbody>
           </table>
         </div>
-        <div style={{fontSize:11.5,color:"#c8d3e8",marginTop:10,lineHeight:1.6}}>De 30,6 % à 33,7 % selon la tranche, pour 32,1 % en moyenne : aucun écart robuste (seule la tranche 40–59, à −1,3 point, frôle le seuil de 5 % selon une méthode et le manque selon l'autre). <b>Le Score BVC décrit la situation ; il ne distingue pas les gagnants.</b></div>
-        <div style={{fontSize:10.5,color:"#8892a4",marginTop:6,lineHeight:1.5}}>Mesure faite sans le facteur rentabilité : le ROE de 2025 n'était pas connu en 2023-2024, l'utiliser aurait faussé la mesure. Un seul cycle de marché (environ trois ans) ; univers des titres cotés aujourd'hui. Source : datasets/backtests/score_bvc_2026-11-03.json.</div>
+        <div style={{fontSize:11.5,color:"#c8d3e8",marginTop:10,lineHeight:1.6}}>De {pctFr(Math.min(...M.tranches.map(t=>t.part_battu_masi_pct)))} % à {pctFr(Math.max(...M.tranches.map(t=>t.part_battu_masi_pct)))} % selon la tranche, pour {pctFr(M.base_pct)} % en moyenne. {M.conclusion.texte}</div>
+        <div style={{fontSize:10.5,color:"#8892a4",marginTop:6,lineHeight:1.5}}>{(M.reserves||[]).join(" ")} {M.hors_echantillon&&M.hors_echantillon.texte} Source : {M.artefact}.</div>
+        </>}
       </div>
     </div>
   );
@@ -6293,8 +6309,9 @@ const Weights=()=>{
    Score BVC dans pipeline/score_bvc.py et score_descriptif.py (depuis le
    06/11/2026, à la place des seuils de `compute_v53`), critères de confiance
    dans `_meta_ticker`, fréquences dans `SignauxTechniques`. Les fréquences du
-   Score BVC sont celles de l'artefact daté score_bvc_2026-11-03.json. */
+   Score BVC sont lues dans score_bvc_mesure_courante.json (aucun chiffre en dur). */
 const Guide=({setTab})=>{
+  const [M]=useMesureBVC();
   // Sur téléphone l'en-tête n'est pas collant et occupe ~600 px : sans ce
   // défilement, le guide s'ouvrirait sous la ligne de flottaison.
   const ref=useRef(null);
@@ -6313,7 +6330,7 @@ const Guide=({setTab})=>{
       </div>
       <L titre="Score BVC /100">Six facteurs notés : <T>moyennes mobiles</T> 35 (cours au-dessus de ses MM20, MM50, MM200) · <T>momentum</T> 15 (RSI 14) · <T>MACD</T> 10 · <T>activité</T> 10 (volume du jour) · <T>liquidité</T> 15 (montant échangé) · <T>rentabilité</T> 15 (ROE sur comptes déposés). <T c="#ffd740">Score descriptif, pas une prévision</T> : il décrit la situation du titre à la dernière séance. Classement : partie entière ; fiche : valeur exacte et composition, facteur par facteur. <T>—</T> : non calculé — cours périmé ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des facteurs</a></L>
       <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sur une échelle neutre qui va du gris au bleu de plus en plus soutenu, sans mot d'action : <T c={couleurPlage("t75")}>● 75 et plus</T> · <T c={couleurPlage("t60")}>● 60 à 74</T> · <T c={couleurPlage("t40")}>● 40 à 59</T> · <T c={couleurPlage("t0")}>● sous 40</T> · <T c={couleurPlage("nc")}>◌ non calculé</T>. La couleur situe le score dans sa tranche ; elle ne dit pas quoi faire. Le vert et le rouge sont réservés aux hausses et aux baisses de cours. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
-      <L titre="Ce que le score a mesuré">Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 séances plus tard, frais de 2 % compris : 31,9 % sous 40 · 30,6 % de 40 à 59 · 32,6 % de 60 à 74 · 33,7 % à 75 et plus — pour 32,1 % en moyenne. Aucun écart robuste — la tranche 40–59 frôle le seuil de 5 % selon une méthode (p = 0,049) et le manque selon l'autre (p = 0,053) : <T>le score décrit la situation, il ne distingue pas les gagnants.</T> Mesure faite sans le facteur rentabilité (ROE 2025 inconnu en 2023-2024).</L>
+      <L titre="Ce que le score a mesuré">{!M?"Mesure indisponible : le fichier de mesure n'a pas pu être lu.":<>Sur {M.observations.toLocaleString("fr-FR")} observations (semaines closes du {dateFr(M.periode.premiere_semaine)} au {dateFr(M.periode.derniere_semaine)}), part des cas qui ont fait mieux que le MASI {M.horizon_seances} séances plus tard, frais de {String(M.frais_aller_retour_pct).replace(".",",")} % compris : {M.tranches.map(t=>`${pctFr(t.part_battu_masi_pct)} % ${t.plage}`).join(" · ")} — pour {pctFr(M.base_pct)} % en moyenne. {M.conclusion.texte} Mesure faite sans le facteur rentabilité (ROE 2025 inconnu en 2023-2024).</>}</L>
       {/* GLOSSAIRE — 20/11/2026 (lot 1.6) : toutes les définitions, lues dans
           le même objet que les infobulles (GLOSSAIRE) ; aucune phrase n'est
           écrite deux fois. Chaque entrée a une ancre « glossaire-<id> ». */}

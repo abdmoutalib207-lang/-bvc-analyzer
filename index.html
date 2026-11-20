@@ -13759,19 +13759,31 @@ const Detail = ({
   }))))));
 };
 const FACTEURS_BVC = [["moyennes_mobiles", "Moyennes mobiles", 35, "Cours au-dessus de sa MM20 → 15 · de sa MM50 → 10 · de sa MM200 → 10, sinon 0. Une moyenne indisponible (MM200 : 200 séances) ne compte pas."], ["momentum", "Momentum (RSI 14)", 15, "RSI entre 45 et 70 → 15 · entre 30 et 45 → 7,5 · sous 30 ou au-dessus de 70 → 0."], ["macd", "MACD (12, 26, 9)", 10, "MACD au-dessus de son signal et histogramme en hausse → 10 · au-dessus seulement → 5 · sinon 0."], ["activité", "Activité (volume)", 10, "Volume du jour ÷ médiane des 20 séances précédentes : de 0,8 à 3 → 10 · sous 0,8 → 5 · au-delà de 3 → 2."], ["liquidité", "Liquidité", 15, "Montant médian échangé sur 20 séances : ≥ 5 MDH → 15 · ≥ 1 MDH → 7,5 · sinon 0."], ["rentabilité", "Rentabilité (ROE)", 15, "ROE de l'exercice 2025 sur comptes déposés à l'AMMC : ≥ 12 % → 15 · ≥ 5 % → 7,5 · sinon 0."]];
-const MESURE_BVC = {
-  n: 43031,
-  dates: 818,
-  du: "05/06/2023",
-  au: "03/11/2026",
-  base: 32.1,
-  tranches: [["< 40", 14574, 31.9], ["40–59", 9840, 30.6], ["60–74", 10933, 32.6], ["≥ 75", 7684, 33.7]]
+let MESURE_BVC = null,
+  MESURE_BVC_P = null;
+const mesureValide = j => !!(j && j.schema === "mesure_score_bvc/1" && Array.isArray(j.tranches) && j.tranches.length && Number.isFinite(j.observations) && Number.isFinite(j.base_pct) && j.tranches.every(t => Number.isFinite(t.n) && Number.isFinite(t.part_battu_masi_pct)) && j.periode && j.conclusion && j.conclusion.texte);
+const chargerMesureBVC = () => MESURE_BVC_P || (MESURE_BVC_P = fetch("datasets/backtests/score_bvc_mesure_courante.json?t=" + vpub()).then(x => x.ok ? x.json() : null).then(j => {
+  MESURE_BVC = mesureValide(j) ? j : null;
+  return MESURE_BVC;
+}).catch(() => null));
+const useMesureBVC = () => {
+  const [m, setM] = useState(MESURE_BVC);
+  const [fini, setFini] = useState(!!MESURE_BVC);
+  useEffect(() => {
+    if (!MESURE_BVC) chargerMesureBVC().then(j => {
+      setM(j);
+      setFini(true);
+    });
+  }, []);
+  return [m, fini];
 };
+const dateFr = d => d && d.length >= 10 ? d.slice(8, 10) + "/" + d.slice(5, 7) + "/" + d.slice(0, 4) : "";
 const pctFr = x => x.toLocaleString("fr-FR", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1
 });
 const Weights = () => {
+  const [M, mesureChargee] = useMesureBVC();
   return React.createElement("div", null, React.createElement("div", {
     className: "carte",
     style: {
@@ -13854,14 +13866,21 @@ const Weights = () => {
       fontWeight: 600,
       marginBottom: 4
     }
-  }, "CE QUE LE SCORE A MESUR\xC9"), React.createElement("div", {
+  }, "CE QUE LE SCORE A MESUR\xC9"), !M ? React.createElement("div", {
+    className: "mesure-indisponible",
+    style: {
+      fontSize: 12.5,
+      color: "#8892a4",
+      lineHeight: 1.6
+    }
+  }, mesureChargee ? "Mesure indisponible : le fichier de mesure n'a pas pu être lu. Aucun chiffre n'est affiché plutôt qu'un chiffre périmé." : "Chargement de la mesure…") : React.createElement(React.Fragment, null, React.createElement("div", {
     style: {
       fontSize: 11,
       color: "#8892a4",
       marginBottom: 10,
       lineHeight: 1.6
     }
-  }, "Part des cas qui ont fait mieux que le MASI 20 s\xE9ances plus tard (dividendes r\xE9investis, frais de 2 % aller-retour d\xE9duits) \u2014 ", MESURE_BVC.n.toLocaleString("fr-FR"), " observations sur ", MESURE_BVC.dates, " s\xE9ances d'entr\xE9e, calendrier du ", MESURE_BVC.du, " au ", MESURE_BVC.au, "."), React.createElement("div", {
+  }, "Part des cas qui ont fait mieux que le MASI ", M.horizon_seances, " s\xE9ances plus tard (dividendes r\xE9investis, frais de ", String(M.frais_aller_retour_pct).replace(".", ","), " % aller-retour d\xE9duits) \u2014 ", M.observations.toLocaleString("fr-FR"), " observations (un titre \xE9chang\xE9 \xE0 la cl\xF4ture de chaque semaine close) sur ", M.dates_d_entree, " dates d'entr\xE9e, du ", dateFr(M.periode.premiere_semaine), " au ", dateFr(M.periode.derniere_semaine), ". Mesure du ", dateFr(M.date_artefact), "."), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -13883,7 +13902,11 @@ const Weights = () => {
       textAlign: "left",
       fontWeight: 500
     }
-  }, h)))), React.createElement("tbody", null, MESURE_BVC.tranches.map(([t, n, p]) => {
+  }, h)))), React.createElement("tbody", null, M.tranches.map(({
+    plage: t,
+    n,
+    part_battu_masi_pct: p
+  }) => {
     const c = (TRANCHES_BVC.find(x => x.plage === t) || TRANCHE_NC).c;
     return React.createElement("tr", {
       key: t,
@@ -13934,7 +13957,7 @@ const Weights = () => {
       color: "#8892a4",
       fontVariantNumeric: "tabular-nums"
     }
-  }, MESURE_BVC.n.toLocaleString("fr-FR")), React.createElement("td", {
+  }, M.observations.toLocaleString("fr-FR")), React.createElement("td", {
     style: {
       padding: "8px 10px",
       fontSize: 13,
@@ -13942,25 +13965,26 @@ const Weights = () => {
       fontWeight: 700,
       fontVariantNumeric: "tabular-nums"
     }
-  }, pctFr(MESURE_BVC.base), " %"))))), React.createElement("div", {
+  }, pctFr(M.base_pct), " %"))))), React.createElement("div", {
     style: {
       fontSize: 11.5,
       color: "#c8d3e8",
       marginTop: 10,
       lineHeight: 1.6
     }
-  }, "De 30,6 % \xE0 33,7 % selon la tranche, pour 32,1 % en moyenne : aucun \xE9cart robuste (seule la tranche 40\u201359, \xE0 \u22121,3 point, fr\xF4le le seuil de 5 % selon une m\xE9thode et le manque selon l'autre). ", React.createElement("b", null, "Le Score BVC d\xE9crit la situation ; il ne distingue pas les gagnants.")), React.createElement("div", {
+  }, "De ", pctFr(Math.min(...M.tranches.map(t => t.part_battu_masi_pct))), " % \xE0 ", pctFr(Math.max(...M.tranches.map(t => t.part_battu_masi_pct))), " % selon la tranche, pour ", pctFr(M.base_pct), " % en moyenne. ", M.conclusion.texte), React.createElement("div", {
     style: {
       fontSize: 10.5,
       color: "#8892a4",
       marginTop: 6,
       lineHeight: 1.5
     }
-  }, "Mesure faite sans le facteur rentabilit\xE9 : le ROE de 2025 n'\xE9tait pas connu en 2023-2024, l'utiliser aurait fauss\xE9 la mesure. Un seul cycle de march\xE9 (environ trois ans) ; univers des titres cot\xE9s aujourd'hui. Source : datasets/backtests/score_bvc_2026-11-03.json.")));
+  }, (M.reserves || []).join(" "), " ", M.hors_echantillon && M.hors_echantillon.texte, " Source : ", M.artefact, "."))));
 };
 const Guide = ({
   setTab
 }) => {
+  const [M] = useMesureBVC();
   const ref = useRef(null);
   useEffect(() => {
     try {
@@ -14058,7 +14082,7 @@ const Guide = ({
     c: "#ff6b6b"
   }, "SUSPENDU"), " : le titre ne cote pas."), React.createElement(L, {
     titre: "Ce que le score a mesur\xE9"
-  }, "Sur 43 031 observations (calendrier du 05/06/2023 au 03/11/2026), part des cas qui ont fait mieux que le MASI 20 s\xE9ances plus tard, frais de 2 % compris : 31,9 % sous 40 \xB7 30,6 % de 40 \xE0 59 \xB7 32,6 % de 60 \xE0 74 \xB7 33,7 % \xE0 75 et plus \u2014 pour 32,1 % en moyenne. Aucun \xE9cart robuste \u2014 la tranche 40\u201359 fr\xF4le le seuil de 5 % selon une m\xE9thode (p = 0,049) et le manque selon l'autre (p = 0,053) : ", React.createElement(T, null, "le score d\xE9crit la situation, il ne distingue pas les gagnants."), " Mesure faite sans le facteur rentabilit\xE9 (ROE 2025 inconnu en 2023-2024)."), React.createElement("section", {
+  }, !M ? "Mesure indisponible : le fichier de mesure n'a pas pu être lu." : React.createElement(React.Fragment, null, "Sur ", M.observations.toLocaleString("fr-FR"), " observations (semaines closes du ", dateFr(M.periode.premiere_semaine), " au ", dateFr(M.periode.derniere_semaine), "), part des cas qui ont fait mieux que le MASI ", M.horizon_seances, " s\xE9ances plus tard, frais de ", String(M.frais_aller_retour_pct).replace(".", ","), " % compris : ", M.tranches.map(t => `${pctFr(t.part_battu_masi_pct)} % ${t.plage}`).join(" · "), " \u2014 pour ", pctFr(M.base_pct), " % en moyenne. ", M.conclusion.texte, " Mesure faite sans le facteur rentabilit\xE9 (ROE 2025 inconnu en 2023-2024).")), React.createElement("section", {
     className: "glossaire",
     "aria-labelledby": "titre-glossaire",
     style: {
