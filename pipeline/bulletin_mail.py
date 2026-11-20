@@ -78,12 +78,14 @@ TRANCHES_BVC = (("≥ 75", 75), ("60–74", 60), ("40–59", 40), ("< 40", -math
 CONFIANCE_MIN = 2
 N_SCORE_BVC = 10
 
-# La mesure citée par le courriel. Rien n'est écrit en dur : chaque chiffre
-# est lu dans cet artefact daté, et n'est cité que si sa version de score est
+# La mesure citée par le courriel : la MÊME que l'écran, lue dans le pointeur
+# `score_bvc_mesure_courante.json` (artefact hebdomadaire daté, décision D2).
+# Rien n'est écrit en dur ; elle n'est citée que si sa version de score est
 # celle que data.json publie (R12).
-MESURE_SCORE_BVC = RACINE / "datasets" / "backtests" / "score_bvc_2026-11-03.json"
-_LIBELLES_MESURE = (("< 40", "sous 40"), ("40 – 59", "de 40 à 59"),
-                    ("60 – 74", "de 60 à 74"), ("≥ 75", "à 75 et plus"))
+MESURE_SCORE_BVC = RACINE / "datasets" / "backtests" / "score_bvc_mesure_courante.json"
+MESURE_INDISPONIBLE = "Ce que le score a mesuré : mesure indisponible."
+_LIBELLES_MESURE = {"< 40": "sous 40", "40–59": "de 40 à 59",
+                    "60–74": "de 60 à 74", "≥ 75": "à 75 et plus"}
 
 
 def ligne_semaine(fin: str) -> str:
@@ -125,50 +127,48 @@ def _score(v):
 
 
 def mesure_score_bvc(chemin=None):
-    """Les fréquences mesurées du Score BVC, lues dans l'artefact — ou None.
+    """Les fréquences mesurées du Score BVC, lues dans le pointeur — ou None.
 
-    Ne lève jamais : un artefact illisible retire le paragraphe, il n'empêche
-    pas l'envoi. ⚠️ On ne cite que la mesure SANS rentabilité : c'est la seule
-    sans biais d'anticipation (le ROE 2025 n'était pas connu en 2023-2024)."""
+    Ne lève jamais : un pointeur absent ou illisible remplace le paragraphe par
+    « mesure indisponible », il n'empêche pas l'envoi — et la panne s'écrit sur
+    stderr (R5). ⚠️ Mesure SANS rentabilité : la seule sans biais d'anticipation
+    (le ROE 2025 n'était pas connu en 2023-2024)."""
     try:
-        chemin = Path(chemin) if chemin else MESURE_SCORE_BVC
-        d = json.loads(chemin.read_text(encoding="utf-8"))
-        r = d["resultats"]["sans_rentabilite"]["score_bvc"]
-        sem = r.get("par_semestre") or {}
-        tranches = [(lib, r["tranches"][cle]["frequence_surperformance"], r["tranches"][cle]["n"])
-                    for cle, lib in _LIBELLES_MESURE]
+        from pipeline import mesure_courante
+        d = mesure_courante.lire(Path(chemin) if chemin else MESURE_SCORE_BVC)
+        per = d["periode"]
         return {
-            "fichier": f"datasets/backtests/{chemin.name}",
+            "fichier": d["artefact"],
             "version": d["version_score"],
-            "n": r["observations_total"],
-            "base": r["taux_de_base_global"],
-            "du": min((s["du"] for s in sem.values()), default=None),
-            "au": max((s["au"] for s in sem.values()), default=None),
+            "n": d["observations"],
+            "base_pct": d["base_pct"],
+            "du": per["premiere_semaine"],
+            "au": per["derniere_semaine"],
             "horizon": d["horizon_seances"],
-            "frais": d["frais_aller_retour"],
-            "reference": d["reference_principale"],
-            "tranches": tranches,
-            "significatives": [lib for cle, lib in _LIBELLES_MESURE
-                               if r["tranches"][cle].get("ecart_significatif_5pct")],
+            "frais_pct": d["frais_aller_retour_pct"],
+            "tranches": [(_LIBELLES_MESURE.get(t["plage"], t["plage"]),
+                          t["part_battu_masi_pct"], t["n"]) for t in d["tranches"]],
+            "significatives": [_LIBELLES_MESURE.get(x, x)
+                               for x in d["conclusion"]["tranche_distincte_a_5pct"]],
         }
     except Exception as e:                                # noqa: BLE001
-        # Le courriel part sans ce paragraphe, mais jamais sans le dire (R5).
-        print(f"⚠️ bulletin : mesure du Score BVC illisible ({type(e).__name__}: {e})",
+        print(f"⚠️ bulletin : mesure du Score BVC indisponible ({type(e).__name__}: {e})",
               file=sys.stderr)
         return None
 
 
-def _pc(f):
-    return f"{f * 100:.1f} %".replace(".", ",")
+def _pc(p):
+    """Un pourcentage déjà exprimé en % : 32.5 -> « 32,5 % »."""
+    return f"{p:.1f} %".replace(".", ",")
 
 
 def phrase_mesure(m):
-    """La mesure en une phrase, ou une chaîne vide. Même texte pour les deux rendus."""
+    """La mesure en une phrase, ou « mesure indisponible ». Même texte pour les deux rendus."""
     if not m:
-        return ""
-    periode = (f" (dates d'entrée du {_jjmm(m['du'], True)} au {_jjmm(m['au'], True)})"
+        return MESURE_INDISPONIBLE
+    periode = (f" (clôtures de semaine du {_jjmm(m['du'], True)} au {_jjmm(m['au'], True)})"
                if m.get("du") and m.get("au") else "")
-    tr = " · ".join(f"{_pc(f)} {lib}" for lib, f, _n in m["tranches"])
+    tr = " · ".join(f"{_pc(p)} {lib}" for lib, p, _n in m["tranches"])
     if m["significatives"]:
         lecture = ("écart au taux de base significatif à 5 % pour : "
                    + ", ".join(m["significatives"]) + ".")
@@ -176,10 +176,11 @@ def phrase_mesure(m):
         lecture = ("aucune tranche ne s'en distingue de façon robuste : le score "
                    "décrit la situation, il ne distingue pas les gagnants.")
     return (f"Ce que le score a mesuré : sur {_nb(m['n'], 0)} observations{periode}, "
-            f"part des cas ayant fait mieux que le {m['reference']} {m['horizon']} séances "
-            f"plus tard, frais de {_nb(m['frais'] * 100, 0)} % compris : {tr}, pour "
-            f"{_pc(m['base'])} sur l'ensemble — {lecture} Mesure faite sans le facteur "
-            f"rentabilité ({m['fichier']}). Une fréquence passée, pas une promesse.")
+            f"part des cas ayant fait mieux que le MASI {m['horizon']} séances "
+            f"plus tard, frais de {_nb(m['frais_pct'], 0)} % compris : {tr}, pour "
+            f"{_pc(m['base_pct'])} sur l'ensemble — {lecture} Mesure faite sans le facteur "
+            f"rentabilité ({m['fichier']}). Un seul cycle de marché, titres cotés "
+            f"aujourd'hui. Une fréquence passée, pas une promesse.")
 
 
 PHRASE_SCORE = ("Score descriptif sur 100, pas une prévision : il décrit la situation "
@@ -292,6 +293,8 @@ def analyser(data, titres):
                 if isinstance(x.get("score_bvc"), dict)}
     mesure = mesure_score_bvc()
     if mesure and mesure["version"] not in versions:
+        print(f"⚠️ bulletin : mesure de {mesure['version']}, score publié {sorted(v for v in versions if v)} "
+              f"— mesure non citée", file=sys.stderr)
         mesure = None
 
     return {
@@ -497,8 +500,7 @@ def texte(a):
                 add(f"          ↳ {mention_offre(x)}")
     else:
         add("   Aucun Score BVC publiable sur cette séance.")
-    if phrase_mesure(a.get("mesure")):
-        add(f"   {phrase_mesure(a.get('mesure'))}")
+    add(f"   {phrase_mesure(a.get('mesure'))}")
     add("")
     add("CE QUE CE BULLETIN NE SAIT PAS")
     add(f"   {a['non_cotes']} valeur(s) n'ont pas coté : leur prix est celui "
