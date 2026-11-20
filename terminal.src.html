@@ -30,6 +30,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px;}
     .mobile-seul{display:none}
+    .bouton-reglages{display:none}
     .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
@@ -160,6 +161,12 @@
       .classement .c-var,.classement .c-conf,.classement .c-per,.classement .c-div,
       .classement .c-ouv,.classement .c-echange,.classement .c-rsi{display:none}
       .plus-colonnes{display:none!important}
+      /* Filtres et tri repliés (20/11/2026) : la 1re ligne du classement
+         remonte de 481 à 241 px à 390, 8 lignes entières au premier écran
+         au lieu de 4 (mesuré sur data.json du 20/11). */
+      .bouton-reglages{display:inline-flex!important}
+      .reglages-fermes .reglage-tel{display:none!important}
+      .recherche-classement{flex:1 1 120px;width:auto!important;min-width:0}
       .classement td,.classement th{padding:7px 4px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -3430,6 +3437,11 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   const [trancheFiltre,setTrancheFiltre]=useState(null);
   const [rsiZone,setRsiZone]=useState(null);
   const [plus,setPlus]=useState(()=>lsLire("bvc_classement_plus")==="1");
+  /* Téléphone (20/11/2026) : secteur, MASI 1, CSV, filtres de tranche et de
+     RSI et tri prenaient 330 px avant la 1re ligne (mesuré à 390 px). Ils se
+     replient derrière « Filtres et tri », qui dit le tri en cours et le
+     nombre de filtres actifs : rien de ce qui trie ou filtre ne se cache. */
+  const [reglages,setReglages]=useState(false);
   const basculerPlus=()=>setPlus(v=>{lsEcrire("bvc_classement_plus",v?"0":"1");return !v;});
   // La semaine du Score BVC la plus fréquente : dite une fois, en en-tête.
   const semaineCommune=useMemo(()=>{const n={};rows.forEach(r=>{const f=((r.score_bvc||{}).semaine||{}).fin;if(f)n[f]=(n[f]||0)+1;});
@@ -3502,6 +3514,8 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     "SCORE BVC":"Trier par Score BVC (0-100, descriptif) — score de la semaine close","CONFIANCE":"Fiabilité des données, de 0 à 5",
     "PER":"Cours ÷ bénéfice par action — « n.s. » : non significatif","DIVIDENDE":"Rendement du dividende : dividende par action ÷ cours","RSI":"Trier par RSI (14 séances)"};
   const voirRSI=plus||sort==="rsi"||rsiZone!=null;
+  const nFiltres=(sector!=="ALL")+(group==="MASI1")+(trancheFiltre!=null)+(rsiZone!=null);
+  const libTri=((SORTS.find(([id])=>id===sort||(id==="var"&&sort==="var_asc"))||[])[1]||"")+(triCroissant(sort)?" ▲":" ▼");
   const colonnes=[...HEADS.slice(0,3),...(plus?HEADS_PLUS.slice(0,2):[]),...HEADS.slice(3),...(voirRSI?["RSI"]:[])].map(h=>[h,CLASSE_COLONNE[h]]);
   if(isWatchlist&&rows.length===0) return(
     <div style={{textAlign:"center",padding:"60px 20px",color:"#8892a4"}}>
@@ -3511,27 +3525,30 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
     </div>
   );
   return(
-    <div>
+    <div className={reglages?"reglages-ouverts":"reglages-fermes"}>
       {/* ── Barre de recherche + filtre secteur ─────────────── */}
       <div style={{display:"flex",gap:8,marginBottom:10,alignItems:"center",flexWrap:"wrap"}}>
-        <input
+        <input className="recherche-classement"
           value={search} onChange={e=>setSearch(e.target.value)}
           placeholder="Ticker ou société" aria-label="Rechercher un titre"
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#c8d3e8",borderRadius:4,padding:"5px 10px",fontSize:12,fontFamily:"var(--font)",width:220,outline:"none"}}
         />
-        <select value={sector} onChange={e=>setSector(e.target.value)}
+        <button className="bouton-reglages" onClick={()=>setReglages(v=>!v)} aria-expanded={reglages}
+          style={{alignItems:"center",gap:6,fontSize:12,padding:"5px 10px",borderRadius:4,border:`1px solid ${reglages||nFiltres?"rgba(77,184,255,.6)":"#1a2540"}`,color:reglages||nFiltres?"#4db8ff":"#8892a4",background:"transparent",cursor:"pointer",whiteSpace:"nowrap"}}>
+          {reglages?"▴":"▾"} Tri {libTri}{nFiltres?` · ${nFiltres} filtre${nFiltres>1?"s":""}`:""}</button>
+        <select className="reglage-tel" value={sector} onChange={e=>setSector(e.target.value)}
           style={{background:"#0d1829",border:"1px solid #1a2540",color:"#8892a4",borderRadius:4,padding:"5px 8px",fontSize:11,fontFamily:"var(--font)",cursor:"pointer"}}>
           {sectors.map(s=><option key={s} value={s}>{s==="ALL"?`Tous (${rows.length})`:s}</option>)}
         </select>
         {/* Filtre MASI 1 */}
-        <div style={{display:"flex",gap:4,background:"#0a1220",borderRadius:4,padding:2,border:"1px solid #1a2540"}}>
+        <div className="reglage-tel" style={{display:"flex",gap:4,background:"#0a1220",borderRadius:4,padding:2,border:"1px solid #1a2540"}}>
           {[["MASI1","MASI 1","#00e5a0"],["ALL","ÉLARGI","#4db8ff"]].map(([g,lbl,c])=>(
             <button key={g} onClick={()=>setGroup(g)} style={{fontSize:10,fontWeight:600,padding:"3px 10px",borderRadius:3,border:"none",cursor:"pointer",background:group===g?`${c}18`:"transparent",color:group===g?c:"#8892a4",transition:"all .2s"}}>{lbl}</button>
           ))}
         </div>
         {(search||sector!=="ALL"||trancheFiltre!=null||rsiZone)&&<button onClick={()=>{setSearch("");setSector("ALL");setTrancheFiltre(null);setRsiZone(null);}} style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30",borderRadius:3,padding:"3px 8px",background:"transparent"}}>✕ Réinitialiser</button>}
         <span style={{marginLeft:"auto",fontSize:11,color:"#8892a4"}}>{sorted.length}/{group==="MASI1"?19:rows.length} titres</span>
-        <button onClick={()=>{
+        <button className="reglage-tel" onClick={()=>{
           // 06/11/2026 : le Score BVC remplace la note v5.3 (v53, sig retirés).
           // ⚠️ La version part avec le fichier : un CSV survit à l'écran qui
           // l'a produit, et un score sans sa formule est ininterprétable. Une
@@ -3551,7 +3568,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         </button>
       </div>
       {/* ── Screener : filtres par tranche du Score BVC + RSI ── */}
-      <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
+      <div className="reglage-tel" style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>
         <span style={{fontSize:10,color:"#8892a4",letterSpacing:.5,marginRight:2}}>SCORE BVC</span>
         {[...TRANCHES_BVC,TRANCHE_NC].map(p=>{const on=trancheFiltre===p.id;return(
           <button key={p.id} onClick={()=>setTrancheFiltre(on?null:p.id)} aria-pressed={on}
@@ -3571,7 +3588,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
         ))}
       </div>
       {/* ── Tri ────────────────────────────────────────────────── */}
-      <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
+      <div className="reglage-tel" style={{display:"flex",gap:8,marginBottom:14,alignItems:"center",flexWrap:"wrap"}}>
         <span style={{fontSize:12,color:"#8892a4",letterSpacing:1}}>TRIER PAR</span>
         {SORTS.map(([id,lbl])=>{
           // VAR% couvre les deux sens : ▼ décroissant, ▲ croissant (accueil).

@@ -214,3 +214,57 @@ def test_les_tris_existants_restent():
         assert t in r, t
     assert 'const TRI_COLONNE={"TITRE":"az","VAR%":"var","SCORE BVC":"bvc","RSI":"rsi"};' in r
     assert "const triCroissant=s=>s===\"var_asc\"||s===\"az\"||s===\"rsi\";" in SRC
+
+
+# ── Téléphone : filtres et tri repliés (second lot du 20/11/2026) ───────────
+#
+# Mesuré à 390 px : la 1re ligne du classement commençait à 481 px (4 lignes
+# entières au premier écran) ; secteur, MASI 1, CSV, filtres de tranche et de
+# RSI et tri en prenaient 330. Repliés derrière « Filtres et tri » : 241 px,
+# 8 lignes. Le bouton dit le tri en cours et le nombre de filtres actifs, et
+# « Réinitialiser » reste visible dès qu'un filtre joue.
+
+ANCIEN_OUTILS = """        <select value={sector} onChange={e=>setSector(e.target.value)}
+      <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:10,alignItems:"center"}}>"""
+
+
+def defauts_reglages(src: str) -> list[str]:
+    d = []
+    for marque in ('className="reglage-tel" value={sector}',            # secteur
+                   '<div className="reglage-tel" style={{display:"flex",gap:4,background',  # MASI 1
+                   '<button className="reglage-tel" onClick={()=>{',     # CSV
+                   '<div className="reglage-tel" style={{display:"flex",gap:4,flexWrap',    # tranches et RSI
+                   '<div className="reglage-tel" style={{display:"flex",gap:8,marginBottom:14'):  # tri
+        if marque not in src:
+            d.append(f"non repliable : {marque[:40]}")
+    if 'className="bouton-reglages"' not in src:
+        d.append("pas de bouton « Filtres et tri »")
+    return d
+
+
+def test_sur_telephone_filtres_et_tri_se_replient():
+    assert defauts_reglages(SRC) == []
+    css = _css_telephone()
+    assert ".reglages-fermes .reglage-tel{display:none!important}" in css
+    assert ".bouton-reglages{display:inline-flex!important}" in css
+    # Hors téléphone, rien ne change : le bouton n'existe pas, tout est déplié.
+    avant = SRC[:SRC.index("@media(max-width:640px)")]
+    assert ".bouton-reglages{display:none}" in avant and ".reglage-tel{" not in avant
+    r = _ranking()
+    assert '<div className={reglages?"reglages-ouverts":"reglages-fermes"}>' in r
+
+
+def test_le_bouton_dit_le_tri_et_les_filtres_actifs_et_reinitialiser_reste():
+    r = _ranking()
+    assert "Tri {libTri}{nFiltres?` · ${nFiltres} filtre${nFiltres>1?\"s\":\"\"}`:\"\"}" in r
+    assert 'const nFiltres=(sector!=="ALL")+(group==="MASI1")+(trancheFiltre!=null)+(rsiZone!=null);' in r
+    assert "aria-expanded={reglages}" in r
+    # « Réinitialiser » et la recherche ne se replient jamais.
+    i = r.index("✕ Réinitialiser")
+    debut = r.rindex("<button", 0, i)
+    assert "reglage-tel" not in r[debut:i]
+    assert '<input className="recherche-classement"' in r
+
+
+def test_controle_negatif_reglages():
+    assert len(defauts_reglages(ANCIEN_OUTILS)) == 6

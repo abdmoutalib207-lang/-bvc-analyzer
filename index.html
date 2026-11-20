@@ -30,6 +30,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px;}
     .mobile-seul{display:none}
+    .bouton-reglages{display:none}
     .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
@@ -160,6 +161,12 @@
       .classement .c-var,.classement .c-conf,.classement .c-per,.classement .c-div,
       .classement .c-ouv,.classement .c-echange,.classement .c-rsi{display:none}
       .plus-colonnes{display:none!important}
+      /* Filtres et tri repliés (20/11/2026) : la 1re ligne du classement
+         remonte de 481 à 241 px à 390, 8 lignes entières au premier écran
+         au lieu de 4 (mesuré sur data.json du 20/11). */
+      .bouton-reglages{display:inline-flex!important}
+      .reglages-fermes .reglage-tel{display:none!important}
+      .recherche-classement{flex:1 1 120px;width:auto!important;min-width:0}
       .classement td,.classement th{padding:7px 4px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
@@ -6311,6 +6318,7 @@ const Ranking = ({
   const [trancheFiltre, setTrancheFiltre] = useState(null);
   const [rsiZone, setRsiZone] = useState(null);
   const [plus, setPlus] = useState(() => lsLire("bvc_classement_plus") === "1");
+  const [reglages, setReglages] = useState(false);
   const basculerPlus = () => setPlus(v => {
     lsEcrire("bvc_classement_plus", v ? "0" : "1");
     return !v;
@@ -6392,6 +6400,8 @@ const Ranking = ({
     "RSI": "Trier par RSI (14 séances)"
   };
   const voirRSI = plus || sort === "rsi" || rsiZone != null;
+  const nFiltres = (sector !== "ALL") + (group === "MASI1") + (trancheFiltre != null) + (rsiZone != null);
+  const libTri = ((SORTS.find(([id]) => id === sort || id === "var" && sort === "var_asc") || [])[1] || "") + (triCroissant(sort) ? " ▲" : " ▼");
   const colonnes = [...HEADS.slice(0, 3), ...(plus ? HEADS_PLUS.slice(0, 2) : []), ...HEADS.slice(3), ...(voirRSI ? ["RSI"] : [])].map(h => [h, CLASSE_COLONNE[h]]);
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
@@ -6416,7 +6426,9 @@ const Ranking = ({
       fontSize: 12
     }
   }, "Cliquez sur \u2606 dans le classement pour suivre un titre"));
-  return React.createElement("div", null, React.createElement("div", {
+  return React.createElement("div", {
+    className: reglages ? "reglages-ouverts" : "reglages-fermes"
+  }, React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6425,6 +6437,7 @@ const Ranking = ({
       flexWrap: "wrap"
     }
   }, React.createElement("input", {
+    className: "recherche-classement",
     value: search,
     onChange: e => setSearch(e.target.value),
     placeholder: "Ticker ou soci\xE9t\xE9",
@@ -6440,7 +6453,24 @@ const Ranking = ({
       width: 220,
       outline: "none"
     }
-  }), React.createElement("select", {
+  }), React.createElement("button", {
+    className: "bouton-reglages",
+    onClick: () => setReglages(v => !v),
+    "aria-expanded": reglages,
+    style: {
+      alignItems: "center",
+      gap: 6,
+      fontSize: 12,
+      padding: "5px 10px",
+      borderRadius: 4,
+      border: `1px solid ${reglages || nFiltres ? "rgba(77,184,255,.6)" : "#1a2540"}`,
+      color: reglages || nFiltres ? "#4db8ff" : "#8892a4",
+      background: "transparent",
+      cursor: "pointer",
+      whiteSpace: "nowrap"
+    }
+  }, reglages ? "▴" : "▾", " Tri ", libTri, nFiltres ? ` · ${nFiltres} filtre${nFiltres > 1 ? "s" : ""}` : ""), React.createElement("select", {
+    className: "reglage-tel",
     value: sector,
     onChange: e => setSector(e.target.value),
     style: {
@@ -6457,6 +6487,7 @@ const Ranking = ({
     key: s,
     value: s
   }, s === "ALL" ? `Tous (${rows.length})` : s))), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 4,
@@ -6501,6 +6532,7 @@ const Ranking = ({
       color: "#8892a4"
     }
   }, sorted.length, "/", group === "MASI1" ? 19 : rows.length, " titres"), React.createElement("button", {
+    className: "reglage-tel",
     onClick: () => {
       const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE_BVC", "ETAT_SCORE_BVC", "COUVERTURE_PCT", "TRANCHE", "VERSION_SCORE_BVC"];
       const rows_csv = sorted.map(r => {
@@ -6532,6 +6564,7 @@ const Ranking = ({
       letterSpacing: .5
     }
   }, "\u2193 CSV")), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 4,
@@ -6601,6 +6634,7 @@ const Ranking = ({
       fontWeight: rsiZone === z ? 700 : 400
     }
   }, lbl))), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 8,
