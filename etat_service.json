@@ -1,0 +1,357 @@
+{
+ "schema": "etat_service/1",
+ "_quoi": "État du service publié (lots 3.1 et 3.5). Produit par pipeline/etat_service.py dans le commit de data.json ; ne pas éditer.",
+ "genere_a": "2026-11-20T11:07:26+00:00",
+ "derniere_publication": {
+  "ecrit_a": "2026-11-20T09:55:58+0000",
+  "seance": "2026-11-20",
+  "titres_seance": 51,
+  "titres": 81,
+  "cloture": false,
+  "motif": "écrit avant la clôture de 15h30"
+ },
+ "derniere_cloture": {
+  "seance": "2026-11-19",
+  "publiee_a": "2026-11-19T15:56:14+0000",
+  "titres": 66
+ },
+ "prochaine_echeance": "2026-11-23T08:00:00+00:00",
+ "seance_attendue_ensuite": "2026-11-20",
+ "statut": "à jour",
+ "en_retard": [],
+ "taches": [
+  {
+   "nom": "Publication de la clôture (update_bvc)",
+   "derniere": "2026-11-19",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "séance de la dernière clôture publiée à temps"
+  },
+  {
+   "nom": "Indice MASI",
+   "derniere": "2026-11-20",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "date de l'indice dans data.json"
+  },
+  {
+   "nom": "Chandelles (pipeline/candles)",
+   "derniere": "2026-11-20",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "dernière séance portée par au moins 50 titres"
+  },
+  {
+   "nom": "Actualités (news.json)",
+   "derniere": "2026-11-20",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "date de collecte"
+  },
+  {
+   "nom": "Briefing de clôture",
+   "derniere": "2026-11-19",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "séance du dernier briefing de clôture"
+  },
+  {
+   "nom": "Pipeline v9 (financial_data.json)",
+   "derniere": "2026-11-19",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "date d'écriture"
+  },
+  {
+   "nom": "Sources de prix réelles",
+   "derniere": "2026-11-20",
+   "en_retard": false,
+   "statut": "à jour",
+   "detail": "cdg 51 · candles 28 · idbourse_perime 2"
+  },
+  {
+   "nom": "Contrôle du soir (verifier_seance)",
+   "derniere": null,
+   "en_retard": false,
+   "mesure": false,
+   "statut": "non mesuré ici",
+   "detail": "son verdict est le résultat du workflow dans GitHub Actions ; il ne commite rien et ne laisse aucun fichier à lire"
+  }
+ ],
+ "file_comptes": {
+  "disponible": true,
+  "a_lire": 0,
+  "plus_ancien": null,
+  "avertissements": 1,
+  "non_suivis": 20,
+  "en_retard": false,
+  "statut": "vide",
+  "seuil_jours_ouvres": 5
+ },
+ "compteur": {
+  "nom": "jours ouvrés consécutifs avec une clôture publiée à temps",
+  "definition": "Jours ouvrés consécutifs, en remontant depuis la dernière séance échue, pour lesquels data.json a publié la clôture à temps : au moins 50 titres au prix de la séance, fichier écrit après la clôture de 15h30 et MASI daté de la séance, avant 8h00 (Casablanca) le jour ouvré suivant. Jour ouvré : du lundi au vendredi, hors fériés à date fixe et dates inscrites au registre (SEANCES_SANS_COTATION, SEANCES_ANNULEES). Une séance dont l'échéance n'est pas passée est en attente : elle ne compte ni ne rompt. Ce n'est PAS le verdict de verifier_seance, qui n'est lisible que dans GitHub Actions.",
+  "valeur": 28,
+  "au_moins": true,
+  "derniere_rupture": null,
+  "objectif": 30,
+  "controle_du_soir": "non mesuré : le verdict de verifier_seance n'est lisible que par l'API GitHub"
+ },
+ "seances": [
+  {
+   "seance": "2026-10-09",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-09T15:56:43+0000"
+  },
+  {
+   "seance": "2026-10-12",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-12T15:56:28+0000"
+  },
+  {
+   "seance": "2026-10-13",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-13T15:56:37+0000"
+  },
+  {
+   "seance": "2026-10-14",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-14T15:56:21+0000"
+  },
+  {
+   "seance": "2026-10-15",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-15T15:56:18+0000"
+  },
+  {
+   "seance": "2026-10-16",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-16T15:56:22+0000"
+  },
+  {
+   "seance": "2026-10-19",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-19T15:56:21+0000"
+  },
+  {
+   "seance": "2026-10-20",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-20T15:56:22+0000"
+  },
+  {
+   "seance": "2026-10-21",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-21T15:56:12+0000"
+  },
+  {
+   "seance": "2026-10-22",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-22T15:56:11+0000"
+  },
+  {
+   "seance": "2026-10-23",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-23T15:56:19+0000"
+  },
+  {
+   "seance": "2026-10-26",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-26T15:56:44+0000"
+  },
+  {
+   "seance": "2026-10-27",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-27T15:49:10+0000"
+  },
+  {
+   "seance": "2026-10-28",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-28T15:56:12+0000"
+  },
+  {
+   "seance": "2026-10-29",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-29T15:56:15+0000"
+  },
+  {
+   "seance": "2026-10-30",
+   "statut": "a_temps",
+   "publiee_a": "2026-10-30T15:56:05+0000"
+  },
+  {
+   "seance": "2026-11-02",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-02T15:56:40+0000"
+  },
+  {
+   "seance": "2026-11-03",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-03T15:56:15+0000"
+  },
+  {
+   "seance": "2026-11-04",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-04T15:56:11+0000"
+  },
+  {
+   "seance": "2026-11-05",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-05T15:56:07+0000"
+  },
+  {
+   "seance": "2026-11-09",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-09T15:56:28+0000"
+  },
+  {
+   "seance": "2026-11-10",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-10T15:56:18+0000"
+  },
+  {
+   "seance": "2026-11-11",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-11T15:56:06+0000"
+  },
+  {
+   "seance": "2026-11-12",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-12T15:56:10+0000"
+  },
+  {
+   "seance": "2026-11-13",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-13T15:56:11+0000"
+  },
+  {
+   "seance": "2026-11-16",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-17T07:50:41+0000"
+  },
+  {
+   "seance": "2026-11-17",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-17T15:56:23+0000"
+  },
+  {
+   "seance": "2026-11-19",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-19T15:56:14+0000"
+  }
+ ],
+ "journal_depuis": "2026-10-09",
+ "journal": {
+  "2026-10-09": {
+   "publiee_a": "2026-10-09T15:56:43+0000",
+   "titres": 66
+  },
+  "2026-10-12": {
+   "publiee_a": "2026-10-12T15:56:28+0000",
+   "titres": 67
+  },
+  "2026-10-13": {
+   "publiee_a": "2026-10-13T15:56:37+0000",
+   "titres": 66
+  },
+  "2026-10-14": {
+   "publiee_a": "2026-10-14T15:56:21+0000",
+   "titres": 61
+  },
+  "2026-10-15": {
+   "publiee_a": "2026-10-15T15:56:18+0000",
+   "titres": 65
+  },
+  "2026-10-16": {
+   "publiee_a": "2026-10-16T15:56:22+0000",
+   "titres": 61
+  },
+  "2026-10-19": {
+   "publiee_a": "2026-10-19T15:56:21+0000",
+   "titres": 61
+  },
+  "2026-10-20": {
+   "publiee_a": "2026-10-20T15:56:22+0000",
+   "titres": 63
+  },
+  "2026-10-21": {
+   "publiee_a": "2026-10-21T15:56:12+0000",
+   "titres": 62
+  },
+  "2026-10-22": {
+   "publiee_a": "2026-10-22T15:56:11+0000",
+   "titres": 61
+  },
+  "2026-10-23": {
+   "publiee_a": "2026-10-23T15:56:19+0000",
+   "titres": 60
+  },
+  "2026-10-26": {
+   "publiee_a": "2026-10-26T15:56:44+0000",
+   "titres": 65
+  },
+  "2026-10-27": {
+   "publiee_a": "2026-10-27T15:49:10+0000",
+   "titres": 62
+  },
+  "2026-10-28": {
+   "publiee_a": "2026-10-28T15:56:12+0000",
+   "titres": 62
+  },
+  "2026-10-29": {
+   "publiee_a": "2026-10-29T15:56:15+0000",
+   "titres": 64
+  },
+  "2026-10-30": {
+   "publiee_a": "2026-10-30T15:56:05+0000",
+   "titres": 71
+  },
+  "2026-11-02": {
+   "publiee_a": "2026-11-02T15:56:40+0000",
+   "titres": 65
+  },
+  "2026-11-03": {
+   "publiee_a": "2026-11-03T15:56:15+0000",
+   "titres": 62
+  },
+  "2026-11-04": {
+   "publiee_a": "2026-11-04T15:56:11+0000",
+   "titres": 67
+  },
+  "2026-11-05": {
+   "publiee_a": "2026-11-05T15:56:07+0000",
+   "titres": 66
+  },
+  "2026-11-09": {
+   "publiee_a": "2026-11-09T15:56:28+0000",
+   "titres": 68
+  },
+  "2026-11-10": {
+   "publiee_a": "2026-11-10T15:56:18+0000",
+   "titres": 64
+  },
+  "2026-11-11": {
+   "publiee_a": "2026-11-11T15:56:06+0000",
+   "titres": 65
+  },
+  "2026-11-12": {
+   "publiee_a": "2026-11-12T15:56:10+0000",
+   "titres": 62
+  },
+  "2026-11-13": {
+   "publiee_a": "2026-11-13T15:56:11+0000",
+   "titres": 64
+  },
+  "2026-11-16": {
+   "publiee_a": "2026-11-17T07:50:41+0000",
+   "titres": 64
+  },
+  "2026-11-17": {
+   "publiee_a": "2026-11-17T15:56:23+0000",
+   "titres": 61
+  },
+  "2026-11-19": {
+   "publiee_a": "2026-11-19T15:56:14+0000",
+   "titres": 66
+  }
+ }
+}
