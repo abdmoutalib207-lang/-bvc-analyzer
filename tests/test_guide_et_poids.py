@@ -177,4 +177,7 @@ def test_guide_explique_les_frequences_et_non_verifie():
     assert "% gagnants" in GUIDE and "n cas" in GUIDE and "IC" in GUIDE
     assert "60 séances" in GUIDE        # horizon de la carte Signaux techniques
     assert "60 séances après le signal" in SRC
-    assert "non vérifié" in GUIDE
+    # 20/11/2026 (lot 1.6) : « non vérifié » et « ⚠ jj/mm » sont deux entrées
+    # du GLOSSAIRE, que le guide rend dans sa section « Glossaire ».
+    assert '"non vérifié"' in _entre(SRC, "const GLOSSAIRE={", "\n};\n")
+    assert "Object.entries(GLOSSAIRE)" in GUIDE

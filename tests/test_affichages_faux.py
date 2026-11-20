@@ -121,7 +121,8 @@ def test_classement_dividende_absent_et_nul():
 
 def test_classement_utilise_le_format():
     assert '{r.div?.toFixed(1)||"—"}%' not in ECRAN
-    assert "{divClassement(r.div)}</td>" in _composant("Ranking")
+    # 20/11/2026 (lot 1.6) : « — » devient un terme du glossaire (lex).
+    assert "{lex(divClassement(r.div))}</td>" in _composant("Ranking")
 
 
 # ── 6. Fiche : dividende relevé à zéro ──────────────────────────────────────

@@ -250,8 +250,9 @@ def test_le_per_eleve_n_est_plus_orange_et_le_dividende_eleve_plus_vert():
     for motif in (r"r\.pe>25\?", r"per_2[67]e>25\?", r"r\.div>4\?", r"dy_2[67]e>4\?"):
         assert not re.search(motif, SRC), motif
     # Les valeurs restent affichées.
-    assert "{perTxt(r.pe,r.bpa_12m??r.bpa)}</td>" in SRC
-    assert "{divClassement(r.div)}</td>" in SRC
+    # 20/11/2026 (lot 1.6) : « — » et « n.s. » rendus en termes du glossaire (lex).
+    assert "{lex(perTxt(r.pe,r.bpa_12m??r.bpa),perNS(r.pe,r.bpa_12m??r.bpa)||undefined)}</td>" in SRC
+    assert "{lex(divClassement(r.div))}</td>" in SRC
     assert '["Dividende",divFiche(r.div),' in SRC
     assert '["Rendement 2026e",r.fwd.dy_26e!=null?' in SRC
     assert '["PER 2026e",fmt(r.fwd.per_26e,1),' in SRC
@@ -264,7 +265,7 @@ def test_le_rang_dans_le_secteur_ne_dit_plus_cher_ou_pas_cher():
 
 
 def test_les_filtres_rsi_ne_jugent_plus():
-    bloc = _bloc('<span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}>RSI</span>', "))}")
+    bloc = _bloc('<span style={{marginLeft:8,fontSize:10,color:"#8892a4",letterSpacing:.5}}><Terme id="rsi">RSI</Terme></span>', "))}")
     assert "survendu" in bloc and "suracheté" in bloc
     for c in (HAUSSE, *BAISSES):
         assert c not in bloc.lower(), c

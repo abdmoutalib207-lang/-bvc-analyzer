@@ -178,10 +178,11 @@ def test_sur_telephone_la_variation_et_la_confiance_passent_dessous():
 def test_donnees_insuffisantes_reste_dans_la_colonne_du_score_et_le_score_grisé():
     c = _cellule("c-score")
     assert "color:couleurChiffre(r)" in c          # gris à confiance ≤ 1
-    assert 'meta(r).conf<=1\n                        ? <Chip wrap label="Données insuffisantes"' in c
+    # 20/11/2026 (lot 1.6) : l'état ouvre sa définition (GLOSSAIRE) au toucher.
+    assert 'meta(r).conf<=1\n                        ? <Terme id="donnees_insuffisantes" nu><Chip wrap label="Données insuffisantes"' in c
     # Un titre suspendu passe AVANT la confiance (le titre ne cote plus).
     assert (c.index("meta(r).susp\n") < c.index("meta(r).reprise_recente\n")
-            < c.index('meta(r).conf<=1\n                        ? <Chip'))
+            < c.index('meta(r).conf<=1\n                        ? <Terme id="donnees_insuffisantes"'))
     assert "<PastilleBVC r={r}/>" in c
     i = SRC.index("const couleurChiffre=")
     assert 'meta(r).conf<=1||valeurBVC(r)==null?"#8892a4"' in SRC[i:i + 120]
