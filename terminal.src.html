@@ -62,7 +62,11 @@
        vide à 1440 px. Au-delà de 768 px, les secteurs se rangent en colonnes. */
     @media(min-width:768px){.heatmap-secteurs{column-width:340px;column-gap:24px}.heatmap-secteurs>div{break-inside:avoid}}
     @media(max-width:767px){.detail-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px}}
-    @media(min-width:768px){.fiche-graphique{order:-1}}
+    /* Fiche en trois étages (19/11/2026) : le graphique ouvre l'étage « Détail »,
+       il n'a plus à remonter par `order`. Plis du téléphone : flèche seule. */
+    .pli>summary{list-style:none}
+    .pli>summary::-webkit-details-marker{display:none}
+    .pli[open]>summary .pli-fleche{display:inline-block;transform:rotate(90deg)}
     @media(min-width:1200px){
       .fiche-gabarit{display:grid;grid-template-columns:272px minmax(0,1fr);gap:12px;align-items:start}
       .fiche-liste{position:sticky;top:calc(var(--h-entete,0px) + 8px);max-height:calc(100vh - var(--h-entete,0px) - 16px);
@@ -1419,11 +1423,15 @@ const reservePrincipale=r=>{const m=meta(r),nf=r.note_fond||{};const c=nf.compos
   const manque=Object.entries(c).find(([,x])=>x.note==null);
   if(manque)return MANQUE[manque[0]]||`${manque[0]} non mesurée`;
   return null;};
-const ResumeNote=({r})=>{const m=meta(r);const dh=m.echange_median_dh;
-  const al=((r.alertes||{}).liste)||[];const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
+/* 19/11/2026 (fiche en trois étages) : la ligne « Liquidité : … échangés par
+   séance (médiane 20 j) — faible » doublait le bloc de liquidité de la carte
+   « Fondamentaux », qui dit en plus ce que ce montant plafonne. Elle n'est
+   écrite qu'une fois, là. ResumeNote ne rend plus que les alertes vérifiées,
+   dans la carte « Alertes sur les comptes » (étage « Comprendre »). */
+const ResumeNote=({r})=>{
+  const al=((r.alertes||{}).liste)||[];if(!al.length)return null;const NIV={"critique":"#ff4f5a","élevé":"#ff8f00","moyen":"#ffd740"};
   const dfr=d=>d?d.split("-").reverse().join("/"):"date inconnue";
   return <div className="resume-note" style={{fontSize:11,color:"#8892a4",lineHeight:1.6,margin:"2px 0 4px"}}>
-    {dh!=null&&<div>Liquidité : {montantEntier(dh)} échangés par séance (médiane 20 j){dh<100000&&<span style={{color:"#ff8f00"}}> — faible</span>}</div>}
     {al.map((x,i)=><div key={i} className="alerte-verifiee"><span style={{color:NIV[x.niveau]||"#ff8f00"}}>⚠ {x.raison} : {x.valeur}</span> <span>({x.seuil}) — comptes au {dfr(x.date)}, {x.source}</span></div>)}
   </div>;};
 /* ── EN-TÊTE DE FICHE : L'ESSENTIEL AVANT LE SCORE (13/11/2026) ────────────
@@ -1477,7 +1485,7 @@ const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=us
   return <div className="fiche-essentiel" style={{textAlign:"left",margin:"10px 0 12px",padding:"8px 10px",
       background:"rgba(8,13,26,.55)",border:"1px solid #1a2540",borderRadius:6,
       fontSize:12.5,lineHeight:1.5,color:"#8892a4",fontVariantNumeric:"tabular-nums"}}>
-    <div data-essentiel="date" title={heureCours(r)}>
+    <div data-essentiel="date" data-date="cours" title={heureCours(r)}>
       {!m.asof
         ? <span style={{color:"#ffd740",fontWeight:700}}>⚠ date du cours inconnue</span>
         : ancien
@@ -4870,14 +4878,15 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
   return(
     <div className="score-bvc" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"12px 14px"}}>
       <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>{sansValeur?"Composition du Score BVC":"Score BVC"} <span style={{color:ok?"#c8d3e8":"#ffd740"}}>· {etatTxt}</span></div>
-      {s.semaine&&s.semaine.fin&&<div style={{fontSize:11,color:"#8892a4",marginTop:2}}>Score de la semaine · clôture du {jjmmaaaa(s.semaine.fin)}{s.semaine.cours_du&&s.semaine.cours_du!==s.semaine.fin?` (dernier échange le ${jjmmaaaa(s.semaine.cours_du)})`:""}</div>}
+      {/* En tête de fiche (sansValeur), la date de la semaine est dans « En bref », à côté du score (19/11/2026). */}
+      {!sansValeur&&s.semaine&&s.semaine.fin&&<div style={{fontSize:11,color:"#8892a4",marginTop:2}}>Score de la semaine · clôture du {jjmmaaaa(s.semaine.fin)}{s.semaine.cours_du&&s.semaine.cours_du!==s.semaine.fin?` (dernier échange le ${jjmmaaaa(s.semaine.cours_du)})`:""}</div>}
       {!sansValeur&&<div style={{display:"flex",alignItems:"baseline",gap:10,flexWrap:"wrap",marginTop:4}}>
         <span style={{fontSize:26,fontWeight:800,color:gris?"#8892a4":"#fff"}}>{vTxt}</span>
       </div>}
       <div style={{fontSize:12,color:"#c8d3e8",marginTop:4}}>Couverture des facteurs : {s.couverture_pct}&nbsp;%. Score descriptif, sans prévision de cours.</div>
       {!ok&&s.motif&&<div style={{fontSize:11,color:"#8892a4",marginTop:4}}>{s.motif}</div>}
       {ORDRE_FACTEURS_BVC.some(k=>fac[k])&&<>
-        <div style={{fontSize:11,color:"#8892a4",letterSpacing:.5,margin:"12px 0 6px",textTransform:"uppercase"}}>Composition du score</div>
+        {sansValeur?<div style={{height:8}}/>:<div style={{fontSize:11,color:"#8892a4",letterSpacing:.5,margin:"12px 0 6px",textTransform:"uppercase"}}>Composition du score</div>}
         {ORDRE_FACTEURS_BVC.filter(k=>fac[k]).map(k=>{const f=fac[k];const w=f.poids;
           const pct=f.points==null||!w?0:Math.max(0,Math.min(100,f.points/w*100));
           return(
@@ -4894,6 +4903,7 @@ const ScoreBVC=({s,conf,sansValeur=false})=>{
           </div>);})}
         <div style={{fontSize:10.5,color:"#8892a4",marginTop:8,lineHeight:1.5}}>Couleurs : proportion de points obtenus dans chaque facteur, sans prévision de rendement. <span aria-hidden="true" style={{color:PLEIN}}>■</span> <span style={{color:PLEIN}}>bleu soutenu</span> = plein · <span aria-hidden="true" style={{color:PARTIEL}}>■</span> <span style={{color:PARTIEL}}>bleu pâle</span> = partiel · <span aria-hidden="true" style={{color:ZERO}}>■</span> gris = 0 point.</div>
       </>}
+      {s.version&&<div style={{marginTop:8,fontSize:10,color:"#8892a4"}}>formule {s.version}</div>}
     </div>);
 };
 
@@ -4922,7 +4932,7 @@ const RisqueMesure=({q})=>{
     <div className="carte risque-mesure" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,marginBottom:10}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
         <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Risque mesuré <span style={{color:"#4db8ff"}}>(1 an)</span></div>
-        <div style={{fontSize:9,color:"#8892a4"}}>nos chandelles · dernière séance {jj(q.asof)}</div>
+        <div style={{fontSize:9,color:"#8892a4"}}>nos chandelles · <DateChiffre quoi="risque" d={q.asof}/></div>
       </div>
       {q.motif&&q.motif.code==="suspendu"
         ?<div style={{fontSize:11,color:"#8892a4",lineHeight:1.5}}>{q.motif.texte}.</div>
@@ -5286,8 +5296,116 @@ const TickerNews=({sym})=>{
 };
 
 // ── DETAIL ────────────────────────────────────────────────────────────────────
+// ── FICHE EN TROIS ÉTAGES — 19/11/2026 (feuille de route, lots 1.3 et 1.5) ───
+/* Demande d'Abd Moutalib : « faire le nettoyage du bruit sur l'interface, la
+   lecture doit être simple facile ». La fiche se lit en trois étages, dans cet
+   ordre sur toutes les largeurs :
+     1. EN BREF — tient dans le premier écran du téléphone (390 × 844), sous
+        l'en-tête : société, cours et variation de la séance, Score BVC de la
+        semaine close avec sa tranche, fiabilité, trois chiffres clés ;
+     2. COMPRENDRE — composition du score, ratios avec leur source et la date
+        d'arrêté des comptes, liquidité, alertes sur les comptes ;
+     3. DÉTAIL — graphique, indicateurs, risque, comptes, pièces : replié sur
+        téléphone, ouvert sur tablette et ordinateur.
+   Mesuré avant (390 px, IAM) : le PER à 1 771 px du haut de l'écran, la date
+   du score dans une seconde carte.
+   UNE DATE PAR CHIFFRE, au même format (JJ/MM/AAAA), à côté de son chiffre :
+   quatre sortes au plus — cours (séance), score (semaine close), comptes
+   (date d'arrêté), risque (date de mesure). Aucune n'est déduite : chacune est
+   lue telle que le moteur la publie.
+   Rien n'est retiré : les blocs changent d'étage ; réserves, motifs d'absence
+   et dates suivent leur chiffre. */
+const DATES_FICHE={cours:"cours du",score:"semaine close le",comptes:"comptes au",risque:"mesuré au"};
+const DateChiffre=({quoi,d,libelle,suite})=>{const l=libelle||DATES_FICHE[quoi];
+  return <span className="date-chiffre" data-date={quoi} style={{fontSize:11,color:"#8892a4",fontVariantNumeric:"tabular-nums",
+      textTransform:"none",letterSpacing:0,fontWeight:400,lineHeight:1.35}}>
+    {d?<>{l} <span style={{whiteSpace:"nowrap"}}>{jjmmaaaa(d)}</span></>:`${l.replace(/\s+(du|le|au)$/,"")} : date inconnue`}{suite}</span>;};
+/* Date du Score BVC : la fin de la semaine close (`score_bvc.semaine.fin`) ;
+   le dernier échange quand le titre n'a pas coté ce jour-là. */
+const DateScore=({s})=>{if(!s)return null;const w=s.semaine||{};
+  return <DateChiffre quoi="score" d={w.fin}
+    suite={w.cours_du&&w.fin&&w.cours_du!==w.fin?<> (dernier échange le <span style={{whiteSpace:"nowrap"}}>{jjmmaaaa(w.cours_du)}</span>)</>:null}/>;};
+/* Date d'arrêté des comptes du PER : celle que le moteur publie dans
+   `pe_base` (« 12 mois au AAAA-MM-JJ »). Un libellé sans date (« exercice
+   2025 ») est rendu tel quel : un exercice ne finit pas toujours le 31/12. */
+const arreteComptes=r=>{const b=String((r&&r.pe_base)||"");const iso=/\d{4}-\d{2}-\d{2}/.exec(b);
+  return iso?{d:iso[0]}:b?{texte:b}:null;};
+const DatePER=({r})=>{if(r.pe==null&&!perNS(r.pe,r.bpa_12m??r.bpa))return null;const a=arreteComptes(r);
+  return <div>{a&&a.texte
+    ?<span className="date-chiffre" data-date="comptes" style={{fontSize:11,color:"#8892a4",lineHeight:1.35}}>comptes : {a.texte}</span>
+    :<DateChiffre quoi="comptes" d={a&&a.d}/>}</div>;};
+/* Les trois chiffres clés d'« En bref » : PER, rendement du dividende,
+   capitalisation. Mêmes valeurs, mêmes « — » et « n.s. », même explication au
+   toucher (`explRatio` : formule, source, réserve, motif d'absence) que la
+   grille « Fondamentaux » — l'explication s'ouvre sous les trois cases, sur
+   toute la largeur, et non dans une case de 100 px. Le PER porte la date
+   d'arrêté de ses comptes ; rendement et capitalisation sont au cours de la
+   séance, daté juste au-dessus. */
+const TroisChiffres=({r,price})=>{const [ex,setEx]=useState(null);const bpa=r.bpa_12m??r.bpa;
+  const cases=[["pe",r.pe_base&&r.pe_base.startsWith("12")?"PER 12 mois":"PER",perTxt(r.pe,bpa),!!perNS(r.pe,bpa)],
+    ["div","Rendement du dividende",divFiche(r.div),false],["cap","Capitalisation",r.cap?fmtM(r.cap):"—",false]];
+  const texte=ex?explRatio(ex,r,price):null;
+  return <div className="trois-chiffres" style={{marginTop:8}}>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:6}}>
+      {cases.map(([cle,lib,val,ns])=>{const t=explRatio(cle,r,price);return(
+        <div key={cle} data-chiffre={cle} style={{background:"#0a1220",borderRadius:4,padding:"6px 7px",minWidth:0}}>
+          <div style={{fontSize:10,color:"#8892a4",lineHeight:1.3}}>{lib}{t&&<button type="button" aria-label={`Explication : ${lib}`} aria-expanded={ex===cle}
+            onClick={()=>setEx(x=>x===cle?null:cle)}
+            style={{marginLeft:2,border:"none",background:"none",color:ex===cle?"#4db8ff":"#8892a4",fontSize:12,padding:"0 4px",minWidth:24,minHeight:24,cursor:"pointer",verticalAlign:"middle"}}>ⓘ</button>}</div>
+          <div style={{fontSize:15,fontWeight:700,color:ns||val==="—"?"#8892a4":"#e8eef8",fontVariantNumeric:"tabular-nums",lineHeight:1.3}}>{val}</div>
+          {cle==="pe"&&<DatePER r={r}/>}
+          {cle==="pe"&&r.pe_exception&&<div title={`Motif : ${r.pe_exception.motif||"—"} Réserve : ${r.pe_exception.reserve||"—"}`} style={{fontSize:10,color:"#ff8f00",lineHeight:1.3}}>exception : {r.pe_exception.base}</div>}
+        </div>);})}
+    </div>
+    {texte&&<div role="note" style={{fontSize:11.5,color:"#c8d3e8",lineHeight:1.45,whiteSpace:"pre-line",background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"6px 8px",marginTop:6}}>{texte}</div>}
+  </div>;};
+/* Les sources des ratios, en clair sous la grille « Fondamentaux » : celles
+   que l'explication au toucher donnait déjà, une par ratio. */
+const SourcesRatios=({r})=>{const m=meta(r);
+  const l=[["PER",m.source_fond],["P/B",m.pb_source],["capitalisation",m.cap_source]].filter(([,s])=>SOURCES_FOND[s]).map(([k,s])=>`${k} — ${SOURCES_FOND[s]}`);
+  return l.length?<div className="sources-ratios" style={{fontSize:10,color:"#8892a4",lineHeight:1.5,marginTop:8}}>Sources : {l.join(" ; ")}.</div>:null;};
+/* Téléphone : sous 768 px, la largeur où la fiche passe à une colonne. */
+const REQ_TELEPHONE="(max-width:767px)";
+const useTelephone=()=>{
+  const lire=()=>{try{return window.matchMedia(REQ_TELEPHONE).matches;}catch(e){return false;}};
+  const [t,setT]=useState(lire);
+  useEffect(()=>{let m;try{m=window.matchMedia(REQ_TELEPHONE);}catch(e){return;}
+    const f=()=>setT(m.matches);
+    if(m.addEventListener)m.addEventListener("change",f);else if(m.addListener)m.addListener(f);
+    return()=>{if(m.removeEventListener)m.removeEventListener("change",f);else if(m.removeListener)m.removeListener(f);};},[]);
+  return t;};
+/* Un bloc de l'étage « Détail ». Téléphone : replié derrière son titre, monté
+   à la première ouverture seulement (ni requête ni calcul pour un bloc qu'on
+   n'ouvre pas). Tablette et ordinateur : ouvert, sans en-tête de pli — le
+   bloc porte déjà son titre. */
+const Pli=({titre,resume,children})=>{const tel=useTelephone();const [ouvert,setOuvert]=useState(false);
+  if(!tel)return <>{children}</>;
+  return <details className="pli" open={ouvert} onToggle={e=>setOuvert(e.currentTarget.open)}>
+    <summary style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,minHeight:44,padding:"8px 12px",
+        background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,fontSize:13,color:"#c8d3e8"}}>
+      <span aria-hidden="true" className="pli-fleche" style={{color:"#4db8ff",width:10}}>▸</span>
+      <span style={{flex:1,minWidth:0}}>{titre}{resume&&<span style={{color:"#8892a4",fontSize:12}}> · {resume}</span>}</span>
+    </summary>
+    {ouvert&&<div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>{children}</div>}
+  </details>;};
+const EtageTitre=({nom,sous})=>(
+  <div className="etage-titre" style={{display:"flex",alignItems:"baseline",gap:"2px 8px",flexWrap:"wrap",fontSize:11,color:"#8892a4",margin:"0 2px 6px"}}>
+    <span style={{color:"#c8d3e8",fontWeight:600,letterSpacing:1.5,textTransform:"uppercase"}}>{nom}</span>
+    {sous&&<span>{sous}</span>}
+  </div>);
+/* Ce que dit le pli « Dernier semestre » replié : non relevé, ou le nombre
+   de réserves du relevé — une réserve ne se découvre pas en ouvrant. */
+const resumeSemestre=c=>{if(!c)return null;if(c.etat!=="releve")return "non relevé";
+  const n=(c.reserves||[]).length;return n?<span style={{color:"#ffb74d"}}>⚠ {n} réserve{n>1?"s":""}</span>:null;};
+
 const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
   const [detSearch,setDetSearch]=useState("");
+  const tel=useTelephone();
+  /* Index des états financiers : le pli n'existe que pour un titre couvert.
+     L'appel avec "" ne lit que l'index : aucun titre ne s'appelle "". */
+  const [ixEtats,setIxEtats]=useState(ETATS_IDX);
+  useEffect(()=>{let vivant=true;if(!ixEtats)chargerEtats("").then(()=>{if(vivant)setIxEtats(ETATS_IDX);});
+    return()=>{vivant=false;};},[]);
   const r=rows.find(x=>(x.symbol||x.ticker)===sel)||rows[0];
   // ⚠️ 06/11/2026 — UN SEUL SCORE EN TÊTE DE FICHE : le Score BVC, avec la
   // version de sa formule. La note v5.3, sa décomposition fond × tech, ses
@@ -5354,15 +5472,25 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
       <BandeauOffre r={r} cours={price}/>
 
       <div className="detail-grid">
-        {/* SCORE — le Score BVC, sa composition et les chiffres clés ; panneau de droite au-delà de 1200 px */}
+        {/* ══ FICHE EN TROIS ÉTAGES — 19/11/2026 (feuille de route, lots 1.3 et 1.5) ══
+            Panneau des chiffres : « En bref » puis « Comprendre » (à droite
+            au-delà de 1200 px) ; « Détail » au centre. Sur téléphone, une
+            colonne dans cet ordre. Les blocs n'ont pas changé : ils ont changé
+            d'étage. */}
         <div className="fiche-note" style={{display:"flex",flexDirection:"column",gap:10}}>
-          {/* Score card */}
-          <div style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:16,textAlign:"center"}}>
-            <div style={{display:"flex",justifyContent:"center",marginBottom:10}}>
-              <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={56}/>
-            </div>
-            <div className="fiche-cours" style={{fontSize:12,color:"#8892a4",letterSpacing:2,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-              <span>{tk(r)} · {px(price)} DH <span style={{color:VC(r.chg),fontWeight:600}}>{varSeance(r)==null?"—":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
+          {/* ── 1. EN BREF : tient dans le premier écran du téléphone, sous
+              l'en-tête. Société, cours de la séance, Score BVC de la semaine
+              close et sa tranche, fiabilité, trois chiffres clés — chacun avec
+              sa date. La teinte : celle de la tranche, neutre sans valeur ou à
+              confiance ≤ 1. Aucun mot d'action (07/10/2026). */}
+          <section className="etage etage-bref" data-etage="bref" aria-label="En bref">
+          <div className="fiche-bref" style={{background:`linear-gradient(135deg,${s.bg},#0d1829)`,border:`1px solid ${s.bd}`,borderRadius:8,padding:"10px 12px 12px",textAlign:"left"}}>
+            <EtageTitre nom="En bref"/>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <CompanyLogo sym={tk(r)} logo={r.symbol} sector={r.sector} size={40}/>
+              <div style={{minWidth:0,flex:1}}>
+            <div className="fiche-cours" style={{fontSize:13,color:"#8892a4",marginBottom:2,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,fontVariantNumeric:"tabular-nums"}}>
+              <span><span style={{color:"#c8d3e8",letterSpacing:1}}>{tk(r)}</span> · <b style={{color:"#e8eef8",fontSize:15}}>{px(price)} DH</b> <span style={{color:VC(r.chg),fontWeight:600,whiteSpace:"nowrap"}}>{varSeance(r)==null?"—":r.chg===0?"0.00%":<>{r.chg>0?"▲":"▼"} {Math.abs(r.chg).toFixed(2)}%</>}{r.chg_alert&&<span title="Variation ≥ ±8% — approche limite BVC" style={{marginLeft:3}}>⚡</span>}</span></span>
               <button onClick={()=>toggleFav(sym)} title={fav.includes(sym)?"Retirer des favoris":"Ajouter aux favoris"}
                 className="etoile" aria-pressed={fav.includes(sym)}
                 style={{fontSize:18,color:fav.includes(sym)?"#ffd740":"#8892a4",border:"none",background:"none",cursor:"pointer",padding:"0 2px",lineHeight:1,transition:"color .2s"}}>
@@ -5374,6 +5502,8 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 connaître pour savoir de quelle société il lit le score. */}
             {(r.name||r.sector)&&<div className="fiche-identite" style={{fontSize:13,lineHeight:1.35,color:"#c8d3e8",marginBottom:6,textWrap:"balance",overflowWrap:"anywhere"}}>
               {r.name||tk(r)}{r.sector&&<span style={{color:"#8892a4"}}> · {r.sector}</span>}</div>}
+              </div>
+            </div>
             {/* L'essentiel AVANT le score (audit externe du 12/11/2026) : date
                 du cours, montant échangé, réserve principale. La pastille
                 ⚠ JJ/MM d'un cours ancien y est : elle quitte la ligne du cours
@@ -5381,24 +5511,15 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
             <EnTeteEssentiel key={sym} r={r} seance={seance}/>
             {/* Le score reste affiché même à faible confiance — mais en gris,
                 pour qu'il ne se lise pas comme une conclusion (CLAUDE.md).
-                Valeur EXACTE ici ; le classement en donne la partie entière. */}
+                Valeur EXACTE ici ; le classement en donne la partie entière.
+                À côté : sa tranche (ou l'état qui la remplace) et la date de
+                la semaine close sur laquelle il est calculé. */}
+            <div className="bref-score" style={{display:"flex",alignItems:"center",gap:12}}>
             <div className="score-bvc-tete" style={{fontSize:52,fontWeight:700,
                  color:couleurChiffre(r),
                  textShadow:meta(r).conf<=1||vBVC==null?"none":`0 0 30px ${s.fg}40`,
-                 lineHeight:1,fontVariantNumeric:"tabular-nums"}}>{exactBVC(vBVC)}</div>
-            <div style={{fontSize:11,color:"#8892a4",margin:"4px 0 6px"}}>
-              Score BVC / 100 · {etatBVC(r)} — descriptif, pas une prévision
-            </div>
-            {/* ⚠️ Un score absent doit DIRE pourquoi. Un « — » muet se lit
-                comme une panne d'affichage ; avec son motif, comme un refus de
-                calculer sur une donnée qu'on n'a pas. */}
-            {vBVC==null&&<div style={{fontSize:10.5,color:"#ff8f00",lineHeight:1.4,margin:"0 auto 8px",maxWidth:260}}>
-              {r.score_bvc?(r.score_bvc.motif||`Score BVC ${etatBVC(r)}`):"Score BVC non publié pour ce titre"}. Aucune valeur approchée n'est affichée à la place.</div>}
-            {/* La date du cours (ligne « heure-cours » jusqu'au 13/11/2026) est
-                passée en tête de carte, dans EnTeteEssentiel. */}
-            <ResumeNote r={r}/>
-            <DetailConfiance r={r}/>
-            <div style={{marginBottom:10}}><Confiance r={r} sz={13}/></div>
+                 lineHeight:1,fontVariantNumeric:"tabular-nums",flex:"0 0 auto"}}>{exactBVC(vBVC)}</div>
+              <div style={{minWidth:0,display:"flex",flexDirection:"column",alignItems:"flex-start",gap:4}}>
             {/* Une couleur calculée sur des données de repli induit en
                 erreur : à confiance ≤ 1 on l'annonce comme tel plutôt que de
                 colorer un score que rien ne soutient (règle CLAUDE.md). */}
@@ -5411,15 +5532,38 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               : meta(r).reprise_recente
               ? <Chip label="REPRISE DE COTATION" bg="rgba(255,215,64,.12)" fg="#ffd740" bd="#ffd74040" sz={12}/>
               : <PastilleBVC r={r} sz={12}/>}
+                <DateScore s={r.score_bvc}/>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:"#8892a4",margin:"6px 0 4px"}}>
+              Score BVC / 100 · {etatBVC(r)} — descriptif, pas une prévision
+            </div>
+            {/* ⚠️ Un score absent doit DIRE pourquoi. Un « — » muet se lit
+                comme une panne d'affichage ; avec son motif, comme un refus de
+                calculer sur une donnée qu'on n'a pas. */}
+            {vBVC==null&&<div style={{fontSize:10.5,color:"#ff8f00",lineHeight:1.4,margin:"0 0 6px"}}>
+              {r.score_bvc?(r.score_bvc.motif||`Score BVC ${etatBVC(r)}`):"Score BVC non publié pour ce titre"}. Aucune valeur approchée n'est affichée à la place.</div>}
             {/* Le motif, pour que la suspension ne soit pas une énigme : une
                 OPA n'est pas une sanction, et la nuance change tout pour le
                 lecteur. */}
             {meta(r).susp&&meta(r).suspMotif&&
               <div style={{marginTop:6,fontSize:10,color:"#8892a4"}}>{meta(r).suspMotif}</div>}
-            {r.score_bvc&&r.score_bvc.version&&<div style={{marginTop:8,fontSize:10,color:"#8892a4"}}>formule {r.score_bvc.version}</div>}
+            {/* Fiabilité : les points ●●●○○, jamais cachés, et ce qu'ils
+                garantissent au toucher, sur une seule ligne. */}
+            <div className="bref-fiabilite" style={{display:"flex",alignItems:"center",gap:8,marginTop:2}}>
+              <Confiance r={r} sz={13}/>
+              <div style={{flex:1,minWidth:0}}><DetailConfiance r={r}/></div>
+            </div>
+            <TroisChiffres key={sym} r={r} price={price}/>
           </div>
-          {/* La composition du Score BVC, facteur par facteur — juste sous
-              le score, en tête de fiche (06/11/2026). */}
+          </section>
+
+          {/* ── 2. COMPRENDRE : ce qui fait le score, les ratios avec leur source
+              et la date d'arrêté des comptes, la liquidité, les alertes sur les
+              comptes. Toujours ouvert : les réserves y restent visibles. */}
+          <section className="etage etage-comprendre" data-etage="comprendre" aria-label="Comprendre" style={{display:"flex",flexDirection:"column",gap:10}}>
+          <EtageTitre nom="Comprendre" sous="composition du score, ratios et leurs sources"/>
+          {/* La composition du Score BVC, facteur par facteur (06/11/2026). */}
           <ScoreBVC s={r.score_bvc} conf={meta(r).conf} sansValeur/>
 
           {/* Fundamentaux */}
@@ -5444,53 +5588,6 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 </div>
               </div>;})()}
 
-            {/* ⚠️ LES NIVEAUX — ajouté le 25/09/2026, et le point n'est pas
-                d'en afficher : c'est de DIRE LESQUELS SONT DES FAITS.
-                Un briefing extérieur écrit « 620 = pivot ; 635-645 = pullback
-                digéré » sans dire d'où viennent ces nombres — le lecteur ne
-                peut ni les reproduire ni les contester.
-                ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et
-                personne ne le publie comme tel : le cours de demain est borné
-                PAR LA LOI (R10), pas par une opinion.
-                ⚠️ Aucun n'entre dans le score (R8) et aucun ne dit quoi faire. */}
-            {(()=>{const nv=r.niveaux; if(!nv) return null;
-              const f=nv.faits||{}, cv=nv.conventions||{}, bs=f.bornes_seance;
-              const L=(lbl,val,extra,coul)=>(
-                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",fontSize:11.5,padding:"2px 0"}}>
-                  <span style={{color:"#8892a4"}}>{lbl}</span>
-                  <span><span style={{color:coul||"#c8d3e8",fontFamily:"monospace",fontWeight:600}}>{val}</span>
-                    {extra&&<span style={{color:"#8892a4",fontSize:10}}> {extra}</span>}</span>
-                </div>);
-              return <div style={{marginBottom:12}}>
-                <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
-
-                <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
-                  <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
-                    Établis · ce que le marché a fait, ou ce que la règle interdit</div>
-                  {bs&&L(`Prochaine séance, bornes ±${bs.pct!=null?String(bs.pct).replace(".",","):"10"} %`,`${fr(bs.plancher)} — ${fr(bs.plafond)}`,bs.groupe?`groupe ${bs.groupe} (${bs.cycle}), seuil AMMC`:"seuil AMMC","#00e5a0")}
-                  {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
-                    L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
-                  {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
-                    L(k.replace(/_/g," "),fr(v.niveau),`${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
-                </div>
-
-                {cv.pivots&&
-                  <div style={{background:"#0a1220",border:"1px dashed #2a3550",borderRadius:4,padding:"8px 10px"}}>
-                    <div style={{fontSize:8.5,color:"#ffd740",textTransform:"uppercase",letterSpacing:.6,marginBottom:2}}>
-                      Conventionnels · arithmétique sur une séance</div>
-                    <div style={{fontSize:9.5,color:"#8892a4",marginBottom:5}}>
-                      Largement employés, mais ils ne mesurent rien par eux-mêmes.</div>
-                    {L("R2 · R1",`${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`)}
-                    {L("Pivot",fr(cv.pivots.pivot),`séance du ${cv.pivots._seance||"—"}`,"#ffd740")}
-                    {L("S1 · S2",`${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)}
-                  </div>}
-                {!cv.pivots&&
-                  <div style={{fontSize:10,color:"#8892a4",fontStyle:"italic"}}>
-                    Pivots non publiés : la dernière séance a une amplitude nulle —
-                    le titre a coté à un prix unique, ou n'a pas coté.
-                  </div>}
-              </div>;})()}
-
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Fondamentaux
               {/* ⚠️ LA FRAÎCHEUR DU BLOC QUI PÈSE LE PLUS — ajouté le 24/09/2026.
                   Le cours est daté depuis le 10/08 ; ces chiffres-là ne
@@ -5501,7 +5598,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               {(()=>{const m=meta(r),a=m.fond_age_jours;
                 if(a==null) return <span title="Ce titre est absent de fondamentaux.json : ses ratios viennent de la table figée, qui ne porte aucune date." style={{color:"#ff8f00",fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· date inconnue</span>;
                 const c=a>180?"#ff4f5a":a>90?"#ff8f00":a>30?"#ffd740":"#8892a4";
-                return <span title={`Dernière mise à jour des fondamentaux : ${m.fond_asof}`} style={{color:c,fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· {m.fond_asof} <b>({a} j)</b></span>;})()}
+                return <span title={`Dernière mise à jour des fondamentaux : ${m.fond_asof}`} style={{color:c,fontSize:9,marginLeft:8,textTransform:"none",letterSpacing:0}}>· relevés le {jjmmaaaa(m.fond_asof)} <b>({a} j)</b></span>;})()}
             </div>
             {/* ⚠️ « 99 JOURS », OUI — MAIS PAR RAPPORT À QUOI ? Ajouté le
                 25/09. Un âge sans point de comparaison n'apprend rien. Dix-sept
@@ -5545,6 +5642,10 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <div key={k} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
                   <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}<InfoCellule texte={explRatio(ratio,r,price)}/></div>
                   <div style={{fontSize:13,color:c,fontWeight:700}}>{v}</div>
+                  {/* Une date par chiffre (19/11/2026, lot 1.3) : le PER porte la
+                      date d'arrêté de ses comptes, le P/B celle de ses fonds propres. */}
+                  {ratio==="pe"&&<DatePER r={r}/>}
+                  {ratio==="pb"&&r.pb!=null&&meta(r).pb_fonds_propres_au&&<div><DateChiffre quoi="comptes" libelle="fonds propres au" d={meta(r).pb_fonds_propres_au}/></div>}
                   {/* ⚠️ 29/09 : le PER affiché porte sur douze mois glissants quand
                       les comptes semestriels ont été lus. L'annuel reste visible :
                       l'écart entre les deux EST l'information (Managem 63 → 30). */}
@@ -5578,21 +5679,29 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 </div>
               ))}
             </div>
+            <SourcesRatios r={r}/>
           </div>
-        </div>
 
-        {/* CENTRE — graphique (remonté en tête au-delà de 768 px) puis la fiche */}
-        <div className="fiche-centre" style={{display:"flex",flexDirection:"column",gap:10}}>
-          {/* Risque mesuré (1 an) — descriptif, hors score (14/10/2026). */}
-          <RisqueMesure q={r.risque}/>
-
-          {/* « Dernier semestre » et « À savoir » (09/11/2026) : relevés sur
-              pièce, publiés par pipeline/fiche_comptes.py, hors score. */}
-          <DernierSemestre c={r.comptes_s1}/>
-          {/* « États financiers » (11/11/2026) : historique relevé sur pièce,
-              lu à la demande (datasets/etats_publies/), hors score. */}
-          <EtatsFinanciers sym={sym}/>
-          <ASavoir items={r.a_savoir}/>
+          {/* ALERTES — 06/11/2026. Cette carte portait le « setup » et la formule
+              de la note v5.3 (fond × poids + tech × poids + bonus), ainsi que la
+              note par métier mise en comparaison avec elle. Le terminal
+              n'affichant plus la v5.3, il n'en reste que ce qui est une DONNÉE :
+              les alertes calculées sur les comptes, et les mesures bancaires
+              avec leur période et leur pièce. */}
+          {/* 19/11/2026 : les alertes vérifiées (ResumeNote) s'affichaient
+              aussi en tête de fiche, en double de cette carte. Elles sont lues
+              ici, une fois, dépliées ; le bouton en donne la source et ce qui
+              n'a pas pu être évalué. */}
+          <div className="carte fiche-alertes" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+              <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginRight:4}}>Alertes sur les comptes</span>
+              {/* ⚠️ La pastille « Flags » affichait un nombre que rien
+                  n'expliquait. Elle s'ouvre désormais. */}
+              <RedFlags alertes={r.alertes}/>
+            </div>
+            <ResumeNote r={r}/>
+            <MesuresBancaires r={r}/>
+          </div>
 
           {/* ⚠️ RENTABILITÉ SUR COMPTES PUBLIÉS — 30/09/2026. Calculée par
               pipeline/ratios_financiers.py à partir de deux termes sourcés
@@ -5626,59 +5735,28 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                 <b>⚠ Réserve des commissaires aux comptes</b> — {r.ratios_publies.reserve_cac.texte}
               </div>)}
           </div>)}
+          </section>
+        </div>
 
-          {/* Fondamentaux prévisionnels — IDBourse DATA+.
-              Bloc distinct, jamais fondu dans celui du dessus : ces ratios
-              portent sur le bénéfice ATTENDU, ceux du dessus sur le réalisé.
-              Un PER de 7 réalisé et 29 attendu ne se contredisent pas, ils
-              disent que le bénéfice est prévu en baisse. Le libellé et la date
-              d'export sont affichés pour que la distinction se lise. */}
-          {r.fwd&&(
-          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
-              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span> <span style={{color:"#ff8f00"}}>non vérifié</span></div>
-              {/* Date d'export en entier, année comprise : l'export est
-                  rafraîchi à la main et vieillit. « 01/07 » seul ne dit pas
-                  qu'il a sept semaines, « 01/07/2026 » le laisse voir. */}
-              <div style={{fontSize:9,color:"#ff8f00"}}>export IDBourse DATA+ du {r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"—"}, non vérifié</div>
+        {/* ── 3. DÉTAIL : graphique, indicateurs, risque, comptes, pièces.
+            Sur téléphone chaque bloc est replié derrière son titre (Pli) ; sur
+            tablette et ordinateur tout est ouvert, sans en-tête de pli. */}
+        <section className="fiche-centre etage etage-detail" data-etage="detail" aria-label="Détail" style={{display:"flex",flexDirection:"column",gap:10,minWidth:0}}>
+          <EtageTitre nom="Détail" sous={tel?"touchez un titre pour l'ouvrir":"graphique, indicateurs, risque, comptes, pièces"}/>
+          {/* Chart */}
+          <div className="carte fiche-graphique" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            {/* ⚠️ Le titre annonçait « MA20 · MA50 · Fibonacci » alors que les moyennes
+                 sont désormais optionnelles et que Fibonacci ne se traçait nulle part
+                 sur ce graphique. Un titre qui promet ce que la vue ne montre pas
+                 est un mensonge de plus à corriger. */}
+            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique — chandeliers, volume, MACD · indicateurs au choix</div>
+            <StockChart r={r}/>
+            <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
+              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#ff9800"}}>── MA200</span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
             </div>
-            {/* ⚠️ DOUBLON CONTRADICTOIRE RETIRÉ — 06/10/2026 (audit
-                verificateur-finance). WAF montrait deux ROE 2025 : 6,9 calculé
-                sur les comptes, 11,2 DATA+. Quand le ROE 2025 est calculé sur
-                comptes publiés, seul celui-là s'affiche (bloc du dessus). */}
-            {(()=>{const roeCalc=r.ratios_publies&&r.ratios_publies.roe_2025&&r.ratios_publies.roe_2025.valeur!=null;
-              const dateExport=r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"date inconnue";
-              const cases=[["PER 2026e",fmt(r.fwd.per_26e,1),"#c8d3e8"],
-                ["PER 2027e",fmt(r.fwd.per_27e,1),"#c8d3e8"],
-                ["Rendement 2026e",r.fwd.dy_26e!=null?`${fmt(r.fwd.dy_26e,1)}%`:"—","#c8d3e8"],
-                ["Rendement 2027e",r.fwd.dy_27e!=null?`${fmt(r.fwd.dy_27e,1)}%`:"—","#c8d3e8"],
-                ...(roeCalc?[]:[["ROE 2025",roeSansObjet(r)?"sans objet":r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",
-                  roeSansObjet(r)?"#8892a4":r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a",
-                  roeSansObjet(r)?`ROE sans objet : ${roeSansObjet(r)}`:null]]),
-                ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]];
-              return(<>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-              {cases.map(([k,v,c,so])=>{
-                /* Statut porté par CHAQUE valeur — 22/10/2026 (audit du 22/10,
-                   lot A). L'en-tête du bloc le disait une fois ; une case lue
-                   seule (capture, regard rapide) ne le disait pas. */
-                const statut=so||(/20(2[6-9])e$/.test(k)?`estimation DATA+ du ${dateExport}, non vérifiée`:`export DATA+ du ${dateExport}, non vérifié`);
-                return(
-                <div key={k} title={statut} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
-                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}{so&&<InfoCellule texte={so}/>}</div>
-                  <div style={{fontSize:13,color:c,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{v}</div>
-                  <div style={{fontSize:8,color:so?"#8892a4":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"sans objet pour ce métier":statut}</div>
-                </div>);})}
-            </div>
-            <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
-              Chiffres repris tels quels de l'export, non recoupés avec les comptes, non retenus
-              dans le score. Un tiret signale une valeur écartée comme invraisemblable.
-              {roeCalc&&(roeSansObjet(r)
-                ?" ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)."
-                :" ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")}
-            </div></>);})()}
-          </div>)}
+          </div>
 
+          <Pli titre="Indicateurs techniques et niveaux">
           {/* RSI */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -5739,7 +5817,7 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
                       <div style={{background:"#0a1220",borderRadius:4,padding:"5px 7px"}}>
                         <div style={{fontSize:8,color:"#8892a4",marginBottom:1}}>OBV</div>
                         <div style={{fontSize:11,color:r.obv>0?"#00e5a0":"#ff4f5a",fontWeight:700}}>{r.obv>0?"+":""}{(r.obv/1000).toFixed(0)}K</div>
-                        <div style={{fontSize:9,color:"#8892a4"}}>{r.obv>0?"pression achat":"pression vente"}</div>
+                        <div style={{fontSize:9,color:"#8892a4"}} title="On-Balance Volume : cumul des volumes, ajoutés les jours de hausse, retranchés les jours de baisse">{r.obv>0?"cumul positif":"cumul négatif"}</div>
                       </div>
                     )}
                     {r.adx!=null&&(
@@ -5755,36 +5833,124 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               <RSIGauge value={rsiVal}/>
             </div>
           </div>
+          {r.niveaux&&<div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            {/* ⚠️ LES NIVEAUX — ajouté le 25/09/2026, et le point n'est pas
+                d'en afficher : c'est de DIRE LESQUELS SONT DES FAITS.
+                Un briefing extérieur écrit « 620 = pivot ; 635-645 = pullback
+                digéré » sans dire d'où viennent ces nombres — le lecteur ne
+                peut ni les reproduire ni les contester.
+                ⚠️ La borne réglementaire est le niveau le plus sûr de tous, et
+                personne ne le publie comme tel : le cours de demain est borné
+                PAR LA LOI (R10), pas par une opinion.
+                ⚠️ Aucun n'entre dans le score (R8) et aucun ne dit quoi faire. */}
+            {(()=>{const nv=r.niveaux; if(!nv) return null;
+              const f=nv.faits||{}, cv=nv.conventions||{}, bs=f.bornes_seance;
+              const L=(lbl,val,extra,coul)=>(
+                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",fontSize:11.5,padding:"2px 0"}}>
+                  <span style={{color:"#8892a4"}}>{lbl}</span>
+                  <span><span style={{color:coul||"#c8d3e8",fontFamily:"monospace",fontWeight:600}}>{val}</span>
+                    {extra&&<span style={{color:"#8892a4",fontSize:10}}> {extra}</span>}</span>
+                </div>);
+              return <div style={{marginBottom:12}}>
+                <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:8,textTransform:"uppercase"}}>Niveaux</div>
 
-          {/* ── ANALYSE AVANCÉE (15/10/2026) : essais et indicateurs gelés, qui
-              n'entrent pas dans la note, regroupés et repliés. */}
-          <details className="avance carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"8px 12px"}}>
-            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — signaux techniques en essai (hors score)</summary>
-            <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>
-          {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
-          <SignauxTechniques r={r}/>
+                <div style={{background:"#0a1220",border:"1px solid #1a2540",borderRadius:4,padding:"8px 10px",marginBottom:6}}>
+                  <div style={{fontSize:8.5,color:"#00e5a0",textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>
+                    Établis · ce que le marché a fait, ou ce que la règle interdit</div>
+                  {bs&&L(`Prochaine séance, bornes ±${bs.pct!=null?String(bs.pct).replace(".",","):"10"} %`,`${fr(bs.plancher)} — ${fr(bs.plafond)}`,bs.groupe?`groupe ${bs.groupe} (${bs.cycle}), seuil AMMC`:"seuil AMMC","#00e5a0")}
+                  {Object.entries(f.moyennes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.toUpperCase(),fr(v.niveau),`cours ${v.position} · ${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                  {Object.entries(f.extremes||{}).filter(([k])=>!k.startsWith("_")).map(([k,v])=>
+                    L(k.replace(/_/g," "),fr(v.niveau),`${v.distance_pct>0?"+":""}${fr(v.distance_pct,1)} %`))}
+                </div>
+
+                {cv.pivots&&
+                  <div style={{background:"#0a1220",border:"1px dashed #2a3550",borderRadius:4,padding:"8px 10px"}}>
+                    <div style={{fontSize:8.5,color:"#ffd740",textTransform:"uppercase",letterSpacing:.6,marginBottom:2}}>
+                      Conventionnels · arithmétique sur une séance</div>
+                    <div style={{fontSize:9.5,color:"#8892a4",marginBottom:5}}>
+                      Largement employés, mais ils ne mesurent rien par eux-mêmes.</div>
+                    {L("R2 · R1",`${fr(cv.pivots.r2)} · ${fr(cv.pivots.r1)}`)}
+                    {L("Pivot",fr(cv.pivots.pivot),`séance du ${cv.pivots._seance||"—"}`,"#ffd740")}
+                    {L("S1 · S2",`${fr(cv.pivots.s1)} · ${fr(cv.pivots.s2)}`)}
+                  </div>}
+                {!cv.pivots&&
+                  <div style={{fontSize:10,color:"#8892a4",fontStyle:"italic"}}>
+                    Pivots non publiés : la dernière séance a une amplitude nulle —
+                    le titre a coté à un prix unique, ou n'a pas coté.
+                  </div>}
+              </div>;})()}
+          </div>}
+          </Pli>
+
+          {/* Risque mesuré (1 an) — descriptif, hors score (14/10/2026). */}
+          {r.risque&&<Pli titre="Risque mesuré (1 an)"><RisqueMesure q={r.risque}/></Pli>}
+
+          {/* « Dernier semestre » et « À savoir » (09/11/2026) : relevés sur
+              pièce, publiés par pipeline/fiche_comptes.py, hors score. Replié,
+              le titre du pli dit s'il porte des réserves. */}
+          {r.comptes_s1&&<Pli titre="Dernier semestre (S1 2026)" resume={resumeSemestre(r.comptes_s1)}><DernierSemestre c={r.comptes_s1}/></Pli>}
+          {/* « États financiers » (11/11/2026) : historique relevé sur pièce,
+              lu à la demande (datasets/etats_publies/), hors score. Le pli
+              n'existe que pour un titre couvert par l'index. */}
+          {efCouvert(ixEtats,sym)&&<Pli titre="États financiers"><EtatsFinanciers sym={sym}/></Pli>}
+          {Array.isArray(r.a_savoir)&&<Pli titre="À savoir" resume={r.a_savoir.length?`${r.a_savoir.length} fait${r.a_savoir.length>1?"s":""}`:"rien de particulier"}><ASavoir items={r.a_savoir}/></Pli>}
+
+          {r.fwd&&<Pli titre="Prévisionnel IDBourse DATA+" resume={<span style={{color:"#ff8f00"}}>non vérifié</span>}>
+          {/* Fondamentaux prévisionnels — IDBourse DATA+.
+              Bloc distinct, jamais fondu dans celui du dessus : ces ratios
+              portent sur le bénéfice ATTENDU, ceux du dessus sur le réalisé.
+              Un PER de 7 réalisé et 29 attendu ne se contredisent pas, ils
+              disent que le bénéfice est prévu en baisse. Le libellé et la date
+              d'export sont affichés pour que la distinction se lise. */}
+          {r.fwd&&(
+          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10,gap:8,flexWrap:"wrap"}}>
+              <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Prévisionnel <span style={{color:"#4db8ff"}}>IDBourse DATA+</span> <span style={{color:"#ff8f00"}}>non vérifié</span></div>
+              {/* Date d'export en entier, année comprise : l'export est
+                  rafraîchi à la main et vieillit. « 01/07 » seul ne dit pas
+                  qu'il a sept semaines, « 01/07/2026 » le laisse voir. */}
+              <div style={{fontSize:9,color:"#ff8f00"}}>export IDBourse DATA+ du {r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"—"}, non vérifié</div>
             </div>
-          </details>
-          {/* ⚠️ 20/10/2026 — ce repli (#266, 15/10) se refermait APRÈS la
-              colonne de droite : le graphique, les scénarios et la formule
-              se retrouvaient dans « Analyse avancée — hors note », replié, et
-              la grille n'avait plus qu'une colonne de 290 px (1 100 px vides
-              mesurés à 1440 px). Il ne contient que les signaux en essai,
-              comme annoncé (la carte NLP gelée est retirée le 28/10/2026). */}
-
-          {/* Chart */}
-          <div className="carte fiche-graphique" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
-            {/* ⚠️ Le titre annonçait « MA20 · MA50 · Fibonacci » alors que les moyennes
-                 sont désormais optionnelles et que Fibonacci ne se traçait nulle part
-                 sur ce graphique. Un titre qui promet ce que la vue ne montre pas
-                 est un mensonge de plus à corriger. */}
-            <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:6,textTransform:"uppercase"}}>Graphique — chandeliers, volume, MACD · indicateurs au choix</div>
-            <StockChart r={r}/>
-            <div style={{fontSize:9,color:"#8892a4",marginTop:6}}>
-              <span style={{color:"#4db8ff"}}>── MA20</span> &nbsp; <span style={{color:"#b388ff"}}>── MA50</span> &nbsp; <span style={{color:"#ff9800"}}>── MA200</span> &nbsp; <span style={{color:"#ffd740"}}>┈ FIB</span> &nbsp; <span style={{color:"#00e5a0"}}>── S support</span> &nbsp; <span style={{color:"#ff4f5a"}}>── R résistance</span> &nbsp; <span style={{color:"#b388ff"}}>── FIG figure</span> &nbsp; <span style={{color:"#4db8ff"}}>── TEND oblique</span> &nbsp; <span style={{color:"#ffb74d"}}>▨ GAP</span> &nbsp; | <span style={{color:"#00e5a0"}}>●</span> IDBourse / Médias24
+            {/* ⚠️ DOUBLON CONTRADICTOIRE RETIRÉ — 06/10/2026 (audit
+                verificateur-finance). WAF montrait deux ROE 2025 : 6,9 calculé
+                sur les comptes, 11,2 DATA+. Quand le ROE 2025 est calculé sur
+                comptes publiés, seul celui-là s'affiche (bloc du dessus). */}
+            {(()=>{const roeCalc=r.ratios_publies&&r.ratios_publies.roe_2025&&r.ratios_publies.roe_2025.valeur!=null;
+              const dateExport=r.fwd.asof?r.fwd.asof.split("-").reverse().join("/"):"date inconnue";
+              const cases=[["PER 2026e",fmt(r.fwd.per_26e,1),"#c8d3e8"],
+                ["PER 2027e",fmt(r.fwd.per_27e,1),"#c8d3e8"],
+                ["Rendement 2026e",r.fwd.dy_26e!=null?`${fmt(r.fwd.dy_26e,1)}%`:"—","#c8d3e8"],
+                ["Rendement 2027e",r.fwd.dy_27e!=null?`${fmt(r.fwd.dy_27e,1)}%`:"—","#c8d3e8"],
+                ...(roeCalc?[]:[["ROE 2025",roeSansObjet(r)?"sans objet":r.fwd.roe_25!=null?`${fmt(r.fwd.roe_25,1)}%`:"—",
+                  roeSansObjet(r)?"#8892a4":r.fwd.roe_25>=0?"#c8d3e8":"#ff4f5a",
+                  roeSansObjet(r)?`ROE sans objet : ${roeSansObjet(r)}`:null]]),
+                ["Marge nette 2025",r.fwd.marge_nette_25!=null?`${fmt(r.fwd.marge_nette_25,1)}%`:"—",r.fwd.marge_nette_25>=0?"#c8d3e8":"#ff4f5a"]];
+              return(<>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
+              {cases.map(([k,v,c,so])=>{
+                /* Statut porté par CHAQUE valeur — 22/10/2026 (audit du 22/10,
+                   lot A). L'en-tête du bloc le disait une fois ; une case lue
+                   seule (capture, regard rapide) ne le disait pas. */
+                const statut=so||(/20(2[6-9])e$/.test(k)?`estimation DATA+ du ${dateExport}, non vérifiée`:`export DATA+ du ${dateExport}, non vérifié`);
+                return(
+                <div key={k} title={statut} style={{background:"#0a1220",borderRadius:4,padding:"6px 8px"}}>
+                  <div style={{fontSize:8,color:"#8892a4",marginBottom:2,textTransform:"uppercase"}}>{k}{so&&<InfoCellule texte={so}/>}</div>
+                  <div style={{fontSize:13,color:c,fontWeight:700,fontVariantNumeric:"tabular-nums"}}>{v}</div>
+                  <div style={{fontSize:8,color:so?"#8892a4":"#ff8f00",lineHeight:1.35,marginTop:1,textWrap:"pretty"}}>{so?"sans objet pour ce métier":statut}</div>
+                </div>);})}
             </div>
-          </div>
+            <div style={{fontSize:9,color:"#8892a4",marginTop:9,lineHeight:1.5}}>
+              Chiffres repris tels quels de l'export, non recoupés avec les comptes, non retenus
+              dans le score. Un tiret signale une valeur écartée comme invraisemblable.
+              {roeCalc&&(roeSansObjet(r)
+                ?" ROE 2025 de l'export masqué : le ROE est sans objet pour ce titre (bloc du dessus)."
+                :" ROE 2025 de l'export masqué : celui calculé sur les comptes publiés fait foi.")}
+            </div></>);})()}
+          </div>)}
+          </Pli>}
 
+          <Pli titre="Scénarios de prix" resume={r.bear==null&&r.base==null&&r.bull==null?"aucun publié":null}>
           {/* Scénarios */}
           <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12}}>
             <div style={{fontSize:10,color:"#8892a4",letterSpacing:1,marginBottom:10,textTransform:"uppercase"}}>Scénarios Prix (fondamentaux)</div>
@@ -5809,24 +5975,25 @@ const Detail=({rows,sel,setSel,fav=[],toggleFav=()=>{}})=>{
               <span>Bear {px(r.bear)}</span><span style={{color:"#ffd740",fontWeight:600}}>▲ {px(price)} DH</span><span>Bull {px(r.bull)}</span>
             </div></>}
           </div>
+          </Pli>
 
-          {/* ALERTES — 06/11/2026. Cette carte portait le « setup » et la formule
-              de la note v5.3 (fond × poids + tech × poids + bonus), ainsi que la
-              note par métier mise en comparaison avec elle. Le terminal
-              n'affichant plus la v5.3, il n'en reste que ce qui est une DONNÉE :
-              les alertes calculées sur les comptes, et les mesures bancaires
-              avec leur période et leur pièce. */}
-          <div className="carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:12,fontFamily:"var(--font)",fontSize:12,lineHeight:1.9}}>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
-              <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase",marginRight:4}}>Alertes sur les comptes</span>
-              {/* ⚠️ La pastille « Flags » affichait un nombre que rien
-                  n'expliquait. Elle s'ouvre désormais. */}
-              <RedFlags alertes={r.alertes}/>
+          {/* ── ANALYSE AVANCÉE (15/10/2026) : essais et indicateurs gelés, qui
+              n'entrent pas dans la note, regroupés et repliés. */}
+          <details className="avance carte" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"8px 12px"}}>
+            <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>Analyse avancée — signaux techniques en essai (hors score)</summary>
+            <div style={{display:"flex",flexDirection:"column",gap:10,marginTop:8}}>
+          {/* Signaux techniques en essai (calibrage du 03/10/2026) */}
+          <SignauxTechniques r={r}/>
             </div>
-            <MesuresBancaires r={r}/>
-          </div>
-          <TickerNews sym={sym}/>
-        </div>
+          </details>
+          {/* ⚠️ 20/10/2026 — ce repli (#266, 15/10) se refermait APRÈS la
+              colonne de droite : le graphique, les scénarios et la formule
+              se retrouvaient dans « Analyse avancée — hors note », replié, et
+              la grille n'avait plus qu'une colonne de 290 px (1 100 px vides
+              mesurés à 1440 px). Il ne contient que les signaux en essai,
+              comme annoncé (la carte NLP gelée est retirée le 28/10/2026). */}
+          <Pli titre="Actualités du titre"><TickerNews sym={sym}/></Pli>
+        </section>
       </div>
       </div>
     </div>

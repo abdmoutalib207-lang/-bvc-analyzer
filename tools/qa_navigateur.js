@@ -131,6 +131,13 @@ const controlerEtats = async (p, nom, t, tactile) => {
         await p.waitForTimeout(400);
         await p.locator('.classement tr').nth(1).click();
         await p.waitForTimeout(2000);
+        // ⚠️ 19/11/2026 — fiche en trois étages : sur téléphone, les blocs de
+        // l'étage « Détail » sont repliés (details.pli) et montés à la première
+        // ouverture. Sans les ouvrir, les états financiers et le débordement
+        // de ces blocs ne seraient plus contrôlés à 390 px.
+        const plis = p.locator('details.pli:not([open]) > summary');
+        for (let i = 0; i < 20 && await plis.count(); i++) { await plis.first().click(); await p.waitForTimeout(150); }
+        if (w < 500) await p.waitForTimeout(1500);
         // Sans aucune séance (titre suspendu depuis des années : DLM), il n'y a
         // rien à tracer ; l'absence de graphique n'est pas un défaut.
         if (!(await p.locator('canvas').count()) && (SEANCES[t] ?? 1) > 0) constats.push(`${nom} ${t} : aucun graphique`);

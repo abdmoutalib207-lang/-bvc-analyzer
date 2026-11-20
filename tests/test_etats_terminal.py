@@ -75,8 +75,14 @@ def test_carte_branchee_dans_la_fiche_et_chargee_a_la_demande():
     assert "fetch(`datasets/etats_publies/${sym}.json?t=`+vpub())" in charger
     # L'index d'abord : sans lui, ou pour un titre qu'il ne cite pas, aucun fichier de titre n'est demandé.
     assert charger.index("index.json") < charger.index("efCouvert(ix,sym)") < charger.index("${sym}.json")
-    # Rien n'est lu au démarrage du terminal : le seul appel est dans la carte.
-    assert ECRAN.count("chargerEtats(") == 1 and "chargerEtats(sym).then" in CARTE
+    # Rien n'est lu au démarrage du terminal : deux appels, tous deux dans la fiche.
+    # La carte lit l'index puis le fichier du titre ; depuis le 19/11/2026 (fiche
+    # en trois étages), la fiche lit l'INDEX SEUL — chargerEtats("") : aucun titre
+    # ne s'appelle "" — pour ne montrer le pli « États financiers » que pour un
+    # titre couvert. Aucun fichier de titre n'est demandé avant l'ouverture du pli.
+    assert ECRAN.count("chargerEtats(") == 2 and "chargerEtats(sym).then" in CARTE
+    detail = ECRAN[ECRAN.index("const Detail=({rows,sel"):ECRAN.index("// ── WEIGHTS")]
+    assert detail.count("chargerEtats(") == 1 and 'chargerEtats("").then' in detail
     # Jamais les chiffres du titre précédent pendant un changement de fiche.
     assert "charge.ticker===sym" in CARTE
     # La fusion de data.json n'en porte rien (fichiers hors data.json).
