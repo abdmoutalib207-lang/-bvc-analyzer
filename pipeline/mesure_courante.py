@@ -112,6 +112,17 @@ def construire(chemin: Path, racine: Path = RACINE) -> dict:
     }
 
 
+def lire(chemin: Path = SORTIE) -> dict:
+    """Le pointeur publié, tel que le terminal et le courriel le lisent.
+
+    Lève si le fichier est absent, illisible ou d'un autre schéma : l'appelant
+    décide de ce qu'il écrit, mais ne reçoit jamais un chiffre inventé."""
+    d = json.loads(Path(chemin).read_text(encoding="utf-8"))
+    if d.get("schema") != SCHEMA:
+        raise ValueError(f"schéma inattendu : {d.get('schema')!r} (attendu {SCHEMA})")
+    return d
+
+
 def publier(chemin: Path | None = None, sortie: Path = SORTIE) -> Path:
     chemin = Path(chemin) if chemin else dernier_artefact()
     m = construire(chemin)
