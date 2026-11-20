@@ -112,7 +112,7 @@
       .entete-ligne{gap:6px 8px!important;flex-wrap:nowrap!important}
       .entete .marque-mot,.entete .menu-courant{display:none!important}
       .entete-date{margin-left:auto;min-width:0!important}
-      .entete-etat>.etat-seance,.entete-etat>.btn-maj{display:none!important}
+      .entete-etat>[data-terme="cours_seance"],.entete-etat>.btn-maj{display:none!important}
       .btn-maj-lib{display:none}
       /* Sans capsule ni marge : le fond de l'en-tête suffit. 1re rangée :
          MASI et volume ; 2e : état de la séance, MASI 20 ▾, 📈, ↻ — boutons
@@ -811,7 +811,9 @@ function getMarketStatus(){
      clôture de cette séance (15h40, comme getMarketStatus) ;
    - sinon « Séance du JJ/MM · clôture pas encore publiée » : entre 15h30 et
      le passage de 15h45 (que GitHub retarde de 30 à 50 min), les données
-     sont celles de la mi-journée ; les dire « clôture » serait faux. */
+     sont celles de la mi-journée ; les dire « clôture » serait faux.
+   ⚠️ 20/11/2026 : le badge est désormais écrit par `libelleCours` (plus
+   bas), qui lit aussi la date du cours et l'heure du relevé. */
 function horodatage(iso){
   if(!iso)return null;
   const d=new Date(iso);if(isNaN(d.getTime()))return null;
@@ -821,14 +823,47 @@ function horodatage(iso){
     complet:`${j}/${mo}/${a} ${h}:${mi}:${z(m.getUTCSeconds())}`};
 }
 const libelleDonnees=h=>h?`Données du ${h.court} à ${h.heure}`:"Données : —";
-function etatSeance(statut,seance,h){
-  if(statut&&statut.isOpen)return {texte:"Séance en cours · cours différés",ton:"seance"};
-  if(!seance||!h)return null;
-  const jm=`${seance.slice(8,10)}/${seance.slice(5,7)}`;
-  if(h.jour>seance||(h.jour===seance&&h.minutes>=940))return {texte:`Clôture du ${jm}`,ton:"cloture"};
-  return {texte:`Séance du ${jm} · clôture pas encore publiée`,ton:"attente"};
+/* ⚠️ COURS DE SÉANCE OU CLÔTURE — 20/11/2026 (feuille de route, lot 1.2).
+   UNE fonction date tout cours affiché : bandeau, en-tête du classement,
+   fiche « En bref », légende du graphique, garanties de la fiabilité.
+   L'état se déduit de TROIS sources, jamais d'une seule :
+   - la date du cours (`_meta.prix_asof`) ;
+   - l'heure du relevé (`generated_at`, ou `updated` pour tout le marché) ;
+   - l'horloge de Casablanca (`maintenant`, lundi–vendredi, 9h30–15h30).
+   Trois libellés :
+   - séance ouverte, cours du jour relevé pendant la séance :
+     « Cours de séance · HHhMM · différé » (HHhMM = heure du relevé) ;
+   - cours relevé pendant sa séance, mais la séance est close (le passage de
+     clôture n'est pas encore publié — GitHub le retarde de 30 à 50 min — ou
+     n'a pas eu lieu) : « Cours de séance du JJ/MM · HHhMM · clôture non
+     publiée ». Le dire « clôture » serait faux : c'est un cours de 10h ;
+   - sinon (relevé fait à partir de 15h30, cours d'une séance antérieure,
+     week-end, férié, cours périmé) : « Clôture du JJ/MM », JJ/MM étant la
+     date DU COURS, pas celle du jour.
+   `texte` : forme courte (bandeau, graphique) ; `complet` : avec l'année
+   (fiche) ; `court` : sous l'en-tête de colonne du classement. */
+function libelleCours(meta,generatedAt,maintenant){
+  const asof=(meta&&(meta.prix_asof||meta.asof))||null;
+  if(!asof)return {etat:"inconnu",texte:"Date du cours inconnue",complet:"Date du cours inconnue",court:"date inconnue",heure:null,asof:null};
+  const jm=`${asof.slice(8,10)}/${asof.slice(5,7)}`,jma=`${jm}/${asof.slice(0,4)}`;
+  const r=horodatage(generatedAt);
+  const releveEnSeance=!!r&&r.jour===asof&&r.minutes<930;   // relevé avant 15h30, le jour du cours
+  if(!!(meta&&meta.stale)||!releveEnSeance)
+    return {etat:"cloture",texte:`Clôture du ${jm}`,complet:`Clôture du ${jma}`,court:`clôture ${jm}`,heure:null,asof};
+  const t=maintenant==null?new Date():new Date(maintenant);
+  const n=horodatage(t.toISOString()),js=maroc(t).getUTCDay();
+  const ouverte=!!n&&n.jour===asof&&js>=1&&js<=5&&n.minutes>=570&&n.minutes<930;
+  return ouverte
+    ?{etat:"seance",texte:`Cours de séance · ${r.heure} · différé`,complet:`Cours de séance du ${jma} · ${r.heure} · différé`,court:`séance ${r.heure}`,heure:r.heure,asof}
+    :{etat:"attente",texte:`Cours de séance du ${jm} · ${r.heure} · clôture non publiée`,complet:`Cours de séance du ${jma} · ${r.heure} · clôture non publiée`,court:`séance ${jm}`,heure:r.heure,asof};
 }
-const TONS_ETAT={seance:"#ffd740",cloture:"#c8d3e8",attente:"#ff8f00"};
+/* L'état de TOUT le marché : la dernière séance cotée (la plus récente des
+   dates de cours publiées) relevée à l'heure de data.json. */
+const derniereSeance=rows=>(rows||[]).reduce((a,x)=>{const d=x&&x._meta&&x._meta.prix_asof;return d&&d>a?d:a;},"")||null;
+const libelleMarche=(rows,generatedAt,maintenant)=>{const s=derniereSeance(rows);if(!s)return null;
+  const g=generatedAt||(rows||[]).reduce((a,x)=>{const d=x&&x._meta&&x._meta.generated_at;return d&&d>a?d:a;},"");
+  return libelleCours({prix_asof:s},g,maintenant);};
+const TONS_ETAT={seance:"#ffd740",cloture:"#c8d3e8",attente:"#ff8f00",inconnu:"#ff8f00"};
 /* « LA SÉANCE 15▲ 6= 45▼ » se lisait comme un code : en toutes lettres. */
 const largeurMots=(h,b,i)=>[`${h} en hausse`,`${b} en baisse`,`${i} inchangée${i>1?"s":""}`];
 
@@ -1407,6 +1442,7 @@ const GLOSSAIRE={
   capitalisation:{g:"ratios",terme:"Capitalisation",def:"Valeur en bourse de la société : son cours multiplié par le nombre de ses actions."},
   date_arrete:{g:"ratios",terme:"Date d'arrêté des comptes",def:"Fin de la période des comptes utilisés (exercice ou 12 mois glissants) : bénéfice et fonds propres des ratios datent de là, le cours est celui du jour."},
   liquidite:{g:"seance",terme:"Liquidité · montant échangé",def:"Montant en dirhams échangé sur le titre (séance, ou médiane des 20 dernières) ; sous 100 000 DH par séance, la confiance est plafonnée à 2 sur 5."},
+  cours_seance:{g:"seance",terme:"Cours de séance · Clôture",def:"De 9h30 à 15h30, heure de Casablanca, le cours est la dernière valeur relevée à l'heure dite, publiée en différé et encore provisoire ; après, et les jours sans séance, la clôture de la séance datée."},
   extremes:{g:"seance",terme:"Haut / bas 90 j · 52 s",def:"Plus haut et plus bas cours atteints sur les 90 derniers jours ou les 52 dernières semaines."},
   rsi:{g:"technique",terme:"RSI (14)",def:"Indice de 0 à 100 qui compare l'ampleur des hausses et des baisses de clôture sur 14 séances échangées : au-dessus de 70 les hausses ont dominé, sous 30 les baisses."},
   mm:{g:"technique",terme:"MA20 · MA50 · MA200",def:"Moyennes mobiles : moyenne des 20, 50 ou 200 dernières clôtures, qui lisse le cours ; « — » tant que l'historique est plus court que la période."},
@@ -1541,17 +1577,12 @@ const Perime=({r,force=false,prefixe="",sz=9,ml=5})=>{const m=meta(r);if(!m.stal
    `note_fond`, `score_bvc`) : l'explication ne peut pas diverger du calcul.
    (`poids` et `score_tech`, cités ici jusqu'au 06/11/2026, ne sont plus
    publiés.) */
-/* Heure du relevé quand le cours est une valeur de séance en cours (run
-   avant 15h30 le jour même), sinon null. */
-const heureReleve=r=>{const m=meta(r);if(!m.asof)return null;
-  let h="",jour="";try{const d=new Date(m.generated_at);
-    h=maroc(d).toLocaleTimeString("fr-FR",{timeZone:"UTC",hour:"2-digit",minute:"2-digit"});
-    jour=maroc(d).toLocaleDateString("en-CA",{timeZone:"UTC"});}catch(e){}
-  return jour===m.asof&&h&&h<"15:30"?h.replace(":","h"):null;};
-const heureCours=r=>{const m=meta(r);if(!m.asof)return "date du cours inconnue";
-  const h=heureReleve(r);
-  return h?`dernière valeur relevée à ${h} le ${jjmm(m.asof)} — séance en cours`
-    :`cours de clôture du ${jjmm(m.asof)}`;};
+/* Le libellé du cours d'un titre (libelleCours) : sa date, l'heure de son
+   relevé et l'horloge. Jusqu'au 20/11/2026, `heureReleve` ne lisait que
+   l'heure du relevé : un cours de 9h55 se disait « séance en cours » le
+   samedi encore. */
+const coursDe=r=>{const m=meta(r);return libelleCours(m,m.generated_at,new Date());};
+const heureCours=r=>coursDe(r).complet;
 const Repli=({titre,children})=>(
   <details className="repli" style={{width:"100%",maxWidth:420,margin:"6px auto 0",textAlign:"left",background:"#0a1220",border:"1px solid #1a2540",borderRadius:6,padding:"6px 10px"}}>
     <summary style={{cursor:"pointer",fontSize:12,color:"#4db8ff",minHeight:28,display:"flex",alignItems:"center"}}>{titre}</summary>
@@ -1658,7 +1689,7 @@ const reserveEnTete=r=>{const m=meta(r);
    publiées. Un cours plus ancien porte la pastille ⚠, même sans `stale`. */
 const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=useState(false);
   const ancien=m.stale||(!!m.asof&&!!seance&&m.asof<seance);
-  const h=ancien?null:heureReleve(r);
+  const lc=coursDe(r);
   const dh=r.echange_dh;
   const res=reserveEnTete(r);
   /* Phrases courtes plutôt que libellé + valeur : « cours du 13/11/2026 »
@@ -1671,9 +1702,8 @@ const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=us
       {!m.asof
         ? <span style={{color:"#ffd740",fontWeight:700}}>⚠ date du cours inconnue</span>
         : ancien
-        ? <Perime r={r} force prefixe="cours du " sz={12.5} ml={0}/>
-        : <span style={fort}>cours du {jjmmaaaa(m.asof)}</span>}
-      {h&&<span> · relevé à {h}, séance en cours</span>}
+        ? <Perime r={r} force prefixe={lc.etat==="cloture"?"clôture du ":"cours du "} sz={12.5} ml={0}/>
+        : <Terme id="cours_seance" nu><span style={fort}>{lc.complet}</span></Terme>}
     </div>
     <div data-essentiel="montant" style={{marginTop:4}}>
       {dh!=null&&isFinite(dh)&&dh>0
@@ -1693,11 +1723,19 @@ const EnTeteEssentiel=({r,seance})=>{const m=meta(r);const [ouvert,setOuvert]=us
         : <span style={{fontSize:13,fontWeight:600,color:res.c}}>{res.c==="#8892a4"?"":"⚠ "}{res.texte}{res.sur?<span style={{fontWeight:400,color:"#8892a4"}}> (sur {res.sur})</span>:null}</span>}
     </div>}
   </div>;};
+/* La garantie « Cours de la dernière séance cotée » est écrite par le
+   moteur (update_data.py, _meta.garanties) : son texte reste celui du
+   moteur. Tant que le cours est un cours de séance, la ligne dit dessous
+   lequel (libelleCours) — « cours de la séance, relevé à HHhMM ». */
+const precisionGarantie=(critere,lc)=>/dernière séance/i.test(critere||"")&&lc&&(lc.etat==="seance"||lc.etat==="attente")
+  ?(lc.etat==="seance"?`cours de la séance, relevé à ${lc.heure} (différé)`:`cours de la séance du ${lc.asof.slice(8,10)}/${lc.asof.slice(5,7)}, relevé à ${lc.heure} : clôture non publiée`):null;
 const DetailConfiance=({r})=>{const m=meta(r);const g=m.garanties;
   if(!Array.isArray(g))return null;
+  const lc=coursDe(r);
   return <Repli titre={`Fiabilité des données ${m.conf}/5 : que garantit-elle ?`}>
-    {g.map(x=><div key={x.critere} style={{display:"flex",gap:8}}>
-      <span style={{color:x.ok?"#00e5a0":"#ff4f5a",width:14}}>{x.ok?"✓":"✗"}</span><span>{x.critere}</span></div>)}
+    {g.map(x=>{const pr=x.ok&&precisionGarantie(x.critere,lc);return <div key={x.critere} style={{display:"flex",gap:8}}>
+      <span style={{color:x.ok?"#00e5a0":"#ff4f5a",width:14}}>{x.ok?"✓":"✗"}</span><span>{x.critere}
+        {pr&&<span data-precision="cours" style={{display:"block",color:"#8892a4"}}>{pr}</span>}</span></div>;})}
     {m.conf<g.filter(x=>x.ok).length&&<div style={{color:"#ff8f00",marginTop:6}}>Fiabilité plafonnée en dessous du nombre de garanties remplies (société sans comptes, identité à vérifier, données incomplètes ou titre peu liquide).</div>}
     <div style={{color:"#8892a4",marginTop:6}}>Ce score contrôle les DONNÉES (cours, comptes, historique, liquidité). Il ne dit rien du titre ni de son risque : 5/5 ne veut pas dire « sûr ».</div>
   </Repli>;};
@@ -2915,11 +2953,13 @@ const StockChart=({r})=>{
       const v=candles[k].vol||0;
       const lab=t=>`<span style="color:#c8d3e8">${t}</span>`;
       const val=x=>`<span style="color:${col}">${fmtPrixFR(x)}</span>`;
+      const lc=coursDe(r),enSeance=k===n-1&&lc.etat!=="cloture"&&lc.etat!=="inconnu"&&d.time===lc.asof;
       refTooltip.current.innerHTML=
         `<div><b style="color:#fff;font-size:13px">${tk(r)}</b> <span style="color:#8892a4">${r.name?"· "+r.name:""} · J · ${dateFR(d.time)}${candles[k].live?" · en séance":""}</span></div>`+
-        `<div>${lab("O")} ${val(d.open)}&nbsp; ${lab("H")} ${val(d.high)}&nbsp; ${lab("B")} ${val(d.low)}&nbsp; ${lab("C")} ${val(d.close)}`+
+        `<div>${lab("O")} ${val(d.open)}&nbsp; ${lab("H")} ${val(d.high)}&nbsp; ${lab("B")} ${val(d.low)}&nbsp; ${lab(enSeance?"Dernier":"C")} ${val(d.close)}`+
         (dv!=null?`&nbsp; <span style="color:${cv}">${dv>=0?"+":""}${fmtPrixFR(dv)} (${dp>=0?"+":""}${dp.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})} %)</span>`:"")+`</div>`+
-        `<div>${lab("Vol")} <span style="color:${col}">${fmtVolFR(v)}</span></div>`;
+        `<div>${lab("Vol")} <span style="color:${col}">${fmtVolFR(v)}</span></div>`+
+        (enSeance?`<div class="legende-cours" style="color:${TONS_ETAT[lc.etat]}">${lc.texte}</div>`:"");
     };
     legende(iDerAxe);
     main.subscribeCrosshairMove(prm=>legende(prm&&prm.point&&prm.logical!=null?Math.round(prm.logical):iDerAxe));
@@ -3474,7 +3514,7 @@ const Accueil=({rows,fav,ouvrir,setTab,setSort})=>{
    « v6.4 — SCORE BVC », et deux doublons du nombre de titres (« données:
    Clôture · 81 titres », « BVC · 81 titres ») que le classement donne déjà.
    Seule reste la date des données. */
-const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,majMsg,peutRevenir,onRetour})=>{
+const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,seance,majMsg,peutRevenir,onRetour})=>{
   // ⚠️ L'onglet BRIEFING lit `briefing.json`, produit par le run du soir.
   // Le terminal est un site STATIQUE : il ne collecte rien lui-même. Le
   // briefing porte la séance close de la veille, il est donc écrit à 18h et
@@ -3499,9 +3539,13 @@ const Header=({tab,setTab,ts,onRefresh,loading,fetchErr,mktStatus,favCount,masi,
   },[]);
   const fond={background:"linear-gradient(90deg,#0d1829,#0a1220)",borderBottom:"1px solid #1a2540"};
   const h=horodatage(ts);
-  const etat=etatSeance(mktStatus,masi&&masi.asof,h);
-  const badge=etat&&<span className="etat-seance" style={{background:`${TONS_ETAT[etat.ton]}14`,border:`1px solid ${TONS_ETAT[etat.ton]}55`,
-    borderRadius:4,padding:"2px 8px",fontSize:12,color:TONS_ETAT[etat.ton],fontWeight:600,whiteSpace:"nowrap"}}>{etat.texte}</span>;
+  /* `mktStatus` (rafraîchi toutes les 30 s) redessine l'en-tête : l'horloge
+     lue ici avance avec lui. Date du cours : la dernière séance cotée, à
+     défaut celle du MASI. */
+  const lc=h&&(seance||(masi&&masi.asof))?libelleCours({prix_asof:seance||masi.asof},ts,new Date()):null;
+  const ton=lc&&TONS_ETAT[lc.etat];
+  const badge=lc&&<Terme id="cours_seance" nu style={{display:"inline-flex",maxWidth:"100%",textAlign:"left"}}><span className="etat-seance" data-etat={lc.etat} style={{background:`${ton}14`,border:`1px solid ${ton}55`,
+    borderRadius:4,padding:"2px 8px",fontSize:12,color:ton,fontWeight:600,whiteSpace:lc.etat==="attente"?"normal":"nowrap"}}>{lc.texte}</span></Terme>;
   /* Le bouton dit ce qu'il a fait. « Rien ne se passe » veut le plus
      souvent dire « rien de plus récent n'existe » — le pipeline publie
      quatre fois par jour ouvré, pas en continu. Sans retour, l'utilisateur
@@ -3646,6 +3690,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
   const [reglages,setReglages]=useState(false);
   const basculerPlus=()=>setPlus(v=>{lsEcrire("bvc_classement_plus",v?"0":"1");return !v;});
   // La semaine du Score BVC la plus fréquente : dite une fois, en en-tête.
+  const lcMarche=libelleMarche(rows,null,new Date());
   const semaineCommune=useMemo(()=>{const n={};rows.forEach(r=>{const f=((r.score_bvc||{}).semaine||{}).fin;if(f)n[f]=(n[f]||0)+1;});
     return Object.keys(n).sort((a,b)=>n[b]-n[a]||(a<b?1:-1))[0]||null;},[rows]);
   const MASI1_TICKERS=new Set(["CMT","SMI","CASH","MNG","AKD","SOT","SGTM","MSA","CFGB","RIS","ADI","VCNE","CMGP","CSR","TGCC","ADH","SRM","SNA","RDS"]);
@@ -3825,6 +3870,7 @@ const Ranking=({rows,sort,setSort,setSel,setTab,fav=[],toggleFav=()=>{},isWatchl
                   style={{padding:"8px 8px",fontSize:10,color:on?"#00e5a0":"#8892a4",textAlign:DROITE.has(h)?"right":"left",letterSpacing:.4,whiteSpace:"nowrap",fontWeight:500,cursor:tri?"pointer":undefined}}>
                   {TERME_COLONNE[h]?<Terme id={TERME_COLONNE[h]}>{h==="SCORE BVC"?<>SCORE<span className="mot-bvc"> BVC</span></>:h}</Terme>:h}{on?(triCroissant(sort)?" ▲":" ▼"):""}
                   {/* La semaine du score, une fois pour tout le tableau. */}
+                  {h==="COURS"&&lcMarche&&<div className="cours-libelle" title={lcMarche.texte} style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="cours_seance">{lcMarche.court}</Terme></div>}
                   {h==="SCORE BVC"&&semaineCommune&&<div className="semaine-score" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="semaine_close">sem. au {jjmm(semaineCommune)}</Terme></div>}
                   {h==="SCORE BVC"&&<div className="mobile-seul" style={{fontSize:9.5,color:"#8892a4",letterSpacing:0,fontWeight:400}}><Terme id="confiance">● confiance</Terme></div>}
                 </th>;})}
@@ -6388,7 +6434,7 @@ const Guide=({setTab})=>{
     <div ref={ref} className="carte guide" style={{background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"10px 12px",maxWidth:720,margin:"0 auto",scrollMarginTop:8}}>
       <div style={{fontSize:15,fontWeight:700,color:"#e8eef8",marginBottom:5}}>Comment lire l'écran</div>
       <div style={{fontSize:12,color:"#ffd740",lineHeight:1.45,background:"rgba(255,215,64,.07)",border:"1px solid rgba(255,215,64,.3)",borderRadius:6,padding:"6px 9px",marginBottom:3}}>
-        <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Données J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture. Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre un score descriptif et des fréquences passées.
+        <b>L'outil ne prédit pas. Ce n'est pas un conseil en investissement. Bulletin J+1, pas de temps réel.</b> Après 15h30, les cours sont ceux de la dernière clôture, écrits « Clôture du JJ/MM ». Pendant la séance, des relevés intermédiaires (vers 10h et 12h) donnent la dernière valeur relevée, écrite « Cours de séance · HHhMM · différé » : pas un cours définitif : une lecture « à ce stade » peut encore changer jusqu'à la clôture. Il montre un score descriptif et des fréquences passées.
       </div>
       <L titre="Score BVC /100">Six facteurs notés : <T>moyennes mobiles</T> 35 (cours au-dessus de ses MM20, MM50, MM200) · <T>momentum</T> 15 (RSI 14) · <T>MACD</T> 10 · <T>activité</T> 10 (volume du jour) · <T>liquidité</T> 15 (montant échangé) · <T>rentabilité</T> 15 (ROE sur comptes déposés). <T c="#ffd740">Score descriptif, pas une prévision</T> : il décrit la situation du titre à la dernière séance. Classement : partie entière ; fiche : valeur exacte et composition, facteur par facteur. <T>—</T> : non calculé — cours périmé ou titre suspendu (non calculable), ou facteurs disponibles sous 70 % du poids (partiel). <a onClick={()=>setTab&&setTab("weights")} style={{color:"#4db8ff",cursor:"pointer",textDecoration:"underline"}}>Détail des facteurs</a></L>
       <L titre="Couleur du score">Le Score BVC est coloré selon sa tranche, sur une échelle neutre qui va du gris au bleu de plus en plus soutenu, sans mot d'action : <T c={couleurPlage("t75")}>● 75 et plus</T> · <T c={couleurPlage("t60")}>● 60 à 74</T> · <T c={couleurPlage("t40")}>● 40 à 59</T> · <T c={couleurPlage("t0")}>● sous 40</T> · <T c={couleurPlage("nc")}>◌ non calculé</T>. La couleur situe le score dans sa tranche ; elle ne dit pas quoi faire. Le vert et le rouge sont réservés aux hausses et aux baisses de cours. <T c="#8892a4">Données insuffisantes</T> : confiance 0 ou 1, score gris. <T c="#ff6b6b">SUSPENDU</T> : le titre ne cote pas.</L>
@@ -6737,6 +6783,7 @@ function App(){
       +"#onglet="+tab+(tab==="detail"?"&sym="+encodeURIComponent(sel):""));}catch(e){}
   },[tab,sel]);
   const [rows,setRows]=useState(STATIC);
+  const seanceCotee=useMemo(()=>derniereSeance(rows),[rows]);   // date du cours pour le bandeau (libelleCours)
   /* ⚠️ ÉTAT DES DONNÉES — 22/10/2026 (audit du 22/10, lot A).
      « chargement » → « ok » au premier data.json lu ; « indisponible » s'il
      échoue sans qu'aucun n'ait jamais chargé. Tant qu'il n'est pas « ok »,
@@ -6969,7 +7016,7 @@ function App(){
     <div style={{minHeight:"100vh"}}>
       <Intro/>
       {etatDonnees==="ok"&&<TickerTape rows={rows}/>}
-      <Header tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} masi={masi} majMsg={majMsg}/>
+      <Header tab={tab} setTab={changeTab} peutRevenir={peutRevenir} onRetour={revenir} ts={ts} onRefresh={()=>loadData(true)} loading={loading} fetchErr={fetchErr} mktStatus={mktStatus} favCount={fav.length} masi={masi} seance={seanceCotee} majMsg={majMsg}/>
       <div style={{padding:14,maxWidth:1600,margin:"0 auto"}}>
         {etatDonnees!=="ok"&&VUES_SUR_DONNEES.includes(tab)
           ?<EtatDonnees etat={etatDonnees} loading={loading} onRetry={()=>loadData()}/>
