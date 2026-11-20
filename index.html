@@ -6363,7 +6363,242 @@ const Accueil = ({
     vers: "watchlist",
     setTab: setTab,
     items: favs.map(r => t(r))
-  }));
+  }), React.createElement("div", {
+    style: {
+      marginTop: 6,
+      textAlign: "right"
+    }
+  }, React.createElement("button", {
+    type: "button",
+    onClick: () => setTab("etat"),
+    className: "lien-etat",
+    style: {
+      background: "none",
+      border: "none",
+      color: "#8892a4",
+      fontSize: 11,
+      letterSpacing: .4,
+      cursor: "pointer",
+      fontFamily: "var(--font)",
+      textDecoration: "underline dotted",
+      textUnderlineOffset: 3,
+      padding: "8px 2px",
+      minHeight: 32
+    }
+  }, "\xC9tat du service \u203A")));
+};
+const ETAT_SCHEMA = "etat_service/1";
+const jjmmIso = s => s ? `${String(s).slice(8, 10)}/${String(s).slice(5, 7)}` : "—";
+const heureIso = s => s && String(s).length >= 16 ? `${jjmmIso(s)} à ${String(s).slice(11, 13)}h${String(s).slice(14, 16)}` : "—";
+const LIB_SEANCE = {
+  a_temps: "à temps",
+  hors_delai: "hors délai",
+  manquee: "manquée",
+  en_attente: "en attente"
+};
+const lireEtatService = (e, maintenant) => {
+  if (!e || e.schema !== ETAT_SCHEMA || !e.compteur || !Array.isArray(e.taches)) return null;
+  const ech = e.prochaine_echeance ? Date.parse(e.prochaine_echeance) : NaN;
+  const depasse = isFinite(ech) && maintenant > ech;
+  const statut = depasse ? `en retard depuis le ${jjmmIso(e.seance_attendue_ensuite)}` : e.statut === "à jour" ? "à jour" : `en retard : ${(e.en_retard || []).join(", ") || "voir le détail"}`;
+  return {
+    statut,
+    retard: depasse || e.statut !== "à jour",
+    depasse
+  };
+};
+const EtatService = () => {
+  const [e, setE] = useState(undefined);
+  useEffect(() => {
+    let vivant = true;
+    fetch("etat_service.json?t=" + vpub()).then(r => r.ok ? r.json() : null).catch(() => null).then(x => {
+      if (vivant) setE(x || null);
+    });
+    return () => {
+      vivant = false;
+    };
+  }, [VERSION_PUB]);
+  if (e === undefined) return React.createElement(Squelette, {
+    blocs: [2, 2],
+    titre: "Chargement de l'\xE9tat du service"
+  });
+  const lu = lireEtatService(e, Date.now());
+  const cadre = {
+    background: "#0d1829",
+    border: "1px solid #1a2540",
+    borderRadius: 8,
+    padding: "16px 18px",
+    marginBottom: 14
+  };
+  const etiq = {
+    fontSize: 10,
+    color: "#8892a4",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    marginBottom: 8
+  };
+  const ligne = {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+    flexWrap: "wrap",
+    padding: "7px 0",
+    borderTop: "1px solid #1a2540",
+    fontSize: 12.5,
+    color: "#c8d3e8"
+  };
+  const teinte = r => r ? "#ffd740" : "#e6edf7";
+  if (!lu) return React.createElement("div", {
+    className: "carte etat-service",
+    style: {
+      ...cadre,
+      maxWidth: 720
+    }
+  }, React.createElement("div", {
+    style: etiq
+  }, "\xC9tat du service"), React.createElement("div", {
+    style: {
+      fontSize: 15,
+      color: "#e6edf7",
+      fontWeight: 700
+    }
+  }, "\xC9tat indisponible"), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4",
+      marginTop: 8,
+      lineHeight: 1.6
+    }
+  }, "Le fichier etat_service.json est absent ou illisible. Aucun \xE9tat n'est suppos\xE9 \xE0 sa place."));
+  const c = e.compteur || {},
+    dp = e.derniere_publication || {},
+    dc = e.derniere_cloture || {},
+    fc = e.file_comptes || {};
+  return React.createElement("div", {
+    className: "etat-service",
+    style: {
+      maxWidth: 900
+    }
+  }, React.createElement("div", {
+    className: "carte",
+    style: cadre
+  }, React.createElement("div", {
+    style: etiq
+  }, "\xC9tat du service"), React.createElement("div", {
+    style: {
+      fontSize: 18,
+      fontWeight: 700,
+      color: teinte(lu.retard)
+    }
+  }, lu.statut), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: "#8892a4",
+      marginTop: 6,
+      lineHeight: 1.6
+    }
+  }, "\xC9tabli le ", heureIso(e.genere_a), " (Casablanca), au dernier passage du moteur.", lu.depasse && " Aucun fichier plus récent depuis l'échéance de la séance suivante.")), React.createElement("div", {
+    className: "carte",
+    style: cadre
+  }, React.createElement("div", {
+    style: etiq
+  }, "Publication"), React.createElement("div", {
+    style: ligne
+  }, React.createElement("span", null, "Derni\xE8re publication"), React.createElement("span", null, heureIso(dp.ecrit_a), " \xB7 s\xE9ance du ", jjmmIso(dp.seance), " \xB7 ", dp.titres_seance ?? "—", " titres sur ", dp.titres ?? "—", " au prix de la s\xE9ance", dp.cloture === false ? " · cours de séance" : "")), React.createElement("div", {
+    style: ligne
+  }, React.createElement("span", null, "Derni\xE8re cl\xF4ture publi\xE9e"), React.createElement("span", null, dc.seance ? `séance du ${jjmmIso(dc.seance)} · publiée le ${heureIso(dc.publiee_a)} · ${dc.titres ?? "—"} titres` : "—"))), React.createElement("div", {
+    className: "carte",
+    style: cadre
+  }, React.createElement("div", {
+    style: etiq
+  }, "Compteur"), React.createElement("div", {
+    style: {
+      fontSize: 15,
+      color: "#e6edf7",
+      fontWeight: 700
+    }
+  }, c.au_moins ? "au moins " : "", c.valeur ?? "—", " ", c.valeur === 1 ? "jour ouvré" : "jours ouvrés", " cons\xE9cutifs avec une cl\xF4ture publi\xE9e \xE0 temps", React.createElement("span", {
+    style: {
+      color: "#8892a4",
+      fontWeight: 400
+    }
+  }, " \xB7 objectif ", c.objectif ?? 30)), c.au_moins && React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#8892a4",
+      marginTop: 6
+    }
+  }, "Le journal commence le ", jjmmIso(e.journal_depuis), " : aucune rupture depuis."), c.derniere_rupture && React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#ffd740",
+      marginTop: 6
+    }
+  }, "Derni\xE8re rupture : s\xE9ance du ", jjmmIso(c.derniere_rupture.seance), " (", LIB_SEANCE[c.derniere_rupture.statut] || c.derniere_rupture.statut, ")."), React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: "#8892a4",
+      marginTop: 8,
+      lineHeight: 1.6
+    }
+  }, c.definition), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6,
+      marginTop: 10
+    }
+  }, (e.seances || []).map(v => React.createElement("span", {
+    key: v.seance,
+    title: v.publiee_a ? `publiée le ${heureIso(v.publiee_a)}` : "",
+    style: {
+      fontSize: 11,
+      border: "1px solid #1a2540",
+      borderRadius: 4,
+      padding: "3px 7px",
+      color: v.statut === "a_temps" ? "#c8d3e8" : v.statut === "en_attente" ? "#8892a4" : "#ffd740"
+    }
+  }, jjmmIso(v.seance), " ", LIB_SEANCE[v.statut] || v.statut)))), React.createElement("div", {
+    className: "carte",
+    style: cadre
+  }, React.createElement("div", {
+    style: etiq
+  }, "T\xE2ches et sources"), e.taches.map(x => React.createElement("div", {
+    key: x.nom,
+    style: ligne
+  }, React.createElement("span", null, x.nom, x.detail && React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 11,
+      color: "#8892a4",
+      marginTop: 2
+    }
+  }, x.detail)), React.createElement("span", {
+    style: {
+      color: teinte(x.en_retard),
+      textAlign: "right"
+    }
+  }, x.statut, x.derniere ? ` · ${jjmmIso(x.derniere)}` : "")))), React.createElement("div", {
+    className: "carte",
+    style: cadre
+  }, React.createElement("div", {
+    style: etiq
+  }, "File des comptes \xE0 lire"), fc.disponible === false ? React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: "#8892a4"
+    }
+  }, "\xC9tat inconnu : la file n'a pas pu \xEAtre lue.") : React.createElement(React.Fragment, null, React.createElement("div", {
+    style: ligne
+  }, React.createElement("span", null, "Comptes d\xE9pos\xE9s non encore lus"), React.createElement("span", {
+    style: {
+      color: teinte(fc.en_retard)
+    }
+  }, fc.statut || "—")), React.createElement("div", {
+    style: ligne
+  }, React.createElement("span", null, "Plus ancien"), React.createElement("span", null, fc.plus_ancien ? `${fc.plus_ancien.ticker} · déposé le ${jjmmIso(fc.plus_ancien.date)} · ${fc.plus_ancien.jours_ouvres} jours ouvrés` : "aucun")), React.createElement("div", {
+    style: ligne
+  }, React.createElement("span", null, "Avertissements sur r\xE9sultats \xB7 indicateurs non suivis"), React.createElement("span", null, fc.avertissements ?? "—", " \xB7 ", fc.non_suivis ?? "—")))));
 };
 const Header = ({
   tab,
@@ -14789,7 +15024,7 @@ const MentionLegale = () => React.createElement("footer", {
   }
 }, "Les performances pass\xE9es ne pr\xE9jugent pas des performances futures. Toute d\xE9cision d'investissement rel\xE8ve de votre seule responsabilit\xE9 et devrait \xEAtre pr\xE9c\xE9d\xE9e de l'avis d'un professionnel habilit\xE9.")));
 const VUES_SUR_DONNEES = ["accueil", "ranking", "per", "heatmap", "watchlist", "detail", "briefing"];
-const VUES_CONNUES = ["accueil", "ranking", "per", "briefing", "heatmap", "detail", "watchlist", "weights", "news", "monde", "guide"];
+const VUES_CONNUES = ["accueil", "ranking", "per", "briefing", "heatmap", "detail", "watchlist", "weights", "news", "monde", "guide", "etat"];
 const EtatDonnees = ({
   etat,
   loading,
@@ -15195,7 +15430,7 @@ function App() {
       choisirTitre(sym);
       changeTab("detail");
     }
-  }), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "news" && React.createElement(NewsFeed, null)), React.createElement(MentionLegale, null)), React.createElement(InfobulleRacine, null));
+  }), tab === "monde" && React.createElement(MarchesMondiaux, null), tab === "news" && React.createElement(NewsFeed, null), tab === "etat" && React.createElement(EtatService, null)), React.createElement(MentionLegale, null)), React.createElement(InfobulleRacine, null));
 }
 class ErrorBoundary extends React.Component {
   constructor(p) {

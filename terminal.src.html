@@ -3504,6 +3504,105 @@ const Accueil=({rows,fav,ouvrir,setTab,setSort})=>{
       <Rangee titre="Score BVC le plus élevé" sous="descriptif, pas une prévision · confiance ≥ 2" vers="ranking" tri="bvc" setSort={setSort} setTab={setTab}
         items={notes.map(r=>t(r,`Score BVC ${exactBVC(valeurBVC(r))}/100 · ${trancheBVC(r).plage}`))}/>
       <Rangee titre="Mes favoris" vers="watchlist" setTab={setTab} items={favs.map(r=>t(r))}/>
+      {/* Lot 3.1 (20/11/2026) : lien discret vers l'état du service. */}
+      <div style={{marginTop:6,textAlign:"right"}}>
+        <button type="button" onClick={()=>setTab("etat")} className="lien-etat"
+          style={{background:"none",border:"none",color:"#8892a4",fontSize:11,letterSpacing:.4,cursor:"pointer",
+            fontFamily:"var(--font)",textDecoration:"underline dotted",textUnderlineOffset:3,padding:"8px 2px",minHeight:32}}>
+          État du service ›</button>
+      </div>
+    </div>);
+};
+
+/* ⚠️ ÉTAT DU SERVICE — 20/11/2026 (lots 3.1 et 3.5 de la feuille de route).
+   Lit `etat_service.json`, écrit par pipeline/etat_service.py dans le même
+   enregistrement que data.json. Fichier absent ou illisible : « état
+   indisponible », jamais un état supposé. Aucune couleur de variation :
+   « à jour » en clair, « en retard depuis le JJ/MM » en jaune. Le terminal
+   recalcule un seul point lui-même : si l'échéance de la séance suivante est
+   passée sans nouveau fichier, le moteur est en retard même si le fichier,
+   figé, dit encore « à jour ». */
+const ETAT_SCHEMA="etat_service/1";
+const jjmmIso=s=>s?`${String(s).slice(8,10)}/${String(s).slice(5,7)}`:"—";
+const heureIso=s=>s&&String(s).length>=16?`${jjmmIso(s)} à ${String(s).slice(11,13)}h${String(s).slice(14,16)}`:"—";
+const LIB_SEANCE={a_temps:"à temps",hors_delai:"hors délai",manquee:"manquée",en_attente:"en attente"};
+const lireEtatService=(e,maintenant)=>{
+  if(!e||e.schema!==ETAT_SCHEMA||!e.compteur||!Array.isArray(e.taches))return null;
+  const ech=e.prochaine_echeance?Date.parse(e.prochaine_echeance):NaN;
+  const depasse=isFinite(ech)&&maintenant>ech;
+  const statut=depasse?`en retard depuis le ${jjmmIso(e.seance_attendue_ensuite)}`
+    :(e.statut==="à jour"?"à jour":`en retard : ${(e.en_retard||[]).join(", ")||"voir le détail"}`);
+  return {statut,retard:depasse||e.statut!=="à jour",depasse};
+};
+const EtatService=()=>{
+  const [e,setE]=useState(undefined);
+  useEffect(()=>{
+    let vivant=true;
+    fetch("etat_service.json?t="+vpub()).then(r=>r.ok?r.json():null).catch(()=>null)
+      .then(x=>{if(vivant)setE(x||null);});
+    return()=>{vivant=false;};
+  },[VERSION_PUB]);
+  if(e===undefined)return <Squelette blocs={[2,2]} titre="Chargement de l'état du service"/>;
+  const lu=lireEtatService(e,Date.now());
+  const cadre={background:"#0d1829",border:"1px solid #1a2540",borderRadius:8,padding:"16px 18px",marginBottom:14};
+  const etiq={fontSize:10,color:"#8892a4",letterSpacing:1.2,textTransform:"uppercase",marginBottom:8};
+  const ligne={display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",padding:"7px 0",borderTop:"1px solid #1a2540",fontSize:12.5,color:"#c8d3e8"};
+  const teinte=r=>r?"#ffd740":"#e6edf7";
+  if(!lu)return(
+    <div className="carte etat-service" style={{...cadre,maxWidth:720}}>
+      <div style={etiq}>État du service</div>
+      <div style={{fontSize:15,color:"#e6edf7",fontWeight:700}}>État indisponible</div>
+      <div style={{fontSize:12,color:"#8892a4",marginTop:8,lineHeight:1.6}}>
+        Le fichier etat_service.json est absent ou illisible. Aucun état n'est supposé à sa place.</div>
+    </div>);
+  const c=e.compteur||{}, dp=e.derniere_publication||{}, dc=e.derniere_cloture||{}, fc=e.file_comptes||{};
+  return(
+    <div className="etat-service" style={{maxWidth:900}}>
+      <div className="carte" style={cadre}>
+        <div style={etiq}>État du service</div>
+        <div style={{fontSize:18,fontWeight:700,color:teinte(lu.retard)}}>{lu.statut}</div>
+        <div style={{fontSize:12,color:"#8892a4",marginTop:6,lineHeight:1.6}}>
+          Établi le {heureIso(e.genere_a)} (Casablanca), au dernier passage du moteur.
+          {lu.depasse&&" Aucun fichier plus récent depuis l'échéance de la séance suivante."}</div>
+      </div>
+      <div className="carte" style={cadre}>
+        <div style={etiq}>Publication</div>
+        <div style={ligne}><span>Dernière publication</span><span>{heureIso(dp.ecrit_a)} · séance du {jjmmIso(dp.seance)} · {dp.titres_seance??"—"} titres sur {dp.titres??"—"} au prix de la séance{dp.cloture===false?" · cours de séance":""}</span></div>
+        <div style={ligne}><span>Dernière clôture publiée</span><span>{dc.seance?`séance du ${jjmmIso(dc.seance)} · publiée le ${heureIso(dc.publiee_a)} · ${dc.titres??"—"} titres`:"—"}</span></div>
+      </div>
+      <div className="carte" style={cadre}>
+        <div style={etiq}>Compteur</div>
+        <div style={{fontSize:15,color:"#e6edf7",fontWeight:700}}>
+          {c.au_moins?"au moins ":""}{c.valeur??"—"} {c.valeur===1?"jour ouvré":"jours ouvrés"} consécutifs avec une clôture publiée à temps
+          <span style={{color:"#8892a4",fontWeight:400}}> · objectif {c.objectif??30}</span></div>
+        {c.au_moins&&<div style={{fontSize:11.5,color:"#8892a4",marginTop:6}}>Le journal commence le {jjmmIso(e.journal_depuis)} : aucune rupture depuis.</div>}
+        {c.derniere_rupture&&<div style={{fontSize:11.5,color:"#ffd740",marginTop:6}}>Dernière rupture : séance du {jjmmIso(c.derniere_rupture.seance)} ({LIB_SEANCE[c.derniere_rupture.statut]||c.derniere_rupture.statut}).</div>}
+        <div style={{fontSize:11.5,color:"#8892a4",marginTop:8,lineHeight:1.6}}>{c.definition}</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:10}}>
+          {(e.seances||[]).map(v=>(
+            <span key={v.seance} title={v.publiee_a?`publiée le ${heureIso(v.publiee_a)}`:""}
+              style={{fontSize:11,border:"1px solid #1a2540",borderRadius:4,padding:"3px 7px",color:v.statut==="a_temps"?"#c8d3e8":v.statut==="en_attente"?"#8892a4":"#ffd740"}}>
+              {jjmmIso(v.seance)} {LIB_SEANCE[v.statut]||v.statut}</span>))}
+        </div>
+      </div>
+      <div className="carte" style={cadre}>
+        <div style={etiq}>Tâches et sources</div>
+        {e.taches.map(x=>(
+          <div key={x.nom} style={ligne}>
+            <span>{x.nom}{x.detail&&<span style={{display:"block",fontSize:11,color:"#8892a4",marginTop:2}}>{x.detail}</span>}</span>
+            <span style={{color:teinte(x.en_retard),textAlign:"right"}}>{x.statut}{x.derniere?` · ${jjmmIso(x.derniere)}`:""}</span>
+          </div>))}
+      </div>
+      <div className="carte" style={cadre}>
+        <div style={etiq}>File des comptes à lire</div>
+        {fc.disponible===false
+          ?<div style={{fontSize:12.5,color:"#8892a4"}}>État inconnu : la file n'a pas pu être lue.</div>
+          :<>
+            <div style={ligne}><span>Comptes déposés non encore lus</span><span style={{color:teinte(fc.en_retard)}}>{fc.statut||"—"}</span></div>
+            <div style={ligne}><span>Plus ancien</span><span>{fc.plus_ancien?`${fc.plus_ancien.ticker} · déposé le ${jjmmIso(fc.plus_ancien.date)} · ${fc.plus_ancien.jours_ouvres} jours ouvrés`:"aucun"}</span></div>
+            <div style={ligne}><span>Avertissements sur résultats · indicateurs non suivis</span><span>{fc.avertissements??"—"} · {fc.non_suivis??"—"}</span></div>
+          </>}
+      </div>
     </div>);
 };
 
@@ -6738,7 +6837,7 @@ const VUES_SUR_DONNEES=["accueil","ranking","per","heatmap","watchlist","detail"
 /* ⚠️ 28/10/2026 — onglets « smart » et « nlp » retirés (corpus WhatsApp
    supprimé, décision d'Abd Moutalib). Un lien ancien `#onglet=nlp` ouvrait
    une page vide : seule une vue connue est acceptée depuis l'adresse. */
-const VUES_CONNUES=["accueil","ranking","per","briefing","heatmap","detail","watchlist","weights","news","monde","guide"];
+const VUES_CONNUES=["accueil","ranking","per","briefing","heatmap","detail","watchlist","weights","news","monde","guide","etat"];
 /* État explicite tant que data.json n'a pas chargé — 22/10/2026. Aucun
    chiffre : ni ceux de la table de repli (elle n'en a plus), ni un écran
    de titres vides qui se lirait comme un marché sans cotation. */
@@ -7032,6 +7131,7 @@ function App(){
         {tab==="briefing" &&<Briefing rows={rows} masi={masi} ouvrir={sym=>{choisirTitre(sym);changeTab("detail");}}/>}
         {tab==="monde" &&<MarchesMondiaux/>}
         {tab==="news"     &&<NewsFeed/>}
+        {tab==="etat"     &&<EtatService/>}
           </>}
         <MentionLegale/>
       </div>
