@@ -1,19 +1,20 @@
 """Libellés descriptifs : le produit décrit, il ne recommande pas.
 
-Trois contrôles :
+Deux contrôles :
   1. aucun mot interprétatif (surachat, haussier, pullback, cassure, rebond,
      achat, signal…) dans un champ `libelle` des fichiers publiés ;
   2. les libellés des générateurs (`pipeline/frequences.py`,
      `pipeline/figures_publiees.py`) sont ceux des fichiers publiés ;
-  3. les chiffres (fréquences, effectifs, périodes) n'ont pas bougé : l'empreinte
-     du contenu publié, libellés exclus, est figée (R8, R12). Si une mesure est
-     un jour relancée, cette empreinte change et doit être revue en connaissance
-     de cause.
+
+Que les chiffres (fréquences, effectifs, périodes) n'ont pas bougé avec le
+changement de libellés est une preuve ponctuelle, faite dans la PR (empreinte
+sha256 du contenu hors libellés, identique avant et après). Elle n'est pas
+figée ici : `figures_publiees.json` est régénéré à chaque passage du moteur, et
+une empreinte figée casserait la suite au premier passage légitime.
 
 Les clés techniques (`pullback_on`, `gap_haussier`…) restent des identifiants :
 seuls les libellés affichés sont contrôlés.
 """
-import hashlib
 import json
 import re
 import sys
@@ -34,12 +35,6 @@ MOTS = re.compile(
     r"\bachat|\bvente|signal|\bbull|\bbear|support|r[ée]sistance|entr[ée]e|sortie",
     re.I)
 
-# Empreintes du contenu publié SANS les champs `libelle` (mesurées le 20/11/2026,
-# identiques avant et après le changement de libellés).
-EMPREINTE_FREQUENCES = "dfd1679ca0890ac99dbfb77cfb1e2a3cf487425e31cb62474f326e84dd8fe391"
-EMPREINTE_FIGURES_FREQUENCES = "d9547735a588977c852374b73ddfb5a4715148ec2e09145e80be4e2ed3703081"
-
-
 def _charger(p):
     return json.loads(p.read_text(encoding="utf-8"))
 
@@ -55,19 +50,6 @@ def _libelles(o, chemin=""):
     elif isinstance(o, list):
         for i, v in enumerate(o):
             yield from _libelles(v, f"{chemin}[{i}]")
-
-
-def _sans_libelle(o):
-    if isinstance(o, dict):
-        return {k: _sans_libelle(v) for k, v in o.items() if k != "libelle"}
-    if isinstance(o, list):
-        return [_sans_libelle(x) for x in o]
-    return o
-
-
-def _empreinte(o):
-    return hashlib.sha256(json.dumps(_sans_libelle(o), sort_keys=True,
-                                     ensure_ascii=False).encode()).hexdigest()
 
 
 # ── 1. aucun mot interprétatif ──────────────────────────────────────────
@@ -105,13 +87,3 @@ def test_libelles_figures_generes_egaux_publies():
     assert vus, "aucune figure publiée : le test ne contrôlerait rien"
     for typ, libs in vus.items():
         assert libs == {fp.LIBELLES[typ]}, typ
-
-
-# ── 3. les chiffres n'ont pas changé ────────────────────────────────────
-
-def test_chiffres_frequences_inchanges():
-    assert _empreinte(_charger(FREQ)) == EMPREINTE_FREQUENCES
-
-
-def test_chiffres_figures_frequences_inchanges():
-    assert _empreinte(_charger(FIG)["frequences"]) == EMPREINTE_FIGURES_FREQUENCES
