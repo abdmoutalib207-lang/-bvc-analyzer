@@ -2217,7 +2217,12 @@ const SignauxTechniques=({r})=>{
   useEffect(()=>{if(!freq)chargerFrequences().then(j=>j&&setFreq(j));},[]);
   const STATS_SIGNAUX=(freq&&freq.frequences)||{};
   const v2=r.score_tech_v2, neu=r.technique_neutralise, reg=REGIME_TECH;
-  const coul=v=>v>0?"#00e5a0":v<0?"#ff4f5a":"#8892a4";
+  /* 20/11/2026 (lot 1.4) : l'écart moyen au MASI était vert quand positif,
+     rouge sinon — une fréquence passée peinte comme un feu vert pour le
+     signal. Il garde son signe écrit, dans le blanc des chiffres ; le
+     régime de marché (« EN TENDANCE » vert / « HORS TENDANCE » orange)
+     passe au gris clair. */
+  const coul=()=>"#e8eef8";
   // 14/10/2026 : une fréquence corrigée le DIT (errata du fichier publié).
   const ERRATA=(freq&&freq.errata)||[];
   const ligne=(k,actif)=>{const x=STATS_SIGNAUX[k];if(!x)return null;
@@ -2237,7 +2242,7 @@ const SignauxTechniques=({r})=>{
         <span style={{fontSize:10,color:"#8892a4",letterSpacing:1,textTransform:"uppercase"}}>Signaux techniques</span>
         <span style={{fontSize:9,color:"#ffd740",border:"1px solid rgba(255,215,64,.4)",borderRadius:3,padding:"1px 6px"}}>EN ESSAI · n'entre pas dans le Score BVC</span>
         {reg&&<span title={`MASI ${reg.masi_sur_ma200?"au-dessus":"au-dessous"} de sa moyenne 200 séances · ${reg.part_titres_liquides_sur_ma200!=null?Math.round(reg.part_titres_liquides_sur_ma200*100)+" % des titres liquides au-dessus de la leur":"largeur inconnue"}`}
-          style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:reg.tendance?"#00e5a0":"#ff8f00"}}>
+          style={{marginLeft:"auto",fontSize:11,fontWeight:700,color:"#c8d3e8"}}>
           Marché {reg.tendance?"EN TENDANCE":"HORS TENDANCE"}</span>}
       </div>
       {neu?(

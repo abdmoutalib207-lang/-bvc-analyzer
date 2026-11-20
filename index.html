@@ -3713,7 +3713,7 @@ const SignauxTechniques = ({
   const v2 = r.score_tech_v2,
     neu = r.technique_neutralise,
     reg = REGIME_TECH;
-  const coul = v => v > 0 ? "#00e5a0" : v < 0 ? "#ff4f5a" : "#8892a4";
+  const coul = () => "#e8eef8";
   const ERRATA = freq && freq.errata || [];
   const ligne = (k, actif) => {
     const x = STATS_SIGNAUX[k];
@@ -3804,7 +3804,7 @@ const SignauxTechniques = ({
       marginLeft: "auto",
       fontSize: 11,
       fontWeight: 700,
-      color: reg.tendance ? "#00e5a0" : "#ff8f00"
+      color: "#c8d3e8"
     }
   }, "March\xE9 ", reg.tendance ? "EN TENDANCE" : "HORS TENDANCE")), neu ? React.createElement("div", {
     style: {

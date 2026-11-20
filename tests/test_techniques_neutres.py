@@ -303,6 +303,19 @@ def test_les_filtres_rsi_disent_leur_plage():
     assert 'if(rsiZone==="haut") r=r.filter(x=>(x.rsi??x.rsi14)!=null&&(x.rsi??x.rsi14)>70);' in SRC
 
 
+def test_signaux_en_essai_sans_couleur_de_signal():
+    """« Analyse avancée » : l'écart moyen au MASI et le régime de marché.
+    Seules les couleurs sont contrôlées ici : `ligne("surachat",…)` est une
+    clé du fichier publié, pas un texte affiché. Le libellé affiché vient de
+    datasets/frequences_publiees.json (« Sortie de surachat du RSI… »), hors
+    du périmètre de l'écran : signalé, non modifié."""
+    z = _bloc("const SignauxTechniques=", "\n};\n")
+    assert [d for d in controle(z) if d.startswith("couleur")] == []
+    assert "{al>0?\"+\":\"\"}{al.toLocaleString(\"fr-FR\")} %" in z     # le signe reste écrit
+    assert 'Marché {reg.tendance?"EN TENDANCE":"HORS TENDANCE"}' in z
+    assert controle('style={{color:reg.tendance?"#00e5a0":"#ff8f00"}}')       # contrôle négatif
+
+
 def test_le_controle_voit_les_filtres_d_avant():
     assert controle('{[["survendu","<30 survendu","#4db8ff"],["surachete",">70 suracheté","#4db8ff"]]}')
     assert controle('<button style={{fontSize:10,color:"#ff4f5a",border:"1px solid #ff4f5a30"}}>')
