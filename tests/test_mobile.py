@@ -1,9 +1,10 @@
 """La version téléphone du terminal — 29/09/2026.
 
-Les règles CSS masquent les colonnes du classement PAR POSITION (nth-child).
-Si les colonnes sont réordonnées, le téléphone cacherait le score à la place
-du volume, sans qu'aucune erreur ne se voie. Ce test lie les positions
-supposées par le CSS à la liste réelle des en-têtes.
+⚠️ 20/11/2026 — classement allégé : les colonnes du classement se masquent
+désormais par CLASSE (`c-titre`, `c-cours`…), plus par position. Les tests
+qui liaient les positions nth-child à la liste des en-têtes sont remplacés
+par ceux de `tests/test_classement_allege.py` (même garantie : le téléphone
+cache exactement ce qu'il doit, et le contrôle voit l'ancien défaut).
 """
 
 from __future__ import annotations
@@ -12,29 +13,6 @@ import re
 from pathlib import Path
 
 SRC = (Path(__file__).resolve().parent.parent / "terminal.src.html").read_text(encoding="utf-8")
-
-# Positions (1-indexées) que la règle mobile laisse visibles.
-# ⚠️ Décalées le 29/09/2026 : les colonnes « BVC » et « Δ » (note figée du
-# 03/06) ont quitté le classement — voir test_score_canonique.py.
-# « SIGNAL » devient « COULEUR » le 07/10/2026 : plus de mot d'action, la
-# pastille de couleur de la note (test_couleurs_sans_recommandation.py).
-# 28/10/2026 : NLP%, SM~ et ALPHA retirées — COULEUR passe de 14 à 11.
-# 06/11/2026 : le Score BVC remplace la note v5.3 en colonne 9 ; POIDS et la
-# seconde colonne SCORE BVC (12 et 13) sont retirées.
-GARDEES = {2: "TICKER", 4: "CLÔT.", 5: "VAR%", 9: "SCORE BVC", 11: "COULEUR"}
-
-
-def _entetes() -> list[str]:
-    m = re.search(r"const HEADS=\[(.*?)\];", SRC)
-    assert m, "liste HEADS introuvable"
-    return [x.strip().strip('"') for x in m.group(1).split(",")]
-
-
-def test_les_colonnes_gardees_sur_telephone_sont_les_bonnes():
-    h = _entetes()
-    for pos, nom in GARDEES.items():
-        assert h[pos - 1] == nom, f"colonne {pos} : {h[pos - 1]!r} au lieu de {nom!r}"
-
 
 def test_les_regles_mobiles_existent():
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
@@ -51,30 +29,29 @@ def test_les_regles_mobiles_existent():
     # Les classes utilisées par le CSS sont bien posées dans le JSX.
     for classe in ("entete", "onglet", "carte-ind", "indices-ligne", "classement", "bandeau-masi",
                    # badge-version et entete-droite : retirés du cadre le 19/11/2026
-                   "nom-societe", "secteur-societe"):
+                   # secteur-societe : retiré du classement le 20/11/2026 (le
+                   # secteur passe au survol du nom, au filtre et sur la fiche)
+                   "nom-societe"):
         assert re.search(rf'className="(?:[^"]* )?{classe}(?: [^"]*)?"', SRC), classe
-
-
-def test_le_telephone_masque_exactement_les_autres_colonnes():
-    """Retirer une colonne décale toutes les suivantes : sans ce test, le
-    téléphone montrerait le NLP à la place du signal sans que rien ne casse."""
-    css = SRC[SRC.index("Le classement garde"):]
-    bloc = css[:css.index("{display:none}")]
-    masquees = set()
-    for a, b in re.findall(r"td:nth-child\(n\+(\d+)\):nth-child\(-n\+(\d+)\)", bloc):
-        masquees |= set(range(int(a), int(b) + 1))
-    masquees |= {int(k) for k in re.findall(r"td:nth-child\((\d+)\)", bloc)}
-    toutes = set(range(1, len(_entetes()) + 1))
-    assert masquees == toutes - set(GARDEES), sorted(masquees ^ (toutes - set(GARDEES)))
 
 
 def test_ouverture_et_volume_restent_lisibles_sur_telephone():
     """Demande du 30/09/2026 : les colonnes OUVERT et VOLUME sont masquées
-    sur téléphone, leurs valeurs passent sous la clôture et la variation."""
-    assert SRC.count('className="mobile-seul"') == 2
-    assert "ouv. {r.open?px(r.open)" in SRC and "{nombreInsecable(volumeCourt(r))}" in SRC
+    sur téléphone, leurs valeurs passaient sous la clôture et la variation.
+
+    20/11/2026 (classement allégé) : la ligne du téléphone ne porte plus que
+    titre, cours et variation, Score BVC et confiance. Le montant échangé et
+    l'ouverture restent lisibles EN TOUCHANT LA LIGNE : la fiche donne le
+    montant dans « En bref » (« … DH échangés ») et l'ouverture dans la
+    légende du graphique (O, H, B, C de la dernière séance, affichée sans
+    survol). Sur ordinateur, « Plus de colonnes » les rappelle au classement."""
+    assert SRC.count('className="mobile-seul"') == 2      # variation et confiance
     avant_media = SRC[:SRC.index("@media(max-width:640px)")]
     assert ".mobile-seul{display:none}" in avant_media
+    i = SRC.index("const EnTeteEssentiel=")
+    assert "const dh=r.echange_dh;" in SRC[i:i + 400]
+    assert '${lab("O")} ${val(d.open)}' in SRC and "legende(iDerAxe);" in SRC
+    assert '{plus&&<td className="c-ouv"' in SRC and "{nombreInsecable(volumeCourt(r))}" in SRC
 
 
 def test_le_volume_s_affiche_en_dirhams_et_jamais_une_quantite_sous_l_etiquette_dh():
@@ -104,9 +81,15 @@ def test_la_carte_des_indices_reserve_sa_place_au_chargement():
 
 def test_la_colonne_couleur_tient_dans_l_ecran_du_telephone():
     """07/10/2026 : à 390 px la colonne COULEUR finissait à 409 px. Le
-    remplissage posé sur TOUT son contenu (rond compris) la portait à 92 px."""
+    remplissage posé sur TOUT son contenu (rond compris) la portait à 92 px.
+
+    20/11/2026 : COULEUR est fondue dans la colonne du Score BVC ; la même
+    garde vaut pour ses états, dans une colonne de largeur FIXE (mesuré à
+    390 px : « Données insuffisantes » sur deux lignes, tableau à 362 px)."""
     css = SRC[SRC.index("VERSION TÉLÉPHONE"):SRC.index("</style>")]
-    assert "td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}" in css  # 12 px depuis le 19/11/2026
+    assert ".classement .c-score .etat-score *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}" in css
+    assert ".classement{min-width:0!important;table-layout:fixed}" in css
+    assert ".classement .c-score{width:118px;max-width:118px}" in css
     assert "padding:3px 5px!important" not in css
     assert ".classement .ligne-ticker{flex-wrap:wrap" in css and 'className="ligne-ticker"' in SRC
 

@@ -30,6 +30,7 @@
     .tv-lightweight-charts{display:block!important;}
     .detail-grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:12px;}
     .mobile-seul{display:none}
+    .bouton-reglages{display:none}
     .per-mobile{display:none}
     /* L'étoile des favoris (07/10/2026) : #2a3550 sur le fond, contraste
        1,59 — invisible. Teinte --dim, et une boîte de 32 px au moins dont les
@@ -151,59 +152,60 @@
       /* Exposants (⚠, ∑, ° des états financiers) : « smaller » les mettait à
          10 px, or ⚠ est une réserve — elle doit se lire. */
       sup{font-size:12px}
-      /* Le classement garde : ticker, clôture (+ ouverture), variation
-         (+ volume), Score BVC, couleur de sa tranche. 06/11/2026 : onze
-         colonnes (POIDS et la seconde colonne de score sont retirées). */
-      .classement{min-width:0!important}
-      .classement th:nth-child(1),.classement td:nth-child(1),
-      .classement th:nth-child(3),.classement td:nth-child(3),
-      .classement th:nth-child(n+6):nth-child(-n+8),.classement td:nth-child(n+6):nth-child(-n+8),
-      .classement th:nth-child(10),.classement td:nth-child(10){display:none}
-      .classement td,.classement th{padding:7px 2px!important}
+      /* CLASSEMENT ALLÉGÉ (20/11/2026) — une ligne de téléphone : le titre
+         (code, nom), le cours avec la variation dessous, le Score BVC avec sa
+         tranche et la confiance dessous. PER, dividende et « Plus de
+         colonnes » sont sur la fiche, en touchant la ligne. Les colonnes se
+         désignent par CLASSE : en retirer une ne décale plus ce qu'on cache. */
+      .classement{min-width:0!important;table-layout:fixed}
+      .classement .c-var,.classement .c-conf,.classement .c-per,.classement .c-div,
+      .classement .c-ouv,.classement .c-echange,.classement .c-rsi{display:none}
+      .plus-colonnes{display:none!important}
+      /* Filtres et tri repliés (20/11/2026) : la 1re ligne du classement
+         remonte de 481 à 241 px à 390, 8 lignes entières au premier écran
+         au lieu de 4 (mesuré sur data.json du 20/11). */
+      .bouton-reglages{display:inline-flex!important}
+      .reglages-fermes .reglage-tel{display:none!important}
+      .recherche-classement{flex:1 1 120px;width:auto!important;min-width:0}
+      .classement td,.classement th{padding:7px 4px!important}
       /* Classement par PER (03/11/2026) : rang, base et BPA passent sous le
          PER (lignes .per-mobile) faute de largeur. */
       .classement-per{min-width:0!important}
       .classement-per .per-rang,.classement-per .per-base,.classement-per .per-bpa{display:none}
       .classement-per td,.classement-per th{padding:7px 4px!important}
       .per-mobile{display:block!important}
-      /* Colonne COULEUR (07/10/2026) : sur téléphone, la pastille seule —
-         le score coloré est à côté. Sans valeur, l'état (« non calculé »)
-         reste écrit, sur deux lignes. */
+      /* La tranche (07/10/2026) : sur téléphone, le rond seul — le score
+         coloré est à côté. Sans valeur, l'état (« non calculé ») reste
+         écrit, sur deux lignes. */
       .classement .pastille-texte{display:none}
       .classement .pastille-nc{white-space:normal;line-height:1.2}
-      /* En-tête « SCORE BVC » : « SCORE » seul sur téléphone (06/11/2026) —
-         le libellé complet élargissait le tableau de 17 px à 390 px. Le tri
-         et les filtres, juste au-dessus, disent « SCORE BVC ». */
+      /* Largeurs FIXES (table-layout) : sinon la répartition automatique
+         donnait 120 px au cours et 108 au score, « insuffisantes » se coupait.
+         Le score tient en 118 px, le cours en 86, le titre prend le reste.
+         Les états (« Données
+         insuffisantes », « SUSPENDU ») se coupent aux mots plutôt que
+         d'élargir le tableau (07/10/2026 : bord droit à 409 px pour 390). */
+      .classement .c-score{width:118px;max-width:118px}
+      .classement .c-cours{width:86px}
+      /* En-tête « SCORE » seul (06/11/2026) : le tri et les filtres, juste
+         au-dessus, disent « SCORE BVC ». */
       .classement .mot-bvc{display:none}
-      /* 07/10/2026 : la colonne débordait de 33 px à 390 px (bord droit à
-         409). Le remplissage 3px 5px s'appliquait à TOUT le contenu, rond
-         compris : 92 px pour une colonne qui en a 60. Le rond passe au-dessus
-         de sa mention, les étiquettes se coupent aux mots. */
-      .classement th:nth-child(11),.classement td:nth-child(11){width:64px;max-width:64px}
-      .classement td:nth-child(11) .pastille{flex-direction:column;align-items:flex-start;gap:3px}
-      .classement td:nth-child(11) .rond{padding:0!important}
-      .classement td:nth-child(11){padding-left:1px!important;padding-right:1px!important}
-      .classement td:nth-child(11) .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
-      /* La ligne « CMT ~hist ☆ » tenait la colonne TICKER à 124 px : elle
-         peut désormais se replier. */
+      .classement .c-score .rond{padding:0!important}
+      .classement .c-score .chip{padding:2px 3px!important;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+      .classement .c-score .etat-score *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}
+      /* La ligne « CMT ~hist ☆ » peut se replier. */
       .classement .ligne-ticker{flex-wrap:wrap;row-gap:2px}
-      /* Le secteur prenait trop de largeur : sur téléphone, le code, un nom
-         abrégé et le logo en miniature suffisent à reconnaître le titre. */
-      .secteur-societe{display:none!important}
       /* Le logo reste, en miniature (demande du 30/09) : 26 px suffisent à
          reconnaître une société sans prendre la largeur d'une colonne. */
       .classement .logo-pastille{width:26px!important;height:26px!important;font-size:12px!important}
-      .classement td:nth-child(2)>div{gap:7px!important}
-      .nom-societe{max-width:66px!important;font-size:12px!important}
-      .classement td:nth-child(11) *{font-size:12px!important;letter-spacing:0!important;white-space:normal!important}
-      /* Plancher de 12 px (19/11/2026) : le classement mesurait alors 409 px
-         et le classement PER 413 pour 362 disponibles (mesuré à 390). Les
-         mentions secondaires (OPA, réf., couv., n=, date du cours) passent à
-         la ligne au lieu d'élargir leur colonne. */
+      .classement .c-titre>div{gap:7px!important}
+      .nom-societe{max-width:132px!important;font-size:12px!important}
+      /* Plancher de 12 px (19/11/2026) : les mentions secondaires (OPA, couv.,
+         date du cours) passent à la ligne au lieu d'élargir leur colonne. */
       .classement .marqueur-offre{white-space:normal!important}
-      .classement td:nth-child(5) div,.classement td:nth-child(9) div{white-space:normal!important}
+      .classement .c-score div{white-space:normal!important}
       .classement-per td,.classement-per td *,.classement-per th{white-space:normal!important}
-      .classement td:nth-child(4),.classement td:nth-child(4) *{white-space:normal!important}
+      .classement .c-cours{white-space:normal!important}
     }
     @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     .ticker-inner{display:inline-flex;align-items:center;animation:ticker 55s linear infinite;}
@@ -6299,6 +6301,7 @@ const Heatmap = ({
     }
   }, "Clic sur une cellule \u2192 vue d\xE9taill\xE9e \xB7 Tri\xE9 par capitalisation \xB7 Couleur = variation journali\xE8re"));
 };
+const triCroissant = s => s === "var_asc" || s === "az" || s === "rsi";
 const Ranking = ({
   rows,
   sort,
@@ -6314,6 +6317,20 @@ const Ranking = ({
   const [group, setGroup] = useState("ALL");
   const [trancheFiltre, setTrancheFiltre] = useState(null);
   const [rsiZone, setRsiZone] = useState(null);
+  const [plus, setPlus] = useState(() => lsLire("bvc_classement_plus") === "1");
+  const [reglages, setReglages] = useState(false);
+  const basculerPlus = () => setPlus(v => {
+    lsEcrire("bvc_classement_plus", v ? "0" : "1");
+    return !v;
+  });
+  const semaineCommune = useMemo(() => {
+    const n = {};
+    rows.forEach(r => {
+      const f = ((r.score_bvc || {}).semaine || {}).fin;
+      if (f) n[f] = (n[f] || 0) + 1;
+    });
+    return Object.keys(n).sort((a, b) => n[b] - n[a] || (a < b ? 1 : -1))[0] || null;
+  }, [rows]);
   const MASI1_TICKERS = new Set(["CMT", "SMI", "CASH", "MNG", "AKD", "SOT", "SGTM", "MSA", "CFGB", "RIS", "ADI", "VCNE", "CMGP", "CSR", "TGCC", "ADH", "SRM", "SNA", "RDS"]);
   const sectors = useMemo(() => ["ALL", ...new Set(rows.map(r => r.sector).filter(Boolean).sort())], [rows]);
   const filtered = useMemo(() => {
@@ -6349,7 +6366,43 @@ const Ranking = ({
     return 0;
   }), [filtered, sort]);
   const SORTS = [["bvc", "SCORE BVC"], ["az", "A → Z"], ["var", "VAR%"], ["rsi", "RSI"]];
-  const HEADS = ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", "SCORE BVC", "RSI", "COULEUR"];
+  const HEADS = ["TITRE", "COURS", "VAR%", "SCORE BVC", "CONFIANCE", "PER", "DIVIDENDE"];
+  const HEADS_PLUS = ["OUVERT", "ÉCHANGÉ", "RSI"];
+  const CLASSE_COLONNE = {
+    "TITRE": "c-titre",
+    "COURS": "c-cours",
+    "VAR%": "c-var",
+    "OUVERT": "c-ouv",
+    "ÉCHANGÉ": "c-echange",
+    "SCORE BVC": "c-score",
+    "CONFIANCE": "c-conf",
+    "PER": "c-per",
+    "DIVIDENDE": "c-div",
+    "RSI": "c-rsi"
+  };
+  const TRI_COLONNE = {
+    "TITRE": "az",
+    "VAR%": "var",
+    "SCORE BVC": "bvc",
+    "RSI": "rsi"
+  };
+  const DROITE = new Set(["COURS", "VAR%", "OUVERT", "ÉCHANGÉ", "PER", "DIVIDENDE", "RSI"]);
+  const TITRES_COLONNE = {
+    "TITRE": "Trier de A à Z",
+    "COURS": "Dernier cours connu (DH) — ⚠ et sa date quand il est ancien",
+    "VAR%": "Trier par variation de la séance",
+    "OUVERT": "Cours d'ouverture de la séance",
+    "ÉCHANGÉ": "Montant échangé pendant la séance (DH), nombre de titres dessous",
+    "SCORE BVC": "Trier par Score BVC (0-100, descriptif) — score de la semaine close",
+    "CONFIANCE": "Fiabilité des données, de 0 à 5",
+    "PER": "Cours ÷ bénéfice par action — « n.s. » : non significatif",
+    "DIVIDENDE": "Rendement du dividende : dividende par action ÷ cours",
+    "RSI": "Trier par RSI (14 séances)"
+  };
+  const voirRSI = plus || sort === "rsi" || rsiZone != null;
+  const nFiltres = (sector !== "ALL") + (group === "MASI1") + (trancheFiltre != null) + (rsiZone != null);
+  const libTri = ((SORTS.find(([id]) => id === sort || id === "var" && sort === "var_asc") || [])[1] || "") + (triCroissant(sort) ? " ▲" : " ▼");
+  const colonnes = [...HEADS.slice(0, 3), ...(plus ? HEADS_PLUS.slice(0, 2) : []), ...HEADS.slice(3), ...(voirRSI ? ["RSI"] : [])].map(h => [h, CLASSE_COLONNE[h]]);
   if (isWatchlist && rows.length === 0) return React.createElement("div", {
     style: {
       textAlign: "center",
@@ -6373,7 +6426,9 @@ const Ranking = ({
       fontSize: 12
     }
   }, "Cliquez sur \u2606 dans le classement pour suivre un titre"));
-  return React.createElement("div", null, React.createElement("div", {
+  return React.createElement("div", {
+    className: reglages ? "reglages-ouverts" : "reglages-fermes"
+  }, React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -6382,6 +6437,7 @@ const Ranking = ({
       flexWrap: "wrap"
     }
   }, React.createElement("input", {
+    className: "recherche-classement",
     value: search,
     onChange: e => setSearch(e.target.value),
     placeholder: "Ticker ou soci\xE9t\xE9",
@@ -6397,7 +6453,24 @@ const Ranking = ({
       width: 220,
       outline: "none"
     }
-  }), React.createElement("select", {
+  }), React.createElement("button", {
+    className: "bouton-reglages",
+    onClick: () => setReglages(v => !v),
+    "aria-expanded": reglages,
+    style: {
+      alignItems: "center",
+      gap: 6,
+      fontSize: 12,
+      padding: "5px 10px",
+      borderRadius: 4,
+      border: `1px solid ${reglages || nFiltres ? "rgba(77,184,255,.6)" : "#1a2540"}`,
+      color: reglages || nFiltres ? "#4db8ff" : "#8892a4",
+      background: "transparent",
+      cursor: "pointer",
+      whiteSpace: "nowrap"
+    }
+  }, reglages ? "▴" : "▾", " Tri ", libTri, nFiltres ? ` · ${nFiltres} filtre${nFiltres > 1 ? "s" : ""}` : ""), React.createElement("select", {
+    className: "reglage-tel",
     value: sector,
     onChange: e => setSector(e.target.value),
     style: {
@@ -6414,6 +6487,7 @@ const Ranking = ({
     key: s,
     value: s
   }, s === "ALL" ? `Tous (${rows.length})` : s))), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 4,
@@ -6458,6 +6532,7 @@ const Ranking = ({
       color: "#8892a4"
     }
   }, sorted.length, "/", group === "MASI1" ? 19 : rows.length, " titres"), React.createElement("button", {
+    className: "reglage-tel",
     onClick: () => {
       const cols = ["TICKER BVC", "CODE INTERNE", "NOM", "SECTEUR", "PRIX", "VAR%", "PE", "DIV%", "RSI", "SCORE_BVC", "ETAT_SCORE_BVC", "COUVERTURE_PCT", "TRANCHE", "VERSION_SCORE_BVC"];
       const rows_csv = sorted.map(r => {
@@ -6489,6 +6564,7 @@ const Ranking = ({
       letterSpacing: .5
     }
   }, "\u2193 CSV")), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 4,
@@ -6558,6 +6634,7 @@ const Ranking = ({
       fontWeight: rsiZone === z ? 700 : 400
     }
   }, lbl))), React.createElement("div", {
+    className: "reglage-tel",
     style: {
       display: "flex",
       gap: 8,
@@ -6585,7 +6662,7 @@ const Ranking = ({
         borderRadius: 4,
         fontSize: 11
       }
-    }, lbl, on ? sort === "var_asc" ? " ▲" : " ▼" : "");
+    }, lbl, on ? triCroissant(sort) ? " ▲" : " ▼" : "");
   }), !isWatchlist && React.createElement("button", {
     onClick: () => setTab("per"),
     title: "Classement par PER, avec la m\xE9diane du secteur et les titres non class\xE9s",
@@ -6598,7 +6675,22 @@ const Ranking = ({
       fontSize: 11,
       cursor: "pointer"
     }
-  }, "PER \u203A")), React.createElement("div", {
+  }, "PER \u203A"), React.createElement("button", {
+    className: "plus-colonnes",
+    onClick: basculerPlus,
+    "aria-pressed": plus,
+    title: plus ? "Revenir aux sept colonnes" : "Afficher aussi l'ouverture, le montant échangé et le RSI",
+    style: {
+      marginLeft: "auto",
+      fontSize: 11,
+      padding: "3px 10px",
+      borderRadius: 4,
+      border: `1px solid ${plus ? "rgba(77,184,255,.6)" : "#1a2540"}`,
+      color: plus ? "#4db8ff" : "#8892a4",
+      background: plus ? "rgba(77,184,255,.08)" : "transparent",
+      cursor: "pointer"
+    }
+  }, plus ? "− Moins de colonnes" : "+ Plus de colonnes")), React.createElement("div", {
     style: {
       overflowX: "auto"
     }
@@ -6607,35 +6699,61 @@ const Ranking = ({
     style: {
       width: "100%",
       borderCollapse: "collapse",
-      minWidth: 1000
+      minWidth: 0,
+      fontVariantNumeric: "tabular-nums"
     }
   }, React.createElement("thead", null, React.createElement("tr", {
     style: {
       borderBottom: "2px solid #1a2540"
     }
-  }, HEADS.map(h => React.createElement("th", {
-    key: h,
-    onClick: h === "SCORE BVC" ? () => setSort("bvc") : undefined,
-    "aria-sort": h === "SCORE BVC" && sort === "bvc" ? "descending" : undefined,
-    title: h === "SCORE BVC" ? "Trier par Score BVC (0-100, descriptif)" : undefined,
-    style: {
-      padding: "8px 8px",
-      fontSize: 10,
-      color: h === "SCORE BVC" && sort === "bvc" ? "#00e5a0" : "#8892a4",
-      textAlign: "left",
-      letterSpacing: .4,
-      whiteSpace: "nowrap",
-      fontWeight: 500,
-      cursor: h === "SCORE BVC" ? "pointer" : undefined
-    }
-  }, h === "SCORE BVC" ? React.createElement(React.Fragment, null, "SCORE", React.createElement("span", {
-    className: "mot-bvc"
-  }, " BVC")) : h, h === "SCORE BVC" && sort === "bvc" ? " ▼" : "")))), React.createElement("tbody", null, sorted.map((r, i) => {
+  }, colonnes.map(([h, cls]) => {
+    const tri = TRI_COLONNE[h];
+    const on = tri && (sort === tri || tri === "var" && sort === "var_asc");
+    return React.createElement("th", {
+      key: h,
+      className: cls,
+      onClick: tri ? () => setSort(tri) : undefined,
+      "aria-sort": on ? triCroissant(sort) ? "ascending" : "descending" : undefined,
+      title: TITRES_COLONNE[h],
+      style: {
+        padding: "8px 8px",
+        fontSize: 10,
+        color: on ? "#00e5a0" : "#8892a4",
+        textAlign: DROITE.has(h) ? "right" : "left",
+        letterSpacing: .4,
+        whiteSpace: "nowrap",
+        fontWeight: 500,
+        cursor: tri ? "pointer" : undefined
+      }
+    }, h === "SCORE BVC" ? React.createElement(React.Fragment, null, "SCORE", React.createElement("span", {
+      className: "mot-bvc"
+    }, " BVC")) : h, on ? triCroissant(sort) ? " ▲" : " ▼" : "", h === "SCORE BVC" && semaineCommune && React.createElement("div", {
+      className: "semaine-score",
+      style: {
+        fontSize: 9.5,
+        color: "#8892a4",
+        letterSpacing: 0,
+        fontWeight: 400
+      }
+    }, "sem. au ", jjmm(semaineCommune)));
+  }))), React.createElement("tbody", null, sorted.map(r => {
     const sym = r.symbol || r.ticker;
     const vBVC = valeurBVC(r);
     const rsiVal = r.rsi ?? r.rsi14 ?? null;
-    const rsiColor = rsiVal > 70 ? "#ff4f5a" : rsiVal < 30 ? "#00e5a0" : "#ffd740";
     const isStat = rsiVal == null;
+    const semR = ((r.score_bvc || {}).semaine || {}).fin;
+    const variation = React.createElement("span", {
+      style: {
+        whiteSpace: "nowrap",
+        color: VC(r.chg),
+        fontWeight: 600
+      }
+    }, varSeance(r) == null ? NON_COTE : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%"), r.chg_alert && React.createElement("span", {
+      title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
+      style: {
+        marginLeft: 3
+      }
+    }, "\u26A1"));
     return React.createElement("tr", {
       key: sym,
       onClick: () => {
@@ -6650,14 +6768,9 @@ const Ranking = ({
       onMouseEnter: e => e.currentTarget.style.background = "rgba(255,255,255,.025)",
       onMouseLeave: e => e.currentTarget.style.background = "transparent"
     }, React.createElement("td", {
+      className: "c-titre",
       style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: "#8892a4"
-      }
-    }, i + 1), React.createElement("td", {
-      style: {
-        padding: "10px 8px"
+        padding: "7px 8px"
       }
     }, React.createElement("div", {
       style: {
@@ -6669,11 +6782,12 @@ const Ranking = ({
       sym: tk(r),
       logo: r.symbol,
       sector: r.sector,
-      size: 34
+      size: 30
     }), React.createElement("div", {
       style: {
         minWidth: 0
-      }
+      },
+      title: r.sector ? `${r.name || tk(r)} · ${r.sector}` : undefined
     }, React.createElement("div", {
       className: "ligne-ticker",
       style: {
@@ -6683,7 +6797,7 @@ const Ranking = ({
       }
     }, React.createElement("span", {
       style: {
-        fontSize: 16,
+        fontSize: 15,
         color: "#fff",
         fontWeight: 800,
         letterSpacing: .3
@@ -6743,30 +6857,20 @@ const Ranking = ({
         whiteSpace: "normal",
         overflowWrap: "break-word",
         lineHeight: 1.25,
-        maxWidth: 160,
+        maxWidth: 200,
         marginTop: 1
       }
-    }, r.name), React.createElement("div", {
-      className: "secteur-societe",
+    }, r.name)))), React.createElement("td", {
+      className: "c-cours",
       style: {
-        fontSize: 10,
-        color: "#6b7a99",
-        marginTop: 1
-      }
-    }, r.sector)))), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: "#8892a4"
-      }
-    }, r.open ? px(r.open) : "—"), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
+        padding: "7px 8px",
         fontSize: 13,
         color: "#c8d3e8",
-        fontWeight: 600
+        fontWeight: 600,
+        textAlign: "right",
+        whiteSpace: "nowrap"
       }
-    }, px(r.price || r.prix || r.close), React.createElement(Perime, {
+    }, px(r.price || r.prix || r.close), React.createElement("wbr", null), React.createElement(Perime, {
       r: r
     }), r.live && React.createElement("span", {
       style: {
@@ -6778,27 +6882,16 @@ const Ranking = ({
     }, "\u25CF"), React.createElement("div", {
       className: "mobile-seul",
       style: {
-        fontSize: 9.5,
-        color: "#8892a4",
-        fontWeight: 400
+        fontSize: 12
       }
-    }, "ouv. ", r.open ? px(r.open) : "—")), React.createElement("td", {
+    }, variation)), React.createElement("td", {
+      className: "c-var",
       style: {
-        padding: "8px 8px",
+        padding: "7px 8px",
         fontSize: 13,
-        color: VC(r.chg),
-        fontWeight: 600
+        textAlign: "right"
       }
-    }, React.createElement("span", {
-      style: {
-        whiteSpace: "nowrap"
-      }
-    }, varSeance(r) == null ? NON_COTE : React.createElement(React.Fragment, null, r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "—", " ", Math.abs(r.chg || 0).toFixed(2), "%")), r.chg_alert && React.createElement("span", {
-      title: "Variation \u2265 \xB18% \u2014 approche limite BVC",
-      style: {
-        marginLeft: 3
-      }
-    }, "\u26A1"), r.reference != null && React.createElement("div", {
+    }, variation, plus && r.reference != null && React.createElement("div", {
       style: {
         fontSize: 9.5,
         color: "#8892a4",
@@ -6806,19 +6899,22 @@ const Ranking = ({
         whiteSpace: "nowrap"
       },
       title: "Cours de r\xE9f\xE9rence : cl\xF4ture de la s\xE9ance pr\xE9c\xE9dente, base de la variation (servi par la synth\xE8se de s\xE9ance)"
-    }, "r\xE9f. ", px(r.reference)), React.createElement("div", {
-      className: "mobile-seul",
+    }, "r\xE9f. ", px(r.reference))), plus && React.createElement("td", {
+      className: "c-ouv",
       style: {
-        fontSize: 9.5,
+        padding: "7px 8px",
+        fontSize: 12,
         color: "#8892a4",
-        fontWeight: 400
+        textAlign: "right"
       }
-    }, nombreInsecable(volumeCourt(r)))), React.createElement("td", {
+    }, r.open ? px(r.open) : "—"), plus && React.createElement("td", {
+      className: "c-echange",
       style: {
-        padding: "8px 8px",
+        padding: "7px 8px",
         fontSize: 12,
         color: "#c8d3e8",
-        whiteSpace: "nowrap"
+        whiteSpace: "nowrap",
+        textAlign: "right"
       }
     }, (() => {
       const v = r.vol,
@@ -6835,44 +6931,62 @@ const Ranking = ({
           fontWeight: 600
         },
         title: bas ? "Moins de 100 000 DH échangés : la confiance est plafonnée à 2 sur 5." : ""
-      }, dh != null ? montantCourt(dh) : v ? `${v.toLocaleString("fr-FR").replace(/\u202f|,/g, " ")} titres` : "—"), dh != null && v ? React.createElement("div", {
+      }, nombreInsecable(volumeCourt(r))), dh != null && v ? React.createElement("div", {
         style: {
           fontSize: 9.5,
           color: "#8892a4"
         }
       }, v.toLocaleString("fr-FR").replace(/\u202f|,/g, " "), " titres") : null);
     })()), React.createElement("td", {
-      title: perNS(r.pe, r.bpa_12m ?? r.bpa) || undefined,
+      className: "c-score",
       style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : "#c8d3e8"
-      }
-    }, perTxt(r.pe, r.bpa_12m ?? r.bpa)), React.createElement("td", {
-      style: {
-        padding: "8px 8px",
-        fontSize: 12,
-        color: "#c8d3e8"
-      }
-    }, divClassement(r.div)), React.createElement("td", {
-      style: {
-        padding: "8px 8px"
+        padding: "7px 8px"
       }
     }, React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        flexWrap: "wrap",
+        rowGap: 3
+      }
+    }, React.createElement("span", {
       title: vBVC == null ? r.score_bvc ? `Score BVC ${etatBVC(r)}${r.score_bvc.motif ? ` : ${r.score_bvc.motif}` : ""}` : "Score BVC non publié" : `Score BVC ${exactBVC(vBVC)}/100 · ${etatBVC(r)} · couverture des facteurs ${r.score_bvc.couverture_pct} %${meta(r).conf <= 1 ? " · données insuffisantes : à ne pas lire comme une conclusion" : ""}`,
       style: {
         fontSize: 15,
         color: couleurChiffre(r),
         fontWeight: 700,
-        marginBottom: 2,
-        fontVariantNumeric: "tabular-nums"
+        fontVariantNumeric: "tabular-nums",
+        minWidth: 20
       }
-    }, entierBVC(vBVC)), vBVC != null && React.createElement(Bar, {
-      v: vBVC,
-      max: 100,
-      c: couleurChiffre(r),
-      h: 4
-    }), vBVC != null && (() => {
+    }, entierBVC(vBVC)), React.createElement("span", {
+      className: "etat-score"
+    }, meta(r).susp ? meta(r).statut_juridique ? React.createElement(Chip, {
+      wrap: true,
+      label: meta(r).statut_juridique.toUpperCase(),
+      bg: "rgba(255,107,107,.12)",
+      fg: "#ff6b6b",
+      bd: "#ff6b6b40"
+    }) : React.createElement(Chip, {
+      label: "SUSPENDU",
+      bg: "rgba(255,107,107,.12)",
+      fg: "#ff6b6b",
+      bd: "#ff6b6b40"
+    }) : meta(r).reprise_recente ? React.createElement(Chip, {
+      wrap: true,
+      label: "REPRISE DE COTATION",
+      bg: "rgba(255,215,64,.12)",
+      fg: "#ffd740",
+      bd: "#ffd74040"
+    }) : meta(r).conf <= 1 ? React.createElement(Chip, {
+      wrap: true,
+      label: "Donn\xE9es insuffisantes",
+      bg: "rgba(136,146,164,.12)",
+      fg: "#8892a4",
+      bd: "#2a3550"
+    }) : React.createElement(PastilleBVC, {
+      r: r
+    }))), vBVC != null && (() => {
       const s = r.score_bvc || {},
         rup = ((s.facteurs || {}).moyennes_mobiles || {}).rupture,
         partielle = typeof s.couverture_pct === "number" && s.couverture_pct < 100;
@@ -6885,63 +6999,58 @@ const Ranking = ({
         },
         title: [partielle ? `Calculé sur ${s.couverture_pct} % des facteurs : les points manquants sont retirés du dénominateur.` : "", rup ? `${rup.moyennes.join(", ")} incluent des cours d'avant la reprise du ${rup.reprise.split("-").reverse().join("/")} (référence remise à neuf).` : ""].filter(Boolean).join(" ")
       }, partielle ? `couv. ${s.couverture_pct} %` : "", partielle && rup ? " · " : "", rup ? "⚠ rupture" : "") : null;
-    })()), React.createElement("td", {
+    })(), vBVC != null && semR && semaineCommune && semR !== semaineCommune && React.createElement("div", {
       style: {
-        padding: "8px 8px"
+        fontSize: 9.5,
+        color: "#ffd740",
+        marginTop: 2,
+        whiteSpace: "nowrap"
       }
-    }, React.createElement("div", {
+    }, "sem. au ", jjmm(semR)), React.createElement("div", {
+      className: "mobile-seul",
       style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 5
+        marginTop: 2
+      }
+    }, React.createElement(Confiance, {
+      r: r
+    }))), React.createElement("td", {
+      className: "c-conf",
+      style: {
+        padding: "7px 8px",
+        whiteSpace: "nowrap"
+      }
+    }, React.createElement(Confiance, {
+      r: r
+    })), React.createElement("td", {
+      className: "c-per",
+      title: perNS(r.pe, r.bpa_12m ?? r.bpa) || undefined,
+      style: {
+        padding: "7px 8px",
+        fontSize: 12,
+        textAlign: "right",
+        color: perNS(r.pe, r.bpa_12m ?? r.bpa) ? "#8892a4" : "#c8d3e8"
+      }
+    }, perTxt(r.pe, r.bpa_12m ?? r.bpa)), React.createElement("td", {
+      className: "c-div",
+      style: {
+        padding: "7px 8px",
+        fontSize: 12,
+        textAlign: "right",
+        color: "#c8d3e8"
+      }
+    }, divClassement(r.div)), voirRSI && React.createElement("td", {
+      className: "c-rsi",
+      style: {
+        padding: "7px 8px",
+        textAlign: "right"
       }
     }, React.createElement("span", {
       style: {
         fontSize: 12,
-        color: isStat ? "#8892a4" : rsiColor,
-        fontWeight: 700
+        color: isStat ? "#8892a4" : "#c8d3e8",
+        fontWeight: 600
       }
-    }, isStat ? "—" : rsiVal), !isStat && React.createElement("div", {
-      style: {
-        width: 30,
-        background: "#0a1220",
-        borderRadius: 2,
-        height: 4
-      }
-    }, React.createElement("div", {
-      style: {
-        width: `${rsiVal}%`,
-        height: "100%",
-        background: rsiColor,
-        borderRadius: 2
-      }
-    })))), React.createElement("td", {
-      style: {
-        padding: "8px 8px"
-      }
-    }, meta(r).susp ? meta(r).statut_juridique ? React.createElement(Chip, {
-      label: meta(r).statut_juridique.toUpperCase(),
-      bg: "rgba(255,107,107,.12)",
-      fg: "#ff6b6b",
-      bd: "#ff6b6b40"
-    }) : React.createElement(Chip, {
-      label: "SUSPENDU",
-      bg: "rgba(255,107,107,.12)",
-      fg: "#ff6b6b",
-      bd: "#ff6b6b40"
-    }) : meta(r).reprise_recente ? React.createElement(Chip, {
-      label: "REPRISE DE COTATION",
-      bg: "rgba(255,215,64,.12)",
-      fg: "#ffd740",
-      bd: "#ffd74040"
-    }) : meta(r).conf <= 1 ? React.createElement(Chip, {
-      label: "Donn\xE9es insuffisantes",
-      bg: "rgba(136,146,164,.12)",
-      fg: "#8892a4",
-      bd: "#2a3550"
-    }) : React.createElement(PastilleBVC, {
-      r: r
-    })));
+    }, isStat ? "—" : rsiVal)));
   })))), React.createElement("div", {
     style: {
       marginTop: 12,
@@ -6957,19 +7066,15 @@ const Ranking = ({
     style: {
       color: TRANCHES_BVC[0].c
     }
-  }, "\u25CF"), " SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 \xB7 momentum 15 \xB7 MACD 10 \xB7 activit\xE9 10 \xB7 liquidit\xE9 15 \xB7 rentabilit\xE9 15) \u2014 ", React.createElement("span", {
+  }, "\u25CF"), " SCORE BVC = six facteurs sur 100 (moyennes mobiles 35 \xB7 momentum 15 \xB7 MACD 10 \xB7 activit\xE9 10 \xB7 liquidit\xE9 15 \xB7 rentabilit\xE9 15), calcul\xE9 sur la semaine close \u2014 ", React.createElement("span", {
     style: {
       color: "#ffd740"
     }
-  }, "score descriptif, pas une pr\xE9vision"), " ; \xAB \u2014 \xBB = non calcul\xE9 (cours p\xE9rim\xE9, titre suspendu ou couverture insuffisante) \xA0|\xA0", React.createElement("span", {
+  }, "score descriptif, pas une pr\xE9vision"), " ; \xAB \u2014 \xBB = non calcul\xE9 (cours p\xE9rim\xE9, titre suspendu ou couverture insuffisante) \xA0|\xA0 CONFIANCE \u25CF\u25CF\u25CF\u25CB\u25CB = fiabilit\xE9 des donn\xE9es, de 0 \xE0 5 \xA0|\xA0", React.createElement("span", {
     style: {
       color: "#8892a4"
     }
-  }, "~hist"), " = moins de 15 s\xE9ances cot\xE9es : RSI et moyennes absents, jamais estim\xE9s \xA0|\xA0", React.createElement("span", {
-    style: {
-      color: "#ff4f5a"
-    }
-  }, "\u26A0\uFE0F"), " RSI rouge = prudence \xA0|\xA0 PE = Price/Earnings \xB7 DIV = dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
+  }, "~hist"), " = moins de 15 s\xE9ances cot\xE9es : RSI et moyennes absents, jamais estim\xE9s \xA0|\xA0 PER = cours \xF7 b\xE9n\xE9fice par action (\xAB n.s. \xBB : non significatif) \xB7 DIVIDENDE = rendement du dividende \xA0|\xA0 Clic \u2192 vue d\xE9taill\xE9e"));
 };
 function classerPER(rows) {
   const SEUIL_NS = 100,

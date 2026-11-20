@@ -112,9 +112,14 @@ def test_tri_par_defaut_score_bvc_et_plus_de_tri_v53():
 
 
 def test_colonnes_du_classement():
+    """20/11/2026 — classement allégé : sept colonnes par défaut, trois
+    derrière « Plus de colonnes » ; le rang et COULEUR (fondue dans le score)
+    sont retirés. Détail et contrôle négatif : tests/test_classement_allege.py."""
     heads = re.search(r"const HEADS=\[(.*?)\];", SRC).group(1)
     cols = [x.strip().strip('"') for x in heads.split(",")]
-    assert cols == ["#", "TICKER", "OUVERT", "CLÔT.", "VAR%", "VOLUME", "PE", "DIV%", "SCORE BVC", "RSI", "COULEUR"]
+    assert cols == ["TITRE", "COURS", "VAR%", "SCORE BVC", "CONFIANCE", "PER", "DIVIDENDE"]
+    plus = re.search(r"const HEADS_PLUS=\[(.*?)\];", SRC).group(1)
+    assert [x.strip().strip('"') for x in plus.split(",")] == ["OUVERT", "ÉCHANGÉ", "RSI"]
 
 
 def test_l_export_csv_porte_le_score_bvc_et_plus_v53_ni_sig():
