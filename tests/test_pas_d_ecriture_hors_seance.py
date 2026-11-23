@@ -339,6 +339,25 @@ def test_decision_sur_donnees_fabriquees():
     assert decider(veille, None, "2026-11-18")[0]
 
 
+def test_bascule_hebdomadaire_du_score_un_samedi():
+    """Le samedi, aucune cotation, mais le Score BVC passe à la semaine close :
+    c'est une publication réelle (21/11/2026 : bloquée à tort)."""
+    from pipeline.garde_hors_seance import decider
+    veille = _data("2026-11-20", "2026-11-20T23:53:00")
+    for t in veille["tickers"]:
+        t["score_bvc"] = {"valeur": 50, "semaine": {"fin": "2026-11-13"}}
+    samedi = _data("2026-11-20", "2026-11-21T10:00:00")
+    for t in samedi["tickers"]:
+        t["score_bvc"] = {"valeur": 52, "semaine": {"fin": "2026-11-20"}}
+    ok, pourquoi = decider(samedi, veille, "2026-11-21")
+    assert ok and "bascule hebdomadaire" in pourquoi
+    # Même semaine déjà publiée : rien de neuf, la garde bloque toujours.
+    dimanche = _data("2026-11-20", "2026-11-22T10:00:00")
+    for t in dimanche["tickers"]:
+        t["score_bvc"] = {"valeur": 52, "semaine": {"fin": "2026-11-20"}}
+    assert not decider(dimanche, samedi, "2026-11-22")[0]
+
+
 def test_la_liste_hors_seance_du_workflow_est_celle_du_module():
     """La liste vit à deux endroits ; ils ne doivent pas diverger. Et aucun
     fichier de cotation n'y figure."""

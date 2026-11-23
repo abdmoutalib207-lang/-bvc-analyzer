@@ -149,7 +149,9 @@ def test_annexer_bvc_ne_touche_que_son_champ_et_tout_ou_rien(titres):
 # briefing.py (12/11/2026) : lit le RAPPORT D'ACTIVITÉ du facteur « activité »,
 # pas la valeur du score, pour qu'un titre n'ait qu'un rapport publié.
 LECTEURS_SCORE_BVC = {"bulletin_mail.py", "verifier_seance.py", "score_history.py", "coherence.py",
-                      "briefing.py"}
+                      "briefing.py",
+                      # lit la semaine close pour laisser partir la bascule du samedi (23/11)
+                      "garde_hors_seance.py"}
 
 
 def test_branchement_moteur_unique_et_lecteurs_declares():
