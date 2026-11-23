@@ -45,7 +45,8 @@ partent seulement si :
   2. il porte une séance plus récente que celle publiée — un rattrapage,
      par exemple la clôture d'hier ramenée par un run de 00h55 ; ou
   3. les cours de la séance qu'il porte diffèrent de ceux publiés — une
-     clôture qui remplace un cours de mi-séance, une correction.
+     clôture qui remplace un cours de mi-séance, une correction ; ou
+  4. le Score BVC passe à une nouvelle semaine close (bascule du samedi).
 
 Hors de ces trois cas, il n'y a rien de neuf à dire sur la Bourse : seuls les
 fichiers de `FICHIERS_HORS_SEANCE` — actualités, marchés mondiaux, change —
@@ -139,6 +140,19 @@ def cotation_modifiee(genere: dict, publie: dict) -> list[str]:
     return diff
 
 
+def semaine_score(doc: dict) -> str | None:
+    """La semaine close (`score_bvc.semaine.fin`) majoritaire d'un data.json.
+
+    Le Score BVC publié est figé à la clôture de la semaine. Il change de
+    semaine le samedi, jour sans séance : ce changement est une publication
+    réelle, pas un horodatage (23/11/2026 — la garde l'avait bloqué le 21/11)."""
+    from collections import Counter
+    fins = Counter(((t.get("score_bvc") or {}).get("semaine") or {}).get("fin")
+                   for t in doc.get("tickers") or [])
+    fins.pop(None, None)
+    return fins.most_common(1)[0][0] if fins else None
+
+
 def decider(genere: dict | None, publie: dict | None, aujourd_hui: str) -> tuple[bool, str]:
     """(les fichiers de cotation peuvent-ils partir, pourquoi). Pure."""
     if not publie:
@@ -163,6 +177,10 @@ def decider(genere: dict | None, publie: dict | None, aujourd_hui: str) -> tuple
     if diff:
         return True, (f"séance {s_gen} : cotation modifiée sur {len(diff)} ligne(s) "
                       f"({', '.join(map(str, diff[:8]))}{'…' if len(diff) > 8 else ''})")
+    w_gen, w_pub = semaine_score(genere), semaine_score(publie)
+    if w_gen and w_gen != w_pub:
+        return True, (f"Score BVC : semaine close du {w_gen} (publiée : {w_pub}) — "
+                      "bascule hebdomadaire")
     return False, (f"pas de séance le {aujourd_hui} : le fichier porte le {s_gen}, déjà "
                    "publiée à l'identique — seuls des champs hors cotation changent")
 
