@@ -189,6 +189,9 @@ _RAISONS = (
     (r"^endettement net publié",
      "Non retenu : l'endettement net publié par l'émetteur porte sur une branche ou sur le social, "
      "sans périmètre consolidé établi."),
+    # lot 6a (BCP, BOA, CIH, CDM)
+    (r"^texte extrait illisible",
+     "Non relevé : le texte du document déposé est illisible (police encodée), il n'a pas été lu."),
     # lot 5 (CASH, CFGB, SGTM, VCNE)
     (r"^non relevé : ligne .* imprimée à « - »",
      "Non relevé : la ligne est imprimée à « - » dans le document (aucun montant)."),
