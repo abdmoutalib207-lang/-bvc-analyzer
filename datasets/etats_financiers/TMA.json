@@ -289,7 +289,7 @@
     "dette_nette": {
      "valeur_mdh": -299.788,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 : norme applicable à partir de 2019 (les lignes de la note 22 du rapport 2019 sont vides en colonne 2018), aucune dette de location à retirer avant 2019 ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "concordant",
@@ -298,7 +298,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : néant avant l'entrée en vigueur d'IFRS 16 (2019)"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -519,7 +519,7 @@
     "dette_nette": {
      "valeur_mdh": -483.731,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 : norme applicable à partir de 2019 (les lignes de la note 22 du rapport 2019 sont vides en colonne 2018), aucune dette de location à retirer avant 2019 ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "concordant",
@@ -528,7 +528,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : néant avant l'entrée en vigueur d'IFRS 16 (2019)"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -758,18 +758,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -364.072,
+     "valeur_mdh": -666.925,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -364.1
+      "resultat": "ecart",
+      "ms_valeur": -364.1,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -824,8 +825,41 @@
         "resultat": "non_verifie",
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 251.525,
+       "unite_source": "KMAD",
+       "valeur_source": "251 525",
+       "document": "Total_RFA_2019_0.pdf",
+       "page": 56,
+       "citation": "Emprunts en location IFRS 16 251 525",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 51.328,
+       "unite_source": "KMAD",
+       "valeur_source": "51 328",
+       "document": "Total_RFA_2019_0.pdf",
+       "page": 56,
+       "citation": "Emprunts en location IFRS 16 51 328",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
       }
-     }
+     },
+     "note": "rupture de série : IFRS 16 est applicable à partir de 2019 ; avant 2019 les dettes financières ne comprennent aucune dette de location"
     },
     "nombre_actions": {
      "valeur_mdh": 8960000.0,
@@ -999,18 +1033,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -791.476,
+     "valeur_mdh": -1245.62,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -791.5
+      "resultat": "ecart",
+      "ms_valeur": -791.5,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -1058,6 +1093,38 @@
        "page": 21,
        "citation": "Trésorerie et équivalent de trésorerie 1 678 457 1 324 290",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 391.177,
+       "unite_source": "KMAD",
+       "valeur_source": "391 177",
+       "document": "Total_Maroc_-_Rapport_Financier_Annuel_2020.pdf",
+       "page": 62,
+       "citation": "Emprunts en location IFRS 16 391 177 251 525",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 62.967,
+       "unite_source": "KMAD",
+       "valeur_source": "62 967",
+       "document": "Total_Maroc_-_Rapport_Financier_Annuel_2020.pdf",
+       "page": 62,
+       "citation": "Emprunts en location IFRS 16 62 967 51 328",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -1228,18 +1295,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -746.577,
+     "valeur_mdh": -1169.946,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -746.6
+      "resultat": "ecart",
+      "ms_valeur": -746.6,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -1287,6 +1355,38 @@
        "page": 21,
        "citation": "Trésorerie et équivalent de trésorerie 1 553 421 1 678 457",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 348.597,
+       "unite_source": "KMAD",
+       "valeur_source": "348 597",
+       "document": "TOTALENERGIES_-_RFA_2021_0.pdf",
+       "page": 62,
+       "citation": "Emprunts en location IFRS 16 348 597 391 177",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 74.772,
+       "unite_source": "KMAD",
+       "valeur_source": "74772",
+       "document": "TOTALENERGIES_-_RFA_2021_0.pdf",
+       "page": 62,
+       "citation": "Emprunts en location IFRS 16 74772 62 967",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -1473,18 +1573,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 477.728,
+     "valeur_mdh": 124.561,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": 477.7
+      "resultat": "ecart",
+      "ms_valeur": 477.7,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -1532,6 +1633,38 @@
        "page": 22,
        "citation": "Trésorerie et équivalent de trésorerie 1 698 655 1 553 421",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 321.331,
+       "unite_source": "KMAD",
+       "valeur_source": "321 331",
+       "document": "TEMM_RFA_2022.pdf",
+       "page": 63,
+       "citation": "Emprunts en location - dette d'utilisation 321 331 348 597",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 31.836,
+       "unite_source": "KMAD",
+       "valeur_source": "31836",
+       "document": "TEMM_RFA_2022.pdf",
+       "page": 63,
+       "citation": "Emprunts en location IFRS 16 31836 74 772",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -1714,18 +1847,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -225.608,
+     "valeur_mdh": -723.838,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -225.6
+      "resultat": "ecart",
+      "ms_valeur": -225.6,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -1773,6 +1907,38 @@
        "page": 21,
        "citation": "Trésorerie et équivalent de trésorerie 19 1 487 425 1 698 655",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 438.343,
+       "unite_source": "KMAD",
+       "valeur_source": "438 343",
+       "document": "TEMM_RFA_2023_0.pdf",
+       "page": 66,
+       "citation": "Emprunts en location IFRS 438 343 321 331",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 59.887,
+       "unite_source": "KMAD",
+       "valeur_source": "59 887",
+       "document": "TEMM_RFA_2023_0.pdf",
+       "page": 66,
+       "citation": "Emprunts en location IFRS 16 59 887 31 836",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -1955,18 +2121,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -546.37,
+     "valeur_mdh": -1117.007,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -546.4
+      "resultat": "ecart",
+      "ms_valeur": -546.4,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -2014,6 +2181,38 @@
        "page": 21,
        "citation": "Trésorerie et équivalent de trésorerie 19 1 789 312 1 487 425",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 488.198,
+       "unite_source": "KMAD",
+       "valeur_source": "488 198",
+       "document": "Total_RFA_2024_0.pdf",
+       "page": 67,
+       "citation": "Emprunts en location - dette d'utilisation 488 198 438 343",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 82.439,
+       "unite_source": "KMAD",
+       "valeur_source": "82 439",
+       "document": "Total_RFA_2024_0.pdf",
+       "page": 67,
+       "citation": "Emprunts en location IFRS 16 82 439 59 887",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -2196,18 +2395,19 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": -288.58,
+     "valeur_mdh": -904.948,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - emprunts_location_ifrs16_non_courants - emprunts_location_ifrs16_courants — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; RETIRÉES : les « Emprunts en location IFRS 16 » (courants et non courants) isolés par la note 22 « dettes financières courantes et non courantes » ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
-      "resultat": "concordant",
-      "ms_valeur": -288.6
+      "resultat": "ecart",
+      "ms_valeur": -288.6,
+      "arbitrage": "MASI Screener = dettes financières non courantes + courantes - trésorerie, sans retirer les emprunts en location IFRS 16 que la note 22 isole ; la valeur du projet les retire (convention des lots précédents). Écart = ces dettes de location de la période (non courantes + courantes)."
      },
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "emprunts en location IFRS 16, courants et non courants (note 22) : retirés, montants cités en composantes"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -2255,6 +2455,38 @@
        "page": 20,
        "citation": "Trésorerie et équivalent de trésorerie 19 1 176 535 1 789 312",
        "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_non_courants": {
+       "valeur_mdh": 514.346,
+       "unite_source": "KMAD",
+       "valeur_source": "514 346",
+       "document": "TEMM_-_Rapport_Financier_Annuel_2025_VDEF.pdf",
+       "page": 66,
+       "citation": "Emprunts en location - dette d'utilisation 514 346 488 198",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "emprunts_location_ifrs16_courants": {
+       "valeur_mdh": 102.022,
+       "unite_source": "KMAD",
+       "valeur_source": "102 022",
+       "document": "TEMM_-_Rapport_Financier_Annuel_2025_VDEF.pdf",
+       "page": 66,
+       "citation": "Emprunts en location IFRS 16 102 022 82 439",
+       "entete_colonnes": "Note 22 : dettes financières courantes et non courantes du Groupe (en milliers de MAD) Déc-N, Déc-N-1",
        "perimetre": "consolide",
        "referentiel": "IFRS",
        "statut": "publie",
@@ -2561,7 +2793,7 @@
     "dette_nette": {
      "valeur_mdh": -200.592,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -2570,7 +2802,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -2777,7 +3009,7 @@
     "dette_nette": {
      "valeur_mdh": -476.564,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "absent_ms",
@@ -2786,7 +3018,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -2993,7 +3225,7 @@
     "dette_nette": {
      "valeur_mdh": -45.392,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -3002,7 +3234,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -3225,7 +3457,7 @@
     "dette_nette": {
      "valeur_mdh": -273.426,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -3234,7 +3466,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -3453,7 +3685,7 @@
     "dette_nette": {
      "valeur_mdh": -81.679,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -3462,7 +3694,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -3803,7 +4035,7 @@
     "dette_nette": {
      "valeur_mdh": 326.343,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (elles comprennent les dettes de location IFRS 16 et les découverts bancaires, non isolés), moins trésorerie et équivalents de trésorerie ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet (même définition que MASI Screener).",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — INCLUS : dettes financières non courantes et courantes du bilan consolidé (emprunts bancaires, découverts de trésorerie-passif), moins trésorerie et équivalents de trésorerie ; DETTES DE LOCATION IFRS 16 NON RETRANCHÉES : le rapport semestriel ne porte pas la note 22 qui les isole (droits d'usage au bilan, mais aucune dette de location chiffrée pour la période) ; NON INCLUS : provisions, fournisseurs, autres créditeurs. Calcul propre au projet.",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "concordant",
@@ -3812,7 +4044,7 @@
      "composantes_exclues": [
       "provisions et autres passifs",
       "fournisseurs et autres créditeurs",
-      "dettes de location IFRS 16 et découverts : compris dans les dettes financières, non isolés"
+      "dettes de location IFRS 16 : non publiées pour la période (pas de note 22 dans le rapport semestriel), non retranchées"
      ],
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières non courantes",
@@ -4083,7 +4315,7 @@
   "attendues": 216,
   "remplies": 157,
   "supplementaires_remplis": 0,
-  "ecarts_ms_screener": 0,
-  "note": "Comptes consolidés de TotalEnergies Marketing Maroc (Total Maroc jusqu'en 2021) en IFRS, en milliers de dirhams (KMAD). FY2016-FY2018 : dépôts consolidés de quelques pages (états de synthèse) ; FY2019-FY2025 : rapports financiers annuels. Le dépôt « rapports sociaux 1er semestre » de 2020 (Total_RFS_juin_2020) porte en réalité les comptes consolidés IFRS du semestre (libellé AMMC erroné) ; S1 2019 : le dépôt consolidé est une image d'une page, non lu, valeurs lues dans la colonne comparative du dépôt de juin 2020 (sans bilan : le comparatif du bilan est celui du 31/12/2019) ; S1 2025 : aucun dépôt dans la liste AMMC, valeurs lues dans la colonne comparative du dépôt de juin 2026 (sans bilan). Aucune ligne EBE aux états consolidés (compte de résultat par nature) ; aucun EBITDA de gestion relevé dans ce lot. Intérêts minoritaires : valeur 0 imprimée au bilan (« Intérêts ne conférant pas le contrôle ») pour FY2022-FY2025 et S1 2023-S1 2024 ; ligne vide ou absente ailleurs (le résultat part du Groupe est égal au résultat de l'ensemble sur toutes les périodes). Dette nette : dettes financières non courantes + courantes - trésorerie ; ces dettes comprennent les dettes de location IFRS 16 et des découverts bancaires non isolés (note 22 du rapport 2025 : dettes non courantes = dettes de location). FY2016 : la ligne des dettes financières non courantes est vide, dette nette non calculée. Dividende par action : relevé pour FY2018 et FY2019 seulement (56 MAD, rapport de gestion) ; pas de phrase équivalente retrouvée dans les rapports 2020-2025. Nombre d'actions : nombre retenu pour le résultat par action au compte de résultat (8 960 000)."
+  "ecarts_ms_screener": 7,
+  "note": "Comptes consolidés de TotalEnergies Marketing Maroc (Total Maroc jusqu'en 2021) en IFRS, en milliers de dirhams (KMAD). FY2016-FY2018 : dépôts consolidés de quelques pages (états de synthèse) ; FY2019-FY2025 : rapports financiers annuels. Le dépôt « rapports sociaux 1er semestre » de 2020 (Total_RFS_juin_2020) porte en réalité les comptes consolidés IFRS du semestre (libellé AMMC erroné) ; S1 2019 : le dépôt consolidé est une image d'une page, non lu, valeurs lues dans la colonne comparative du dépôt de juin 2020 (sans bilan : le comparatif du bilan est celui du 31/12/2019) ; S1 2025 : aucun dépôt dans la liste AMMC, valeurs lues dans la colonne comparative du dépôt de juin 2026 (sans bilan). Aucune ligne EBE aux états consolidés (compte de résultat par nature) ; aucun EBITDA de gestion relevé dans ce lot. Intérêts minoritaires : valeur 0 imprimée au bilan (« Intérêts ne conférant pas le contrôle ») pour FY2022-FY2025 et S1 2023-S1 2024 ; ligne vide ou absente ailleurs (le résultat part du Groupe est égal au résultat de l'ensemble sur toutes les périodes). Dette nette : dettes financières non courantes + courantes - trésorerie, moins les emprunts en location IFRS 16 isolés par la note 22 (FY2019-FY2025) ; rupture de série en 2019 (entrée en vigueur d'IFRS 16) ; semestres : pas de note 22, dettes de location non retranchées. MASI Screener ne retire pas ces dettes. FY2016 : la ligne des dettes financières non courantes est vide, dette nette non calculée. Dividende par action : relevé pour FY2018 et FY2019 seulement (56 MAD, rapport de gestion) ; pas de phrase équivalente retrouvée dans les rapports 2020-2025. Nombre d'actions : nombre retenu pour le résultat par action au compte de résultat (8 960 000)."
  }
 }
