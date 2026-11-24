@@ -407,3 +407,35 @@ des dizaines.
 - (27/10) Un test qui relit `data.json` (`test_le_pb_publie_se_recoupe_avec_la_capitalisation`) rougit tant que
   le moteur n'a pas tourné sur un nouveau relevé de fonds propres : sans commit de `data.json` (propriétaire
   unique : `update_data`), le vérifier en y posant provisoirement l'essai à blanc, puis `git checkout data.json`.
+- (17/11, capitaux propres MGL/AGM/MDP/CIH/CDM/NRJ) Un fait `capitaux_propres_part_groupe` ajouté à
+  `faits_financiers.json` exige AUSSI son N-1 (`..._2024`, colonne 2 de la même ligne) ou un motif dans
+  `_ratios_2025._fonds_propres_2024_non_releves` ; un titre relevé doit en SORTIR (AGM y figurait). Le test
+  figeait `releve_le == 2026-10-13` : assoupli en `>=`. Puis `resultats_semestriels.py` (sans `--montrer`)
+  met `fondamentaux.json` à jour, sinon `test_ratios_publies_synchronises` rougit (AGM, MDP).
+- (17/11) Le consolidé IFRS d'un titre peut n'être QUE sur le site de l'émetteur : Agma, dont le dépôt AMMC ne
+  porte que le social (RFA, 17 p.) et deux attestations (S1), publie sur agma.ma
+  `/fr/communication-financiere/rapports-annuels-et-financiers` le « Rapport annuel et financier 2025 » (33 p.,
+  bilan consolidé en IMAGE p.22 : part du groupe 171 898 KDH, minoritaires vides). Le rapport financier
+  semestriel complet existe aussi à l'AMMC (`Agma_RFS_S1_26.pdf`, 11 p.) : essayer `_RFS_S1_26` quand le
+  dépôt S1 n'est qu'une attestation. ⚠️ Le fichier « attestations seules » (`Agma_S1_26.pdf`, 2 p.) porte en
+  IMAGE, sous le texte de la p.2, l'état consolidé complet : « Capitaux propres, part du groupe 149 006 »,
+  minoritaires vides. Rendre la page entière avant de conclure que la part du groupe « n'est pas imprimée »
+  (erreur du premier jet du 17/11, corrigée par verificateur-finance : ne jamais écrire « par déduction » sans
+  avoir rendu chaque page du fichier).
+- (17/11) Med Paper : le bénéfice 2025 est entièrement non courant et l'attestation est sous réserve : pas de ROE.
+  Le BPA, lui, n'est PAS écarté (bpa.json 1,4, resultats_officiels) ; le ROE l'est par `roe_ecarte` (entrée S1,
+  lu par `ratios_financiers.calculer`). Un écart d'acquisition ou un fonds commercial qui dépasse ou pèse
+  l'essentiel des capitaux propres (AGM 77 %, MDP > 100 %) se dit en précision de lecture.
+- (17/11) `source_capitaux_propres` de `resultats_s1_2026.json` alimente AUSSI la source du ROE 2025 quand
+  `capitaux_propres_pg_31_12_2025` existe : pour CIH, la citation couvre les deux dates (S1 p.11 et RFA p.26).
+- (17/11) R11 : une augmentation constatée APRÈS le 30/06 (CIH 28/07, 999,99991 MMAD ; CDM 23/07, 699,07733 MMAD)
+  garde le P/B absent même quand le livre du 30/06 est relevé (`test_b4_le_30_06_ne_cree_pas_de_pb`). Le pro forma
+  (livre + produit) est un CALCUL : dans `calculs` du relevé et dans `_defauts_connus`, jamais en fait.
+- (17/11) Introduction en bourse (NRJ, 16/11) : le document de référence et la note d'opération sont au catalogue
+  AMMC sous `JETENERGY_IPO_DR_036_2026.pdf` et `JETENERGY_IPO_NO_030_2026.pdf` (page
+  `espace-emetteurs/documents-information`) ; `casablanca-bourse.com` échoue en TLS sous curl ici, l'AMMC donne la
+  même empreinte. Jet Energy n'a aucune filiale (DR p.44) : pas de « part du groupe », comptes sociaux. 13 125 000
+  actions = 10 500 000 + 2 625 000 (NO p.37-38) ; le livre (177,6 MMAD au 30/06) ne contient pas les 375,4 MMAD
+  levés : pas de fait, pas de P/B (comme T2S). L'en-tête « 30.09.2026 » de la NO p.37 est une coquille (montants du 30/06).
+- (17/11) Med Paper : un P/B sur ses capitaux propres sociaux porte les réserves CHIFFRÉES des CAC (8,6 MDH sur 42,1) ;
+  la réserve est dans la note du fait, mais `RESERVES_PB` (moteur) ne la porte pas encore : à signaler, pas à corriger ici.

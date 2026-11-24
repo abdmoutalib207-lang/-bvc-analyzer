@@ -194,6 +194,42 @@
    "page": 38,
    "citation": "Capital social ou personnel (1) 47.838.230,00 47.838.230,00",
    "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 42.09593585,
+   "unite": "MMAD (42.095.935,85 MAD ÷ 1 000 000)",
+   "periode": "30/06/2026",
+   "perimetre": "SOCIAL, normes marocaines (aucun consolidé) ; tient lieu de part du groupe ; examen limité SOUS RÉSERVE (quatre situations)",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_S1_26.pdf",
+   "piece": "s1_2026",
+   "page": 2,
+   "citation": "Total des capitaux propres (A) 42.095.935,85 41.145.968,11 [bilan passif, colonnes EXERCICE | EXERCICE PRÉCÉDENT, page image rendue et lue] ; attestation p.3 : capitaux propres et assimilés de MAD 42 095 936 dont un bénéfice net de MAD 949 968",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 41.14596811,
+   "unite": "MMAD (41.145.968,11 MAD ÷ 1 000 000)",
+   "periode": "31/12/2025",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
+   "piece": "rfa_2025",
+   "page": 38,
+   "citation": "Total des capitaux propres (A) 41.145.968,11 34.432.862,61 [colonnes EXERCICE | EXERCICE PRÉCÉDENT]",
+   "releve_le": "2026-11-17"
+  },
+  {
+   "grandeur": "capitaux_propres_totaux_sociaux",
+   "valeur": 34.43286261,
+   "unite": "MMAD",
+   "periode": "31/12/2024",
+   "perimetre": "SOCIAL",
+   "source": "https://www.ammc.ma/sites/default/files/Med_Paper_RFA_2025.pdf",
+   "piece": "rfa_2025",
+   "page": 38,
+   "citation": "Total des capitaux propres (A) 41.145.968,11 34.432.862,61 (colonne 2)",
+   "releve_le": "2026-11-17"
   }
  ],
  "estimations": [],
@@ -240,6 +276,18 @@
    "formule": "capital 47 838 230 ÷ nominal 10 (nominal NON relevé ; pipeline/balayage_rfa.json l'a déduit et recoupé à 0,4 % par capitalisation ÷ cours)",
    "resultat": 4783823,
    "unite": "actions"
+  },
+  {
+   "quoi": "capitaux propres 30/06/2026 par les lignes du bilan",
+   "formule": "47.838.230,00 + 0,46 − 6.692.262,35 + 949.967,74",
+   "resultat": 42.09593585,
+   "unite": "MMAD"
+  },
+  {
+   "quoi": "réserves chiffrées des CAC (4,3 + 2,318 + 2,0 MDH), au plus 8,6 MDH hors pénalités fiscales non chiffrées — ILLUSTRATION de l'exposition maximale, pas un chiffre publié (le 4,3 fait face à une dette de 2,9 envers le même ancien actionnaire : net 1,4 s'ils se compensent ; le poste CNSS ne touche les capitaux propres que pour sa part non amortie, au plus 1 876 700,21 DH)",
+   "formule": "4,3 + 2,318 + 2,0",
+   "resultat": 8.618,
+   "unite": "MMAD (exposition maximale)"
   }
  ],
  "constats": [
@@ -248,7 +296,11 @@
   "Contrôles faits sur image : capitaux propres 47 838 230 + 0,46 − 6 692 262,35 + 949 967,74 = 42 095 935,85 ; trésorerie passif 6 221 468,75 + 11 683 406,38 = 17 904 875,13 — recollés.",
   "Forte baisse des crédits d'escompte (59,8 → 6,2 MMAD) en même temps que les créances clients (116,2 → 63,7 MMAD net, lu sur image) : piste de remboursement ou de reclassement, non établie.",
   "EBE 2025 négatif et EBE glissant négatif (−3,3 MMAD) : un ratio dette nette / EBITDA n'a pas de sens ici ; question de règle.",
-  "Non lus : rapports des CAC 2025 (p.11–18, images) et p.3 du semestriel (attestation probable). Nombre d'actions non établi sur pièce (Bourse de Casablanca injoignable)."
+  "Non lus : rapports des CAC 2025 (p.11–18, images) et p.3 du semestriel (attestation probable). Nombre d'actions non établi sur pièce (Bourse de Casablanca injoignable).",
+  "17/11/2026 : capitaux propres sociaux 42 095 935,85 MAD au 30/06/2026 (S1 p.2, image rendue ; identique à l'attestation p.3) et 41 145 968,11 au 31/12/2025 (RFA p.38) ; la colonne « exercice précédent » du S1 = RFA, sans dividende. Les quatre réserves des CAC (8,6 MDH chiffrés) pèsent jusqu'à ~20 % sur ce livre : un P/B qui en découle doit les afficher.",
+  "17/11/2026 : anomalie du RFA 2025 p.80, tableau C1 (image rendue) : nominal 10 DH imprimé ; total 4 714 199 titres incohérent avec le capital 47 838 230 DH (4 783 823 titres) ; ligne FLOTTANTE 1 167 308 titres pour 12 369 320 DH = 1 236 932 titres. On garde 4 783 823 (liste des émetteurs = capital ÷ nominal).",
+  "17/11/2026 : précision de lecture, aucun chiffre modifié — fonds commercial 65 987 742 DH > capitaux propres 42,1 MMAD : fonds propres tangibles ≈ −23,9 MMAD.",
+  "17/11/2026 : ROE non publié (roe_ecarte dans resultats_s1_2026.json) : bénéfice 2025 entièrement non courant (courant −15,1, non courant +22,1 MDH, RFA p.41) et attestation S1 sous réserve."
  ],
  "conclusion": "Pièces trouvées pour toutes les grandeurs sauf le nombre d'actions. Résultat net glissant positif (6,1 MMAD) mais non récurrent ; EBE glissant négatif. Pas de divergence : aucune question IR.",
  "debloquerait": "croissance (CA −8,0 %, RN −38,1 % S1/S1), valorisation (PER sur 6,1 MMAD, si le nombre d'actions est établi sur pièce), bilan (dette nette 97,6 MMAD ; EBITDA négatif → règle à décider), après inscription de MDP dans fondamentaux.json.",
