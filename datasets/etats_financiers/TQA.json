@@ -142,17 +142,18 @@
     "dette_nette": {
      "valeur_mdh": 10974.091,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL : la note 10 « Dettes de financement » de ce rapport ne porte aucune ligne de crédit-bail (TAQA Morocco, JLEC 5&6, total), rien à retirer ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 13249.0,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : néant (aucune ligne dans la note 10 de ce rapport)",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -386,17 +387,18 @@
     "dette_nette": {
      "valeur_mdh": 10093.65,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL : la note 10 « Dettes de financement » de ce rapport ne porte aucune ligne de crédit-bail (TAQA Morocco, JLEC 5&6, total), rien à retirer ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 12342.9,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : néant (aucune ligne dans la note 10 de ce rapport)",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -632,17 +634,18 @@
     "dette_nette": {
      "valeur_mdh": 9215.712,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL : la note 10 « Dettes de financement » de ce rapport ne porte aucune ligne de crédit-bail (TAQA Morocco, JLEC 5&6, total), rien à retirer ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 11096.0,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : néant (aucune ligne dans la note 10 de ce rapport)",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -876,17 +879,18 @@
     "dette_nette": {
      "valeur_mdh": 8053.197,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL : la note 10 « Dettes de financement » de ce rapport ne porte aucune ligne de crédit-bail (TAQA Morocco, JLEC 5&6, total), rien à retirer ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 9712.4,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : néant (aucune ligne dans la note 10 de ce rapport)",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -1134,19 +1138,20 @@
      "note": "valeur lue sur la page rendue : la couche texte du PDF ne porte pas ce montant (ou le libellé est brouillé) ; part des minoritaires dans le résultat (résultat consolidé 1 143 827 - part du groupe 880 159)"
     },
     "dette_nette": {
-     "valeur_mdh": 8927.994,
+     "valeur_mdh": 8887.038,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 10499.3,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -1219,6 +1224,23 @@
         "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
        },
        "note": "libellé brouillé dans le texte extrait ; la ligne se recoupe par le total du passif (19 635 385 = 6 636 538 + 25 852 + 10 781 257 + 88 976 + 757 897 + 1 344 866, à 1 près)"
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 40.956,
+       "unite_source": "KMAD",
+       "valeur_source": "40 956",
+       "document": "Taqa_Morocco_RFA_2020_0.pdf",
+       "page": 10,
+       "citation": "Retraitement crédit-bail 40 956",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       },
+       "note": "page à texte brouillé : montant lu sur la ligne « Retraitement crédit-bail 40 956 » ; recoupé par la colonne 31 décembre 2020 du rapport 2021 (p.62 : 40 956) et par le total de la note 10 (10 781 257)"
       }
      }
     },
@@ -1394,19 +1416,20 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 8081.07,
+     "valeur_mdh": 8044.075,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 9186.4,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -1471,6 +1494,22 @@
        "page": 59,
        "citation": "Trésorerie passif 0 0",
        "entete_colonnes": "(en milliers de dirhams) 31/12/2021 31/12/2020",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 36.995,
+       "unite_source": "KMAD",
+       "valeur_source": "36 995",
+       "document": "Taqa_Morocco_RFA_2021.pdf",
+       "page": 62,
+       "citation": "Retraitement crédit-bail 36 995 40 956",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
        "perimetre": "consolide",
        "referentiel": "normes marocaines (CNC, avis n°5)",
        "statut": "publie",
@@ -1653,19 +1692,20 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 7565.924,
+     "valeur_mdh": 7533.101,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 8689.5,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -1730,6 +1770,22 @@
        "page": 61,
        "citation": "Trésorerie passif 875 000 0",
        "entete_colonnes": "PASSIF 31/12/2022 31/12/2021",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 32.823,
+       "unite_source": "KMAD",
+       "valeur_source": "32 823",
+       "document": "Taqa_Morocco_RFA_2022.pdf",
+       "page": 64,
+       "citation": "Retraitement crédit-bail 32 823 36 995",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
        "perimetre": "consolide",
        "referentiel": "normes marocaines (CNC, avis n°5)",
        "statut": "publie",
@@ -1926,19 +1982,20 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 6786.685,
+     "valeur_mdh": 6758.258,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 10151.8,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -2003,6 +2060,22 @@
        "page": 57,
        "citation": "Trésorerie passif 0 875 000",
        "entete_colonnes": "PASSIF 31/12/2023 31/12/2022",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 28.427,
+       "unite_source": "KMAD",
+       "valeur_source": "28 427",
+       "document": "Taqa_Morocco_RFA_2023.pdf",
+       "page": 60,
+       "citation": "Retraitement crédit-bail 28 427 32 823",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
        "perimetre": "consolide",
        "referentiel": "normes marocaines (CNC, avis n°5)",
        "statut": "publie",
@@ -2211,19 +2284,20 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 6772.558,
+     "valeur_mdh": 6748.761,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 10290.4,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -2273,6 +2347,22 @@
        "page": 93,
        "citation": "Trésorerie actif 52 224 869 066",
        "entete_colonnes": "ACTIF 31/12/2024 31/12/2023 (en milliers de dirhams) 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 23.797,
+       "unite_source": "KMAD",
+       "valeur_source": "23 797",
+       "document": "Taqa_Morocco_RFA_2024.pdf",
+       "page": 95,
+       "citation": "Retraitement crédit-bail 23 797 28 427",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
        "perimetre": "consolide",
        "referentiel": "normes marocaines (CNC, avis n°5)",
        "statut": "publie",
@@ -2468,19 +2558,20 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 6410.009,
+     "valeur_mdh": 6391.09,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement - retraitement_credit_bail — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETIRÉ : la ligne « Retraitement crédit-bail » de la note 10 « Dettes de financement » (comprise dans le total des dettes de financement du bilan) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 9637.0,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail (note 10 « Dettes de financement ») : retiré, montant cité en composante",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -2530,6 +2621,22 @@
        "page": 114,
        "citation": "Trésorerie actif 42 184 52 224",
        "entete_colonnes": "ACTIF 31/12/2025 31/12/2024 (en milliers de dirhams) 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, avis n°5)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "retraitement_credit_bail": {
+       "valeur_mdh": 18.919,
+       "unite_source": "KMAD",
+       "valeur_source": "18 919",
+       "document": "Taqa_Morocco_RFA_2025.pdf",
+       "page": 116,
+       "citation": "Retraitement crédit-bail 18 919 23 797",
+       "entete_colonnes": "Note 10 Dettes de financement (en milliers de dirhams) 31 décembre N, 31 décembre N-1",
        "perimetre": "consolide",
        "referentiel": "normes marocaines (CNC, avis n°5)",
        "statut": "publie",
@@ -2740,7 +2847,7 @@
     "dette_nette": {
      "valeur_mdh": 8570.577,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "absent_ms",
@@ -2749,7 +2856,8 @@
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -2986,7 +3094,7 @@
     "dette_nette": {
      "valeur_mdh": 9504.986,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -2995,7 +3103,8 @@
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -3231,7 +3340,7 @@
     "dette_nette": {
      "valeur_mdh": 7995.9,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -3240,7 +3349,8 @@
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -3476,17 +3586,18 @@
     "dette_nette": {
      "valeur_mdh": 8092.955,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 9078.1,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -3722,17 +3833,18 @@
     "dette_nette": {
      "valeur_mdh": 6274.17,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 7941.8,
-      "arbitrage": "MASI Screener ajoute 875 de trésorerie passif, valeur du bilan du 31/12/2022 (875 000 KDH) ; le bilan du 30/06/2023 n'a pas de ligne de trésorerie passif et le rapport de gestion du même dépôt indique « Trésorerie - Passif 0 » (MMAD, p.8). Le reste de l'écart (792,6) est le montant des titres et valeurs de placement, retranchés par le projet et non par MASI Screener."
+      "arbitrage": "MASI Screener ajoute 875 de trésorerie passif, valeur du bilan du 31/12/2022 (875 000 KDH) ; le bilan du 30/06/2023 n'a pas de ligne de trésorerie passif et le rapport de gestion du même dépôt indique « Trésorerie - Passif 0 » (MMAD, p.8). Le reste de l'écart (792,6) est le montant des titres et valeurs de placement, retranchés par le projet et non par MASI Screener (aucun retraitement crédit-bail publié au semestre)."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -3953,7 +4065,7 @@
     "dette_nette": {
      "valeur_mdh": 7831.696,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ms_indique_non_publie",
@@ -3963,6 +4075,7 @@
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -4183,17 +4296,18 @@
     "dette_nette": {
      "valeur_mdh": 6326.599,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 10006.6,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
-      "provisions pour risques et charges"
+      "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché"
      ],
      "composantes_incluses": {
       "dettes_de_financement": "dettes de financement du bilan consolidé",
@@ -4429,17 +4543,18 @@
     "dette_nette": {
      "valeur_mdh": 5737.454,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
+     "formule": "+ dettes_de_financement + tresorerie_passif - tresorerie_actif - titres_et_valeurs_de_placement — INCLUS : dettes de financement du bilan consolidé, trésorerie passif, moins trésorerie actif et titres et valeurs de placement (le tableau des flux compte les titres et valeurs de placement dans la trésorerie de clôture) ; RETRAITEMENT CRÉDIT-BAIL NON RETRANCHÉ : le rapport semestriel ne porte pas la note 10 des dettes de financement, le montant de la période n'est pas publié (la valeur peut comprendre un retraitement de l'ordre de celui du dernier exercice) ; NON INCLUS : autres dettes, dettes d'exploitation, provisions. Calcul propre au projet : ne pas confondre avec l'endettement net publié par l'émetteur (voir dette_nette_publiee quand il existe).",
      "statut": "calcule_depuis_composantes_publiees",
      "controle_ms": {
       "resultat": "ecart",
       "ms_valeur": 9347.0,
-      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture. Écart = titres de placement de la période."
+      "arbitrage": "MASI Screener = dettes de financement + trésorerie passif - trésorerie actif, sans retrancher les titres et valeurs de placement ; la valeur du projet les retranche parce que le tableau des flux les compte dans la trésorerie de clôture, et elle retire le « retraitement crédit-bail » de la note 10 (FY2020-FY2025). Écart = titres de placement de la période diminués, à partir de 2020, de ce retraitement."
      },
      "composantes_exclues": [
       "autres dettes",
       "dettes d'exploitation",
       "provisions pour risques et charges",
+      "retraitement crédit-bail : non publié pour la période (pas de note 10 dans le rapport semestriel), non retranché",
       "trésorerie passif : aucune ligne au bilan consolidé de cette période (néant)"
      ],
      "composantes_incluses": {
@@ -4764,6 +4879,6 @@
   "remplies": 173,
   "supplementaires_remplis": 6,
   "ecarts_ms_screener": 14,
-  "note": "Comptes consolidés de TAQA Morocco en normes marocaines (CNC, avis n°5), en milliers de dirhams (KMAD). FY2016-FY2018 : dépôts « consolidés » de quatre pages (états de synthèse seuls, sans rapport de gestion) ; FY2019-FY2025 : rapports financiers annuels ; semestres : rapports financiers semestriels (S1 2019 : dépôt consolidé de deux pages). Chaque valeur est la colonne de la période (en-tête de dates lu à chaque état) ; aucun comparatif n'a été utilisé sauf FY2022 EBITDA. Aucune ligne « EBE » aux états consolidés : `ebe` vide, l'EBITDA du rapport d'activité (FY2022-FY2025) va dans `ebitda_ajuste`. Dette nette = dettes de financement + trésorerie passif - trésorerie actif - titres et valeurs de placement (le tableau des flux compte les titres de placement dans la trésorerie de clôture : 3 269 210 = 42 184 + 3 227 026 à fin 2025) ; MASI Screener la calcule sans retrancher les titres de placement (écart = ces titres), d'où les écarts consignés. Nombre d'actions : tableau de répartition du capital de l'état social (23 588 542 actions) ; FY2016-FY2018 lu dans les comptes sociaux déposés la même année. Dividende par action proposé : relevé pour FY2025 seulement (38 DH, rapport d'activité) ; les autres exercices n'ont pas été relevés (les tableaux « bénéfices distribués par action de l'exercice précédent » ne se lisent pas sans ambiguïté). FY2018 flux et FY2020 flux / minoritaires / dettes de financement, S1 2019 dettes de financement : lus sur page rendue (texte brouillé)."
+  "note": "Comptes consolidés de TAQA Morocco en normes marocaines (CNC, avis n°5), en milliers de dirhams (KMAD). FY2016-FY2018 : dépôts « consolidés » de quatre pages (états de synthèse seuls, sans rapport de gestion) ; FY2019-FY2025 : rapports financiers annuels ; semestres : rapports financiers semestriels (S1 2019 : dépôt consolidé de deux pages). Chaque valeur est la colonne de la période (en-tête de dates lu à chaque état) ; aucun comparatif n'a été utilisé sauf FY2022 EBITDA. Aucune ligne « EBE » aux états consolidés : `ebe` vide, l'EBITDA du rapport d'activité (FY2022-FY2025) va dans `ebitda_ajuste`. Dette nette = dettes de financement + trésorerie passif - trésorerie actif - titres et valeurs de placement (le tableau des flux compte les titres de placement dans la trésorerie de clôture : 3 269 210 = 42 184 + 3 227 026 à fin 2025) ; MASI Screener la calcule sans retrancher les titres de placement ni le retraitement crédit-bail de la note 10 (retiré par le projet de FY2020 à FY2025 ; semestres : note absente, non retranché), d'où les écarts consignés. Nombre d'actions : tableau de répartition du capital de l'état social (23 588 542 actions) ; FY2016-FY2018 lu dans les comptes sociaux déposés la même année. Dividende par action proposé : relevé pour FY2025 seulement (38 DH, rapport d'activité) ; les autres exercices n'ont pas été relevés (les tableaux « bénéfices distribués par action de l'exercice précédent » ne se lisent pas sans ambiguïté). FY2018 flux et FY2020 flux / minoritaires / dettes de financement, S1 2019 dettes de financement : lus sur page rendue (texte brouillé)."
  }
 }
