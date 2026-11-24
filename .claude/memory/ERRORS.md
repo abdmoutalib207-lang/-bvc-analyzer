@@ -1395,3 +1395,29 @@ les RÉPERTOIRES ; un lien symbolique est un fichier.
 **Parade.** `.gitignore` porte `node_modules` sans barre ; retirer le lien
 avant tout `git add -A` reste la règle.
 
+## Famille 33 — « Non isolées » écrit sans avoir ouvert la note des dettes : 3e récidive (24/11/2026)
+
+**Ce qui s'est passé.** Lot 6b (TQA, GAZ, TMA) : la formule de la dette nette disait
+que les dettes de location IFRS 16 et le crédit-bail étaient « compris dans les
+dettes de financement, non isolés ». Or la note des dettes isolait chacun de ces
+montants : GAZ note 14.2 (« Dette crédit bail », « Autres dettes de location
+(IFRS 16) »), TMA note 22 (« Emprunts en location IFRS 16 »), TQA note 10 (« Retraitement
+crédit-bail »). La contre-vérification du lot l'a vu ; la règle du skill
+« ouvrir la note des dettes de chaque exercice avant d'écrire non isolées »
+(déjà posée après Sothema et TGCC) n'avait pas été appliquée. La dette nette
+de GAZ 2025 passe de 473,5 à −127,6 MDH.
+
+**Cause.** Une formule de réserve est écrite une fois pour la série, depuis la
+première pièce lue, au lieu de se vérifier exercice par exercice. Et deux dépôts
+sur quatre n'ont pas de notes (GAZ 2016-2021 : « Bilan et CPC » seuls) : la
+formule vraie y est « non retranchés, aucun montant publié », pas « non isolés ».
+
+**Signal.** Un « non isolé(e)s » dans une `formule` de dette nette, sans
+`note_dettes` ; une dette nette qui égale l'endettement publié alors que la
+pièce publie ses composantes.
+
+**Parade.** `tests/test_etats_financiers_schema.py::test_non_isole_exige_la_note_des_dettes_citee`
+refuse la mention sans note citée. CMT, CSR et TGCC la portent encore (xfail strict,
+à relire). Écrire la réserve exercice par exercice : note lue (montant retiré, cité en
+composante), note absente du dépôt (dit tel quel), ou exercice antérieur à la norme.
+

@@ -116,3 +116,29 @@ def test_schema(chemin):
     assert n_non_nulles > 0
     cibles_remplies = sum(1 for _, cle, c in _cellules(doc) if cle in CIBLES and c.get("valeur_mdh") is not None)
     assert doc["couverture"]["remplies"] == cibles_remplies
+
+
+# ── dette nette : « non isolées » ne s'écrit qu'après lecture de la note des dettes ─────────────
+# Troisième récidive (lot 6b : GAZ, TMA, TQA) : une formule disait « dettes de location non isolées »
+# alors que la note des dettes de financement les isolait. Une formule qui porte « non isolé(e)s » doit
+# citer la note de dettes lue (`note_dettes` : document, page, citation), sinon elle écrit une absence
+# qu'elle n'a pas constatée. CMT, CSR et TGCC (lots 2 et 4) portent encore cette mention sans citation :
+# dette connue, déclarée en xfail strict (le test passera au vert, et le xfail devra sauter, quand ces
+# titres seront relus).
+DETTE_A_RELIRE = {"CMT", "CSR", "TGCC"}
+
+
+def _titres_dette():
+    xf = pytest.mark.xfail(strict=True, reason="mention « non isolées » sans note citée (lots 2 et 4), à relire")
+    return [pytest.param(c, id=c.stem, marks=xf if c.stem in DETTE_A_RELIRE else ()) for c in FICHIERS]
+
+
+@pytest.mark.parametrize("chemin", _titres_dette())
+def test_non_isole_exige_la_note_des_dettes_citee(chemin):
+    doc = json.loads(chemin.read_text(encoding="utf-8"))
+    for per, p in doc["periodes"].items():
+        c = p["donnees"].get("dette_nette") or {}
+        if re.search(r"non isol", c.get("formule") or "", re.I):
+            nd = c.get("note_dettes") or {}
+            assert nd.get("document") in doc["documents"] and isinstance(nd.get("page"), int) and (nd.get("citation") or "").strip(), \
+                f"{chemin.stem} {per} : « non isolé(e)s » sans note de dettes citée (note_dettes)"
