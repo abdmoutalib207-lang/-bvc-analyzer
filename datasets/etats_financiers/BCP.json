@@ -1,0 +1,4280 @@
+{
+ "schema": "etats_financiers/1",
+ "ticker": "BCP",
+ "nom": "Banque Centrale Populaire",
+ "emetteur_ammc_id": 2739,
+ "unite": "MDH",
+ "perimetre_principal": "consolide",
+ "archetype": "bank",
+ "periodes": {
+  "FY2016": {
+   "type": "annuel",
+   "cloture": "2016-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 15654.712,
+     "unite_source": "KMAD",
+     "valeur_source": "15 654 712",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "PRODUIT NET BANCAIRE 15 654 712 15 340 891",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 15654.712
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 7771.286,
+     "unite_source": "KMAD",
+     "valeur_source": "7 771 286",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "RESULTAT BRUT D’EXPLOITATION 7 771 286 7 839 274",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7771.286
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4448.683,
+     "unite_source": "KMAD",
+     "valeur_source": "4 448 683",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "RESULTAT D’EXPLOITATION 4 448 683 4 586 142",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4448.683
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3038.218,
+     "unite_source": "KMAD",
+     "valeur_source": "3 038 218",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "RESULTAT NET 3 038 218 3 022 779",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3038.218
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2643.426,
+     "unite_source": "KMAD",
+     "valeur_source": "2 643 426",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "RESULTAT NET PART DU GROUPE 2 643 426 2 511 387",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2643.426
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 394.792,
+     "unite_source": "KMAD",
+     "valeur_source": "394 792",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "Résultat de l’exercice 2 643 426 2 643 426 394 792 3 038 218",
+     "entete_colonnes": "Tableau de variation des capitaux propres au 31/12/2016",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "note": "Intérêts minoritaires lus dans le tableau de variation des capitaux propres (colonne « intérêts minoritaires », ligne « Résultat de l'exercice » de l'exercice), le compte de résultat du dépôt n'imprimant pas cette ligne.",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 394.792
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 28779.485,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 20497.798,
+       "unite_source": "KMAD",
+       "valeur_source": "20 497 798",
+       "document": "BCP_conso_2016.pdf",
+       "page": 7,
+       "citation": "Capital et réserves liées 20 497 798 19 775 674",
+       "entete_colonnes": "ACTIF IFRS 31/12/16 31/12/15 PASSIF IFRS 31/12/16 31/12/15",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 4134.08,
+       "unite_source": "KMAD",
+       "valeur_source": "4 134 080",
+       "document": "BCP_conso_2016.pdf",
+       "page": 7,
+       "citation": "Part du groupe 4 134 080 3 699 622",
+       "entete_colonnes": "ACTIF IFRS 31/12/16 31/12/15 PASSIF IFRS 31/12/16 31/12/15",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": 1504.181,
+       "unite_source": "KMAD",
+       "valeur_source": "1 504 181",
+       "document": "BCP_conso_2016.pdf",
+       "page": 7,
+       "citation": "Part du groupe 1 504 181 1 230 798",
+       "entete_colonnes": "ACTIF IFRS 31/12/16 31/12/15 PASSIF IFRS 31/12/16 31/12/15",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2643.426,
+       "unite_source": "KMAD",
+       "valeur_source": "2 643 426",
+       "document": "BCP_conso_2016.pdf",
+       "page": 7,
+       "citation": "Part du groupe 2 643 426 2 511 387",
+       "entete_colonnes": "ACTIF IFRS 31/12/16 31/12/15 PASSIF IFRS 31/12/16 31/12/15",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 28779.485
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 16415.804,
+     "unite_source": "KMAD",
+     "valeur_source": "16 415 804",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 16 415 804 -1 732 972",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 16415.804
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -5971.43,
+     "unite_source": "KMAD",
+     "valeur_source": "-5 971 430",
+     "document": "BCP_conso_2016.pdf",
+     "page": 7,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -5 971 430 -1 047 387",
+     "entete_colonnes": "31/12/16 31/12/15 31/12/16 31/12/15",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -5971.43
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé dans le document (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2017": {
+   "type": "annuel",
+   "cloture": "2017-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 16363.172,
+     "unite_source": "KMAD",
+     "valeur_source": "16 363 172",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "PRODUIT NET BANCAIRE 16 363 172 15 654 712",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 16363.172
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 7971.337,
+     "unite_source": "KMAD",
+     "valeur_source": "7 971 337",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 7 971 337 7 771 286",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7971.337
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4880.584,
+     "unite_source": "KMAD",
+     "valeur_source": "4 880 584",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "RESULTAT D'EXPLOITATION 4 880 584 4 448 683",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4880.584
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3411.91,
+     "unite_source": "KMAD",
+     "valeur_source": "3 411 910",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "RESULTAT NET 3 411 910 3 038 218",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3411.91
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2842.742,
+     "unite_source": "KMAD",
+     "valeur_source": "2 842 742",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "RESULTAT NET PART DU GROUPE 2 842 742 2 643 426",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2842.742
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 569.168,
+     "unite_source": "KMAD",
+     "valeur_source": "569 168",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "Résultat de l’exercice 2 842 742 2 842 742 569 168 3 411 910",
+     "entete_colonnes": "Tableau de variation des capitaux propres au 31/12/2017",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "note": "Intérêts minoritaires lus dans le tableau de variation des capitaux propres (colonne « intérêts minoritaires », ligne « Résultat de l'exercice » de l'exercice), le compte de résultat du dépôt n'imprimant pas cette ligne.",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 569.168
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 29574.9,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 21360.502,
+       "unite_source": "KMAD",
+       "valeur_source": "21 360 502",
+       "document": "BCP_conso_2017.pdf",
+       "page": 8,
+       "citation": "Capital et réserves liées 21 360 502 20 497 798",
+       "entete_colonnes": "ACTIF IFRS 31/12/17 31/12/16 PASSIF IFRS 31/12/17 31/12/16",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 4444.977,
+       "unite_source": "KMAD",
+       "valeur_source": "4 444 977",
+       "document": "BCP_conso_2017.pdf",
+       "page": 8,
+       "citation": "Part du groupe 4 444 977 4 134 080",
+       "entete_colonnes": "ACTIF IFRS 31/12/17 31/12/16 PASSIF IFRS 31/12/17 31/12/16",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": 926.679,
+       "unite_source": "KMAD",
+       "valeur_source": "926 679",
+       "document": "BCP_conso_2017.pdf",
+       "page": 8,
+       "citation": "Part du groupe 926 679 1 504 181",
+       "entete_colonnes": "ACTIF IFRS 31/12/17 31/12/16 PASSIF IFRS 31/12/17 31/12/16",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2842.742,
+       "unite_source": "KMAD",
+       "valeur_source": "2 842 742",
+       "document": "BCP_conso_2017.pdf",
+       "page": 8,
+       "citation": "Part du groupe 2 842 742 2 643 426",
+       "entete_colonnes": "ACTIF IFRS 31/12/17 31/12/16 PASSIF IFRS 31/12/17 31/12/16",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 29574.9
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -3359.546,
+     "unite_source": "KMAD",
+     "valeur_source": "-3 359 546",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -3 359 546 16 415 804",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -3359.546
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -1544.629,
+     "unite_source": "KMAD",
+     "valeur_source": "-1 544 629",
+     "document": "BCP_conso_2017.pdf",
+     "page": 8,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -1 544 629 -5 971 430",
+     "entete_colonnes": "31/12/17 31/12/16 31/12/17 31/12/16",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1544.629
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé dans le document (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 6.5,
+     "unite_source": "DH par action",
+     "valeur_source": "6,5",
+     "document": "BCP_conso_2017.pdf",
+     "page": 1,
+     "citation": "distribuer un dividende ordinaire de 1 184 655 264,00 dirhams, soit 6,5 dirhams par action",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "dividende de la société mère",
+     "statut": "publie",
+     "note": "Dividende ordinaire proposé à l'assemblée générale ordinaire du 16 mai 2018, tel qu'écrit dans l'avis de réunion joint au dépôt.",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2018": {
+   "type": "annuel",
+   "cloture": "2018-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 17020.225,
+     "unite_source": "KMAD",
+     "valeur_source": "17 020 225",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "PRODUIT NET BANCAIRE 17 020 225 16 363 172",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 17020.225
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 8136.848,
+     "unite_source": "KMAD",
+     "valeur_source": "8 136 848",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 8 136 848 7 971 337",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8136.848
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4982.833,
+     "unite_source": "KMAD",
+     "valeur_source": "4 982 833",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "RESULTAT D'EXPLOITATION 4 982 833 4 880 584",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4982.833
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3542.661,
+     "unite_source": "KMAD",
+     "valeur_source": "3 542 661",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "RESULTAT NET 3 542 661 3 411 910",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3542.661
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2942.525,
+     "unite_source": "KMAD",
+     "valeur_source": "2 942 525",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "RESULTAT NET-PART DU GROUPE 2 942 525 2 842 742",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2942.525
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 600.136,
+     "unite_source": "KMAD",
+     "valeur_source": "600 136",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "Intérêts minoritaires 600 136 569 168",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 600.136
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 28393.334,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 22329.658,
+       "unite_source": "KMAD",
+       "valeur_source": "22 329 658",
+       "document": "BCP_conso_2018_0.pdf",
+       "page": 9,
+       "citation": "Capital et réserves liées 22 329 658 21 360 502",
+       "entete_colonnes": "ACTIF IFRS Annexes 31/12/18 01/01/18 31/12/17 Passifs financiers à la juste valeur par résultat",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3179.603,
+       "unite_source": "KMAD",
+       "valeur_source": "3 179 603",
+       "document": "BCP_conso_2018_0.pdf",
+       "page": 9,
+       "citation": "Part du groupe 3 179 603 2 465 007",
+       "entete_colonnes": "ACTIF IFRS Annexes 31/12/18 01/01/18 31/12/17 Passifs financiers à la juste valeur par résultat",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -58.452,
+       "unite_source": "KMAD",
+       "valeur_source": "-58 452",
+       "document": "BCP_conso_2018_0.pdf",
+       "page": 9,
+       "citation": "Part du groupe -58 452 175 133",
+       "entete_colonnes": "ACTIF IFRS Annexes 31/12/18 01/01/18 31/12/17 Passifs financiers à la juste valeur par résultat",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2942.525,
+       "unite_source": "KMAD",
+       "valeur_source": "2 942 525",
+       "document": "BCP_conso_2018_0.pdf",
+       "page": 9,
+       "citation": "Part du groupe 2 942 525 2 842 742",
+       "entete_colonnes": "ACTIF IFRS Annexes 31/12/18 01/01/18 31/12/17 Passifs financiers à la juste valeur par résultat",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 28393.334
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -4057.22,
+     "unite_source": "KMAD",
+     "valeur_source": "-4 057 220",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -4 057 220 -3 359 546",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -4057.22
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -41.505,
+     "unite_source": "KMAD",
+     "valeur_source": "-41 505",
+     "document": "BCP_conso_2018_0.pdf",
+     "page": 9,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -41 505 -1 544 629",
+     "entete_colonnes": "Annexes 31/12/18 31/12/17 31/12/18 31/12/17",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -41.505
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé dans le document (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2019": {
+   "type": "annuel",
+   "cloture": "2019-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 17816.05,
+     "unite_source": "KMAD",
+     "valeur_source": "17 816 050",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "PRODUIT NET BANCAIRE 19 287 043 17 816 050",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 17816.05
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 8560.688,
+     "unite_source": "KMAD",
+     "valeur_source": "8 560 688",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 8 256 678 8 560 688",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8560.688
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 5993.915,
+     "unite_source": "KMAD",
+     "valeur_source": "5 993 915",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT D'EXPLOITATION 2 127 561 5 993 915",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5993.915
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3888.035,
+     "unite_source": "KMAD",
+     "valeur_source": "3 888 035",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET 1 283 150 3 888 035",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3888.035
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2999.253,
+     "unite_source": "KMAD",
+     "valeur_source": "2 999 253",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET-PART DU GROUPE 1 229 167 2 999 253",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2999.253
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 888.782,
+     "unite_source": "KMAD",
+     "valeur_source": "888 782",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "Intérêts minoritaires 53 983 888 782",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 888.782
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 34665.555,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 28307.216,
+       "unite_source": "KMAD",
+       "valeur_source": "28 307 216",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Capital et réserves liées 28 193 802 28 307 216",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3242.565,
+       "unite_source": "KMAD",
+       "valeur_source": "3 242 565",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe 3 178 798 3 242 565",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": 116.521,
+       "unite_source": "KMAD",
+       "valeur_source": "116 521",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe -12 809 116 521",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2999.253,
+       "unite_source": "KMAD",
+       "valeur_source": "2 999 253",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe 1 229 167 2 999 253",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "lu_dans_document_ulterieur_comparatif"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 34665.555
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -4514.814,
+     "unite_source": "KMAD",
+     "valeur_source": "-4 514 814",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 6 257 421 -4 514 814",
+     "entete_colonnes": "31/12/20 31/12/19",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -4514.814
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 3187.106,
+     "unite_source": "KMAD",
+     "valeur_source": "3 187 106",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 1 594 525 3 187 106",
+     "entete_colonnes": "31/12/20 31/12/19",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3187.106
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 202254656.0,
+     "unite_source": "actions",
+     "valeur_source": "202 254 656",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 63,
+     "citation": "Total 202 254 656 202 254 656",
+     "entete_colonnes": "Exercice actuel | exercice précédent",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2020": {
+   "type": "annuel",
+   "cloture": "2020-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 19287.043,
+     "unite_source": "KMAD",
+     "valeur_source": "19 287 043",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "PRODUIT NET BANCAIRE 19 287 043 17 816 050",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 19287.043
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 8256.678,
+     "unite_source": "KMAD",
+     "valeur_source": "8 256 678",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 8 256 678 8 560 688",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8256.678
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 2127.561,
+     "unite_source": "KMAD",
+     "valeur_source": "2 127 561",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT D'EXPLOITATION 2 127 561 5 993 915",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2127.561
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1283.15,
+     "unite_source": "KMAD",
+     "valeur_source": "1 283 150",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET 1 283 150 3 888 035",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1283.15
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1229.167,
+     "unite_source": "KMAD",
+     "valeur_source": "1 229 167",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET-PART DU GROUPE 1 229 167 2 999 253",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1229.167
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 53.983,
+     "unite_source": "KMAD",
+     "valeur_source": "53 983",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 17,
+     "citation": "Intérêts minoritaires 53 983 888 782",
+     "entete_colonnes": "Annexes 31/12/20 31/12/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 53.983
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 32588.958,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 28193.802,
+       "unite_source": "KMAD",
+       "valeur_source": "28 193 802",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Capital et réserves liées 28 193 802 28 307 216",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3178.798,
+       "unite_source": "KMAD",
+       "valeur_source": "3 178 798",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe 3 178 798 3 242 565",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -12.809,
+       "unite_source": "KMAD",
+       "valeur_source": "-12 809",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe -12 809 116 521",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1229.167,
+       "unite_source": "KMAD",
+       "valeur_source": "1 229 167",
+       "document": "BCP_RFA_2020.pdf",
+       "page": 16,
+       "citation": "Part du groupe 1 229 167 2 999 253",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 32588.958
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 6257.421,
+     "unite_source": "KMAD",
+     "valeur_source": "6 257 421",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 6 257 421 -4 514 814",
+     "entete_colonnes": "31/12/20 31/12/19",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6257.421
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 1594.525,
+     "unite_source": "KMAD",
+     "valeur_source": "1 594 525",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 1 594 525 3 187 106",
+     "entete_colonnes": "31/12/20 31/12/19",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1594.525
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 202254656.0,
+     "unite_source": "actions",
+     "valeur_source": "202 254 656",
+     "document": "BCP_RFA_2020.pdf",
+     "page": 63,
+     "citation": "Total 202 254 656 202 254 656",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 202254656.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2021": {
+   "type": "annuel",
+   "cloture": "2021-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 20087.299,
+     "unite_source": "KMAD",
+     "valeur_source": "20 087 299",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "PRODUIT NET BANCAIRE 20 087 299 19 287 043",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 20087.299
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 10063.416,
+     "unite_source": "KMAD",
+     "valeur_source": "10 063 416",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 10 063 416 8 256 678",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10063.416
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4525.963,
+     "unite_source": "KMAD",
+     "valeur_source": "4 525 963",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "RESULTAT D'EXPLOITATION 4 525 963 2 127 561",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4525.963
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2725.363,
+     "unite_source": "KMAD",
+     "valeur_source": "2 725 363",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "RESULTAT NET 2 725 363 1 283 150",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2725.363
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1764.618,
+     "unite_source": "KMAD",
+     "valeur_source": "1 764 618",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "RESULTAT NET PART DU GROUPE 1 764 618 1 229 167",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1764.618
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 960.745,
+     "unite_source": "KMAD",
+     "valeur_source": "960 745",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 18,
+     "citation": "Intérêts minoritaires 960 745 53 983",
+     "entete_colonnes": "Annexes 31/12/21 31/12/20",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 960.745
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 32654.249,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 28909.705,
+       "unite_source": "KMAD",
+       "valeur_source": "28 909 705",
+       "document": "BCP_RFA_2021.pdf",
+       "page": 17,
+       "citation": "Capital et réserves liées 28 909 705 28 193 802",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 2320.566,
+       "unite_source": "KMAD",
+       "valeur_source": "2 320 566",
+       "document": "BCP_RFA_2021.pdf",
+       "page": 17,
+       "citation": "Part du groupe 2 320 566 3 178 798",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -340.64,
+       "unite_source": "KMAD",
+       "valeur_source": "-340 640",
+       "document": "BCP_RFA_2021.pdf",
+       "page": 17,
+       "citation": "Part du groupe -340 640 -12 809",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1764.618,
+       "unite_source": "KMAD",
+       "valeur_source": "1 764 618",
+       "document": "BCP_RFA_2021.pdf",
+       "page": 17,
+       "citation": "Part du groupe 1 764 618 1 229 167",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 32654.249
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 923.271,
+     "unite_source": "KMAD",
+     "valeur_source": "923 271",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 19,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 923 271 6 585 814",
+     "entete_colonnes": "31/12/21 31/12/20(**)",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 923.271
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 30.017,
+     "unite_source": "KMAD",
+     "valeur_source": "30 017",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 19,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 30 017 1 266 132",
+     "entete_colonnes": "31/12/21 31/12/20(**)",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 30.017
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 64,
+     "citation": "Total 203 312 473 202 254 656",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 8.5,
+     "unite_source": "DH par action",
+     "valeur_source": "8,5",
+     "document": "BCP_RFA_2021.pdf",
+     "page": 5,
+     "citation": "d’un dividende de 8,5 dirhams par action",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "dividende de la société mère",
+     "statut": "publie",
+     "note": "Dividende que le Conseil d'administration propose à l'assemblée générale, annoncé au rapport annuel.",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8.5
+     }
+    }
+   }
+  },
+  "FY2022": {
+   "type": "annuel",
+   "cloture": "2022-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 20609.051,
+     "unite_source": "KMAD",
+     "valeur_source": "20 609 051",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "PRODUIT NET BANCAIRE 20 609 051 20 087 299",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 20609.051
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 9875.368,
+     "unite_source": "KMAD",
+     "valeur_source": "9 875 368",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 9 875 368 10 063 416",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9875.368
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 5581.867,
+     "unite_source": "KMAD",
+     "valeur_source": "5 581 867",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "RESULTAT D'EXPLOITATION 5 581 867 4 525 963",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5581.867
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3511.947,
+     "unite_source": "KMAD",
+     "valeur_source": "3 511 947",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET 3 511 947 2 725 363",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3511.947
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2749.618,
+     "unite_source": "KMAD",
+     "valeur_source": "2 749 618",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET-PART DU GROUPE 2 749 618 1 764 618",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2749.618
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 762.329,
+     "unite_source": "KMAD",
+     "valeur_source": "762 329",
+     "document": "BCP RFA 2022.pdf",
+     "page": 17,
+     "citation": "Intérêts minoritaires 762 329 960 745",
+     "entete_colonnes": "Annexes 31/12/22 31/12/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 762.329
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 32957.549,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 29436.565,
+       "unite_source": "KMAD",
+       "valeur_source": "29 436 565",
+       "document": "BCP RFA 2022.pdf",
+       "page": 16,
+       "citation": "Capital et réserves liées 29 436 565 28 909 705",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 1472.211,
+       "unite_source": "KMAD",
+       "valeur_source": "1 472 211",
+       "document": "BCP RFA 2022.pdf",
+       "page": 16,
+       "citation": "Part du groupe 1 472 211 2 320 566",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -700.845,
+       "unite_source": "KMAD",
+       "valeur_source": "-700 845",
+       "document": "BCP RFA 2022.pdf",
+       "page": 16,
+       "citation": "Part du groupe -700 845 -340 640",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2749.618,
+       "unite_source": "KMAD",
+       "valeur_source": "2 749 618",
+       "document": "BCP RFA 2022.pdf",
+       "page": 16,
+       "citation": "Part du groupe 2 749 618 1 764 618",
+       "entete_colonnes": "PASSIF IFRS Annexes 31/12/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 32957.549
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2401.025,
+     "unite_source": "KMAD",
+     "valeur_source": "2 401 025",
+     "document": "BCP RFA 2022.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 2 401 025 923 271",
+     "entete_colonnes": "31/12/22 31/12/21",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2401.025
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -10417.882,
+     "unite_source": "KMAD",
+     "valeur_source": "-10 417 882",
+     "document": "BCP RFA 2022.pdf",
+     "page": 18,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -10 417 882 30 017",
+     "entete_colonnes": "31/12/22 31/12/21",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -10417.882
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP RFA 2022.pdf",
+     "page": 62,
+     "citation": "Total 203 312 473 203 312 473",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2023": {
+   "type": "annuel",
+   "cloture": "2023-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 22794.774,
+     "unite_source": "KMAD",
+     "valeur_source": "22 794 774",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "PRODUIT NET BANCAIRE 22 794 774 20 608 038",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 22794.774
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 11577.873,
+     "unite_source": "KMAD",
+     "valeur_source": "11 577 873",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 11 577 873 9 874 356",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11577.873
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 6219.645,
+     "unite_source": "KMAD",
+     "valeur_source": "6 219 645",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "RÉSULTAT D'EXPLOITATION 6 219 645 5 580 854",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6219.645
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 4133.337,
+     "unite_source": "KMAD",
+     "valeur_source": "4 133 337",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "RÉSULTAT NET 4 133 337 3 511 181",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4133.337
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 3475.287,
+     "unite_source": "KMAD",
+     "valeur_source": "3 475 287",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 3 475 287 2 749 077",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3475.287
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 658.05,
+     "unite_source": "KMAD",
+     "valeur_source": "658 050",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "Intérêts minoritaires 658 050 762 104",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 658.05
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 34905.759,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 29931.194,
+       "unite_source": "KMAD",
+       "valeur_source": "29 931 194",
+       "document": "BCP_RFA_2023_1.pdf",
+       "page": 29,
+       "citation": "Capital et réserves liées 29 931 194 29 436 565",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R PASSIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 1999.552,
+       "unite_source": "KMAD",
+       "valeur_source": "1 999 552",
+       "document": "BCP_RFA_2023_1.pdf",
+       "page": 29,
+       "citation": "Part du groupe 1 999 552 1 476 784",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R PASSIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -500.274,
+       "unite_source": "KMAD",
+       "valeur_source": "-500 274",
+       "document": "BCP_RFA_2023_1.pdf",
+       "page": 29,
+       "citation": "Part du groupe -500 274 -700 640",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R PASSIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 3475.287,
+       "unite_source": "KMAD",
+       "valeur_source": "3 475 287",
+       "document": "BCP_RFA_2023_1.pdf",
+       "page": 29,
+       "citation": "Part du groupe 3 475 287 2 749 077",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R PASSIF CONSOLIDÉ IFRS Annexes 31/12/2023 31/12/2022 R 01/01/2022 R",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 34905.759
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -7955.057,
+     "unite_source": "KMAD",
+     "valeur_source": "-7 955 057",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -7 955 057 2 401 025",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -7955.057
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 1894.167,
+     "unite_source": "KMAD",
+     "valeur_source": "1 894 167",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 30,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 1 894 167 -10 417 882",
+     "entete_colonnes": "Annexes 31/12/2023 31/12/2022 R 31/12/2023 31/12/2022 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1894.167
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_RFA_2023_1.pdf",
+     "page": 54,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": "31/12/23 31/12/22 Part du capital",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2024": {
+   "type": "annuel",
+   "cloture": "2024-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 25601.207,
+     "unite_source": "KMAD",
+     "valeur_source": "25 601 207",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "PRODUIT NET BANCAIRE 25 601 207 22 794 774",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 25601.207
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 14045.076,
+     "unite_source": "KMAD",
+     "valeur_source": "14 045 076",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 14 045 076 11 577 873",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 14045.076
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 7848.637,
+     "unite_source": "KMAD",
+     "valeur_source": "7 848 637",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT D'EXPLOITATION 7 848 637 6 219 645",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7848.637
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 4966.562,
+     "unite_source": "KMAD",
+     "valeur_source": "4 966 562",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT NET 4 966 562 4 133 337",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4966.562
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 4145.346,
+     "unite_source": "KMAD",
+     "valeur_source": "4 145 346",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 4 145 346 3 475 287",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4145.346
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 821.216,
+     "unite_source": "KMAD",
+     "valeur_source": "821 216",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 31,
+     "citation": "Intérêts minoritaires 821 216 658 050",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 821.216
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 37043.849,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 30438.267,
+       "unite_source": "KMAD",
+       "valeur_source": "30 438 267",
+       "document": "BCP_RFA_2024.pdf",
+       "page": 30,
+       "citation": "Capital et réserves liées 30 438 267 29 931 194",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3070.328,
+       "unite_source": "KMAD",
+       "valeur_source": "3 070 328",
+       "document": "BCP_RFA_2024.pdf",
+       "page": 30,
+       "citation": "Part du groupe 3 070 328 1 999 552",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -610.092,
+       "unite_source": "KMAD",
+       "valeur_source": "-610 092",
+       "document": "BCP_RFA_2024.pdf",
+       "page": 30,
+       "citation": "Part du groupe -610 092 -500 274",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 4145.346,
+       "unite_source": "KMAD",
+       "valeur_source": "4 145 346",
+       "document": "BCP_RFA_2024.pdf",
+       "page": 30,
+       "citation": "Part du groupe 4 145 346 3 475 287",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 37043.849
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 7952.07,
+     "unite_source": "KMAD",
+     "valeur_source": "7 952 070",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 33,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 7 952 070 -7 955 057",
+     "entete_colonnes": "31/12/2024 31/12/2023",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7952.07
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -544.643,
+     "unite_source": "KMAD",
+     "valeur_source": "-544 643",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 33,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -544 643 1 894 167",
+     "entete_colonnes": "31/12/2024 31/12/2023",
+     "perimetre": "consolide_presume",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "referentiel_source": "intitulé du document (comptes consolidés aux normes IFRS), non rappelé sur la page citée",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -544.643
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_RFA_2024.pdf",
+     "page": 55,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": "RUBRIQUE 31/12/2024 31/12/2023 I.DETERMINATION DU RESULTAT MONTANT",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2025": {
+   "type": "annuel",
+   "cloture": "2025-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 26985.158,
+     "unite_source": "KMAD",
+     "valeur_source": "26 985 158",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "PRODUIT NET BANCAIRE 26 985 158 25 601 207",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 26985.158
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 14939.379,
+     "unite_source": "KMAD",
+     "valeur_source": "14 939 379",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 14 939 379 14 045 076",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 14939.379
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 9576.755,
+     "unite_source": "KMAD",
+     "valeur_source": "9 576 755",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT D'EXPLOITATION 9 576 755 7 848 637",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9576.755
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 5621.085,
+     "unite_source": "KMAD",
+     "valeur_source": "5 621 085",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT NET 5 621 085 4 966 562",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5621.085
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 4503.361,
+     "unite_source": "KMAD",
+     "valeur_source": "4 503 361",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 4 503 361 4 145 346",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4503.361
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 1117.724,
+     "unite_source": "KMAD",
+     "valeur_source": "1 117 724",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 31,
+     "citation": "Intérêts minoritaires 1 117 724 821 216",
+     "entete_colonnes": "COMPTE DE RÉSULTAT ANNEXES 31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1117.724
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 36974.989,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 31203.153,
+       "unite_source": "KMAD",
+       "valeur_source": "31 203 153",
+       "document": "BCP_RFA_2025_compressed.pdf",
+       "page": 30,
+       "citation": "Capital et réserves liées 31 203 153 30 438 267",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS ANNEXES 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 2228.023,
+       "unite_source": "KMAD",
+       "valeur_source": "2 228 023",
+       "document": "BCP_RFA_2025_compressed.pdf",
+       "page": 30,
+       "citation": "Part du groupe 2 228 023 3 070 328",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS ANNEXES 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -959.548,
+       "unite_source": "KMAD",
+       "valeur_source": "-959 548",
+       "document": "BCP_RFA_2025_compressed.pdf",
+       "page": 30,
+       "citation": "Part du groupe -959 548 -610 092",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS ANNEXES 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 4503.361,
+       "unite_source": "KMAD",
+       "valeur_source": "4 503 361",
+       "document": "BCP_RFA_2025_compressed.pdf",
+       "page": 30,
+       "citation": "Part du groupe 4 503 361 4 145 346",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS ANNEXES 31/12/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "note": "Le tableau de variation des capitaux propres du même document imprime un total « part du groupe » plus élevé (41 452 033 KMAD) : il inclut les subventions, fonds publics affectés et fonds spéciaux de garantie (4 477 044 KMAD), que le bilan classe hors capitaux propres ; le relevé suit le bilan.",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 36974.989
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 10337.451,
+     "unite_source": "KMAD",
+     "valeur_source": "10 337 451",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 33,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 10 337 451 7 952 070",
+     "entete_colonnes": "31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10337.451
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -588.257,
+     "unite_source": "KMAD",
+     "valeur_source": "-588 257",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 33,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -588 257 -544 643",
+     "entete_colonnes": "31/12/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -588.257
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_RFA_2025_compressed.pdf",
+     "page": 66,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : aucun dividende par action n'est imprimé dans le document de la période",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 11.0
+     }
+    }
+   }
+  },
+  "H1-2019": {
+   "type": "semestriel",
+   "cloture": "2019-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 8785.972,
+     "unite_source": "KMAD",
+     "valeur_source": "8 785 972",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "PRODUIT NET BANCAIRE 8 785 972 8 387 058",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8785.972
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 4380.812,
+     "unite_source": "KMAD",
+     "valeur_source": "4 380 812",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 4 380 812 4 058 233",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4380.812
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3001.347,
+     "unite_source": "KMAD",
+     "valeur_source": "3 001 347",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "RESULTAT D'EXPLOITATION 3 001 347 2 812 317",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3001.347
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1998.745,
+     "unite_source": "KMAD",
+     "valeur_source": "1 998 745",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "RESULTAT NET 1 998 745 1 951 389",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1998.745
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1640.667,
+     "unite_source": "KMAD",
+     "valeur_source": "1 640 667",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "RESULTAT NET-PART DU GROUPE 1 640 667 1 555 805",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1640.667
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 358.078,
+     "unite_source": "KMAD",
+     "valeur_source": "358 078",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "Intérêts minoritaires 358 078 395 584",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 358.078
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 33307.918,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 28307.216,
+       "unite_source": "KMAD",
+       "valeur_source": "28 307 216",
+       "document": "BCP_conso_S1_19.pdf",
+       "page": 10,
+       "citation": "Capital et réserves liées 28 307 216 22 329 658",
+       "entete_colonnes": "ACTIF IFRS Annexes 30/06/19 31/12/18 PASSIF IFRS Annexes 30/06/19 31/12/18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3433.83,
+       "unite_source": "KMAD",
+       "valeur_source": "3 433 830",
+       "document": "BCP_conso_S1_19.pdf",
+       "page": 10,
+       "citation": "Part du groupe 3 433 830 3 179 603",
+       "entete_colonnes": "ACTIF IFRS Annexes 30/06/19 31/12/18 PASSIF IFRS Annexes 30/06/19 31/12/18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -73.795,
+       "unite_source": "KMAD",
+       "valeur_source": "-73 795",
+       "document": "BCP_conso_S1_19.pdf",
+       "page": 10,
+       "citation": "Part du groupe -73 795 -58 452",
+       "entete_colonnes": "ACTIF IFRS Annexes 30/06/19 31/12/18 PASSIF IFRS Annexes 30/06/19 31/12/18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1640.667,
+       "unite_source": "KMAD",
+       "valeur_source": "1 640 667",
+       "document": "BCP_conso_S1_19.pdf",
+       "page": 10,
+       "citation": "Part du groupe 1 640 667 2 942 525",
+       "entete_colonnes": "ACTIF IFRS Annexes 30/06/19 31/12/18 PASSIF IFRS Annexes 30/06/19 31/12/18",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -1104.271,
+     "unite_source": "KMAD",
+     "valeur_source": "-1 104 271",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -1 104 271 -496 686",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1104.271
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 269.661,
+     "unite_source": "KMAD",
+     "valeur_source": "269 661",
+     "document": "BCP_conso_S1_19.pdf",
+     "page": 10,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 269 661 498 327",
+     "entete_colonnes": "Annexes 30/06/19 30/06/18 30/06/19 30/06/18",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 269.661
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé dans le document (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2020": {
+   "type": "semestriel",
+   "cloture": "2020-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 10003.462,
+     "unite_source": "KMAD",
+     "valeur_source": "10 003 462",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "PRODUIT NET BANCAIRE 10 003 462 8 785 972",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10003.462
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 4567.426,
+     "unite_source": "KMAD",
+     "valeur_source": "4 567 426",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 4 567 426 4 380 812",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4567.426
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 1603.808,
+     "unite_source": "KMAD",
+     "valeur_source": "1 603 808",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "RESULTAT D'EXPLOITATION 1 603 808 3 001 347",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1603.808
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 1033.821,
+     "unite_source": "KMAD",
+     "valeur_source": "1 033 821",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET 1 033 821 1 998 745",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1033.821
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1015.027,
+     "unite_source": "KMAD",
+     "valeur_source": "1 015 027",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "RESULTAT NET PART DU GROUPE 1 015 027 1 640 667",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1015.027
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 18.794,
+     "unite_source": "KMAD",
+     "valeur_source": "18 794",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "Intérêts minoritaires 18 794 358 078",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 18.794
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 34106.02,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 29811.839,
+       "unite_source": "KMAD",
+       "valeur_source": "29 811 839",
+       "document": "BCP_RFS_juin_2020_0.pdf",
+       "page": 17,
+       "citation": "Capital et réserves liées 29 811 839 28 307 216",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/20 31/12/19 PASSIF IFRS Annexes 30/06/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 3014.722,
+       "unite_source": "KMAD",
+       "valeur_source": "3 014 722",
+       "document": "BCP_RFS_juin_2020_0.pdf",
+       "page": 17,
+       "citation": "Part du groupe 3 014 722 3 242 565",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/20 31/12/19 PASSIF IFRS Annexes 30/06/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": 264.432,
+       "unite_source": "KMAD",
+       "valeur_source": "264 432",
+       "document": "BCP_RFS_juin_2020_0.pdf",
+       "page": 17,
+       "citation": "Part du groupe 264 432 116 521",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/20 31/12/19 PASSIF IFRS Annexes 30/06/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1015.027,
+       "unite_source": "KMAD",
+       "valeur_source": "1 015 027",
+       "document": "BCP_RFS_juin_2020_0.pdf",
+       "page": 17,
+       "citation": "Part du groupe 1 015 027 2 999 253",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/20 31/12/19 PASSIF IFRS Annexes 30/06/20 31/12/19",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 34106.02
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1787.971,
+     "unite_source": "KMAD",
+     "valeur_source": "1 787 971",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 1 787 971 -1 104 271",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1787.971
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 829.307,
+     "unite_source": "KMAD",
+     "valeur_source": "829 307",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 17,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 829 307 269 661",
+     "entete_colonnes": "Annexes 30/06/20 30/06/19 30/06/20 30/06/19",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 829.307
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 202254656.0,
+     "unite_source": "actions",
+     "valeur_source": "202 254 656",
+     "document": "BCP_RFS_juin_2020_0.pdf",
+     "page": 36,
+     "citation": "Total 202 254 656 202 254 656",
+     "entete_colonnes": "30/06/20 30/06/19 Nombre de titres détenus",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 202254656.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2021": {
+   "type": "semestriel",
+   "cloture": "2021-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 10157.73,
+     "unite_source": "KMAD",
+     "valeur_source": "10 157 730",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "PRODUIT NET BANCAIRE 10 157 730 10 003 462",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10157.73
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 5279.355,
+     "unite_source": "KMAD",
+     "valeur_source": "5 279 355",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "RESULTAT BRUT D'EXPLOITATION 5 279 355 4 567 426",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5279.355
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3119.625,
+     "unite_source": "KMAD",
+     "valeur_source": "3 119 625",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "RESULTAT D'EXPLOITATION 3 119 625 1 603 808",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3119.625
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2037.415,
+     "unite_source": "KMAD",
+     "valeur_source": "2 037 415",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "RESULTAT NET 2 037 415 1 033 821",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2037.415
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1548.285,
+     "unite_source": "KMAD",
+     "valeur_source": "1 548 285",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "RESULTAT NET PART DU GROUPE 1 548 285 1 015 027",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1548.285
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 489.13,
+     "unite_source": "KMAD",
+     "valeur_source": "489 130",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 489 130 18 794",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 489.13
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 32426.36,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 28631.499,
+       "unite_source": "KMAD",
+       "valeur_source": "28 631 499",
+       "document": "BCP_RFS_21.pdf",
+       "page": 13,
+       "citation": "Capital et réserves liées 28 631 499 28 193 802",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/21 31/12/20(*) PASSIF IFRS Annexes 30/06/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 2477.449,
+       "unite_source": "KMAD",
+       "valeur_source": "2 477 449",
+       "document": "BCP_RFS_21.pdf",
+       "page": 13,
+       "citation": "Part du groupe 2 477 449 3 178 798",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/21 31/12/20(*) PASSIF IFRS Annexes 30/06/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -230.873,
+       "unite_source": "KMAD",
+       "valeur_source": "-230 873",
+       "document": "BCP_RFS_21.pdf",
+       "page": 13,
+       "citation": "Part du groupe -230 873 -12 809",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/21 31/12/20(*) PASSIF IFRS Annexes 30/06/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1548.285,
+       "unite_source": "KMAD",
+       "valeur_source": "1 548 285",
+       "document": "BCP_RFS_21.pdf",
+       "page": 13,
+       "citation": "Part du groupe 1 548 285 1 229 167",
+       "entete_colonnes": "ACTIF CONSOLIDE IFRS Annexes 30/06/21 31/12/20(*) PASSIF IFRS Annexes 30/06/21 31/12/20",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 32426.36
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2071.686,
+     "unite_source": "KMAD",
+     "valeur_source": "2 071 686",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 2 071 686 2 110 096",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2071.686
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 981.92,
+     "unite_source": "KMAD",
+     "valeur_source": "981 920",
+     "document": "BCP_RFS_21.pdf",
+     "page": 13,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 981 920 507 182",
+     "entete_colonnes": "Annexes 30/06/21 30/06/20 30/06/21 30/06/20(**)",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 981.92
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 202254656.0,
+     "unite_source": "actions",
+     "valeur_source": "202 254 656",
+     "document": "BCP_RFS_21.pdf",
+     "page": 35,
+     "citation": "Total 202 254 656 202 254 656",
+     "entete_colonnes": "30/06/21 30/06/20 Nombre de titres détenus",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 202254656.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2022": {
+   "type": "semestriel",
+   "cloture": "2022-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 10461.639,
+     "unite_source": "KMAD",
+     "valeur_source": "10 461 639",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "PRODUIT NET BANCAIRE 10 461 639 10 157 730",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 10461.639
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 5369.571,
+     "unite_source": "KMAD",
+     "valeur_source": "5 369 571",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 5 369 571 5 279 355",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5369.571
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 3604.72,
+     "unite_source": "KMAD",
+     "valeur_source": "3 604 720",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT D'EXPLOITATION 3 604 720 3 119 625",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3604.72
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2416.797,
+     "unite_source": "KMAD",
+     "valeur_source": "2 416 797",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT NET 2 416 797 2 037 415",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2416.797
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 1804.756,
+     "unite_source": "KMAD",
+     "valeur_source": "1 804 756",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "RÉSULTAT NET PART DU GROUPE 1 804 756 1 548 285",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1804.756
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 612.041,
+     "unite_source": "KMAD",
+     "valeur_source": "612 041",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "Intérêts minoritaires 612 041 489 130",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 612.041
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 32317.489,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 29436.565,
+       "unite_source": "KMAD",
+       "valeur_source": "29 436 565",
+       "document": "BCP_S1_22_0.pdf",
+       "page": 13,
+       "citation": "Capital et réserves liées 29 436 565 28 909 705",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/22 31/12/21 PASSIF IFRS Annexes 30/06/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 1556.959,
+       "unite_source": "KMAD",
+       "valeur_source": "1 556 959",
+       "document": "BCP_S1_22_0.pdf",
+       "page": 13,
+       "citation": "Part du groupe 1 556 959 2 320 566",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/22 31/12/21 PASSIF IFRS Annexes 30/06/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -480.791,
+       "unite_source": "KMAD",
+       "valeur_source": "-480 791",
+       "document": "BCP_S1_22_0.pdf",
+       "page": 13,
+       "citation": "Part du groupe -480 791 -340 640",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/22 31/12/21 PASSIF IFRS Annexes 30/06/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 1804.756,
+       "unite_source": "KMAD",
+       "valeur_source": "1 804 756",
+       "document": "BCP_S1_22_0.pdf",
+       "page": 13,
+       "citation": "Part du groupe 1 804 756 1 764 618",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/22 31/12/21 PASSIF IFRS Annexes 30/06/22 31/12/21",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 32317.489
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -1270.042,
+     "unite_source": "KMAD",
+     "valeur_source": "-1 270 042",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -1 270 042 2 071 686",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1270.042
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -1393.799,
+     "unite_source": "KMAD",
+     "valeur_source": "-1 393 799",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 13,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -1 393 799 981 920",
+     "entete_colonnes": "Annexes 30/06/22 30/06/21 30/06/22 30/06/21",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1393.799
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_S1_22_0.pdf",
+     "page": 34,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": "30/06/22 30/06/21 NOMBRE DE TITRES DÉTENUS",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2023": {
+   "type": "semestriel",
+   "cloture": "2023-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 11741.805,
+     "unite_source": "KMAD",
+     "valeur_source": "11 741 805",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "PRODUIT NET BANCAIRE 11 741 805 10 461 639",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 11741.805
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 6480.926,
+     "unite_source": "KMAD",
+     "valeur_source": "6 480 926",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 6 480 926 5 369 571",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6480.926
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4168.903,
+     "unite_source": "KMAD",
+     "valeur_source": "4 168 903",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "RÉSULTAT D'EXPLOITATION 4 168 903 3 604 720",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4168.903
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 2786.977,
+     "unite_source": "KMAD",
+     "valeur_source": "2 786 977",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "RÉSULTAT NET 2 786 977 2 416 797",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2786.977
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2345.931,
+     "unite_source": "KMAD",
+     "valeur_source": "2 345 931",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "RÉSULTAT NET PART DU GROUPE 2 345 931 1 804 756",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2345.931
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 441.046,
+     "unite_source": "KMAD",
+     "valeur_source": "441 046",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "Intérêts minoritaires 441 046 612 041",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 441.046
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 33392.049,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 29931.194,
+       "unite_source": "KMAD",
+       "valeur_source": "29 931 194",
+       "document": "BCP_S1_23_0.PDF",
+       "page": 13,
+       "citation": "Capital et réserves liées 29 931 194 29 436 565",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/23 31/12/22 PASSIF IFRS Annexes 30/06/23 31/12/22",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 1912.361,
+       "unite_source": "KMAD",
+       "valeur_source": "1 912 361",
+       "document": "BCP_S1_23_0.PDF",
+       "page": 13,
+       "citation": "Part du groupe 1 912 361 1 472 211",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/23 31/12/22 PASSIF IFRS Annexes 30/06/23 31/12/22",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -797.437,
+       "unite_source": "KMAD",
+       "valeur_source": "-797 437",
+       "document": "BCP_S1_23_0.PDF",
+       "page": 13,
+       "citation": "Part du groupe -797 437 -700 845",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/23 31/12/22 PASSIF IFRS Annexes 30/06/23 31/12/22",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2345.931,
+       "unite_source": "KMAD",
+       "valeur_source": "2 345 931",
+       "document": "BCP_S1_23_0.PDF",
+       "page": 13,
+       "citation": "Part du groupe 2 345 931 2 749 618",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/23 31/12/22 PASSIF IFRS Annexes 30/06/23 31/12/22",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 33392.049
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -1139.095,
+     "unite_source": "KMAD",
+     "valeur_source": "-1 139 095",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle -1 139 095 -1 270 042",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -1139.095
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 1928.383,
+     "unite_source": "KMAD",
+     "valeur_source": "1 928 383",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 13,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 1 928 383 -1 393 799",
+     "entete_colonnes": "Annexes 30/06/23 30/06/22 30/06/23 30/06/22",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1928.383
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_S1_23_0.PDF",
+     "page": 35,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": "30/06/23 30/06/22 Part du capital",
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2024": {
+   "type": "semestriel",
+   "cloture": "2024-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 12838.023,
+     "unite_source": "KMAD",
+     "valeur_source": "12 838 023",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "PRODUIT NET BANCAIRE 12 838 023 11 739 898",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 12838.023
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 7274.753,
+     "unite_source": "KMAD",
+     "valeur_source": "7 274 753",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 7 274 753 6 479 019",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7274.753
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 4565.204,
+     "unite_source": "KMAD",
+     "valeur_source": "4 565 204",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT D'EXPLOITATION 4 565 204 4 166 996",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4565.204
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3028.677,
+     "unite_source": "KMAD",
+     "valeur_source": "3 028 677",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET 3 028 677 2 785 596",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3028.677
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2584.219,
+     "unite_source": "KMAD",
+     "valeur_source": "2 584 219",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 2 584 219 2 344 867",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2584.219
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 444.458,
+     "unite_source": "KMAD",
+     "valeur_source": "444 458",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 11,
+     "citation": "Intérêts minoritaires 444 458 440 729",
+     "entete_colonnes": "Annexes 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 444.458
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 35318.357,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 30438.267,
+       "unite_source": "KMAD",
+       "valeur_source": "30 438 267",
+       "document": "BCP_RFS_juin_2024.pdf",
+       "page": 11,
+       "citation": "Capital et réserves liées 30 438 267 29 931 194",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 2929.401,
+       "unite_source": "KMAD",
+       "valeur_source": "2 929 401",
+       "document": "BCP_RFS_juin_2024.pdf",
+       "page": 11,
+       "citation": "Part du groupe 2 929 401 1 999 552",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -633.53,
+       "unite_source": "KMAD",
+       "valeur_source": "-633 530",
+       "document": "BCP_RFS_juin_2024.pdf",
+       "page": 11,
+       "citation": "Part du groupe -633 530 -500 274",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2584.219,
+       "unite_source": "KMAD",
+       "valeur_source": "2 584 219",
+       "document": "BCP_RFS_juin_2024.pdf",
+       "page": 11,
+       "citation": "Part du groupe 2 584 219 3 475 287",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 35318.357
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2435.325,
+     "unite_source": "KMAD",
+     "valeur_source": "2 435 325",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 2 435 325 -1 139 095",
+     "entete_colonnes": "30/06/2024 30/06/2023 R 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2435.325
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 140.331,
+     "unite_source": "KMAD",
+     "valeur_source": "140 331",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement 140 331 1 928 383",
+     "entete_colonnes": "30/06/2024 30/06/2023 R 30/06/2024 30/06/2023 R",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 140.331
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_RFS_juin_2024.pdf",
+     "page": 34,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2025": {
+   "type": "semestriel",
+   "cloture": "2025-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 13912.323,
+     "unite_source": "KMAD",
+     "valeur_source": "13 912 323",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "PRODUIT NET BANCAIRE 13 912 323 12 838 023",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 13912.323
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 8250.015,
+     "unite_source": "KMAD",
+     "valeur_source": "8 250 015",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 8 250 015 7 274 753",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 8250.015
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 5546.449,
+     "unite_source": "KMAD",
+     "valeur_source": "5 546 449",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT D'EXPLOITATION 5 546 449 4 565 204",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5546.449
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3537.261,
+     "unite_source": "KMAD",
+     "valeur_source": "3 537 261",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET 3 537 261 3 028 677",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3537.261
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 2915.647,
+     "unite_source": "KMAD",
+     "valeur_source": "2 915 647",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 2 915 647 2 584 219",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2915.647
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 621.614,
+     "unite_source": "KMAD",
+     "valeur_source": "621 614",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 11,
+     "citation": "Intérêts minoritaires 621 614 444 458",
+     "entete_colonnes": "COMPTE DE RÉSULTAT Annexes 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 621.614
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 37576.235,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 31203.153,
+       "unite_source": "KMAD",
+       "valeur_source": "31 203 153",
+       "document": "BCP_S1_25_0.pdf",
+       "page": 11,
+       "citation": "Capital et réserves liées 31 203 153 30 438 267",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 4053.089,
+       "unite_source": "KMAD",
+       "valeur_source": "4 053 089",
+       "document": "BCP_S1_25_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe 4 053 089 3 070 328",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -595.654,
+       "unite_source": "KMAD",
+       "valeur_source": "-595 654",
+       "document": "BCP_S1_25_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe -595 654 -610 092",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 2915.647,
+       "unite_source": "KMAD",
+       "valeur_source": "2 915 647",
+       "document": "BCP_S1_25_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe 2 915 647 4 145 346",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 37576.235
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 9528.192,
+     "unite_source": "KMAD",
+     "valeur_source": "9 528 192",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 9 528 192 2 435 325",
+     "entete_colonnes": "30/06/2025 30/06/2024 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 9528.192
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -468.265,
+     "unite_source": "KMAD",
+     "valeur_source": "-468 265",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -468 265 140 331",
+     "entete_colonnes": "30/06/2025 30/06/2024 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -468.265
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_S1_25_0.pdf",
+     "page": 34,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  },
+  "H1-2026": {
+   "type": "semestriel",
+   "cloture": "2026-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 13461.943,
+     "unite_source": "KMAD",
+     "valeur_source": "13 461 943",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "PRODUIT NET BANCAIRE 13 461 943 13 912 323",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 13461.943
+     }
+    },
+    "ebe": {
+     "valeur_mdh": 7450.74,
+     "unite_source": "KMAD",
+     "valeur_source": "7 450 740",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT BRUT D'EXPLOITATION 7 450 740 8 250 015",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 7450.74
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 6366.62,
+     "unite_source": "KMAD",
+     "valeur_source": "6 366 620",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT D'EXPLOITATION 6 366 620 5 546 449",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6366.62
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 3845.479,
+     "unite_source": "KMAD",
+     "valeur_source": "3 845 479",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET 3 845 479 3 537 261",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3845.479
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 3218.498,
+     "unite_source": "KMAD",
+     "valeur_source": "3 218 498",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "RÉSULTAT NET-PART DU GROUPE 3 218 498 2 915 647",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3218.498
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 626.981,
+     "unite_source": "KMAD",
+     "valeur_source": "626 981",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 11,
+     "citation": "Intérêts minoritaires 626 981 621 614",
+     "entete_colonnes": "Annexes 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 626.981
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 38050.661,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ capital_et_reserves_liees + reserves_consolidees_part_du_groupe + gains_et_pertes_part_du_groupe + resultat_net_part_du_groupe — total « part du groupe » non imprimé au bilan : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat de l'exercice).",
+     "composantes": {
+      "capital_et_reserves_liees": {
+       "valeur_mdh": 32197.298,
+       "unite_source": "KMAD",
+       "valeur_source": "32 197 298",
+       "document": "BCP_S1_26_0.pdf",
+       "page": 11,
+       "citation": "Capital et réserves liées 32 197 298 31 203 153",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "reserves_consolidees_part_du_groupe": {
+       "valeur_mdh": 4450.206,
+       "unite_source": "KMAD",
+       "valeur_source": "4 450 206",
+       "document": "BCP_S1_26_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe 4 450 206 2 228 023",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "gains_et_pertes_part_du_groupe": {
+       "valeur_mdh": -1815.341,
+       "unite_source": "KMAD",
+       "valeur_source": "-1 815 341",
+       "document": "BCP_S1_26_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe -1 815 341 -959 548",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      },
+      "resultat_net_part_du_groupe": {
+       "valeur_mdh": 3218.498,
+       "unite_source": "KMAD",
+       "valeur_source": "3 218 498",
+       "document": "BCP_S1_26_0.pdf",
+       "page": 11,
+       "citation": "Part du groupe 3 218 498 4 503 361",
+       "entete_colonnes": "ACTIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025 PASSIF CONSOLIDÉ IFRS Annexes 30/06/2026 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "IFRS",
+       "statut": "publie"
+      }
+     },
+     "composantes_incluses": {
+      "capital_et_reserves_liees": "capital et réserves liées",
+      "reserves_consolidees_part_du_groupe": "réserves consolidées, part du groupe",
+      "gains_et_pertes_part_du_groupe": "gains et pertes comptabilisés directement en capitaux propres, part du groupe",
+      "resultat_net_part_du_groupe": "résultat de l'exercice, part du groupe"
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 38050.661
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une banque (dette nette non définie ; non calculée)"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 2326.232,
+     "unite_source": "KMAD",
+     "valeur_source": "2 326 232",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie généré par l’activité opérationnelle 2 326 232 9 528 192",
+     "entete_colonnes": "30/06/2026 30/06/2025 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2326.232
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -435.107,
+     "unite_source": "KMAD",
+     "valeur_source": "-435 107",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 12,
+     "citation": "Flux net de trésorerie lié aux opérations d’investissement -435 107 -468 265",
+     "entete_colonnes": "30/06/2026 30/06/2025 30/06/2026 30/06/2025",
+     "perimetre": "consolide",
+     "referentiel": "IFRS",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -435.107
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 203312473.0,
+     "unite_source": "actions",
+     "valeur_source": "203 312 473",
+     "document": "BCP_S1_26_0.pdf",
+     "page": 37,
+     "citation": "TOTAL 203 312 473 203 312 473",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres de la société mère)",
+     "referentiel": "IFRS",
+     "referentiel_source": "comptes consolidés aux normes IFRS ; titres de la société mère",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 203312473.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre"
+    }
+   }
+  }
+ },
+ "documents": {
+  "BCP_conso_2016.pdf": {
+   "fichier": "BCP_conso_2016.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_conso_2016.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-25",
+   "sha256": "b519362d571cd62e26430efdd85cff80cbb7b45741d5a8f46210cc501a0a7d58",
+   "octets": 7458173,
+   "pages": 17,
+   "type": "FY",
+   "annee_nom_fichier": 2016,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "BCP_conso_2017.pdf": {
+   "fichier": "BCP_conso_2017.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_conso_2017.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp",
+   "sha256": "fcd3f8e4b8d7967545b425904ad314b5004dadda4678b9fab2d9284a360e9bbd",
+   "octets": 7138853,
+   "pages": 17,
+   "type": "FY",
+   "annee_nom_fichier": 2017,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "BCP_conso_2018_0.pdf": {
+   "fichier": "BCP_conso_2018_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_conso_2018_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-31",
+   "sha256": "cb694ef5093025002e46a4e521ccdd714dd0c58fcc5996f3242e3e99ecce7fdd",
+   "octets": 682250,
+   "pages": 20,
+   "type": "FY",
+   "annee_nom_fichier": 2018,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "BCP_RFA_2020.pdf": {
+   "fichier": "BCP_RFA_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFA_2020.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2020",
+   "sha256": "2f2b71f1edcdb1a9ce3598380448d501c5d1265832c3ad508636068ba8fb386c",
+   "octets": 36136667,
+   "pages": 191,
+   "type": "FY",
+   "annee_nom_fichier": 2020,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP_RFA_2021.pdf": {
+   "fichier": "BCP_RFA_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFA_2021.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2021",
+   "sha256": "36af2c85b3977df6b8cc06ce82dbccf4fdc90bac1cdbe96933126db254b991fe",
+   "octets": 9254643,
+   "pages": 204,
+   "type": "FY",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP RFA 2022.pdf": {
+   "fichier": "BCP RFA 2022.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP%20RFA%202022.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2022",
+   "sha256": "adf632287ee94401b29b5a79a573ee4f01a2b30ca1b7d649320c556c49881180",
+   "octets": 13069321,
+   "pages": 206,
+   "type": "FY",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP_RFA_2023_1.pdf": {
+   "fichier": "BCP_RFA_2023_1.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFA_2023_1.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2023",
+   "sha256": "c86c3170bf425fbc8a00969b8c1235a8c270940d7edfe7d19dfb26a5b92501d2",
+   "octets": 6763214,
+   "pages": 123,
+   "type": "FY",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP_RFA_2024.pdf": {
+   "fichier": "BCP_RFA_2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFA_2024.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2024",
+   "sha256": "b31535be2dcf506878499afaf8a751baf41e5db742c06b2551abef8501d6148e",
+   "octets": 6519646,
+   "pages": 128,
+   "type": "FY",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP_RFA_2025_compressed.pdf": {
+   "fichier": "BCP_RFA_2025_compressed.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFA_2025_compressed.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfa-2025",
+   "sha256": "f5cc9b4a00d4d3a2ab9022c98e31ea03898234f496acadffa5bdac75254cf34e",
+   "octets": 11759154,
+   "pages": 144,
+   "type": "FY",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "BCP_conso_S1_19.pdf": {
+   "fichier": "BCP_conso_S1_19.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_conso_S1_19.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-33",
+   "sha256": "4b2f7c61d04eb653b11653e3b0520b2f68ea50a76006ec360457de0c6360341e",
+   "octets": 617193,
+   "pages": 18,
+   "type": "H1",
+   "annee_nom_fichier": 2019,
+   "libelle_ammc": "Rapports consolidés 1er semestre"
+  },
+  "BCP_RFS_juin_2020_0.pdf": {
+   "fichier": "BCP_RFS_juin_2020_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFS_juin_2020_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2020-0",
+   "sha256": "a3eee3f5a92c2cbab36c32ba55e27a927148f57d7ae32533aa8653c058f63e59",
+   "octets": 2858519,
+   "pages": 37,
+   "type": "H1",
+   "annee_nom_fichier": 2020,
+   "libelle_ammc": "Rapports consolidés 1er semestre"
+  },
+  "BCP_RFS_21.pdf": {
+   "fichier": "BCP_RFS_21.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFS_21.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2021",
+   "sha256": "abb20e92182f84e42acbb0b0cb991f4e42139475889c812ec7e3fdfe903c329b",
+   "octets": 2254321,
+   "pages": 36,
+   "type": "H1",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "BCP_S1_22_0.pdf": {
+   "fichier": "BCP_S1_22_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_S1_22_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2022",
+   "sha256": "9a277d8c296f700f96b604303dc058d566d93610c7b0c298f7bfecd5bb3dae53",
+   "octets": 2172125,
+   "pages": 36,
+   "type": "H1",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "BCP_S1_23_0.PDF": {
+   "fichier": "BCP_S1_23_0.PDF",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_S1_23_0.PDF",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2023",
+   "sha256": "59d0b83e3b856a3894a267171756aa4228d7b11a6fd38790e56c59c1f7d4420e",
+   "octets": 3211325,
+   "pages": 36,
+   "type": "H1",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "BCP_RFS_juin_2024.pdf": {
+   "fichier": "BCP_RFS_juin_2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_RFS_juin_2024.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2024",
+   "sha256": "a655d81b96040c39c6fb33b8774446c8e0ade2c31d64992b742112036e56abde",
+   "octets": 1946130,
+   "pages": 36,
+   "type": "H1",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "BCP_S1_25_0.pdf": {
+   "fichier": "BCP_S1_25_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_S1_25_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2025",
+   "sha256": "e239e7c3dcddad57ff8b4394672503c89d60ca105f1a6bc782968ff3e777b3c3",
+   "octets": 3078152,
+   "pages": 36,
+   "type": "H1",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "BCP_S1_26_0.pdf": {
+   "fichier": "BCP_S1_26_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/BCP_S1_26_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/bcp-rfs-juin-2026",
+   "sha256": "159cbbdb913b0212c31e6a2fe6990f71ef0afd75b91788a6e76b9c2e1cc715aa",
+   "octets": 3530885,
+   "pages": 39,
+   "type": "H1",
+   "annee_nom_fichier": 2026,
+   "libelle_ammc": "Rapports 1er semestre"
+  }
+ },
+ "couverture": {
+  "attendues": 198,
+  "remplies": 178,
+  "supplementaires_remplis": 0,
+  "ecarts_ms_screener": 0,
+  "note": "Banque : produit net bancaire (PNB) et résultat brut d'exploitation (RBE), dette nette sans objet. Comptes consolidés IFRS en milliers de dirhams, lus dans les états consolidés de chaque dépôt (les exercices 2016-2018 et les semestres jusqu'en 2019 sont des dépôts « comptes consolidés » à mise en page dense ; l'exercice 2019 n'a pas de dépôt consolidé propre : lu en colonne comparative du dépôt 2020). Capitaux propres part du groupe : somme des quatre lignes « part du groupe » du passif consolidé (capital et réserves liées, réserves consolidées, gains et pertes latents, résultat) ; le tableau de variation des capitaux propres imprime un total plus élevé (il inclut les subventions, fonds publics affectés et fonds spéciaux de garantie, classés hors capitaux propres au bilan). Intérêts minoritaires des exercices 2016 et 2017 : lus dans le tableau de variation (le compte de résultat de ces dépôts n'imprime pas la ligne). Tableau des flux : le semestre se compare au semestre de l'an précédent (colonnes 30/06). Nombre d'actions : total du tableau de répartition du capital de la société mère, imprimé à partir de l'exercice 2019 (comparatif du dépôt 2020) ; absent des dépôts 2016 à 2018 et du semestre 2019. Dividende par action : lu seulement quand le dépôt l'écrit (exercices 2017 et 2021). Lecture indépendante des pièces ; valeurs d'un site tiers consultées après coup."
+ }
+}
