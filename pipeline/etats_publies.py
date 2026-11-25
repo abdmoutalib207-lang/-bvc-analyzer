@@ -207,6 +207,10 @@ _RAISONS = (
      "Non relevé : la ligne est imprimée à « - » dans le document (aucun montant)."),
     (r"dividende global",
      "Non relevé : l'émetteur publie un dividende global, sans montant par action."),
+    # lot 6b (TQA, CIM, GAZ, TMA)
+    (r"^ligne « Intérêts ne conférant pas le contrôle » imprimée sans montant",
+     "Non relevé : la ligne des intérêts minoritaires est imprimée sans montant dans le document "
+     "(aucun minoritaire)."),
     (r"non lu|non relevé|non établi|non repris",
      "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
      "qu'elle n'est pas publiée)."),
