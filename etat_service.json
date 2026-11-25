@@ -1,73 +1,73 @@
 {
  "schema": "etat_service/1",
  "_quoi": "État du service publié (lots 3.1 et 3.5). Produit par pipeline/etat_service.py dans le commit de data.json ; ne pas éditer.",
- "genere_a": "2026-11-23T23:46:19+00:00",
+ "genere_a": "2026-11-24T22:17:43+00:00",
  "derniere_publication": {
-  "ecrit_a": "2026-11-23T23:42:36+0000",
-  "seance": "2026-11-23",
-  "titres_seance": 62,
+  "ecrit_a": "2026-11-24T22:13:41+0000",
+  "seance": "2026-11-24",
+  "titres_seance": 64,
   "titres": 81,
   "cloture": true,
   "motif": "conforme"
  },
  "derniere_cloture": {
-  "seance": "2026-11-23",
-  "publiee_a": "2026-11-23T15:56:14+0000",
-  "titres": 62
+  "seance": "2026-11-24",
+  "publiee_a": "2026-11-24T15:56:19+0000",
+  "titres": 64
  },
- "prochaine_echeance": "2026-11-25T08:00:00+00:00",
- "seance_attendue_ensuite": "2026-11-24",
+ "prochaine_echeance": "2026-11-26T08:00:00+00:00",
+ "seance_attendue_ensuite": "2026-11-25",
  "statut": "à jour",
  "en_retard": [],
  "taches": [
   {
    "nom": "Publication de la clôture (update_bvc)",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "séance de la dernière clôture publiée à temps"
   },
   {
    "nom": "Indice MASI",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "date de l'indice dans data.json"
   },
   {
    "nom": "Chandelles (pipeline/candles)",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "dernière séance portée par au moins 50 titres"
   },
   {
    "nom": "Actualités (news.json)",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "date de collecte"
   },
   {
    "nom": "Briefing de clôture",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "séance du dernier briefing de clôture"
   },
   {
    "nom": "Pipeline v9 (financial_data.json)",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
    "detail": "date d'écriture"
   },
   {
    "nom": "Sources de prix réelles",
-   "derniere": "2026-11-23",
+   "derniere": "2026-11-24",
    "en_retard": false,
    "statut": "à jour",
-   "detail": "cdg 62 · candles 17 · idbourse 1 · idbourse_perime 1"
+   "detail": "cdg 64 · candles 15 · idbourse 1 · idbourse_perime 1"
   },
   {
    "nom": "Contrôle du soir (verifier_seance)",
@@ -91,18 +91,13 @@
  "compteur": {
   "nom": "jours ouvrés consécutifs avec une clôture publiée à temps",
   "definition": "Jours ouvrés consécutifs, en remontant depuis la dernière séance échue, pour lesquels data.json a publié la clôture à temps : au moins 50 titres au prix de la séance, fichier écrit après la clôture de 15h30 et MASI daté de la séance, avant 8h00 (Casablanca) le jour ouvré suivant. Jour ouvré : du lundi au vendredi, hors fériés à date fixe et dates inscrites au registre (SEANCES_SANS_COTATION, SEANCES_ANNULEES). Une séance dont l'échéance n'est pas passée est en attente : elle ne compte ni ne rompt. Ce n'est PAS le verdict de verifier_seance, qui n'est lisible que dans GitHub Actions.",
-  "valeur": 30,
+  "valeur": 31,
   "au_moins": true,
   "derniere_rupture": null,
   "objectif": 30,
   "controle_du_soir": "non mesuré : le verdict de verifier_seance n'est lisible que par l'API GitHub"
  },
  "seances": [
-  {
-   "seance": "2026-10-09",
-   "statut": "a_temps",
-   "publiee_a": "2026-10-09T15:56:43+0000"
-  },
   {
    "seance": "2026-10-12",
    "statut": "a_temps",
@@ -247,6 +242,11 @@
    "seance": "2026-11-23",
    "statut": "a_temps",
    "publiee_a": "2026-11-23T15:56:14+0000"
+  },
+  {
+   "seance": "2026-11-24",
+   "statut": "a_temps",
+   "publiee_a": "2026-11-24T15:56:19+0000"
   }
  ],
  "journal_depuis": "2026-10-09",
@@ -370,6 +370,10 @@
   "2026-11-23": {
    "publiee_a": "2026-11-23T15:56:14+0000",
    "titres": 62
+  },
+  "2026-11-24": {
+   "publiee_a": "2026-11-24T15:56:19+0000",
+   "titres": 64
   }
  }
 }
