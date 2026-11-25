@@ -1,0 +1,4239 @@
+{
+ "schema": "etats_financiers/1",
+ "ticker": "ATL",
+ "nom": "AtlantaSanad Assurance",
+ "emetteur_ammc_id": 40254,
+ "unite": "MDH",
+ "perimetre_principal": "consolide",
+ "archetype": "insurance",
+ "periodes": {
+  "FY2016": {
+   "type": "annuel",
+   "cloture": "2016-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3690.05,
+     "unite_source": "KMAD",
+     "valeur_source": "3 690 050",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "= Primes émises 3 690 050 (état de soldes de gestion consolidé, ligne 1)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3690.1,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran; « Primes émises » de l'état de soldes de gestion consolidé (ligne 1) ; ce n'est pas le « chiffre d'affaires global » (qui ajoute les produits des placements)"
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 153.844,
+     "unite_source": "KMAD",
+     "valeur_source": "153 844",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "Résultat net 153 844",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 153.8,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 153.749,
+     "unite_source": "KMAD",
+     "valeur_source": "153 749",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "Dont : Part du Groupe 153 749",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 153.7,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.095,
+     "unite_source": "KMAD",
+     "valeur_source": "95",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "Intérêts minoritaires 95",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.1,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1447.876,
+     "unite_source": "KMAD",
+     "valeur_source": "1 447 876",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 1 447 876",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1447.9,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 713.966,
+     "unite_source": "KMAD",
+     "valeur_source": "713 966",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 713 966",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 714.0,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -643.893,
+     "unite_source": "KMAD",
+     "valeur_source": "(643 893)",
+     "document": "Atlanta_conso_2016.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (643 893)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-16 Déc-15",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -643.9,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 16"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : dividende proposé non retrouvé dans le dépôt de comptes consolidés de cet exercice",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2017": {
+   "type": "annuel",
+   "cloture": "2017-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 4191.916,
+     "unite_source": "KMAD",
+     "valeur_source": "4 191 916",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "= Primes émises 4 191 916 (état de soldes de gestion consolidé, ligne 1)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4191.9,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran; « Primes émises » de l'état de soldes de gestion consolidé (ligne 1) ; ce n'est pas le « chiffre d'affaires global » (qui ajoute les produits des placements)"
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 212.043,
+     "unite_source": "KMAD",
+     "valeur_source": "212 043",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "Résultat net 212 043",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 212.0,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 211.869,
+     "unite_source": "KMAD",
+     "valeur_source": "211 869",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "Dont : Part du Groupe 211 869",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 211.9,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.174,
+     "unite_source": "KMAD",
+     "valeur_source": "174",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "Intérêts minoritaires 174",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1543.682,
+     "unite_source": "KMAD",
+     "valeur_source": "1 543 682",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 1 543 682",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1543.7,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 453.573,
+     "unite_source": "KMAD",
+     "valeur_source": "453 573",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 453 573",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 453.6,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -423.918,
+     "unite_source": "KMAD",
+     "valeur_source": "(423 918)",
+     "document": "Atlanta_conso_2017.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (423 918)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-17 Déc-16",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -423.9,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 17"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé : dividende proposé non retrouvé dans le dépôt de comptes consolidés de cet exercice",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "FY2018": {
+   "type": "annuel",
+   "cloture": "2018-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 4474.088,
+     "unite_source": "KMAD",
+     "valeur_source": "4 474 088",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "= Primes émises 4 474 088 (état de soldes de gestion consolidé, ligne 1)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4474.1,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran; « Primes émises » de l'état de soldes de gestion consolidé (ligne 1) ; ce n'est pas le « chiffre d'affaires global » (qui ajoute les produits des placements)"
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 211.175,
+     "unite_source": "KMAD",
+     "valeur_source": "211 175",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "Résultat net 211 175",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 211.2,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 211.229,
+     "unite_source": "KMAD",
+     "valeur_source": "211 229",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "Dont : Part du Groupe 211 229",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 211.2,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": -0.053,
+     "unite_source": "KMAD",
+     "valeur_source": "53",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "Intérêts minoritaires (53)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -0.1,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran; part des minoritaires dans le résultat ; imprimée entre parenthèses, donc négative, stockée négative"
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1589.77,
+     "unite_source": "KMAD",
+     "valeur_source": "1 589 770",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 1 589 770",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1589.8,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 817.702,
+     "unite_source": "KMAD",
+     "valeur_source": "817 702",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 817 702",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 817.7,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -676.774,
+     "unite_source": "KMAD",
+     "valeur_source": "(676 774)",
+     "document": "Atlanta_conso_2018.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (676 774)",
+     "entete_colonnes": "BILAN / COMPTE DE PRODUITS ET CHARGES CONSOLIDÉ (en milliers de dirhams marocains) Déc-18 Déc-17",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -676.8,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 18"
+     },
+     "note": "lu sur le rendu de la page (aucune couche texte exploitable : image ou texte brouillé), chiffre relu à l'écran"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 3.0,
+     "unite_source": "DH par action",
+     "valeur_source": "3,00",
+     "document": "Atlanta_2018.pdf",
+     "page": 1,
+     "citation": "Soit un dividende de 3,00 dirhams par action que l’Assemblée Générale décide",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2019": {
+   "type": "annuel",
+   "cloture": "2019-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 4880.756,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4880.8,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 19"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1074.63,
+       "unite_source": "KMAD",
+       "valeur_source": "1 074 630",
+       "document": "Atlanta_RFA_2019.pdf",
+       "page": 5,
+       "citation": "Primes émises brutes 1 074 630 953 647",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 3806.126,
+       "unite_source": "KMAD",
+       "valeur_source": "3 806 126",
+       "document": "Atlanta_RFA_2019.pdf",
+       "page": 5,
+       "citation": "Primes émises brutes 3 806 126 3 520 442",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 372.74,
+     "unite_source": "KMAD",
+     "valeur_source": "372 740",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 5,
+     "citation": "Résultat net 372 740 211 175",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 372.7,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 19"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 372.284,
+     "unite_source": "KMAD",
+     "valeur_source": "372 284",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 5,
+     "citation": "Part du Groupe 372 284 211 229",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 372.3,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 19"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1762.749,
+     "unite_source": "KMAD",
+     "valeur_source": "1 762 749",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 5,
+     "citation": "Dont : Capitaux propres part du groupe 1 762 749 1 589 770",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1762.7,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 19"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 988.205,
+     "unite_source": "KMAD",
+     "valeur_source": "988 205",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 6,
+     "citation": "A – FLUX D’EXPLOITATION 988 205 817 702",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 988.2,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 19"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -739.669,
+     "unite_source": "KMAD",
+     "valeur_source": "(739 669)",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 6,
+     "citation": "B – FLUX D’INVESTISSEMENT (739 669) (676 774)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -739.7,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 19"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.456,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.5,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 19"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 372.74,
+       "unite_source": "KMAD",
+       "valeur_source": "372 740",
+       "document": "Atlanta_RFA_2019.pdf",
+       "page": 5,
+       "citation": "Résultat net 372 740 211 175",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 372.284,
+       "unite_source": "KMAD",
+       "valeur_source": "372 284",
+       "document": "Atlanta_RFA_2019.pdf",
+       "page": 5,
+       "citation": "Part du Groupe 372 284 211 229",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 3.3,
+     "unite_source": "DH par action",
+     "valeur_source": "3,30",
+     "document": "Atlanta_RFA_2019.pdf",
+     "page": 4,
+     "citation": "Soit un dividende de 3,30 dirhams par action que l’Assemblée",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2020": {
+   "type": "annuel",
+   "cloture": "2020-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 4992.892,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4992.9,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 20"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1089.851,
+       "unite_source": "KMAD",
+       "valeur_source": "1 089 851",
+       "document": "AtlantaSanad_RFA_2020.pdf",
+       "page": 29,
+       "citation": "Primes émises brutes 1 089 851 1 074 630",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 3903.041,
+       "unite_source": "KMAD",
+       "valeur_source": "3 903 041",
+       "document": "AtlantaSanad_RFA_2020.pdf",
+       "page": 29,
+       "citation": "Primes émises brutes 3 903 041 3 806 126",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 472.307,
+     "unite_source": "KMAD",
+     "valeur_source": "472 307",
+     "document": "AtlantaSanad_RFA_2020.pdf",
+     "page": 29,
+     "citation": "RÉSULTAT NET 472 307 372 740",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 472.3,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 20"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 472.126,
+     "unite_source": "KMAD",
+     "valeur_source": "472 126",
+     "document": "AtlantaSanad_RFA_2020.pdf",
+     "page": 29,
+     "citation": "Part du Groupe 472 126 372 284",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 472.1,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 20"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1957.452,
+     "unite_source": "KMAD",
+     "valeur_source": "1 957 452",
+     "document": "AtlantaSanad_RFA_2020.pdf",
+     "page": 28,
+     "citation": "Dont : Capitaux propres part du groupe 1 957 452 1 762 749",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1957.5,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 20"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.181,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 20"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 472.307,
+       "unite_source": "KMAD",
+       "valeur_source": "472 307",
+       "document": "AtlantaSanad_RFA_2020.pdf",
+       "page": 29,
+       "citation": "RÉSULTAT NET 472 307 372 740",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 472.126,
+       "unite_source": "KMAD",
+       "valeur_source": "472 126",
+       "document": "AtlantaSanad_RFA_2020.pdf",
+       "page": 29,
+       "citation": "Part du Groupe 472 126 372 284",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 543.078,
+     "unite_source": "KMAD",
+     "valeur_source": "543 078",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 30,
+     "citation": "A - Flux d’exploitation 702 795 543 078",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 543.1,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 20"
+     },
+     "reserve": "colonne 31/12/2020 du RFA 2021 (p.30) : le RFA 2020 ne contient aucun tableau de financement consolidé (bilan p.28, compte de produits et charges p.29, soldes de gestion p.30)"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -464.865,
+     "unite_source": "KMAD",
+     "valeur_source": "(464 865)",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 30,
+     "citation": "B - Flux d’investissement (492 534) (464 865)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -464.9,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 20"
+     },
+     "reserve": "colonne 31/12/2020 du RFA 2021 (p.30) : le RFA 2020 ne contient aucun tableau de financement consolidé (bilan p.28, compte de produits et charges p.29, soldes de gestion p.30)"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 4.5,
+     "unite_source": "DH par action",
+     "valeur_source": "4,50",
+     "document": "AtlantaSanad_RFA_2020.pdf",
+     "page": 53,
+     "citation": "Soit un dividende de 4,50 dirhams par action que le Conseil proposera",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2021": {
+   "type": "annuel",
+   "cloture": "2021-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 5477.5,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5477.5,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 21"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1354.593,
+       "unite_source": "KMAD",
+       "valeur_source": "1 354 593",
+       "document": "AtlantaSanad_RFA_2021_0.pdf",
+       "page": 27,
+       "citation": "Primes émises brutes 1 354 593 1 089 851",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 4122.907,
+       "unite_source": "KMAD",
+       "valeur_source": "4 122 907",
+       "document": "AtlantaSanad_RFA_2021_0.pdf",
+       "page": 27,
+       "citation": "Primes émises brutes 4 122 907 3 903 041",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 416.797,
+     "unite_source": "KMAD",
+     "valeur_source": "416 797",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 27,
+     "citation": "RÉSULTAT NET 416 797 472 307",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 416.8,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 21"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 416.505,
+     "unite_source": "KMAD",
+     "valeur_source": "416 505",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 27,
+     "citation": "Part du Groupe 416 505 472 126",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 416.5,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 21"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2100.577,
+     "unite_source": "KMAD",
+     "valeur_source": "2 100 577",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 26,
+     "citation": "Dont : Capitaux propres part du groupe 2 100 577 1 957 452",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2100.6,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 21"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 702.795,
+     "unite_source": "KMAD",
+     "valeur_source": "702 795",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 30,
+     "citation": "A - Flux d’exploitation 702 795 543 078",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 702.8,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 21"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -492.534,
+     "unite_source": "KMAD",
+     "valeur_source": "(492 534)",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 30,
+     "citation": "B - Flux d’investissement (492 534) (464 865)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -492.5,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 21"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.292,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.3,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 21"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 416.797,
+       "unite_source": "KMAD",
+       "valeur_source": "416 797",
+       "document": "AtlantaSanad_RFA_2021_0.pdf",
+       "page": 27,
+       "citation": "RÉSULTAT NET 416 797 472 307",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 416.505,
+       "unite_source": "KMAD",
+       "valeur_source": "416 505",
+       "document": "AtlantaSanad_RFA_2021_0.pdf",
+       "page": 27,
+       "citation": "Part du Groupe 416 505 472 126",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 5.2,
+     "unite_source": "DH par action",
+     "valeur_source": "5,20",
+     "document": "AtlantaSanad_RFA_2021_0.pdf",
+     "page": 7,
+     "citation": "Soit un dividende de 5,20 dirhams par action que l’Assemblée Générale décide",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2022": {
+   "type": "annuel",
+   "cloture": "2022-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 5465.06,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5465.1,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 22"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1223.943,
+       "unite_source": "KMAD",
+       "valeur_source": "1 223 943",
+       "document": "AtlantaSanad%20RFA%202022.pdf",
+       "page": 27,
+       "citation": "Primes émises brutes 1 223 943 1 354 593",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 4241.117,
+       "unite_source": "KMAD",
+       "valeur_source": "4 241 117",
+       "document": "AtlantaSanad%20RFA%202022.pdf",
+       "page": 27,
+       "citation": "Primes émises brutes 4 241 117 4 122 907",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 413.821,
+     "unite_source": "KMAD",
+     "valeur_source": "413 821",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 27,
+     "citation": "RÉSULTAT NET 413 821 416 797",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 413.8,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 22"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 413.587,
+     "unite_source": "KMAD",
+     "valeur_source": "413 587",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 27,
+     "citation": "Part du Groupe 413 587 416 505",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 413.6,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 22"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2180.857,
+     "unite_source": "KMAD",
+     "valeur_source": "2 180 857",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 26,
+     "citation": "Dont : Capitaux propres part du groupe 2 180 857 2 100 577",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2180.9,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 22"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 589.797,
+     "unite_source": "KMAD",
+     "valeur_source": "589 797",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 30,
+     "citation": "A - Flux d’exploitation 589 797 702 795",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 589.8,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 22"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -150.433,
+     "unite_source": "KMAD",
+     "valeur_source": "(150 433)",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 30,
+     "citation": "B - Flux d’investissement (150 433) (492 534)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -150.4,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 22"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.234,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 22"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 413.821,
+       "unite_source": "KMAD",
+       "valeur_source": "413 821",
+       "document": "AtlantaSanad%20RFA%202022.pdf",
+       "page": 27,
+       "citation": "RÉSULTAT NET 413 821 416 797",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 413.587,
+       "unite_source": "KMAD",
+       "valeur_source": "413 587",
+       "document": "AtlantaSanad%20RFA%202022.pdf",
+       "page": 27,
+       "citation": "Part du Groupe 413 587 416 505",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 5.5,
+     "unite_source": "DH par action",
+     "valeur_source": "5,50",
+     "document": "AtlantaSanad%20RFA%202022.pdf",
+     "page": 55,
+     "citation": "Soit un dividende de 5,50 dirhams par action que le Conseil proposera",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2023": {
+   "type": "annuel",
+   "cloture": "2023-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 5111.893,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5111.9,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 23"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1292.266,
+       "unite_source": "KMAD",
+       "valeur_source": "1 292 266",
+       "document": "AtlantaSanad_RFA_2023.pdf",
+       "page": 108,
+       "citation": "Primes émises brutes 1 292 266 1 223 943",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 3819.627,
+       "unite_source": "KMAD",
+       "valeur_source": "3 819 627",
+       "document": "AtlantaSanad_RFA_2023.pdf",
+       "page": 108,
+       "citation": "Primes émises brutes 3 819 627 4 241 117",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 437.549,
+     "unite_source": "KMAD",
+     "valeur_source": "437 549",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 108,
+     "citation": "RÉSULTAT NET 437 549 413 821",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 437.5,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 23"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 437.548,
+     "unite_source": "KMAD",
+     "valeur_source": "437 548",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 108,
+     "citation": "Part du Groupe 437 548 413 587",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 437.5,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 23"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2257.793,
+     "unite_source": "KMAD",
+     "valeur_source": "2 257 793",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 107,
+     "citation": "Dont : Capitaux propres part du groupe 2 257 793 2 180 857",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2257.8,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 23"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 430.741,
+     "unite_source": "KMAD",
+     "valeur_source": "430 741",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 111,
+     "citation": "A - Flux d’exploitation 430 741 589 797",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 430.7,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 23"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 64.465,
+     "unite_source": "KMAD",
+     "valeur_source": "64 465",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 111,
+     "citation": "B - Flux d’investissement 64 465 (150 433)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 64.5,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 23"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.001,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 23"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 437.549,
+       "unite_source": "KMAD",
+       "valeur_source": "437 549",
+       "document": "AtlantaSanad_RFA_2023.pdf",
+       "page": 108,
+       "citation": "RÉSULTAT NET 437 549 413 821",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 437.548,
+       "unite_source": "KMAD",
+       "valeur_source": "437 548",
+       "document": "AtlantaSanad_RFA_2023.pdf",
+       "page": 108,
+       "citation": "Part du Groupe 437 548 413 587",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 5.7,
+     "unite_source": "DH par action",
+     "valeur_source": "5,70",
+     "document": "AtlantaSanad_RFA_2023.pdf",
+     "page": 35,
+     "citation": "Soit un dividende de 5,70 dirhams par action que le Conseil proposera",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2024": {
+   "type": "annuel",
+   "cloture": "2024-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 5259.97,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5260.0,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 24"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1250.388,
+       "unite_source": "KMAD",
+       "valeur_source": "1 250 388",
+       "document": "AtlantaSanad_RFA_2024.pdf",
+       "page": 106,
+       "citation": "Primes émises brutes 1 250 388 1 292 266",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 4009.582,
+       "unite_source": "KMAD",
+       "valeur_source": "4 009 582",
+       "document": "AtlantaSanad_RFA_2024.pdf",
+       "page": 106,
+       "citation": "Primes émises brutes 4 009 582 3 819 627",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 453.361,
+     "unite_source": "KMAD",
+     "valeur_source": "453 361",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 106,
+     "citation": "RÉSULTAT NET 453 361 437 549",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 453.4,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 24"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 453.359,
+     "unite_source": "KMAD",
+     "valeur_source": "453 359",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 106,
+     "citation": "Part du Groupe 453 359 437 548",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 453.4,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 24"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2367.73,
+     "unite_source": "KMAD",
+     "valeur_source": "2 367 730",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 105,
+     "citation": "Dont : Capitaux propres part du groupe 2 367 730 2 257 793",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2367.7,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 24"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 631.77,
+     "unite_source": "KMAD",
+     "valeur_source": "631 770",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 108,
+     "citation": "A - Flux d’exploitation 631 770 430 741",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 631.8,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "Déc. 24"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -233.001,
+     "unite_source": "KMAD",
+     "valeur_source": "(233 001)",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 108,
+     "citation": "B - Flux d’investissement (233 001) 64 465",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -233.0,
+      "ms_libelle": "Flux d'investissement",
+      "ms_colonne": "Déc. 24"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.002,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 24"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 453.361,
+       "unite_source": "KMAD",
+       "valeur_source": "453 361",
+       "document": "AtlantaSanad_RFA_2024.pdf",
+       "page": 106,
+       "citation": "RÉSULTAT NET 453 361 437 549",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 453.359,
+       "unite_source": "KMAD",
+       "valeur_source": "453 359",
+       "document": "AtlantaSanad_RFA_2024.pdf",
+       "page": 106,
+       "citation": "Part du Groupe 453 359 437 548",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 5.8,
+     "unite_source": "DH par action",
+     "valeur_source": "5,80",
+     "document": "AtlantaSanad_RFA_2024.pdf",
+     "page": 36,
+     "citation": "Soit un dividende de 5,80 dirhams par action que le Conseil proposera",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2025": {
+   "type": "annuel",
+   "cloture": "2025-12-31",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 6049.362,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 6049.4,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "Déc. 25"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1786.734,
+       "unite_source": "KMAD",
+       "valeur_source": "1 786 734",
+       "document": "AtlantaSanad_RFA_2025.pdf",
+       "page": 141,
+       "citation": "Primes émises brutes 1 786 734 1 250 388",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 4262.628,
+       "unite_source": "KMAD",
+       "valeur_source": "4 262 628",
+       "document": "AtlantaSanad_RFA_2025.pdf",
+       "page": 141,
+       "citation": "Primes émises brutes 4 262 628 4 009 582",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 467.641,
+     "unite_source": "KMAD",
+     "valeur_source": "467 641",
+     "document": "AtlantaSanad_RFA_2025.pdf",
+     "page": 141,
+     "citation": "RÉSULTAT NET 467 641 453 361",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 467.6,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "Déc. 25"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 467.639,
+     "unite_source": "KMAD",
+     "valeur_source": "467 639",
+     "document": "AtlantaSanad_RFA_2025.pdf",
+     "page": 141,
+     "citation": "Part du Groupe 467 639 453 359",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 467.6,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "Déc. 25"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2481.937,
+     "unite_source": "KMAD",
+     "valeur_source": "2 481 937",
+     "document": "AtlantaSanad_RFA_2025.pdf",
+     "page": 140,
+     "citation": "Dont : Capitaux propres part du groupe 2 481 937 2 367 730",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2481.9,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "Déc. 25"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.002,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "Déc. 25"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 467.641,
+       "unite_source": "KMAD",
+       "valeur_source": "467 641",
+       "document": "AtlantaSanad_RFA_2025.pdf",
+       "page": 141,
+       "citation": "RÉSULTAT NET 467 641 453 361",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 467.639,
+       "unite_source": "KMAD",
+       "valeur_source": "467 639",
+       "document": "AtlantaSanad_RFA_2025.pdf",
+       "page": 141,
+       "citation": "Part du Groupe 467 639 453 359",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 1204.061,
+     "unite_source": "KMAD",
+     "valeur_source": "1 204 061",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 483 430 1 204 061",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     },
+     "reserve": "le tableau « II - FLUX DE TRESORERIE » du RFA 2025 (p.143) est décalé : sa ligne « A - Flux d'exploitation » imprime −1 197 (2024 : −621, contre 631 770 au RFA 2024) alors que 1 204 061 (2025) et 631 770 (2024) figurent trois lignes plus bas ; valeur lue dans la colonne comparative (31/12/2025) du dépôt S1 2026, qui boucle (1 204 061 − 588 291 − 331 228 = 284 542, variation de trésorerie imprimée 284 541)"
+    },
+    "flux_investissement": {
+     "valeur_mdh": -588.291,
+     "unite_source": "KMAD",
+     "valeur_source": "(588 291)",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (358 670) (588 291)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     },
+     "reserve": "le tableau « II - FLUX DE TRESORERIE » du RFA 2025 (p.143) est décalé : sa ligne « A - Flux d'exploitation » imprime −1 197 (2024 : −621, contre 631 770 au RFA 2024) alors que 1 204 061 (2025) et 631 770 (2024) figurent trois lignes plus bas ; valeur lue dans la colonne comparative (31/12/2025) du dépôt S1 2026, qui boucle (1 204 061 − 588 291 − 331 228 = 284 542, variation de trésorerie imprimée 284 541)"
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 5.9,
+     "unite_source": "DH par action",
+     "valeur_source": "5,90",
+     "document": "AtlantaSanad_RFA_2025.pdf",
+     "page": 53,
+     "citation": "Soit un dividende de 5,90 dirhams par action que l’Assemblée Générale décide",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (dividende de la société mère)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 5.9,
+      "ms_libelle": "Dividende proposé par action (MAD)",
+      "ms_colonne": "Déc. 25"
+     }
+    }
+   }
+  },
+  "H1-2019": {
+   "type": "semestriel",
+   "cloture": "2019-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2762.862,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2762.9,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 19"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 561.8,
+       "unite_source": "KMAD",
+       "valeur_source": "561 800",
+       "document": "Atlanta_conso_S1_19.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 561 800 476 806",
+       "entete_colonnes": "juin-19 juin-18 juin-19 juin-18",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2201.062,
+       "unite_source": "KMAD",
+       "valeur_source": "2 201 062",
+       "document": "Atlanta_conso_S1_19.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 2 201 062 2 025 945",
+       "entete_colonnes": "juin-19 juin-18 juin-19 juin-18",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 201.174,
+     "unite_source": "KMAD",
+     "valeur_source": "201 174",
+     "document": "Atlanta_conso_S1_19.pdf",
+     "page": 1,
+     "citation": "Résultat net 201 174 196 948",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 201.2,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 19"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 200.955,
+     "unite_source": "KMAD",
+     "valeur_source": "200 955",
+     "document": "Atlanta_conso_S1_19.pdf",
+     "page": 1,
+     "citation": "Part du Groupe 200 955 196 579",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 201.0,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 19"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1593.365,
+     "unite_source": "KMAD",
+     "valeur_source": "1 593 365",
+     "document": "Atlanta_conso_S1_19.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 1 593 365 1 589 770",
+     "entete_colonnes": "Exercice du 01/01/2019 au 30/06/2019 Exercice du 01/01/2019 au 30/06/2019",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 443.14,
+     "unite_source": "KMAD",
+     "valeur_source": "443 140",
+     "document": "Atlanta_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "A – flux d'exploitation 443 140 817 702",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -408.762,
+     "unite_source": "KMAD",
+     "valeur_source": "(408 762)",
+     "document": "Atlanta_conso_S1_19.pdf",
+     "page": 2,
+     "citation": "B – flux d'investissement (408 762) (676 774)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.219,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 19"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 201.174,
+       "unite_source": "KMAD",
+       "valeur_source": "201 174",
+       "document": "Atlanta_conso_S1_19.pdf",
+       "page": 1,
+       "citation": "Résultat net 201 174 196 948",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 200.955,
+       "unite_source": "KMAD",
+       "valeur_source": "200 955",
+       "document": "Atlanta_conso_S1_19.pdf",
+       "page": 1,
+       "citation": "Part du Groupe 200 955 196 579",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2020": {
+   "type": "semestriel",
+   "cloture": "2020-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60190436.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2921.027,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2921.0,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 20"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 623.349,
+       "unite_source": "KMAD",
+       "valeur_source": "623 349",
+       "document": "Atlanta_RFS_juin_2020.pdf",
+       "page": 7,
+       "citation": "Primes émises brutes 623 349 561 800",
+       "entete_colonnes": "juin-20 juin-19 juin-20 juin-19",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2297.678,
+       "unite_source": "KMAD",
+       "valeur_source": "2 297 678",
+       "document": "Atlanta_RFS_juin_2020.pdf",
+       "page": 7,
+       "citation": "Primes émises brutes 2 297 678 2 201 062",
+       "entete_colonnes": "juin-20 juin-19 juin-20 juin-19",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 212.536,
+     "unite_source": "KMAD",
+     "valeur_source": "212 536",
+     "document": "Atlanta_RFS_juin_2020.pdf",
+     "page": 7,
+     "citation": "Résultat net 212 536 201 174",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 212.5,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 20"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 212.002,
+     "unite_source": "KMAD",
+     "valeur_source": "212 002",
+     "document": "Atlanta_RFS_juin_2020.pdf",
+     "page": 7,
+     "citation": "Part du Groupe 212 002 200 955",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 212.0,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 20"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1777.408,
+     "unite_source": "KMAD",
+     "valeur_source": "1 777 408",
+     "document": "Atlanta_RFS_juin_2020.pdf",
+     "page": 7,
+     "citation": "Dont : Capitaux propres part du groupe 1 777 408 1 762 749",
+     "entete_colonnes": "Exercice du 01/01/2020 au 30/06/2020 Exercice du 01/01/2020 au 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1777.4,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 20"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 282.48,
+     "unite_source": "KMAD",
+     "valeur_source": "282 480",
+     "document": "Atlanta_RFS_juin_2020.pdf",
+     "page": 8,
+     "citation": "A – flux d'exploitation 282 480 988 205",
+     "entete_colonnes": "I- SYNTHESE DES MASSES DU BILAN Exercice du 01/01/2020 au 30/06/2020",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -390.838,
+     "unite_source": "KMAD",
+     "valeur_source": "(390 838)",
+     "document": "Atlanta_RFS_juin_2020.pdf",
+     "page": 8,
+     "citation": "B – flux d'investissement (390 838) (739 669)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.534,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.5,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 20"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 212.536,
+       "unite_source": "KMAD",
+       "valeur_source": "212 536",
+       "document": "Atlanta_RFS_juin_2020.pdf",
+       "page": 7,
+       "citation": "Résultat net 212 536 201 174",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 212.002,
+       "unite_source": "KMAD",
+       "valeur_source": "212 002",
+       "document": "Atlanta_RFS_juin_2020.pdf",
+       "page": 7,
+       "citation": "Part du Groupe 212 002 200 955",
+       "entete_colonnes": null,
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2021": {
+   "type": "semestriel",
+   "cloture": "2021-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3068.661,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3068.7,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 21"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 706.955,
+       "unite_source": "KMAD",
+       "valeur_source": "706 955",
+       "document": "Atlanta_RFS_S1_21.pdf",
+       "page": 9,
+       "citation": "Primes émises brutes 706 955 623 349",
+       "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2361.706,
+       "unite_source": "KMAD",
+       "valeur_source": "2 361 706",
+       "document": "Atlanta_RFS_S1_21.pdf",
+       "page": 9,
+       "citation": "Primes émises brutes 2 361 706 2 297 678",
+       "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 220.11,
+     "unite_source": "KMAD",
+     "valeur_source": "220 110",
+     "document": "Atlanta_RFS_S1_21.pdf",
+     "page": 9,
+     "citation": "Résultat net 220 110 212 536",
+     "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 220.1,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 21"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 219.909,
+     "unite_source": "KMAD",
+     "valeur_source": "219 909",
+     "document": "Atlanta_RFS_S1_21.pdf",
+     "page": 9,
+     "citation": "Part du Groupe 219 909 212 002",
+     "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 219.9,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 21"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1904.311,
+     "unite_source": "KMAD",
+     "valeur_source": "1 904 311",
+     "document": "Atlanta_RFS_S1_21.pdf",
+     "page": 9,
+     "citation": "Dont : Capitaux propres part du groupe 1 904 311 1 957 452",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1904.3,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 21"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 266.844,
+     "unite_source": "KMAD",
+     "valeur_source": "266 844",
+     "document": "Atlanta_RFS_S1_21.pdf",
+     "page": 9,
+     "citation": "A – flux d'exploitation 266 844 543 078",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -77.828,
+     "unite_source": "KMAD",
+     "valeur_source": "(77 828)",
+     "document": "Atlanta_RFS_S1_21.pdf",
+     "page": 9,
+     "citation": "B – flux d'investissement (77 828) (464 865)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.201,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 21"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 220.11,
+       "unite_source": "KMAD",
+       "valeur_source": "220 110",
+       "document": "Atlanta_RFS_S1_21.pdf",
+       "page": 9,
+       "citation": "Résultat net 220 110 212 536",
+       "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 219.909,
+       "unite_source": "KMAD",
+       "valeur_source": "219 909",
+       "document": "Atlanta_RFS_S1_21.pdf",
+       "page": 9,
+       "citation": "Part du Groupe 219 909 212 002",
+       "entete_colonnes": "juin-21 juin-20 1 Primes émises 3 068 661 2 921 027",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2022": {
+   "type": "semestriel",
+   "cloture": "2022-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3143.388,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3143.4,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 22"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 690.126,
+       "unite_source": "KMAD",
+       "valeur_source": "690 126",
+       "document": "AtlantaSanad.pdf",
+       "page": 2,
+       "citation": "Primes émises brutes 690 126 706 955",
+       "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2453.262,
+       "unite_source": "KMAD",
+       "valeur_source": "2 453 262",
+       "document": "AtlantaSanad.pdf",
+       "page": 2,
+       "citation": "Primes émises brutes 2 453 262 2 361 706",
+       "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 229.272,
+     "unite_source": "KMAD",
+     "valeur_source": "229 272",
+     "document": "AtlantaSanad.pdf",
+     "page": 2,
+     "citation": "Résultat net 229 272 220 110",
+     "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 229.3,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 22"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 229.039,
+     "unite_source": "KMAD",
+     "valeur_source": "229 039",
+     "document": "AtlantaSanad.pdf",
+     "page": 2,
+     "citation": "Part du Groupe 229 039 219 909",
+     "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 229.0,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 22"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2016.566,
+     "unite_source": "KMAD",
+     "valeur_source": "2 016 566",
+     "document": "AtlantaSanad.pdf",
+     "page": 2,
+     "citation": "Dont : Capitaux propres part du groupe 2 016 566 2 100 577",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2016.6,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 22"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 348.651,
+     "unite_source": "KMAD",
+     "valeur_source": "348 651",
+     "document": "AtlantaSanad.pdf",
+     "page": 2,
+     "citation": "A – flux d'exploitation 348 651 702 795",
+     "entete_colonnes": "juin-22 Déc-21",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -119.847,
+     "unite_source": "KMAD",
+     "valeur_source": "(119 847)",
+     "document": "AtlantaSanad.pdf",
+     "page": 2,
+     "citation": "B – flux d'investissement (119 847) (492 534)",
+     "entete_colonnes": "juin-22 Déc-21",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.233,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.2,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 22"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 229.272,
+       "unite_source": "KMAD",
+       "valeur_source": "229 272",
+       "document": "AtlantaSanad.pdf",
+       "page": 2,
+       "citation": "Résultat net 229 272 220 110",
+       "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 229.039,
+       "unite_source": "KMAD",
+       "valeur_source": "229 039",
+       "document": "AtlantaSanad.pdf",
+       "page": 2,
+       "citation": "Part du Groupe 229 039 219 909",
+       "entete_colonnes": "juin-22 juin-21 1 Primes émises 3 143 388 3 068 661",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2023": {
+   "type": "semestriel",
+   "cloture": "2023-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3085.334,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3085.3,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 23"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 607.215,
+       "unite_source": "KMAD",
+       "valeur_source": "607 215",
+       "document": "AtlantaSanad_S1_23_1.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 607 215 690 126",
+       "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2478.119,
+       "unite_source": "KMAD",
+       "valeur_source": "2 478 119",
+       "document": "AtlantaSanad_S1_23_1.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 2 478 119 2 453 262",
+       "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 244.982,
+     "unite_source": "KMAD",
+     "valeur_source": "244 982",
+     "document": "AtlantaSanad_S1_23_1.pdf",
+     "page": 1,
+     "citation": "Résultat net 244 982 229 272",
+     "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 245.0,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 23"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 244.981,
+     "unite_source": "KMAD",
+     "valeur_source": "244 981",
+     "document": "AtlantaSanad_S1_23_1.pdf",
+     "page": 1,
+     "citation": "Part du Groupe 244 981 229 039",
+     "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 245.0,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 23"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2095.057,
+     "unite_source": "KMAD",
+     "valeur_source": "2 095 057",
+     "document": "AtlantaSanad_S1_23_1.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 2 095 057 2 180 857",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2095.1,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 23"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -62.88,
+     "unite_source": "KMAD",
+     "valeur_source": "(62 880)",
+     "document": "AtlantaSanad_S1_23_1.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation (62 880) 589 797",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": 132.265,
+     "unite_source": "KMAD",
+     "valeur_source": "132 265",
+     "document": "AtlantaSanad_S1_23_1.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement 132 265 (150 433)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.001,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 23"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 244.982,
+       "unite_source": "KMAD",
+       "valeur_source": "244 982",
+       "document": "AtlantaSanad_S1_23_1.pdf",
+       "page": 1,
+       "citation": "Résultat net 244 982 229 272",
+       "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 244.981,
+       "unite_source": "KMAD",
+       "valeur_source": "244 981",
+       "document": "AtlantaSanad_S1_23_1.pdf",
+       "page": 1,
+       "citation": "Part du Groupe 244 981 229 039",
+       "entete_colonnes": "30-juin-2023 30-juin-2022 1 Primes émises 3 085 334 3 143 388",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2024": {
+   "type": "semestriel",
+   "cloture": "2024-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3095.965,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3096.0,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 24"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 669.481,
+       "unite_source": "KMAD",
+       "valeur_source": "669 481",
+       "document": "AtlantaSanad_S1_24_0.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 669 481 607 215",
+       "entete_colonnes": "30-juin-2024 30-juin-2023",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2426.484,
+       "unite_source": "KMAD",
+       "valeur_source": "2 426 484",
+       "document": "AtlantaSanad_S1_24_0.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 2 426 484 2 478 119",
+       "entete_colonnes": "30-juin-2024 30-juin-2023",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 249.881,
+     "unite_source": "KMAD",
+     "valeur_source": "249 881",
+     "document": "AtlantaSanad_S1_24_0.pdf",
+     "page": 1,
+     "citation": "Résultat net 249 881 244 982",
+     "entete_colonnes": "30-juin-2024 30-juin-2023",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 249.9,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 24"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 249.88,
+     "unite_source": "KMAD",
+     "valeur_source": "249 880",
+     "document": "AtlantaSanad_S1_24_0.pdf",
+     "page": 1,
+     "citation": "Part du Groupe 249 880 244 981",
+     "entete_colonnes": "30-juin-2024 30-juin-2023",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 249.9,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 24"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2164.251,
+     "unite_source": "KMAD",
+     "valeur_source": "2 164 251",
+     "document": "AtlantaSanad_S1_24_0.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 2 164 251 2 257 793",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2164.3,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 24"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 130.848,
+     "unite_source": "KMAD",
+     "valeur_source": "130 848",
+     "document": "AtlantaSanad_S1_24_0.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 130 848 430 741",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -51.126,
+     "unite_source": "KMAD",
+     "valeur_source": "(51 126)",
+     "document": "AtlantaSanad_S1_24_0.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (51 126) 64 465",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.001,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 24"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 249.881,
+       "unite_source": "KMAD",
+       "valeur_source": "249 881",
+       "document": "AtlantaSanad_S1_24_0.pdf",
+       "page": 1,
+       "citation": "Résultat net 249 881 244 982",
+       "entete_colonnes": "30-juin-2024 30-juin-2023",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 249.88,
+       "unite_source": "KMAD",
+       "valeur_source": "249 880",
+       "document": "AtlantaSanad_S1_24_0.pdf",
+       "page": 1,
+       "citation": "Part du Groupe 249 880 244 981",
+       "entete_colonnes": "30-juin-2024 30-juin-2023",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2025": {
+   "type": "semestriel",
+   "cloture": "2025-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3663.077,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3663.1,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 25"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1042.651,
+       "unite_source": "KMAD",
+       "valeur_source": "1 042 651",
+       "document": "AtlantaSanad_S1_25_1.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 1 042 651 669 481",
+       "entete_colonnes": "30-juin-2025 30-juin-2024",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2620.426,
+       "unite_source": "KMAD",
+       "valeur_source": "2 620 426",
+       "document": "AtlantaSanad_S1_25_1.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 2 620 426 2 426 484",
+       "entete_colonnes": "30-juin-2025 30-juin-2024",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 276.055,
+     "unite_source": "KMAD",
+     "valeur_source": "276 055",
+     "document": "AtlantaSanad_S1_25_1.pdf",
+     "page": 1,
+     "citation": "Résultat net 276 055 249 881",
+     "entete_colonnes": "30-juin-2025 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 276.1,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 25"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 276.054,
+     "unite_source": "KMAD",
+     "valeur_source": "276 054",
+     "document": "AtlantaSanad_S1_25_1.pdf",
+     "page": 1,
+     "citation": "Part du Groupe 276 054 249 881",
+     "entete_colonnes": "30-juin-2025 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 276.1,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 25"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2294.135,
+     "unite_source": "KMAD",
+     "valeur_source": "2 294 135",
+     "document": "AtlantaSanad_S1_25_1.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 2 294 135 2 367 730",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2294.1,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 25"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 326.767,
+     "unite_source": "KMAD",
+     "valeur_source": "326 767",
+     "document": "AtlantaSanad_S1_25_1.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 326 767 631 770",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -148.231,
+     "unite_source": "KMAD",
+     "valeur_source": "(148 231)",
+     "document": "AtlantaSanad_S1_25_1.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (148 231) (233 001)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.001,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 25"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 276.055,
+       "unite_source": "KMAD",
+       "valeur_source": "276 055",
+       "document": "AtlantaSanad_S1_25_1.pdf",
+       "page": 1,
+       "citation": "Résultat net 276 055 249 881",
+       "entete_colonnes": "30-juin-2025 30-juin-2024",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 276.054,
+       "unite_source": "KMAD",
+       "valeur_source": "276 054",
+       "document": "AtlantaSanad_S1_25_1.pdf",
+       "page": 1,
+       "citation": "Part du Groupe 276 054 249 881",
+       "entete_colonnes": "30-juin-2025 30-juin-2024",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2026": {
+   "type": "semestriel",
+   "cloture": "2026-06-30",
+   "donnees": {
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "ebitda_ajuste": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "resultat_exploitation_courant": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "dette_nette_publiee": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet pour une assurance : pas d'EBE, d'EBITDA ni de dette nette définis dans les états de synthèse d'une compagnie d'assurance"
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "nombre d'actions non imprimé (capital seul, nominal non cité)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 60283595.0,
+      "ms_libelle": "Nombre d'actions"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur (compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 3976.731,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "primes_emises_brutes_vie + primes_emises_brutes_non_vie — « Primes émises brutes » de la branche Vie + de la branche Non-Vie du compte de produits et charges consolidé (aucun total « primes émises » imprimé hors état de soldes de gestion) ; ce n'est pas le « chiffre d'affaires global » de l'état de soldes de gestion (qui ajoute les produits des placements) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 3976.7,
+      "ms_libelle": "Primes émises",
+      "ms_colonne": "S1 26"
+     },
+     "composantes": {
+      "primes_emises_brutes_vie": {
+       "valeur_mdh": 1121.462,
+       "unite_source": "KMAD",
+       "valeur_source": "1 121 462",
+       "document": "Atlanta_S1_26_0.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 1 121 462 1 042 651",
+       "entete_colonnes": "30-juin-2026 30-juin-2025",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "primes_emises_brutes_non_vie": {
+       "valeur_mdh": 2855.269,
+       "unite_source": "KMAD",
+       "valeur_source": "2 855 269",
+       "document": "Atlanta_S1_26_0.pdf",
+       "page": 1,
+       "citation": "Primes émises brutes 2 855 269 2 620 426",
+       "entete_colonnes": "30-juin-2026 30-juin-2025",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 288.219,
+     "unite_source": "KMAD",
+     "valeur_source": "288 219",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "Résultat net 288 219 276 055",
+     "entete_colonnes": "30-juin-2026 30-juin-2025",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 288.2,
+      "ms_libelle": "Résultat net de l'ensemble",
+      "ms_colonne": "S1 26"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 288.218,
+     "unite_source": "KMAD",
+     "valeur_source": "288 218",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "Part du Groupe 288 218 276 054",
+     "entete_colonnes": "30-juin-2026 30-juin-2025",
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 288.2,
+      "ms_libelle": "Résultat net part du groupe",
+      "ms_colonne": "S1 26"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 2430.582,
+     "unite_source": "KMAD",
+     "valeur_source": "2 430 582",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "Dont : Capitaux propres part du groupe 2 430 582 2 481 937",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2430.6,
+      "ms_libelle": "Capitaux propres part du groupe",
+      "ms_colonne": "S1 26"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 483.43,
+     "unite_source": "KMAD",
+     "valeur_source": "483 430",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "A – flux d'exploitation 483 430 1 204 061",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 483.4,
+      "ms_libelle": "Flux de trésorerie d'exploitation",
+      "ms_colonne": "S1 26"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -358.67,
+     "unite_source": "KMAD",
+     "valeur_source": "(358 670)",
+     "document": "Atlanta_S1_26_0.pdf",
+     "page": 1,
+     "citation": "B – flux d'investissement (358 670) (588 291)",
+     "entete_colonnes": null,
+     "perimetre": "consolide",
+     "referentiel": "normes marocaines (CNC, code des assurances)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": 0.001,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "resultat_net_ensemble − resultat_net_part_groupe (ligne « Intérêts minoritaires » du compte de résultat non retenue : sa valeur imprimée est de 1 à 456 KMAD) ; calcul propre au projet",
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 0.0,
+      "ms_libelle": "Intérêts minoritaires",
+      "ms_colonne": "S1 26"
+     },
+     "composantes": {
+      "resultat_net_ensemble": {
+       "valeur_mdh": 288.219,
+       "unite_source": "KMAD",
+       "valeur_source": "288 219",
+       "document": "Atlanta_S1_26_0.pdf",
+       "page": 1,
+       "citation": "Résultat net 288 219 276 055",
+       "entete_colonnes": "30-juin-2026 30-juin-2025",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      },
+      "resultat_net_part_groupe": {
+       "valeur_mdh": 288.218,
+       "unite_source": "KMAD",
+       "valeur_source": "288 218",
+       "document": "Atlanta_S1_26_0.pdf",
+       "page": 1,
+       "citation": "Part du Groupe 288 218 276 054",
+       "entete_colonnes": "30-juin-2026 30-juin-2025",
+       "perimetre": "consolide",
+       "referentiel": "normes marocaines (CNC, code des assurances)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "aucune valeur tierce consultée pour cette cellule ; lecture directe de la pièce"
+       }
+      }
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  }
+ },
+ "documents": {
+  "AtlantaSanad%20RFA%202022.pdf": {
+   "fichier": "AtlantaSanad%20RFA%202022.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad%20RFA%202022.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2022",
+   "sha256": "e6e92f17b7627608579b5a41850085573516bafbd22ddab4a229dc95c1925920",
+   "octets": 3658790,
+   "pages": 101,
+   "type": "FY",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad.pdf": {
+   "fichier": "AtlantaSanad.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2022",
+   "sha256": "6d411a91c855a0d28c3fdfcc5c780d6d3c0858e51d4fa3f2d199861c98ddf695",
+   "octets": 2211767,
+   "pages": 5,
+   "type": "H1",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "AtlantaSanad_RFA_2020.pdf": {
+   "fichier": "AtlantaSanad_RFA_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2020.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2020",
+   "sha256": "a7b49e855e9f8d5d19133867d945a716a0bdb1b44bee9074dd3c0741af2b64c6",
+   "octets": 2050659,
+   "pages": 96,
+   "type": "FY",
+   "annee_nom_fichier": 2020,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad_RFA_2021_0.pdf": {
+   "fichier": "AtlantaSanad_RFA_2021_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2021_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2021",
+   "sha256": "e854ee588e5f965948af7b9f0167030fa9b66b410bd1bce3c24a0ea381523280",
+   "octets": 2089462,
+   "pages": 101,
+   "type": "FY",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad_RFA_2023.pdf": {
+   "fichier": "AtlantaSanad_RFA_2023.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2023.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2023",
+   "sha256": "cb94f30123159de39194a4a8af9bb691323116891fda43925ce2421a4224e76d",
+   "octets": 7911961,
+   "pages": 164,
+   "type": "FY",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad_RFA_2024.pdf": {
+   "fichier": "AtlantaSanad_RFA_2024.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2024.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2024",
+   "sha256": "5dbb51bf68088099382374634e6f187af9a6c70c8454cae4ca55a935ce46e5b8",
+   "octets": 3663491,
+   "pages": 148,
+   "type": "FY",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad_RFA_2025.pdf": {
+   "fichier": "AtlantaSanad_RFA_2025.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_RFA_2025.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfa-2025",
+   "sha256": "5c700bd201146a3c38b60b962b1ef0cbba75f338917087e36842f49f8880b67e",
+   "octets": 8735071,
+   "pages": 184,
+   "type": "FY",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports annuels"
+  },
+  "AtlantaSanad_S1_23_1.pdf": {
+   "fichier": "AtlantaSanad_S1_23_1.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_S1_23_1.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2023",
+   "sha256": "3b6399e4ab0c2517cea711958e47330915c8608513fb147faac9f4570e8dfd22",
+   "octets": 1680319,
+   "pages": 4,
+   "type": "H1",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "AtlantaSanad_S1_24_0.pdf": {
+   "fichier": "AtlantaSanad_S1_24_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_S1_24_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2024",
+   "sha256": "823a3f3925367a15a91c397fa22a5bc9c330f829856e160fce8fee1213405d8a",
+   "octets": 863039,
+   "pages": 4,
+   "type": "H1",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "AtlantaSanad_S1_25_1.pdf": {
+   "fichier": "AtlantaSanad_S1_25_1.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AtlantaSanad_S1_25_1.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2025",
+   "sha256": "e846c9c44833c5a5dfecb146073d0edabf4048591811ee0dbecbf4469fdcdf8f",
+   "octets": 915694,
+   "pages": 4,
+   "type": "H1",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "Atlanta_2018.pdf": {
+   "fichier": "Atlanta_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_2018.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-37",
+   "sha256": "ead6673ab31dba67229578c460f31e6f52cf7d54495683057fc26e6d20cfa1fa",
+   "octets": 380711,
+   "pages": 4,
+   "type": "FY",
+   "annee_nom_fichier": 2018,
+   "libelle_ammc": "Rapports sociaux annuels"
+  },
+  "Atlanta_RFA_2019.pdf": {
+   "fichier": "Atlanta_RFA_2019.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_RFA_2019.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-rfa-2019-0",
+   "sha256": "792221e693477faaebcdc696cabe83221c7b3e6e884497d4ba51bab5331ec781",
+   "octets": 7550382,
+   "pages": 66,
+   "type": "FY",
+   "annee_nom_fichier": 2019,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "Atlanta_RFS_S1_21.pdf": {
+   "fichier": "Atlanta_RFS_S1_21.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_RFS_S1_21.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2021",
+   "sha256": "e309293dddb575d90cbd5e1b2ae1da7e4807306eb3560d840f502c52071d1fa3",
+   "octets": 1885239,
+   "pages": 12,
+   "type": "H1",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "Atlanta_RFS_juin_2020.pdf": {
+   "fichier": "Atlanta_RFS_juin_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_RFS_juin_2020.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-assurance-rfs-juin-2020",
+   "sha256": "5805ea85767c9fdf6ecc4700adf12689eb63b8f53fed1e606e31c61b264cf092",
+   "octets": 2980110,
+   "pages": 11,
+   "type": "H1",
+   "annee_nom_fichier": 2020,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "Atlanta_S1_26_0.pdf": {
+   "fichier": "Atlanta_S1_26_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_S1_26_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlantasanad-rfs-juin-2026",
+   "sha256": "bf9b66222d65c1002027c56af3e8c1a15c7af60155b5aec38b87a74afbff4c21",
+   "octets": 1459661,
+   "pages": 4,
+   "type": "H1",
+   "annee_nom_fichier": 2026,
+   "libelle_ammc": "Rapports 1er semestre"
+  },
+  "Atlanta_conso_2016.pdf": {
+   "fichier": "Atlanta_conso_2016.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_conso_2016.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-30",
+   "sha256": "9519dc384cffe7e659e06b9964534cf3e87edcf33f3b7d44d19794d0fb77af8d",
+   "octets": 807464,
+   "pages": 1,
+   "type": "FY",
+   "annee_nom_fichier": 2016,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "Atlanta_conso_2017.pdf": {
+   "fichier": "Atlanta_conso_2017.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_conso_2017.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-2_2017",
+   "sha256": "74bbdb6bbc6a4195098fd0546c6c62e2f3ac65c52bc0cdbf624ab4a5c2d47283",
+   "octets": 618965,
+   "pages": 1,
+   "type": "H1",
+   "annee_nom_fichier": 2017,
+   "libelle_ammc": "Rapports consolidés 2eme semestre"
+  },
+  "Atlanta_conso_2018.pdf": {
+   "fichier": "Atlanta_conso_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_conso_2018.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-38",
+   "sha256": "8b3d495421ebbc489e7e9552502eecc9fc66f6580850b55a3ae9fba1b22fd53f",
+   "octets": 283845,
+   "pages": 1,
+   "type": "FY",
+   "annee_nom_fichier": 2018,
+   "libelle_ammc": "Rapports consolidés annuels"
+  },
+  "Atlanta_conso_S1_19.pdf": {
+   "fichier": "Atlanta_conso_S1_19.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Atlanta_conso_S1_19.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/atlanta-40",
+   "sha256": "645b21897ef4c4153b8e08f24af2d072e9215dfe53e01aee72035fc38221e0ac",
+   "octets": 383346,
+   "pages": 2,
+   "type": "H1",
+   "annee_nom_fichier": 2019,
+   "libelle_ammc": "Rapports consolidés 1er semestre"
+  }
+ },
+ "couverture": {
+  "attendues": 162,
+  "remplies": 134,
+  "supplementaires_remplis": 0,
+  "ecarts_ms_screener": 0,
+  "note": "attendues = 10 métriques demandées × 18 périodes (EBE et dette nette sans objet pour une assurance) ; resultat_exploitation non attendu : aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur ; supplémentaires = néant"
+ }
+}

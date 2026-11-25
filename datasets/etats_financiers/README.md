@@ -94,3 +94,27 @@ MNG +7 % (31/12/2019), ADI +38 % (30/06/2026).
 * LHM FY2025 : 23 431 240 actions émises (23 319 589 hors autodétention). LHM H1-2026 : aucun dépôt dans la liste AMMC.
 * `lu_dans_document_ulterieur_comparatif` : pièce d'origine non exploitée par la recherche automatique (fichier image,
   nom inattendu ou libellé différent) ; potentiellement valeur retraitée, à relire pièce en main.
+
+## Lot 7 — assurances (WAF, SAF, ATL)
+
+Archétype `insurance` (comme `bank`, seul le générateur en tient compte : libellé de la ligne de chiffre d'affaires et
+raisons « sans objet »). `chiffre_affaires` = **primes émises** (WAF, SAF jusqu'à 2024 ; ATL : primes émises brutes Vie + Non-Vie,
+ou « Primes émises » de l'état de soldes de gestion en 2016-2018) ou, en IFRS 17, le chiffre d'affaires que l'émetteur publie :
+WAF 2025 / S1 2026 = « Produits des activités d'assurance » (aucun total de primes au compte de résultat consolidé ; 15 226 MDH de primes
+émises au rapport de gestion 2025), SAF 2025 / S1 2025 / S1 2026 = « Chiffre d'affaires » du total de l'information sectorielle
+(le produit des activités d'assurance est en note de cellule). **Rupture de série à l'IFRS 17** (WAF : 2025 ; SAF : 2025) : le
+dépôt d'origine 2024 / S1 2024 est conservé, sa version « retraitée » est en réserve. `ebe`, `dette_nette` et indicateurs : sans objet.
+`resultat_exploitation` = « Résultat opérationnel » (IFRS) ; **ATL (normes marocaines)** n'a aucune ligne équivalente : cellule vide motivée.
+Intérêts minoritaires : ligne imprimée quand elle boucle (SAF 2016-18, ATL 2016-18), sinon ensemble − part du groupe (calcul cité).
+
+* WAF : comptes consolidés publiés pour la première fois au 31/12/2021 (RFA 2021 p.16) : FY2016-2019 et S1 2019-2020 vides
+  (« comptes consolidés non publiés ») ; FY2020 et S1 2021 = colonnes comparatives ; S1 2025 = comparatifs du S1 2026 (le dépôt d'origine est une
+  présentation sans états de synthèse). Nombre d'actions non imprimé (3 500 000 selon ms-screener, non retenu).
+  FY2025 : la ligne des flux d'investissement porte le libellé « activités opérationnelles » (coquille, identifiée par sa position).
+* SAF : Saham Assurance puis Sanlam Maroc ; la fusion-absorption d'Allianz Maroc est actée le 02/07/2026, **après** la clôture du S1 2026
+  (« indicateurs … avant la fusion », S1 2026 p.1-2) : aucune période relevée ne contient Allianz, rien n'est raccordé. Le nombre d'actions
+  (4 116 874) est d'avant la fusion.
+* ATL : le tableau des flux 2025 du RFA est décalé (valeurs et libellés non alignés) : flux 2025 lus dans la colonne comparative du S1 2026.
+  Dépôts consolidés 2016-2018 en image : lus sur le rendu.
+* Contre-vérification : graine 20261124 + somme des codes des lettres du ticker, 14 cellules non nulles tirées par titre, relues sur le rendu de la page ;
+  0 erreur. Comparaison ms-screener : 0 écart numérique (l'écart de définition du chiffre d'affaires IFRS 17 est traité ci-dessus).

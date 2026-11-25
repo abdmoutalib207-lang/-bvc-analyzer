@@ -132,6 +132,10 @@ _BOUTON = {"dette_nette_publiee": "Dette nette (émetteur)", "dette_nette": "Det
 
 # Raisons de cellule vide : liste FERMÉE. (motif du relevé → texte publié)
 _SANS_OBJET = "Sans objet pour une banque : la dette nette n'y est pas définie."
+_SANS_OBJET_ASSURANCE = ("Sans objet pour un assureur : ni EBE, ni EBITDA, ni dette nette ne sont définis "
+                         "dans les états de synthèse d'une compagnie d'assurance.")
+# Archétype « insurance » : libellé de la ligne de chiffre d'affaires (primes émises ou chiffre d'affaires publié).
+LIBELLES_ASSURANCE = {"chiffre_affaires": "Primes émises / chiffre d'affaires publié par l'émetteur"}
 _RAISONS = (
     (r"^sans objet pour une banque", _SANS_OBJET),
     (r"^non relevé dans ce lot",
@@ -193,6 +197,15 @@ _RAISONS = (
     (r"^texte extrait illisible",
      "Non relevé : le texte du document déposé est illisible (police encodée), il n'a pas été lu."),
     # lot 5 (CASH, CFGB, SGTM, VCNE)
+    # lot 7 (WAF, SAF, ATL : assurances)
+    (r"^sans objet pour une assurance", _SANS_OBJET_ASSURANCE),
+    (r"^comptes consolidés non publiés",
+     "Non relevé : l'émetteur n'a pas publié de comptes consolidés pour cette période (comptes sociaux seulement)."),
+    (r"^aucune ligne « résultat d'exploitation »",
+     "Aucune ligne « résultat d'exploitation » dans les comptes consolidés aux normes marocaines d'un assureur "
+     "(compte de produits et charges : résultat technique, résultat non technique, résultat avant impôt)."),
+    (r"^non relevé : (le dépôt imprime le dividende versé|dividende proposé non retrouvé)",
+     "Non relevé : le dépôt de cette période n'imprime pas le dividende proposé au titre de l'exercice."),
     (r"^non relevé : ligne .* imprimée à « - »",
      "Non relevé : la ligne est imprimée à « - » dans le document (aucun montant)."),
     (r"dividende global",
@@ -476,6 +489,7 @@ def construire(releve: dict) -> dict | None:
         raise ReleveInvalide(f"unité de relevé inattendue : {releve.get('unite')!r}")
     ticker = releve["ticker"]
     banque = releve.get("archetype") == "bank"
+    assureur = releve.get("archetype") == "insurance"
     t = _Tables(releve.get("documents") or {})
     connues = {l[0] for l in LIGNES}
     vues, presentes = {}, set()
@@ -499,10 +513,10 @@ def construire(releve: dict) -> dict | None:
         vues[nom] = {"periodes": [_periode(k, p) for k, p in pers], "cellules": cellules}
 
     # Lignes sans objet partout (dette nette d'une banque) : retirées.
-    i_so = t._i_txt.get(_SANS_OBJET)
+    i_so = {i for i in (t._i_txt.get(_SANS_OBJET), t._i_txt.get(_SANS_OBJET_ASSURANCE)) if i is not None}
     for cle in list(vues["annuel"]["cellules"]):
-        if all(c.get("n") == i_so and i_so is not None
-               for v in vues.values() for c in v["cellules"][cle]):
+        if i_so and all(c.get("n") in i_so
+                        for v in vues.values() for c in v["cellules"][cle]):
             for v in vues.values():
                 del v["cellules"][cle]
 
@@ -542,6 +556,8 @@ def construire(releve: dict) -> dict | None:
         if cle not in vues["annuel"]["cellules"]:
             continue
         libelle = lib_banque if (banque and lib_banque) else lib
+        if assureur and cle in LIBELLES_ASSURANCE:
+            libelle = LIBELLES_ASSURANCE[cle]
         l = {"cle": cle, "libelle": libelle, "groupe": groupe, "unite": unite}
         if graphique:
             l["graphique"] = _BOUTON.get(cle, libelle)
