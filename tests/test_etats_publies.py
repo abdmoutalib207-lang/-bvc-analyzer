@@ -56,8 +56,9 @@ def _ligne(texte):
 # ── 1. sortie exacte du générateur, 2. poids ───────────────────────────────
 
 def test_les_titres_des_lots_sont_la():
-    assert TITRES == ["ADH", "ADI", "AKD", "ATW", "CASH", "CFGB", "CIM", "CMGP", "CMT", "CSR", "GAZ", "IAM", "LHM", "MNG",
-                      "MSA", "RDS", "RIS", "SGTM", "SMI", "SNA", "SOT", "SRM", "TGCC", "TMA", "TQA", "VCNE"]
+    assert TITRES == ["ADH", "ADI", "AKD", "ATL", "ATW", "CASH", "CFGB", "CIM", "CMGP", "CMT", "CSR", "GAZ", "IAM", "LHM",
+                      "MNG", "MSA", "RDS", "RIS", "SAF", "SGTM", "SMI", "SNA", "SOT", "SRM", "TGCC", "TMA", "TQA", "VCNE",
+                      "WAF"]
 
 
 def test_fichiers_commites_sont_la_sortie_exacte_du_generateur():
