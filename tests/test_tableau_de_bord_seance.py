@@ -100,6 +100,27 @@ def test_controle_negatif_un_ecart_de_un_pour_cent_refuse():
     assert _releve([_ligne("A", 1.0, 301)])["ok"] is True
 
 
+def _cours_posterieurs_au_releve(tickers, seance) -> int:
+    """Nombre de titres dont le cours porte une séance postérieure au relevé.
+
+    25/11/2026 : CDG a répondu HTTP 429 au passage de 09h55 ; le relevé de
+    séance (MASI, volume, transactions) est resté celui du 24/11, alors que 47
+    cours portaient déjà le 25/11. Les titres restés au 24/11 ne sont qu'une
+    PARTIE du relevé : leur somme ne peut pas recouper le volume. Ce n'est pas
+    le « même relevé » que ce test contrôle, et le terminal (`titresDuReleve`)
+    retire justement les visuels dans ce cas."""
+    return sum(1 for t in tickers
+               if ((t.get("_meta") or {}).get("prix_asof") or "") > (seance or ""))
+
+
+def test_releve_perime_reconnu_quand_des_cours_sont_plus_recents():
+    rows = [_ligne("A", 1.0, 100, asof="2026-10-13"), _ligne("B", -1.0, 50, asof="2026-10-14")]
+    assert _cours_posterieurs_au_releve(rows, "2026-10-13") == 1
+    # Contrôle négatif : tous les cours à la séance du relevé → le test s'applique.
+    rows = [_ligne("A", 1.0, 100), _ligne("B", -1.0, 200)]
+    assert _cours_posterieurs_au_releve(rows, "2026-10-13") == 0
+
+
 def test_le_releve_publie_se_recoupe_reellement():
     """Sur les fichiers du dépôt : si data.json et briefing.json portent la
     même séance et le même nombre de transactions, la somme doit recouper."""
@@ -109,6 +130,10 @@ def test_le_releve_publie_se_recoupe_reellement():
     m = d.get("masi") or {}
     if m.get("asof") != b.get("seance") or m.get("transactions") != j.get("transactions"):
         pytest.skip("data.json et briefing.json ne décrivent pas le même relevé")
+    if _cours_posterieurs_au_releve(d["tickers"], b.get("seance")):
+        pytest.skip("des cours portent une séance postérieure au relevé : le relevé "
+                    "CDG n'a pas été rafraîchi (indisponible) — le terminal retire "
+                    "alors les visuels par titre, c'est le comportement voulu")
     r = _releve(d["tickers"], b)
     assert r["ok"], "même relevé annoncé, mais les montants par titre ne recoupent pas le volume CDG"
 
