@@ -81,6 +81,12 @@ valeur, PUIS seulement comparer.
 | Retraitement silencieux d'un comparatif (RDS : changement de méthode de reconnaissance du chiffre d'affaires, 2024 : −79,7 retraité contre −82,8 d'origine) | garder la valeur du dépôt d'origine et mettre la valeur retraitée en réserve |
 | Communiqué ou page d'un autre format dans le rapport (SRM RFA 2019 : CA semestriel 130,9 à la p.106, états annuels p.109) | repérer la page des états de synthèse de l'exercice avant de conclure qu'un chiffre est étranger ; lire le sha256 et la page du dépôt d'origine |
 | Deux lignes « TOTAL III » sur la même page de bilan (trésorerie actif et trésorerie passif, SRM 2020) | citer le libellé de la masse (« TRÉSORERIE - PASSIF »), jamais un « TOTAL » seul ; relire la colonne et la masse pièce en main |
+| Tableau d'endettement dont la colonne de gauche est étiquetée « 30/06/2025 » mais porte le 31/12/2025 (T2S S1 2026) | recouper la colonne à une valeur du bilan de la date (trésorerie actif 359 641 = bilan du 31/12/2025) avant de lire |
+| Bilan à libellés décalés d'une ligne (HPS 2023 : « Trésorerie passif 1 466 472 » = impôts différés passifs) | additionner le passif circulant, recouper à la trésorerie de clôture du tableau des flux ; dire le décalage dans la formule |
+| Dépôt à police encodée dont le rendu est lisible (Aradei 2018, S1 2019) | rendre la page ; lire les colonnes sur le rendu ; sinon cellule vide « police encodée » |
+| Montants imprimés sur des lignes séparées des libellés (HPS 2023 p.39) ou ligature « ﬀ » (Chiﬀres d'aﬀaires) | rendre la page ; écrire les regex avec la ligature ; citer ce qui est lu |
+| Colonne « pro forma » du tiers (PF) sur plusieurs exercices (HPS) | lire l'état de l'exercice dans SON rapport ; ne jamais s'aligner sur la valeur PF |
+| Nombre d'actions autour d'une division du nominal (HPS 2023, T2S 2026) | imprimé par période, sans ajustement (R11) ; la division est dite dans la note |
 
 ## 3. Contre-vérification (verificateur-finance)
 

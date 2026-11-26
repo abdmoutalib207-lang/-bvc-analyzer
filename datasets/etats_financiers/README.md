@@ -118,3 +118,30 @@ Intérêts minoritaires : ligne imprimée quand elle boucle (SAF 2016-18, ATL 20
   Dépôts consolidés 2016-2018 en image : lus sur le rendu.
 * Contre-vérification : graine 20261124 + somme des codes des lettres du ticker, 14 cellules non nulles tirées par titre, relues sur le rendu de la page ;
   0 erreur. Comparaison ms-screener : 0 écart numérique (l'écart de définition du chiffre d'affaires IFRS 17 est traité ci-dessus).
+
+## Lot 9 — T2S, DHO (Delta Holding), ARD (Aradei Capital), HPS
+
+BCI (code du tiers pour BMCI) n'existe pas comme ticker interne distinct : c'est `BMC`, traité au lot 8 ; remplacé par DHO.
+Archétype `real_estate` pour ARD (immeubles de placement à la juste valeur), `standard_nonfin` pour les trois autres.
+
+* **T2S** (introduit en bourse le 27/07/2026) : aucun dépôt avant le S1 2026 ; FY2023-FY2025 lus dans le document de référence de l'introduction
+  (visa AMMC EN/EM/010/2026), FY2016-FY2022 « document introuvable ». S1 2025 = colonne comparative du rapport semestriel 2026 (pas de bilan au 30/06/2025).
+  `nombre_actions` imprimé par période, **sans ajustement** (nominal 100 MAD ; fractionnement 2 pour 1 et augmentation de capital postérieurs à la clôture).
+  Le tableau d'endettement du rapport semestriel est étiqueté « 30/06/2025 | 30/06/2026 » mais sa colonne de gauche porte les valeurs du 31/12/2025.
+  Dette nette : FY2023-FY2025 hors dettes de crédit-bail isolées par l'émetteur (p.239, p.49) et OPCVM retranchés en 2025 (comptés en trésorerie au tableau des flux) ;
+  S1 2026 : dettes de location non isolées (aucune note), titres non retranchés. L'endettement net publié par l'émetteur est à `dette_nette_publiee`.
+* **DHO** : comptes consolidés CNC en dirhams exacts. FY2017 = colonne comparative du dépôt 2018 (aucun dépôt annuel 2017, S1 2017 en image) ; FY2016 et FY2018 :
+  dépôts de une à deux pages à mise en page dense. Pas de ligne EBE ni EBITDA publié. Dette nette = dettes de financement + trésorerie passif − trésorerie actif ;
+  crédit-bail (retraité en immobilisations, donc dans les dettes de financement) retiré quand la note « Emprunts à long terme » le chiffre (FY2020-FY2025, S1 2022-S1 2026),
+  sinon compris (dépôts sans cette note). Titres de placement non retranchés : la trésorerie de clôture du tableau des flux = trésorerie actif − trésorerie passif, vérifiée sur 15 périodes.
+  Nombre d'actions non imprimé (capital seul). Dividende relevé FY2022-FY2025.
+* **ARD** : IFRS, KMAD (communiqué S1 2026 en MMAD à points de milliers). FY2017-FY2018 = colonnes comparatives du rapport 2019, identiques au dépôt 2018 dont le texte est encodé
+  (rendu de sa p.1 relu). S1 2019 : lignes part du groupe, minoritaires, investissement et dettes encodées, non lues. S1 2020 : l'état s'arrête au « résultat net global ».
+  `ebe` = ligne « Excédent brut d'exploitation » des états. Définition de foncière retenue pour la dette nette : dettes financières (part courante et non courante) − trésorerie et équivalents
+  (valeurs mobilières comprises, comptées au tableau des flux), dettes de location-financement retirées quand la note les isole ; l'« endettement net » publié (qui les inclut) est à `dette_nette_publiee`.
+  Le nombre d'actions est celui de la phrase du capital social, avec la date qu'elle indique.
+* **HPS** : CNC. Le tiers marque « pro forma » 2020, 2021, 2023, 2024 : les valeurs relevées sont celles des états de chaque exercice. S1 2025 : dépôt = page de couverture, compte de résultat lu en comparatif du S1 2026.
+  FY2023 : bilan à libellés décalés (« trésorerie passif 1 466 472 » est un montant d'impôts différés ; trésorerie passif nulle, établie par l'arithmétique du passif et la trésorerie de clôture).
+  `nombre_actions` : 703 599 (nominal 1 000 DH) jusqu'en 2022, 7 406 190 ensuite — **imprimé, rien déduit ni ajusté** (R11) ; dividendes 2019-2022 par action d'avant la division du 10/2023.
+* Contre-vérification : graine 9 (tirage de 14 cellules non nulles par titre dans les 4 relevés, relues sur un `pdftotext` neuf de la page citée : libellé, jeton et page) ;
+  pages rendues et relues : DHO 2018 p.1, ARD 2018 p.1, ARD S1 2026 p.3, HPS 2023 p.39 et p.63 de 2025 ; identité résultat ensemble − part du groupe − minoritaires vérifiée sur toutes les périodes.
