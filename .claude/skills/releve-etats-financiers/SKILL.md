@@ -87,6 +87,13 @@ valeur, PUIS seulement comparer.
 | Montants imprimés sur des lignes séparées des libellés (HPS 2023 p.39) ou ligature « ﬀ » (Chiﬀres d'aﬀaires) | rendre la page ; écrire les regex avec la ligature ; citer ce qui est lu |
 | Colonne « pro forma » du tiers (PF) sur plusieurs exercices (HPS) | lire l'état de l'exercice dans SON rapport ; ne jamais s'aligner sur la valeur PF |
 | Nombre d'actions autour d'une division du nominal (HPS 2023, T2S 2026) | imprimé par période, sans ajustement (R11) ; la division est dite dans la note |
+| Police encodée (LBV 2016-2018, S1 2019) : `pdftotext` sort des lettres décalées et AUCUN chiffre, ce n'est pas forcément une image | `pdfplumber` rend les caractères en `(cid:N)` ; N + 29 = code ASCII (cid:19 → « 0 », cid:15 → « , », cid:3 → espace ; cid:183 = apostrophe). Reconstruire les lignes par `top`, puis relire la valeur sur le rendu de la page avant de l'écrire |
+| En-tête d'un tableau des flux qui contredit ses propres lignes (Auto Nejma S1 2026 : colonnes imprimées « 30/06/2026 \| 30/06/2025 », mais la 1re porte le résultat net 146 966 du S1 2025) | recouper l'en-tête avec une ligne connue du MÊME tableau (résultat net) et avec le compte de résultat du dépôt ; écrire la valeur de la bonne colonne et la raison dans la cellule |
+| 2e colonne d'un tableau des flux semestriel : exercice complet précédent (Label'Vie, Auto Nejma S1 2024) OU même semestre N-1 (Lesieur Cristal, BMCI) | varie d'un émetteur à l'autre : lire l'en-tête de date de CHAQUE tableau ; ne jamais lire le semestre précédent dans une colonne qui porte « 31/12 » |
+| Tiers qui range « Résultat d'exploitation courant » sous « Résultat d'exploitation » (MASI Screener pour Lesieur Cristal ; son « Résultat opérationnel » = résultat des activités opérationnelles) | contrôler `resultat_exploitation` contre la ligne SANS « courant » ; un écart de ce type n'est pas une erreur de la pièce |
+| Caractère de contrôle dans un libellé extrait (« P\x07 art du groupe » dans BMCI) | écrire les regex avec `.{0,2}` entre les lettres et nettoyer la citation ; un libellé « absent » peut n'être qu'un libellé abîmé |
+| Texte et montant qui se contredisent dans un projet de résolution (BMCI 2021 : « 43 dirhams par action » pour 132 792 860 DH = 10 DH) | rendre la page, constater la contradiction, ne pas retenir le dividende (non relevé, motif écrit) |
+| Société qui ne publie du consolidé qu'à partir d'un exercice (Auto Nejma : 2023) | chaque période porte son périmètre (`social` / `consolide`) ; en social, pas de part du groupe ni de flux (« sans objet ») ; le chiffre d'affaires social peut devoir se sommer (ventes de marchandises + ventes de biens et services produits) |
 
 ## 3. Contre-vérification (verificateur-finance)
 
