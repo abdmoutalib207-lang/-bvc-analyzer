@@ -57,7 +57,7 @@ def _ligne(texte):
 
 def test_les_titres_des_lots_sont_la():
     assert TITRES == ["ADH", "ADI", "AKD", "ATL", "ATW", "BCP", "BOA", "CASH", "CDM", "CFGB", "CIH", "CIM", "CMGP", "CMT",
-                      "CSR", "GAZ", "IAM", "LBV", "LHM", "MNG", "MSA", "RDS", "RIS", "SAF", "SGTM", "SMI", "SNA", "SOT", "SRM",
+                      "CSR", "GAZ", "IAM", "LBV", "LES", "LHM", "MNG", "MSA", "RDS", "RIS", "SAF", "SGTM", "SMI", "SNA", "SOT", "SRM",
                       "TGCC", "TMA", "TQA", "VCNE", "WAF"]
 
 
