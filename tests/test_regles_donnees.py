@@ -16,15 +16,16 @@ import pytest
 # réduction délibérée, pas une régression — une société radiée n'a plus de
 # cours, et la publier revenait à recopier indéfiniment un prix de 195 DH quand
 # son retrait s'est fait à 660.
-NB_TICKERS = 81           # R1 — 81 depuis NRJ (Jet Energy), inscrite le 17/11/2026
+# 26/11/2026 : la taille de l'univers se lit dans `TICKERS_ALL` (82 depuis LPH,
+# Laprophan) ; elle n'est plus codée ici à chaque introduction en bourse.
 NB_MASI1 = 19            # R1 — les valeurs suivies en priorité
 LIMITE_VARIATION = 10.0  # R10 — plafond réglementaire BVC, ±10 %/séance
 
 
 # ── R1 : aucune régression sur la couverture ────────────────────────────────
 
-def test_r1_univers_complet(titres):
-    assert len(titres) == NB_TICKERS
+def test_r1_univers_complet(config, titres):
+    assert len(titres) == len(config.TICKERS_ALL)
 
 
 def test_r1_masi1_present_et_cote(config, titres):

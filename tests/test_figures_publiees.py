@@ -216,7 +216,7 @@ def test_les_ruptures_sont_detectees_et_le_registre_consulte():
 # ── 4. le fichier publié ────────────────────────────────────────────────
 
 def test_format_du_fichier(pub):
-    assert set(pub["titres"]) == set(cfg.TICKERS_ALL)  # 81 depuis NRJ (17/11/2026)
+    assert set(pub["titres"]) == set(cfg.TICKERS_ALL)  # 82 depuis LPH (26/11/2026)
     for cle in ("_quoi", "_r8", "methode", "frequences", "titres", "derniere_seance_du_marche"):
         assert cle in pub
     statuts_fig = {"armee", "declenchee", "invalidee", "expiree"}

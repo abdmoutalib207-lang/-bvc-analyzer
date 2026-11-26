@@ -56,6 +56,7 @@ TICKER_ALIASES = {
     "LBV": ["label vie", "label'vie", "labelvie"],
     "LES": ["lesieur cristal", "lesieur maroc", "lesieur-cristal"],
     "LHM": ["holcim maroc", "lafarge maroc", "lafargeholcim", "lhm maroc"],
+    "LPH": ["laprophan"],    # introduite le 25/11/2026
     "M2M": ["groupe m2m", "m2m group", "m2m maroc", "m2m sa", "m2m technologies"],
     "MGL": ["leasing maghreb", "maghrebail"],
     "MIC": ["microdata"],

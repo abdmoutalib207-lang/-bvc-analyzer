@@ -86,7 +86,7 @@ def test_le_run_avec_erreur_injectee_se_termine_et_ecrit_data_json(deux_runs):
     assert "RUN_TERMINE" in r_ok.stdout, r_ok.stderr[-2000:]
     assert "RUN_TERMINE" in r_err.stdout, "l'erreur injectée a interrompu le run :\n" + r_err.stderr[-2000:]
     import bvc_config
-    n = len(bvc_config.TICKERS_ALL)   # 81 depuis NRJ (17/11/2026)
+    n = len(bvc_config.TICKERS_ALL)   # 82 depuis LPH (26/11/2026)
     assert len(_tickers(err)) == n and len(_tickers(ok)) == n
 
 
