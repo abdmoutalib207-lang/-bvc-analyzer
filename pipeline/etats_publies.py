@@ -214,6 +214,15 @@ _RAISONS = (
     (r"^ligne « Intérêts ne conférant pas le contrôle » imprimée sans montant",
      "Non relevé : la ligne des intérêts minoritaires est imprimée sans montant dans le document "
      "(aucun minoritaire)."),
+    # lot 9 (ARD, DHO, T2S)
+    (r"^police encodée",
+     "Non relevé : le libellé de cette ligne est illisible dans le texte du document déposé (police encodée), la ligne n'a pas été lue."),
+    (r"^EBITDA publié identique",
+     "Sans objet : l'EBITDA publié par l'émetteur est son excédent brut d'exploitation, déjà affiché à la ligne EBE."),
+    (r"^tableau des flux non publié",
+     "Non relevé : le document ne contient pas de tableau des flux de trésorerie."),
+    (r"^tableau des flux au 31/12/2017",
+     "Non relevé : le tableau des flux de cet exercice ne figure dans aucun document déposé (le rapport suivant ne porte que sur les deux exercices les plus récents)."),
     (r"non lu|non relevé|non établi|non repris",
      "Non relevé : cette ligne n'a pas été lue pour cette période (ce qui ne veut pas dire "
      "qu'elle n'est pas publiée)."),
