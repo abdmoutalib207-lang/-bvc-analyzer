@@ -237,7 +237,7 @@
     "dette_nette": {
      "valeur_mdh": 568.471,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — aucun montant de location-financement retranché (colonne comparative : la note des dettes du rapport 2019 ne ventile que 2018 et 2019) ; définition retenue pour la foncière : dettes financières consolidées moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — aucun montant de location-financement retranché (colonne comparative : la note « Dettes financières » du rapport 2019 s'ouvre au 31/12/2018 et ne porte aucun montant au 31/12/2017) ; définition retenue pour la foncière : dettes financières consolidées moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet",
      "statut": "calcule_depuis_composantes_publiees",
      "composantes": {
       "dettes_financieres_non_courantes": {
@@ -299,7 +299,7 @@
      },
      "composantes_exclues": [
       "autres passifs courants et non courants, provisions, fournisseurs",
-      "dettes de location-financement : aucun montant retranché (colonne comparative : la note des dettes du rapport 2019 ne ventile que 2018 et 2019)"
+      "dettes de location-financement : aucun montant retranché (colonne comparative : la note « Dettes financières » du rapport 2019 s'ouvre au 31/12/2018 et ne porte aucun montant au 31/12/2017)"
      ],
      "controle_ms": {
       "resultat": "absent_ms"
@@ -505,9 +505,9 @@
      }
     },
     "dette_nette": {
-     "valeur_mdh": 1079.085,
+     "valeur_mdh": 940.126,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — aucun montant de location-financement retranché (colonne comparative du rapport 2019, dont la note ne ventile pas 2018) ; définition retenue pour la foncière : dettes financières consolidées moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents - dettes_location_financement — dettes de location-financement RETIRÉES (isolées par la note « Dettes financières » du rapport 2019, colonne 31/12/2018) ; définition retenue pour la foncière : dettes financières consolidées hors crédit-bail moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet",
      "statut": "calcule_depuis_composantes_publiees",
      "composantes": {
       "dettes_financieres_non_courantes": {
@@ -560,16 +560,34 @@
         "resultat": "non_verifie",
         "note": "composante de bilan ou de note : lecture directe de la pièce, aucune valeur tierce comparée"
        }
+      },
+      "dettes_location_financement": {
+       "valeur_mdh": 138.959,
+       "unite_source": "KMAD",
+       "valeur_source": "138 959",
+       "document": "Aradei_Capital_RFA_2019_0.pdf",
+       "page": 11,
+       "citation": "Dettes location financement 138 959 109 703 (16 038) - 232 625 17 059 215 565",
+       "entete_colonnes": "(En KMAD) 31/12/2018 Augmentation Diminution Autres variations 31/12/2019 Part courante Part non courante (note 25 Dettes financières)",
+       "perimetre": "consolide",
+       "referentiel": "IFRS (comptes consolidés)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de note : lecture directe de la pièce, aucune valeur tierce comparée"
+       },
+       "note": "première colonne (31/12/2018) du tableau de variation de la note 25 du rapport 2019 ; le total de cette colonne (1 659 784) boucle avec les dettes financières du bilan 2018 (1 349 099 + 310 686)"
       }
      },
      "composantes_incluses": {
       "dettes_financieres_non_courantes": "dettes financières part non courante (bilan consolidé IFRS)",
       "dettes_financieres_courantes": "dettes financières part courante (comprend découverts et intérêts courus)",
-      "tresorerie_et_equivalents": "trésorerie et équivalents (valeurs mobilières de placement comprises, comptées dans la trésorerie de clôture du tableau des flux), en déduction"
+      "tresorerie_et_equivalents": "trésorerie et équivalents (valeurs mobilières de placement comprises, comptées dans la trésorerie de clôture du tableau des flux), en déduction",
+      "dettes_location_financement": "dettes de location-financement (crédit-bail) de la note « Dettes financières » du rapport 2019, ouverture 31/12/2018 : RETIRÉ"
      },
      "composantes_exclues": [
       "autres passifs courants et non courants, provisions, fournisseurs",
-      "dettes de location-financement : aucun montant retranché (colonne comparative du rapport 2019, dont la note ne ventile pas 2018)"
+      "dettes de location-financement (crédit-bail) isolées par la note « Dettes financières » (colonne 31/12/2018) : retirées (composante citée)"
      ],
      "controle_ms": {
       "resultat": "absent_ms"
@@ -4624,7 +4642,7 @@
     "dette_nette": {
      "valeur_mdh": 3142.269,
      "mode": "calcul_sur_composantes_publiees",
-     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — aucun montant de location-financement retranché (communiqué semestriel de cinq pages, sans note des dettes financières) ; définition retenue pour la foncière : dettes financières consolidées moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet",
+     "formule": "+ dettes_financieres_non_courantes + dettes_financieres_courantes - tresorerie_et_equivalents — aucun montant de location-financement retranché (communiqué semestriel de cinq pages, sans note des dettes financières) ; définition retenue pour la foncière : dettes financières consolidées moins trésorerie et équivalents (valeurs mobilières de placement comprises) ; calcul propre au projet ; RUPTURE : le crédit-bail n'est pas retiré au S1 2026 (communiqué sans note) alors qu'il l'est au S1 2025 et aux exercices FY2018 et FY2019-FY2025",
      "statut": "calcule_depuis_composantes_publiees",
      "composantes": {
       "dettes_financieres_non_courantes": {
@@ -4925,6 +4943,6 @@
   "remplies": 177,
   "supplementaires_remplis": 54,
   "ecarts_ms_screener": 12,
-  "note": "Comptes consolidés IFRS d'Aradei Capital (foncière : immeubles de placement à la juste valeur), en milliers de dirhams (KMAD) ; le communiqué semestriel 2026 et certains chiffres clés sont en millions de dirhams. FY2016 : aucun dépôt (introduction en bourse en 2018). FY2017 et FY2018 : colonnes comparatives du rapport 2019 (statut comparatif), identiques à celles du dépôt consolidé 2018 dont le texte est encodé et dont le rendu de la p.1 a été relu. FY2019-FY2025 : rapports financiers annuels (états consolidés IFRS : pages 23-25 en 2019, 28-30 en 2022, 2024 et 2025, page de comptes consolidés résumés en 2020, 2021 et 2023). Semestres : rapports financiers semestriels ; S1 2026 : communiqué de cinq pages (comptes consolidés résumés, sans tableau des flux). S1 2019 : dépôt dont plusieurs lignes sont encodées (part du groupe, minoritaires, investissement, dettes) : non lues. S1 2020 : l'état s'arrête au « résultat net global », sans part du groupe. L'excédent brut d'exploitation est une ligne des états consolidés (ebe). Résultat d'exploitation = ligne « Résultat opérationnel » (après variation de juste valeur des immeubles). Dette nette calculée (définition de foncière) = dettes financières part non courante + part courante − trésorerie et équivalents (valeurs mobilières de placement comprises, comptées dans la trésorerie de clôture du tableau des flux), dettes de location-financement (crédit-bail) RETIRÉES quand la note « Dettes financières » les isole (FY2019 à FY2025 selon notes, semestres 2020 à 2025) ; l'endettement net publié par l'émetteur (qui les inclut) est à la ligne dette_nette_publiee quand il figure dans le dépôt. Nombre d'actions : phrase du capital social, avec la date qu'elle indique, sans ajustement. Dividende proposé relevé pour FY2021-FY2025."
+  "note": "Comptes consolidés IFRS d'Aradei Capital (foncière : immeubles de placement à la juste valeur), en milliers de dirhams (KMAD) ; le communiqué semestriel 2026 et certains chiffres clés sont en millions de dirhams. FY2016 : aucun dépôt (introduction en bourse en 2018). FY2017 et FY2018 : colonnes comparatives du rapport 2019 (statut comparatif), identiques à celles du dépôt consolidé 2018 dont le texte est encodé et dont le rendu de la p.1 a été relu. FY2019-FY2025 : rapports financiers annuels (états consolidés IFRS : pages 23-25 en 2019, 28-30 en 2022, 2024 et 2025, page de comptes consolidés résumés en 2020, 2021 et 2023). Semestres : rapports financiers semestriels ; S1 2026 : communiqué de cinq pages (comptes consolidés résumés, sans tableau des flux). S1 2019 : dépôt dont plusieurs lignes sont encodées (part du groupe, minoritaires, investissement, dettes) : non lues. S1 2020 : l'état s'arrête au « résultat net global », sans part du groupe. L'excédent brut d'exploitation est une ligne des états consolidés (ebe). Résultat d'exploitation = ligne « Résultat opérationnel » (après variation de juste valeur des immeubles). Dette nette calculée (définition de foncière) = dettes financières part non courante + part courante − trésorerie et équivalents (valeurs mobilières de placement comprises, comptées dans la trésorerie de clôture du tableau des flux), dettes de location-financement (crédit-bail) RETIRÉES quand la note « Dettes financières » les isole (FY2019 à FY2025 selon notes, semestres 2020 à 2025) ; l'endettement net publié par l'émetteur (qui les inclut) est à la ligne dette_nette_publiee quand il figure dans le dépôt. Nombre d'actions : phrase du capital social, avec la date qu'elle indique, sans ajustement. Dividende proposé relevé pour FY2021-FY2025. RUPTURES DE DÉFINITION de la dette nette : FY2017 et S1 2019 (sans retrait), FY2018 à FY2025 et S1 2020 à S1 2025 (crédit-bail retiré), S1 2026 (sans retrait, communiqué sans note) ; l'émetteur inclut le crédit-bail dans son endettement net et dans son ratio LTV : la ligne dette_nette_publiee est la référence de l'émetteur, la ligne dette_nette est un calcul du projet."
  }
 }
