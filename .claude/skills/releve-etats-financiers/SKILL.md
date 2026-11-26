@@ -77,6 +77,7 @@ valeur, PUIS seulement comparer.
 | Retraitement silencieux d'un comparatif (RDS : changement de méthode de reconnaissance du chiffre d'affaires, 2024 : −79,7 retraité contre −82,8 d'origine) | garder la valeur du dépôt d'origine et mettre la valeur retraitée en réserve |
 | Communiqué ou page d'un autre format dans le rapport (SRM RFA 2019 : CA semestriel 130,9 à la p.106, états annuels p.109) | repérer la page des états de synthèse de l'exercice avant de conclure qu'un chiffre est étranger ; lire le sha256 et la page du dépôt d'origine |
 | Deux lignes « TOTAL III » sur la même page de bilan (trésorerie actif et trésorerie passif, SRM 2020) | citer le libellé de la masse (« TRÉSORERIE - PASSIF »), jamais un « TOTAL » seul ; relire la colonne et la masse pièce en main |
+| Police encodée (LBV 2016-2018, S1 2019) : `pdftotext` sort des lettres décalées et AUCUN chiffre, ce n'est pas forcément une image | `pdfplumber` rend les caractères en `(cid:N)` ; N + 29 = code ASCII (cid:19 → « 0 », cid:15 → « , », cid:3 → espace ; cid:183 = apostrophe). Reconstruire les lignes par `top`, puis relire la valeur sur le rendu de la page avant de l'écrire |
 
 ## 3. Contre-vérification (verificateur-finance)
 
