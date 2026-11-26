@@ -129,7 +129,7 @@ Archétype `real_estate` pour ARD (immeubles de placement à la juste valeur), `
   `nombre_actions` imprimé par période, **sans ajustement** (nominal 100 MAD ; fractionnement 2 pour 1 et augmentation de capital postérieurs à la clôture).
   Le tableau d'endettement du rapport semestriel est étiqueté « 30/06/2025 | 30/06/2026 » mais sa colonne de gauche porte les valeurs du 31/12/2025.
   Dette nette : FY2023-FY2025 hors dettes de crédit-bail isolées par l'émetteur (p.239, p.49) et OPCVM retranchés en 2025 (comptés en trésorerie au tableau des flux) ;
-  S1 2026 : dettes de location non isolées (aucune note), titres non retranchés. L'endettement net publié par l'émetteur est à `dette_nette_publiee`.
+  S1 2026 : dettes de location non isolées (aucune note), titres non retranchés. L'endettement net publié par l'émetteur est à `dette_nette_publiee`. **Rupture** : retrait des dettes de location en FY2023-25, aucun au S1 2026 ; une identification par égalité de montants donnerait 729,733 MDH, non retenue (déduction, pas lecture).
 * **DHO** : comptes consolidés CNC en dirhams exacts. FY2017 = colonne comparative du dépôt 2018 (aucun dépôt annuel 2017, S1 2017 en image) ; FY2016 et FY2018 :
   dépôts de une à deux pages à mise en page dense. Pas de ligne EBE ni EBITDA publié. Dette nette = dettes de financement + trésorerie passif − trésorerie actif ;
   crédit-bail (retraité en immobilisations, donc dans les dettes de financement) retiré quand une note « Emprunts à long terme » le chiffre (FY2019 à FY2025 — FY2019 lu dans la colonne comparative de la note du rapport 2020 —, S1 2022 à S1 2026),
