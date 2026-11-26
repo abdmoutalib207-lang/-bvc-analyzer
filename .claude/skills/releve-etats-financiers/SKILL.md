@@ -50,6 +50,10 @@ valeur, PUIS seulement comparer.
 | Intérêts minoritaires | stockés positifs (convention du README), même si la pièce les imprime en déduction |
 | Nombre d'actions autour d'une opération sur titres | registre `SPLITS` / `HISTORIQUE_ACTIONS` de `bvc_config` (R11) ; réserve dans la cellule |
 | Banque | PNB, RBE ; pas de dette nette |
+| Assureur (lot 7) | `insurance` : CA = primes émises, ou en IFRS 17 le « chiffre d'affaires » publié (WAF : produits des activités d'assurance) ; rupture de série dite en réserve ; ATL (normes marocaines) sans résultat d'exploitation |
+| Tableau des flux décalé (ATL 2025 : totaux « A » / « B » imprimés trois lignes au-dessus de leurs valeurs) | rapprocher des flux de la colonne comparative suivante et de la variation de trésorerie ; ne pas lire le total par son libellé |
+| Caractères de contrôle dans le texte extrait (`\x02` entre milliers, `\ue01e` pour « fl ») | normaliser avant d'écrire les regex de libellé ; un regex de libellé non ancré attrape la ligne de flux « … résultat opérationnel » : ancrer sur le début de ligne |
+| Fusion après clôture (Sanlam Maroc / Allianz, 02/07/2026) | dire le périmètre de chaque période ; une fusion postérieure à la clôture ne touche aucune période relevée |
 | Liste AMMC « États financiers » incomplète | essayer l'URL directe `https://www.ammc.ma/sites/default/files/<Nom>_RFA_<AAAA>.pdf` et `_RFS_S1_<AA>` |
 | Colonnes en ordre CROISSANT, et pas les mêmes d'un état à l'autre (Marsa Maroc S1 2022 : bilan « 31/12/2021 \| 30/06/2022 », compte de résultat « 30/06/2021 \| 30/06/2022 ») | lire l'en-tête de date de CHAQUE état, jamais déduire la colonne d'un état voisin |
 | Colonne « proforma » en plus des deux périodes (TGCC S1 2025 : trois colonnes) | compter les colonnes sur l'en-tête ; prendre « les deux dernières » a donné le S1 2024 pour le S1 2025 |
