@@ -260,7 +260,7 @@ def jumeaux(tmp_path_factory):
 def test_invariance_80_sur_80_avec_et_sans_le_bloc(jumeaux):
     avec = {t["symbol"]: t for t in jumeaux["avec"]["tickers"]}
     sans = {t["symbol"]: t for t in jumeaux["sans"]["tickers"]}
-    assert set(avec) == set(sans) and len(avec) == len(C.TICKERS_ALL)  # 81 depuis NRJ (17/11/2026)
+    assert set(avec) == set(sans) and len(avec) == len(C.TICKERS_ALL)  # 82 depuis LPH (26/11/2026)
     # le bloc est bien publié d'un côté, absent de l'autre
     assert all("comptes_s1" in t and "a_savoir" in t for t in avec.values())
     assert not any("comptes_s1" in t or "a_savoir" in t for t in sans.values())
@@ -290,7 +290,8 @@ def test_regenere_compte_les_blocs(jumeaux):
     sans = [x for x in t if x["comptes_s1"]["etat"] == "non_releve"]
     # NRJ (Jet Energy) : introduite le 16/11/2026, aucun compte semestriel déposé
     # comme société cotée — son absence est légitime et dite (motif).
-    assert {x["symbol"] for x in sans} == {"SAF", "CAR", "ENK", "STK", "IBM", "DLM", "DIS", "NRJ"}
+    # LPH (Laprophan) : introduite le 25/11/2026, même cas que NRJ.
+    assert {x["symbol"] for x in sans} == {"SAF", "CAR", "ENK", "STK", "IBM", "DLM", "DIS", "NRJ", "LPH"}
     assert all(x["comptes_s1"]["motif"] for x in sans)          # chacun dit pourquoi
 
 

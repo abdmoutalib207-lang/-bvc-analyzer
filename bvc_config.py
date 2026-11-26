@@ -75,6 +75,7 @@ COMPANY_NAMES: dict = {
     "SLM":  "Salafin",
     "JET":  "Jet Contractors",
     "NRJ":  "Jet Energy",        # introduite le 16/11/2026 — ne pas confondre avec JET
+    "LPH":  "Laprophan",         # introduite le 25/11/2026 (libellé de l'avis AV-2026-137)
     "M2M":  "M2M Group",
     "INV":  "Involys",
     "S2M":  "S2M",  # « S.M Monétique » était une troncature de screener ; le relevé de la cote et le marché disent S2M
@@ -187,6 +188,7 @@ COMPANY_SECTORS: dict = {
     "INV": "Technologie",
     "JET": "Construction",
     "NRJ": "Énergie",            # « Electricité » (note d'opération, p. 17), comme TQA
+    "LPH": "Santé",              # « Industrie Pharmaceutique » (note d'opération, p. 24), comme SOT
     "LBV": "Distribution",
     "LES": "Agroalimentaire",
     "LHM": "Matériaux",
@@ -257,6 +259,7 @@ ISIN_MAP: dict = {
     "EQD": "MA0000010357", "FNB": "MA0000011587", "HPS": "MA0000012619",
     "IBM": "MA0000011132", "IMI": "MA0000012387", "INV": "MA0000011579",
     "NRJ": "MA0000012874",  # Jet Energy — note d'opération AMMC VI/EM/030/2026, p. 17 ; clé de contrôle vérifiée
+    "LPH": "MA0000012882",  # Laprophan — note d'opération AMMC VI/EM/033/2026, p. 23 ; clé de contrôle vérifiée
     "JET": "MA0000012080", "LBV": "MA0000011801", "LHM": "MA0000012320",
     "LES": "MA0000012031", "M2M": "MA0000011678", "MOX": "MA0000010985",
     "MGL": "MA0000011215", "MNG": "MA0000012866",
@@ -345,6 +348,9 @@ IDB_TICKER_MAP: dict = {
     "TMA": "TMA",   "TQA": "TQM",   "UNI": "UMR",   "VCNE": "VCN",
     "WAF": "WAA",   "ZLD": "ZDJ",
     "T2S": "T2S",   "MDP": "MDP",   "DLM": "DLM",   "DIS": "DIS",
+    # LPH (Laprophan, 25/11/2026) : code de CDG vérifié (« LPH », libellé
+    # « LAPROPHAN S.A », relevé hors registre du 25/11) ; code IDBourse NON vérifié.
+    "LPH": "LPH",
     # ZLD ajouté le 10/08/2026. La colonne "-" observée le 02/07 venait de la
     # page idbourse.com/masi, qui ne liste que les composantes de l'indice —
     # Zellidja n'en fait pas partie. L'API la renvoie bien :
@@ -683,6 +689,22 @@ INTRODUCTIONS: dict = {
                    "AV-2026-142 (prix 143,00 MAD) et AV-2026-144 (résultats)"),
         "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-11/av-2026-142_fr.pdf",
         "piece": "datasets/pieces/NRJ/index.json",
+    },
+    # Laprophan : 4 105 500 actions nouvelles + 2 412 200 cédées, au prix de
+    # 341,00 MAD (les salariés ont bénéficié d'une décote, à 273 MAD sur 329 700
+    # actions de la cession). Recoupé : 6 517 700 × 341 − 329 700 × 68 =
+    # 2 200 116 100 MAD, le montant alloué de l'avis AV-2026-145.
+    # ⚠️ Première séance du 25/11 : 300,00 DH, soit −12,02 % sur 341 — au-delà
+    # de ±10 %, dans le plafond de ±20 % : sans cette entrée, R10 publiait 0,00 %.
+    "LPH": {
+        "date": "2026-11-25", "prix": 341.0, "actions": 17_315_725,
+        "source": ("note d'opération visée par l'AMMC le 28/10/2026 (VI/EM/033/2026), "
+                   "p. 23 (ISIN), p. 24 (ticker, date de 1ère cotation, secteur) et "
+                   "p. 50 (17 315 725 actions après l'opération) ; avis de la Bourse de "
+                   "Casablanca AV-2026-137 (prix 341,00 MAD, ticker, date de cotation) "
+                   "et AV-2026-145 (résultats : 6 517 700 actions attribuées)"),
+        "url": "https://www.casablanca-bourse.com/sites/default/files/avis/2026-10/av-2026-137_fr.pdf",
+        "piece": "datasets/pieces/LPH/index.json",
     },
 }
 
@@ -1823,6 +1845,8 @@ TICKERS_ALL: list = [
     "T2S", "MDP", "DLM", "DIS",
     # Ajout du 17/11/2026, accord d'Abd Moutalib (R2) — introduction du 16/11/2026
     "NRJ",
+    # Ajout du 26/11/2026, accord d'Abd Moutalib (R2) — introduction du 25/11/2026
+    "LPH",
 ]
 
 

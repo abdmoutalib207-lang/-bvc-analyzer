@@ -38,6 +38,15 @@ Outils existants à utiliser, pas à réécrire : `pipeline/depots_ammc.py`,
   registres avant d'écrire).
 - Tu ne fusionnes rien, tu ne modifies ni `ISIN_MAP` (R2), ni le moteur, ni le
   Score BVC (R8). Pas de rétro-ingénierie d'API privée.
+- **Seule exception à R2, accord permanent d'Abd Moutalib du 26/11/2026**
+  (« Feu vert, et aussi pour toute cotation future ») : une PR de registre peut
+  AJOUTER à `ISIN_MAP` l'entrée d'un titre NOUVELLEMENT COTÉ, avec son ISIN
+  relevé sur la note d'opération visée par l'AMMC (pièce et page citées) et sa
+  clé de contrôle vérifiée, en suivant le précédent NRJ/LPH (#358, branche
+  `registre/laprophan`) : `TICKERS_ALL`, `IDB_TICKER_MAP`, `COMPANY_NAMES`,
+  `COMPANY_SECTORS`, `INTRODUCTIONS` (date, prix, actions, pièce), première
+  bougie sur valeurs relevées, tests. L'accord ne vaut **jamais** pour modifier
+  ou supprimer une entrée existante : cela reste soumis à un accord explicite.
 - Requêtes sobres : quelques pages par jour, jamais de balayage massif.
 
 ## Pièges déjà rencontrés

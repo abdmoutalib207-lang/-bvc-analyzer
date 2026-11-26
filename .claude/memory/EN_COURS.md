@@ -12,6 +12,15 @@ historique** — cela recréerait une référence exposée.
 
 # En cours — à lire au démarrage de chaque session
 
+## ✅ TRANCHÉ LE 26/11/2026 (accord d'Abd Moutalib) — nouvelles cotations au référentiel ISIN
+
+« Feu vert, et aussi pour toute cotation future » : une PR de registre peut
+AJOUTER à `ISIN_MAP` l'entrée d'un titre nouvellement coté (ISIN relevé sur la
+note d'opération visée par l'AMMC, clé de contrôle vérifiée), sur le modèle
+NRJ (#358) / LPH (Laprophan, introduite le 25/11, branche `registre/laprophan`).
+Jamais pour modifier ou supprimer une entrée existante (R2 inchangée).
+Consigne écrite dans `.claude/agents/collecteur-publications.md`.
+
 ## ▶ ÉTAT AU 11/11/2026, 13h45 — LIRE EN PREMIER
 
 **Fusionné du 09 au 11/11** : #333 (test des gaps : deux passages du soir

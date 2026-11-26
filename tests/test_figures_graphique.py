@@ -379,7 +379,7 @@ for(const [t,v] of Object.entries(FP.titres)){{
 }}
 console.log(JSON.stringify(res));
 """))
-    assert len(sortie) == len(publie["titres"]) == len(cfg.TICKERS_ALL)  # 81 depuis NRJ (17/11/2026)
+    assert len(sortie) == len(publie["titres"]) == len(cfg.TICKERS_ALL)  # 82 depuis LPH (26/11/2026)
     for t, r in sortie.items():
         for n, x in r["par"].items():
             assert x["avant"] == 0, f"{t}/{n} : un élément antérieur à la fenêtre est tracé"
