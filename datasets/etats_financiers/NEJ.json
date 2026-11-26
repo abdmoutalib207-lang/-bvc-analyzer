@@ -1,0 +1,3375 @@
+{
+ "schema": "etats_financiers/1",
+ "ticker": "NEJ",
+ "nom": "Auto Nejma",
+ "emetteur_ammc_id": 2736,
+ "unite": "MDH",
+ "perimetre_principal": "consolide",
+ "archetype": "standard_nonfin",
+ "periodes": {
+  "FY2016": {
+   "type": "annuel",
+   "cloture": "2016-12-31",
+   "donnees": {
+    "resultat_net_ensemble": {
+     "valeur_mdh": 123.197457,
+     "unite_source": "DH",
+     "valeur_source": "123 197 456,97",
+     "document": "auto_nejma_2016.pdf",
+     "page": 1,
+     "citation": "XIII RESULTAT NET (XI-XII) | 123 197 456,97 | 103 314 058,29",
+     "entete_colonnes": "RESULTAT NET DE L'EXERCICE ( + ou - )",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 744.001341,
+     "unite_source": "DH",
+     "valeur_source": "744 001 340,80",
+     "document": "auto_nejma_2016.pdf",
+     "page": 1,
+     "citation": "Total des capitaux propres (A) | 744 001 340,80 | 682 199 723,83",
+     "entete_colonnes": "ACTIF EXERCICE PASSIF Exercice",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 1590.947703,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 1566.985442,
+       "unite_source": "DH",
+       "valeur_source": "1 566 985 441,73",
+       "document": "auto_nejma_2016.pdf",
+       "page": 1,
+       "citation": "Ventes de marchandises ( en l'etat ) | 1 566 985 441,73 | 1 362 877 842,25",
+       "entete_colonnes": "NATURE Propres à l'exercice exercices PRECEDENT PRECEDENT",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 23.962261,
+       "unite_source": "DH",
+       "valeur_source": "23 962 260,98",
+       "document": "auto_nejma_2016.pdf",
+       "page": 1,
+       "citation": "Ventes de biens et services produits | 23 962 260,98 | 23 197 028,34",
+       "entete_colonnes": "NATURE Propres à l'exercice exercices PRECEDENT PRECEDENT",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : ligne non retrouvée dans le dépôt de cette période (comptes sociaux)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : dividende proposé non relu dans les pièces de cet exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2017": {
+   "type": "annuel",
+   "cloture": "2017-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 193.074253,
+     "unite_source": "DH",
+     "valeur_source": "193 074 252,74",
+     "document": "Auto_Nejma_2018.pdf",
+     "page": 1,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 168 404 666,45 | 193 074 252,74 | 8 | + Subventions d'exploitation",
+     "entete_colonnes": "précédent Au 31/12/17",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 800.561726,
+     "unite_source": "DH",
+     "valeur_source": "800 561 725,87",
+     "document": "Auto_Nejma_2018.pdf",
+     "page": 1,
+     "citation": "Total des capitaux propres (A) | 834 169 868,50 | 800 561 725,87",
+     "entete_colonnes": "et provisions au 31/12/17",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 1902.841177,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 1876.182088,
+       "unite_source": "DH",
+       "valeur_source": "1 876 182 087,77",
+       "document": "Auto_Nejma_2018.pdf",
+       "page": 1,
+       "citation": "Ventes de marchandises ( en l'etat ) | 2 010 390 561,24 | 1 876 182 087,77",
+       "entete_colonnes": "précédent Au 31/12/17",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 26.659089,
+       "unite_source": "DH",
+       "valeur_source": "26 659 089,05",
+       "document": "Auto_Nejma_2018.pdf",
+       "page": 1,
+       "citation": "Ventes de biens et services produits | 31 346 010,53 | 26 659 089,05",
+       "entete_colonnes": "précédent Au 31/12/17",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : ligne non retrouvée dans le dépôt de cette période (comptes sociaux)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : dividende proposé non relu dans les pièces de cet exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2018": {
+   "type": "annuel",
+   "cloture": "2018-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 168.404666,
+     "unite_source": "DH",
+     "valeur_source": "168 404 666,45",
+     "document": "Auto_Nejma_2018.pdf",
+     "page": 1,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 168 404 666,45 | 193 074 252,74 | 8 | + Subventions d'exploitation",
+     "entete_colonnes": "précédent Au 31/12/17",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 834.169869,
+     "unite_source": "DH",
+     "valeur_source": "834 169 868,50",
+     "document": "Auto_Nejma_2018.pdf",
+     "page": 1,
+     "citation": "Total des capitaux propres (A) | 834 169 868,50 | 800 561 725,87",
+     "entete_colonnes": "et provisions au 31/12/17",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2041.736572,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 2010.390561,
+       "unite_source": "DH",
+       "valeur_source": "2 010 390 561,24",
+       "document": "Auto_Nejma_2018.pdf",
+       "page": 1,
+       "citation": "Ventes de marchandises ( en l'etat ) | 2 010 390 561,24 | 1 876 182 087,77",
+       "entete_colonnes": "précédent Au 31/12/17",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 31.346011,
+       "unite_source": "DH",
+       "valeur_source": "31 346 010,53",
+       "document": "Auto_Nejma_2018.pdf",
+       "page": 1,
+       "citation": "Ventes de biens et services produits | 31 346 010,53 | 26 659 089,05",
+       "entete_colonnes": "précédent Au 31/12/17",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : ligne non retrouvée dans le dépôt de cette période (comptes sociaux)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : dividende proposé non relu dans les pièces de cet exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2019": {
+   "type": "annuel",
+   "cloture": "2019-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 243.210737,
+     "unite_source": "DH",
+     "valeur_source": "243 210 737,37",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 26,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 171 647 721,80 | 243 210 737,37",
+     "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 159.225478,
+     "unite_source": "DH",
+     "valeur_source": "159 225 477,56",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 27,
+     "citation": "XIII RESULTAT NET (XI-XII) | 102 663 038,63 | 159 225 477,56",
+     "entete_colonnes": "L'EXERCICE PRECEDENT",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 925.859922,
+     "unite_source": "DH",
+     "valeur_source": "925 859 922,06",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 25,
+     "citation": "Total des capitaux propres (A) | 932 336 144,69 | 925 859 922,06",
+     "entete_colonnes": "au 31/12/19",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2293.489319,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 2251.395669,
+       "unite_source": "DH",
+       "valeur_source": "2 251 395 668,58",
+       "document": "Auto_Nejma_RFA_2020.pdf",
+       "page": 26,
+       "citation": "Ventes de marchandises (en l'état) | 2 179 796 534,37 | 2 179 796 534,37 | 2 251 395 668,58",
+       "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 42.09365,
+       "unite_source": "DH",
+       "valeur_source": "42 093 650,07",
+       "document": "Auto_Nejma_RFA_2020.pdf",
+       "page": 26,
+       "citation": "Ventes de biens et services produits | 36 634 848,72 | 36 634 848,72 | 42 093 650,07",
+       "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : dividende proposé non relu dans les pièces de cet exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2020": {
+   "type": "annuel",
+   "cloture": "2020-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 171.647722,
+     "unite_source": "DH",
+     "valeur_source": "171 647 721,80",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 26,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 171 647 721,80 | 243 210 737,37",
+     "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 102.663039,
+     "unite_source": "DH",
+     "valeur_source": "102 663 038,63",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 27,
+     "citation": "XIII RESULTAT NET (XI-XII) | 102 663 038,63 | 159 225 477,56",
+     "entete_colonnes": "L'EXERCICE PRECEDENT",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 932.336145,
+     "unite_source": "DH",
+     "valeur_source": "932 336 144,69",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 25,
+     "citation": "Total des capitaux propres (A) | 932 336 144,69 | 925 859 922,06",
+     "entete_colonnes": "au 31/12/19",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2216.431383,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 2179.796534,
+       "unite_source": "DH",
+       "valeur_source": "2 179 796 534,37",
+       "document": "Auto_Nejma_RFA_2020.pdf",
+       "page": 26,
+       "citation": "Ventes de marchandises (en l'état) | 2 179 796 534,37 | 2 179 796 534,37 | 2 251 395 668,58",
+       "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 36.634849,
+       "unite_source": "DH",
+       "valeur_source": "36 634 848,72",
+       "document": "Auto_Nejma_RFA_2020.pdf",
+       "page": 26,
+       "citation": "Ventes de biens et services produits | 36 634 848,72 | 36 634 848,72 | 42 093 650,07",
+       "entete_colonnes": "NATURE l'exercice exercices précédent Au 31/12/19",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 16,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 60.0,
+     "unite_source": "DH par action",
+     "valeur_source": "60",
+     "document": "Auto_Nejma_RFA_2020.pdf",
+     "page": 19,
+     "citation": "Dividendes 61.395.840,00 dhs",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     },
+     "note": "dividende proposé à l'assemblée (résolution d'affectation du résultat social), lu au rapport"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2021": {
+   "type": "annuel",
+   "cloture": "2021-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 224.854884,
+     "unite_source": "DH",
+     "valeur_source": "224 854 883,65",
+     "document": "Auto_Nejma_RFA_2021.pdf",
+     "page": 41,
+     "citation": "III RÉSULTAT D’EXPLOITATION ( I - II ) | 224 854 883,65 | 171 647 721,80",
+     "entete_colonnes": "AU 31/12/2020",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 145.64858,
+     "unite_source": "DH",
+     "valeur_source": "145 648 580,15",
+     "document": "Auto_Nejma_RFA_2021.pdf",
+     "page": 41,
+     "citation": "XIII RÉSULTAT NET ( XI - XII ) | 145 648 580,15 | 102 663 038,63",
+     "entete_colonnes": "1 RÉSULTAT NET DE L’EXERCICE ( + ou - )",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1016.588885,
+     "unite_source": "DH",
+     "valeur_source": "1 016 588 884,84",
+     "document": "Auto_Nejma_RFA_2021.pdf",
+     "page": 40,
+     "citation": "Total des capitaux propres | (A) | 1 016 588 884,84 | 932 336 144,69",
+     "entete_colonnes": "ET PROVISIONS AU 31/12/20",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2318.738272,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 2267.050161,
+       "unite_source": "DH",
+       "valeur_source": "2 267 050 161,35",
+       "document": "Auto_Nejma_RFA_2021.pdf",
+       "page": 41,
+       "citation": "Ventes de marchandises ( en l’état ) | 2 267 050 161,35 | 2 179 796 534,37",
+       "entete_colonnes": "L’EXERCICE PRECEDENT",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 51.688111,
+       "unite_source": "DH",
+       "valeur_source": "51 688 111,33",
+       "document": "Auto_Nejma_RFA_2021.pdf",
+       "page": 41,
+       "citation": "Ventes de biens et services produits | 51 688 111,33 | 36 634 848,72",
+       "entete_colonnes": "AU 31/12/2020",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2021.pdf",
+     "page": 13,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 86.0,
+     "unite_source": "DH par action",
+     "valeur_source": "86",
+     "document": "Auto_Nejma_RFA_2021.pdf",
+     "page": 15,
+     "citation": "Dividendes 88.000.704,00 dhs",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     },
+     "note": "dividende proposé à l'assemblée (résolution d'affectation du résultat social), lu au rapport"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2022": {
+   "type": "annuel",
+   "cloture": "2022-12-31",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 286.714254,
+     "unite_source": "DH",
+     "valeur_source": "286 714 254,19",
+     "document": "Auto_Nejma_RFA_2022.pdf",
+     "page": 42,
+     "citation": "III RÉSULTAT D’EXPLOITATION ( I - II ) | 286 714 254,19 | 224 854 883,65",
+     "entete_colonnes": "AU 31/12/2021",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 187.1538,
+     "unite_source": "DH",
+     "valeur_source": "187 153 799,62",
+     "document": "Auto_Nejma_RFA_2022.pdf",
+     "page": 42,
+     "citation": "XIII RÉSULTAT NET ( XI - XII ) | 187 153 799,62 | 145 648 580,15",
+     "entete_colonnes": "1 RÉSULTAT NET DE L’EXERCICE ( + ou - )",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1115.74198,
+     "unite_source": "DH",
+     "valeur_source": "1 115 741 980,46",
+     "document": "Auto_Nejma_RFA_2022.pdf",
+     "page": 41,
+     "citation": "Total des capitaux propres | (A) | 1 115 741 980,46 | 1 016 588 884,84",
+     "entete_colonnes": "ET PROVISIONS AU 31/12/21",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 2100.779386,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 2025.563562,
+       "unite_source": "DH",
+       "valeur_source": "2 025 563 561,89",
+       "document": "Auto_Nejma_RFA_2022.pdf",
+       "page": 42,
+       "citation": "Ventes de marchandises ( en l’état ) | 2 025 563 561,89 | 2 267 050 161,35",
+       "entete_colonnes": "L’EXERCICE PRÉCÉDENT",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 75.215824,
+       "unite_source": "DH",
+       "valeur_source": "75 215 824,20",
+       "document": "Auto_Nejma_RFA_2022.pdf",
+       "page": 42,
+       "citation": "Ventes de biens et services produits | 75 215 824,20 | 51 688 111,33",
+       "entete_colonnes": "AU 31/12/2021",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2022.pdf",
+     "page": 13,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "—"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 125.0,
+     "unite_source": "DH par action",
+     "valeur_source": "125",
+     "document": "Auto_Nejma_RFA_2022.pdf",
+     "page": 15,
+     "citation": "Dividendes 112 559 040,00 dhs - Dividendes exceptionnels 15 348 960,00 dhs NEUVIÈME RÉSOLUTION",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "—"
+     },
+     "note": "somme du dividende exceptionnel de 15 DH et du dividende ordinaire de 110 DH par action, tel que le rapport le totalise (« un total de 125 Dirhams »)"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2023": {
+   "type": "annuel",
+   "cloture": "2023-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 2274.525,
+     "unite_source": "KMAD",
+     "valeur_source": "2 274 525",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 53,
+     "citation": "Chiffre d'affaires | 2 274 525 | 2 135 819 | 2 100 779",
+     "entete_colonnes": "(En KMAD) 31 décembre 2022",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2274.5
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 264.829,
+     "unite_source": "KMAD",
+     "valeur_source": "264 829",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 53,
+     "citation": "Résultat d'exploitation | 264 829 | 283 694 | 287 639",
+     "entete_colonnes": "(En KMAD) 31 décembre 2022",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 264.8
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 157.773,
+     "unite_source": "KMAD",
+     "valeur_source": "157 773",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 53,
+     "citation": "Résultat net de l'ensemble consolidé | 157 773 | 189 389 | 193 392",
+     "entete_colonnes": "31 décembre 2022",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 157.8
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 157.773,
+     "unite_source": "KMAD",
+     "valeur_source": "157 773",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 53,
+     "citation": "Résultat net part du Groupe | 157 773 | 189 389 | 193 392",
+     "entete_colonnes": "31 décembre 2022",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 157.8
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1148.431,
+     "unite_source": "KMAD",
+     "valeur_source": "1 148 431",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 53,
+     "citation": "Capitaux propres de | 1 148 431 | 1 118 566 | 1 120 603 | d’acquisition",
+     "entete_colonnes": "31 décembre 2022",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1148.4
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -24.06,
+     "unite_source": "KMAD",
+     "valeur_source": "-24 060",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 54,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | -24 060 | 108 055",
+     "entete_colonnes": "31 décembre 2022 31-déc-2022 renforçant sa présence dans le secteur automobile de luxe. Dans cette optique, Auto Nejma Maroc",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -24.1
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -247.936,
+     "unite_source": "KMAD",
+     "valeur_source": "-247 936",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 54,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS | -247 936 | -14 542",
+     "entete_colonnes": "Le montant des rémunérations et avantages alloués aux dirigeants au titre de l’exercice 2023, tel que",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -247.9
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 445.037,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 206.656,
+       "unite_source": "KMAD",
+       "valeur_source": "206 656",
+       "document": "Auto_Nejma_RFA_2023.pdf",
+       "page": 53,
+       "citation": "Dettes financières | 206 656 | 220 362 | 85 362",
+       "entete_colonnes": "31 décembre 2022",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 271.195,
+       "unite_source": "KMAD",
+       "valeur_source": "271 195",
+       "document": "Auto_Nejma_RFA_2023.pdf",
+       "page": 53,
+       "citation": "TRESORERIE - PASSIF | 271 195 | - | -",
+       "entete_colonnes": "31 décembre 2022",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 32.814,
+       "unite_source": "KMAD",
+       "valeur_source": "32 814",
+       "document": "Auto_Nejma_RFA_2023.pdf",
+       "page": 53,
+       "citation": "DISPONIBILITES | 32 814 | 74 568 | 40 230",
+       "entete_colonnes": "(En KMAD) 31 décembre 2022",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "Auto_Nejma_RFA_2023.pdf",
+      "page": 57,
+      "citation": "– Les dettes financières liées au retraitement de crédit-bail chez AUTO NEJMA."
+     },
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 445.0
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 13,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 94.0,
+     "unite_source": "DH par action",
+     "valeur_source": "94",
+     "document": "Auto_Nejma_RFA_2023.pdf",
+     "page": 13,
+     "citation": "dividende ordinaire de 94 Dirhams (quatre-vingt- quatorze dirhams) par action",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "—"
+     },
+     "note": "dividende proposé à l'assemblée (résolution d'affectation du résultat social), lu au rapport"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 301.7
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2024": {
+   "type": "annuel",
+   "cloture": "2024-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 2902.48,
+     "unite_source": "KMAD",
+     "valeur_source": "2.902.480",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 105,
+     "citation": "Chiffre d'affaires | 2.902.480 | 2.274.525",
+     "entete_colonnes": "(En KMAD)",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 2902.5
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 357.914,
+     "unite_source": "KMAD",
+     "valeur_source": "357.914",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 105,
+     "citation": "Résultat d'exploitation | 357.914 | 264.829",
+     "entete_colonnes": "(En KMAD)",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 357.9
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 205.383,
+     "unite_source": "KMAD",
+     "valeur_source": "205.383",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 105,
+     "citation": "Résultat net de l'ensemble consolidé | 205.383 | 157.773",
+     "entete_colonnes": "(En KMAD)",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 205.4
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 205.383,
+     "unite_source": "KMAD",
+     "valeur_source": "205.383",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 105,
+     "citation": "Résultat net part du Groupe | 205.383 | 157.773",
+     "entete_colonnes": "(En KMAD)",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 205.4
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1257.646,
+     "unite_source": "KMAD",
+     "valeur_source": "1.257.646",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 104,
+     "citation": "Capitaux propres de l’ensemble consolidé | 1.257.646 | 1.148.431",
+     "entete_colonnes": "PASSIF (En KMAD) 31-déc-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1257.6
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 311.773,
+     "unite_source": "KMAD",
+     "valeur_source": "311.773",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 106,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | 311.773 | -24.060",
+     "entete_colonnes": "31-déc-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 311.8
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -100.511,
+     "unite_source": "KMAD",
+     "valeur_source": "-100.511",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 106,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS D’INVESTISSEMENT | -100.511 | -247.936",
+     "entete_colonnes": "31-déc-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -100.5
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 329.955,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 148.034,
+       "unite_source": "KMAD",
+       "valeur_source": "148.034",
+       "document": "Auto_Nejma_RFA_2024_0.pdf",
+       "page": 104,
+       "citation": "Dettes financières | 148.034 | 206.656",
+       "entete_colonnes": "PASSIF (En KMAD) 31-déc-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 267.352,
+       "unite_source": "KMAD",
+       "valeur_source": "267.352",
+       "document": "Auto_Nejma_RFA_2024_0.pdf",
+       "page": 104,
+       "citation": "TRESORERIE - PASSIF | 267.352 | 271.195",
+       "entete_colonnes": "PASSIF (En KMAD) 31-déc-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 85.431,
+       "unite_source": "KMAD",
+       "valeur_source": "85.431",
+       "document": "Auto_Nejma_RFA_2024_0.pdf",
+       "page": 104,
+       "citation": "DISPONIBILITES | 85.431 | 32.814",
+       "entete_colonnes": "ACTIF (En KMAD) 31-déc-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "Auto_Nejma_RFA_2024_0.pdf",
+      "page": 112,
+      "citation": "– Les dettes financières résultant de l’intégration des obligations liées au crédit-bail chez AUTO NEJMA."
+     },
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 330.0
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 24,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 120.0,
+     "unite_source": "DH par action",
+     "valeur_source": "120",
+     "document": "Auto_Nejma_RFA_2024_0.pdf",
+     "page": 25,
+     "citation": "dividende ordinaire de 120 Dirhams (cent vingt dirhams) par action avec mise en",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "—"
+     },
+     "note": "dividende proposé à l'assemblée (résolution d'affectation du résultat social), lu au rapport"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 418.3
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "FY2025": {
+   "type": "annuel",
+   "cloture": "2025-12-31",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 4210.641,
+     "unite_source": "KMAD",
+     "valeur_source": "4.210.641",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 105,
+     "citation": "Chiffre d'affaires | 4.210.641 | 2.902.480 | 2.274.525",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 4210.6
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 533.038,
+     "unite_source": "KMAD",
+     "valeur_source": "533.038",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 105,
+     "citation": "Résultat d'exploitation | 533.038 | 357.914 | 264.829",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 533.0
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 324.182,
+     "unite_source": "KMAD",
+     "valeur_source": "324.182",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 105,
+     "citation": "Résultat net de l'ensemble consolidé | 324.182 | 205.383 | 157.773",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 324.2
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 324.182,
+     "unite_source": "KMAD",
+     "valeur_source": "324.182",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 105,
+     "citation": "Résultat net part du Groupe | 324.182 | 205.383 | 157.773",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 324.2
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1459.008,
+     "unite_source": "KMAD",
+     "valeur_source": "1.459.008",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 104,
+     "citation": "Capitaux propres de l’ensemble consolidé | 1.459.008 | 1.257.646 | 1.148.431",
+     "entete_colonnes": "PASSIF (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1459.0
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -3.839,
+     "unite_source": "KMAD",
+     "valeur_source": "-3.839",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 106,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | -3.839 | 311.773 | -24.060",
+     "entete_colonnes": "31-déc-25 31-déc-24 31-déc-23",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -3.8
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -87.79,
+     "unite_source": "KMAD",
+     "valeur_source": "-87.790",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 106,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS D’INVESTISSEMENT | -87.790 | -100.511 | -247.936",
+     "entete_colonnes": "31-déc-25 31-déc-24 31-déc-23",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -87.8
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 544.404,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 636.534,
+       "unite_source": "KMAD",
+       "valeur_source": "636.534",
+       "document": "Auto_Nejma_RFA_2025.pdf",
+       "page": 104,
+       "citation": "Dettes financières | 636.534 | 148.034 | 206.656",
+       "entete_colonnes": "PASSIF (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 0.001,
+       "unite_source": "KMAD",
+       "valeur_source": "1",
+       "document": "Auto_Nejma_RFA_2025.pdf",
+       "page": 104,
+       "citation": "TRESORERIE - PASSIF | 1 | 267.352 | 271.195",
+       "entete_colonnes": "PASSIF (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 92.131,
+       "unite_source": "KMAD",
+       "valeur_source": "92.131",
+       "document": "Auto_Nejma_RFA_2025.pdf",
+       "page": 104,
+       "citation": "DISPONIBILITES | 92.131 | 85.431 | 32.814",
+       "entete_colonnes": "ACTIF (En KMAD) 31/12/2025 31/12/2024 31/12/2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "Auto_Nejma_RFA_2025.pdf",
+      "page": 112,
+      "citation": "– Les dettes financières résultant de l’intégration des obligations liées au crédit-bail chez AUTO NEJMA."
+     },
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 544.4
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": 1023264.0,
+     "unite_source": "actions",
+     "valeur_source": "1 023 264",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 24,
+     "citation": "TOTAL NOMBRE D'ACTIONS 1 023 264 100%",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": 176.0,
+     "unite_source": "DH par action",
+     "valeur_source": "176",
+     "document": "Auto_Nejma_RFA_2025.pdf",
+     "page": 25,
+     "citation": "dividende ordinaire de 176 Dirhams (cent soixante-seize dirhams) par action avec mise",
+     "entete_colonnes": null,
+     "perimetre": "sans_objet (titres / dividende de la société mère)",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 176.0
+     },
+     "note": "dividende proposé à l'assemblée (résolution d'affectation du résultat social), lu au rapport"
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 639.9
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2019": {
+   "type": "semestriel",
+   "cloture": "2019-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "image sans texte : le dépôt du S1 2019 est une image, non lu ; le comparatif du dépôt de juin 2020 est lui aussi une image",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2020": {
+   "type": "semestriel",
+   "cloture": "2020-06-30",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 64.513762,
+     "unite_source": "DH",
+     "valeur_source": "64 513 761,67",
+     "document": "Auto Nejma_RFS_2021.pdf",
+     "page": 5,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 100 003 964,93 | 64 513 761,67",
+     "entete_colonnes": "précédent Au 30/06/20",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 39.086153,
+     "unite_source": "DH",
+     "valeur_source": "39 086 152,94",
+     "document": "Auto Nejma_RFS_2021.pdf",
+     "page": 6,
+     "citation": "RESULTAT NET (XI-XII) | 60 770 053,22 | 39 086 152,94",
+     "entete_colonnes": "L'EXERCICE 30/06/20",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "lu_dans_document_ulterieur_comparatif",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 841.357163,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 826.609416,
+       "unite_source": "DH",
+       "valeur_source": "826 609 415,90",
+       "document": "Auto Nejma_RFS_2021.pdf",
+       "page": 5,
+       "citation": "Ventes de marchandises (en l'état) | 1 077 061 116,10 | 1 077 061 116,10 | 826 609 415,90",
+       "entete_colonnes": "précédent Au 30/06/20",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 14.747747,
+       "unite_source": "DH",
+       "valeur_source": "14 747 746,91",
+       "document": "Auto Nejma_RFS_2021.pdf",
+       "page": 5,
+       "citation": "Ventes de biens et services produits | 22 871 660,11 | 22 871 660,11 | 14 747 746,91",
+       "entete_colonnes": "précédent Au 30/06/20",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "lu_dans_document_ulterieur_comparatif",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "bilan au 30/06/2020 : le dépôt du S1 2020 est une image sans texte, et le comparatif du dépôt suivant est le bilan de fin d'exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2021": {
+   "type": "semestriel",
+   "cloture": "2021-06-30",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 100.003965,
+     "unite_source": "DH",
+     "valeur_source": "100 003 964,93",
+     "document": "Auto Nejma_RFS_2021.pdf",
+     "page": 5,
+     "citation": "III RESULTAT D'EXPLOITATION (I-II) | 100 003 964,93 | 64 513 761,67",
+     "entete_colonnes": "précédent Au 30/06/20",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 60.770053,
+     "unite_source": "DH",
+     "valeur_source": "60 770 053,22",
+     "document": "Auto Nejma_RFS_2021.pdf",
+     "page": 6,
+     "citation": "RESULTAT NET (XI-XII) | 60 770 053,22 | 39 086 152,94",
+     "entete_colonnes": "L'EXERCICE 30/06/20",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 931.710358,
+     "unite_source": "DH",
+     "valeur_source": "931 710 357,91",
+     "document": "Auto Nejma_RFS_2021.pdf",
+     "page": 4,
+     "citation": "Total des capitaux propres (A) | 931 710 357,91 | 932 336 144,69",
+     "entete_colonnes": "Exercice Précédent au",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 1099.932776,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 1077.061116,
+       "unite_source": "DH",
+       "valeur_source": "1 077 061 116,10",
+       "document": "Auto Nejma_RFS_2021.pdf",
+       "page": 5,
+       "citation": "Ventes de marchandises (en l'état) | 1 077 061 116,10 | 1 077 061 116,10 | 826 609 415,90",
+       "entete_colonnes": "précédent Au 30/06/20",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 22.87166,
+       "unite_source": "DH",
+       "valeur_source": "22 871 660,11",
+       "document": "Auto Nejma_RFS_2021.pdf",
+       "page": 5,
+       "citation": "Ventes de biens et services produits | 22 871 660,11 | 22 871 660,11 | 14 747 746,91",
+       "entete_colonnes": "précédent Au 30/06/20",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2022": {
+   "type": "semestriel",
+   "cloture": "2022-06-30",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 117.327683,
+     "unite_source": "DH",
+     "valeur_source": "117 327 683,27",
+     "document": "Auto_Nejma_RFS_juin_22.pdf",
+     "page": 9,
+     "citation": "III | RÉSULTAT D'EXPLOITATION (I-II) | 117 327 683,27 | 100 003 964,93",
+     "entete_colonnes": "précédent Au 30/06/21",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 75.691159,
+     "unite_source": "DH",
+     "valeur_source": "75 691 159,21",
+     "document": "Auto_Nejma_RFS_juin_22.pdf",
+     "page": 9,
+     "citation": "XIII | RÉSULTAT NET (XI-XII) | 75 691 159,21 | 60 770 053,21",
+     "entete_colonnes": "précédent Au 30/06/21",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1004.27934,
+     "unite_source": "DH",
+     "valeur_source": "1 004 279 340,05",
+     "document": "Auto_Nejma_RFS_juin_22.pdf",
+     "page": 8,
+     "citation": "TOTAL DES CAPITAUX PROPRES (A) | 1 004 279 340,05 | 1 016 588 884,84",
+     "entete_colonnes": "PASSIF EXERCICE PRÉCÉDENT",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 964.41927,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 938.04198,
+       "unite_source": "DH",
+       "valeur_source": "938 041 979,97",
+       "document": "Auto_Nejma_RFS_juin_22.pdf",
+       "page": 9,
+       "citation": "Ventes de marchandises (en l'état) | 938 041 979,97 | 938 041 979,97 | 1 077 061 116,10",
+       "entete_colonnes": "précédent Au 30/06/21",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 26.37729,
+       "unite_source": "DH",
+       "valeur_source": "26 377 289,85",
+       "document": "Auto_Nejma_RFS_juin_22.pdf",
+       "page": 9,
+       "citation": "Ventes de biens et services produits | 26 377 289,85 | 26 377 289,85 | 22 871 660,11",
+       "entete_colonnes": "précédent Au 30/06/21",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2023": {
+   "type": "semestriel",
+   "cloture": "2023-06-30",
+   "donnees": {
+    "resultat_exploitation": {
+     "valeur_mdh": 134.733173,
+     "unite_source": "DH",
+     "valeur_source": "134 733 173,15",
+     "document": "Auto_Nejma_RFS_2023.pdf",
+     "page": 9,
+     "citation": "III | RÉSULTAT D'EXPLOITATION (I-II) | 134 733 173,15 | 117 327 683,27",
+     "entete_colonnes": "précédent Au 30/06/22",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 84.86868,
+     "unite_source": "DH",
+     "valeur_source": "84 868 680,16",
+     "document": "Auto_Nejma_RFS_2023.pdf",
+     "page": 9,
+     "citation": "XIII | RÉSULTAT NET (XI-XII) | 84 868 680,16 | 75 691 159,21",
+     "entete_colonnes": "précédent Au 30/06/22",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1072.70266,
+     "unite_source": "DH",
+     "valeur_source": "1 072 702 660,43",
+     "document": "Auto_Nejma_RFS_2023.pdf",
+     "page": 8,
+     "citation": "TOTAL DES CAPITAUX PROPRES (A) | 1 072 702 660,43 | 1 115 741 980,46",
+     "entete_colonnes": "PASSIF EXERCICE PRÉCÉDENT",
+     "perimetre": "social",
+     "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+     "statut": "publie",
+     "note": "capitaux propres du bilan SOCIAL (« Total des capitaux propres (A) ») : pas de part du groupe, comptes non consolidés",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "chiffre_affaires": {
+     "valeur_mdh": 1087.814028,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "ventes_de_marchandises + ventes_de_biens_et_services_produits (comptes sociaux : le compte de produits et charges social n'imprime pas de ligne « chiffre d'affaires » totale, il porte les deux ventes)",
+     "composantes": {
+      "ventes_de_marchandises": {
+       "valeur_mdh": 1059.144306,
+       "unite_source": "DH",
+       "valeur_source": "1 059 144 305,54",
+       "document": "Auto_Nejma_RFS_2023.pdf",
+       "page": 9,
+       "citation": "Ventes de marchandises (en l'état) | 1 059 144 305,54 | 1 059 144 305,54 | 938 041 979,97",
+       "entete_colonnes": "précédent Au 30/06/22",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      },
+      "ventes_de_biens_et_services_produits": {
+       "valeur_mdh": 28.669722,
+       "unite_source": "DH",
+       "valeur_source": "28 669 722,19",
+       "document": "Auto_Nejma_RFS_2023.pdf",
+       "page": 9,
+       "citation": "Ventes de biens et services produits | 28 669 722,19 | 28 669 722,19 | 26 377 289,85",
+       "entete_colonnes": "précédent Au 30/06/22",
+       "perimetre": "social",
+       "referentiel": "CNC (comptes sociaux, plan comptable marocain)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : comptes sociaux, dette nette non calculée sur cette période",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : comptes sociaux uniquement, sans part du groupe, sans minoritaires et sans tableau des flux de trésorerie",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "note": "ms-screener publie le périmètre consolidé ; cette période est lue en comptes sociaux"
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    }
+   }
+  },
+  "H1-2024": {
+   "type": "semestriel",
+   "cloture": "2024-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 1319.169,
+     "unite_source": "KMAD",
+     "valeur_source": "1 319 169",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 13,
+     "citation": "Chiffre d'affaires | 9-4.1 | 1 319 169 | 1 105 492 | 1 087 814",
+     "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1319.2
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 154.921,
+     "unite_source": "KMAD",
+     "valeur_source": "154 921",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 13,
+     "citation": "Résultat d'exploitation | 154 921 | 129 494 | 134 194",
+     "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 154.9
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 81.419,
+     "unite_source": "KMAD",
+     "valeur_source": "81 419",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 13,
+     "citation": "Résultat net de l'ensemble consolidé | 9-4 | 81 419 | 81 874 | 86 712",
+     "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 81.4
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 81.419,
+     "unite_source": "KMAD",
+     "valeur_source": "81 419",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 13,
+     "citation": "Résultat net part du Groupe | 81 419 | 81 874 | 86 712",
+     "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 30-juin-2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 81.4
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1133.683,
+     "unite_source": "KMAD",
+     "valeur_source": "1 133 683",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 12,
+     "citation": "Capitaux propres de l’ensemble consolidé | 1 133 683 | 1 148 431",
+     "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie",
+      "ms_brut": "n.p."
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": 169.17,
+     "unite_source": "KMAD",
+     "valeur_source": "169 170",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 14,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | 169 170 | - | 24 060",
+     "entete_colonnes": "TABLEAU DES FLUX DE TRESORERIE (En KMAD) 30-juin-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie",
+      "ms_brut": "n.p."
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -28.556,
+     "unite_source": "KMAD",
+     "valeur_source": "-28 556",
+     "document": "AutoNejma_RFS_juin_24.pdf",
+     "page": 14,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS D’INVESTISSEMENT | - 28 556 | - 247 936",
+     "entete_colonnes": "TABLEAU DES FLUX DE TRESORERIE (En KMAD) 30-juin-2024 31-déc-2023",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "absent"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 400.609,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 177.726,
+       "unite_source": "KMAD",
+       "valeur_source": "177 726",
+       "document": "AutoNejma_RFS_juin_24.pdf",
+       "page": 12,
+       "citation": "Dettes financières | 9-3.7 | 177 726 | 206 656",
+       "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 258.701,
+       "unite_source": "KMAD",
+       "valeur_source": "258 701",
+       "document": "AutoNejma_RFS_juin_24.pdf",
+       "page": 12,
+       "citation": "TRESORERIE – PASSIF | 9-3.6 | 258 701 | 271 195",
+       "entete_colonnes": "PASSIF (En KMAD) Notes 30-juin-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 35.818,
+       "unite_source": "KMAD",
+       "valeur_source": "35 818",
+       "document": "AutoNejma_RFS_juin_24.pdf",
+       "page": 12,
+       "citation": "DISPONIBILITES | 9-3.6 | 35 818 | 32 814",
+       "entete_colonnes": "ACTIF (En KMAD) Notes 30-juin-2024 31-déc-2023",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "AutoNejma_RFS_juin_24.pdf",
+      "page": 17,
+      "citation": "– Inscription des obligations de paiement futures liées au crédit-bail en tant que passifs ;"
+     },
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie",
+      "ms_brut": "n.p."
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 184.0
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2025": {
+   "type": "semestriel",
+   "cloture": "2025-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 1831.982,
+     "unite_source": "KMAD",
+     "valeur_source": "1.831.982",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 14,
+     "citation": "Chiffre d'affaires | 1.831.982 | 1.319.169",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1832.0
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 237.128,
+     "unite_source": "KMAD",
+     "valeur_source": "237.128",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 14,
+     "citation": "Résultat d'exploitation | 237.128 | 154.921",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 237.1
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 146.966,
+     "unite_source": "KMAD",
+     "valeur_source": "146.966",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 14,
+     "citation": "Résultat net de l'ensemble consolidé | 146.966 | 81.419",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 147.0
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 146.966,
+     "unite_source": "KMAD",
+     "valeur_source": "146.966",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 14,
+     "citation": "Résultat net part du Groupe | 146.966 | 81.419",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2025 30/06/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 147.0
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1281.792,
+     "unite_source": "KMAD",
+     "valeur_source": "1.281.792",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 13,
+     "citation": "Capitaux propres de l’ensemble consolidé | 1.281.792 | 1.257.646",
+     "entete_colonnes": "PASSIF (En KDH) 30/06/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie",
+      "ms_brut": "n.p."
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -174.873,
+     "unite_source": "KMAD",
+     "valeur_source": "-174.873",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 15,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | -174.873 | 311.773",
+     "entete_colonnes": "TABLEAU DES FLUX DE TRESORERIE (En KDH) 30/06/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -174.9
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -33.331,
+     "unite_source": "KMAD",
+     "valeur_source": "-33.331",
+     "document": "Auto_Nejma_RFS_S1_25.pdf",
+     "page": 15,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS D’INVESTISSEMENT | -33.331 | -100.511",
+     "entete_colonnes": "TABLEAU DES FLUX DE TRESORERIE (En KDH) 30/06/2025 31/12/2024",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "absent"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 660.98,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 675.182,
+       "unite_source": "KMAD",
+       "valeur_source": "675.182",
+       "document": "Auto_Nejma_RFS_S1_25.pdf",
+       "page": 13,
+       "citation": "Dettes financières | 675.182 | 148.034",
+       "entete_colonnes": "PASSIF (En KDH) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 30.519,
+       "unite_source": "KMAD",
+       "valeur_source": "30.519",
+       "document": "Auto_Nejma_RFS_S1_25.pdf",
+       "page": 13,
+       "citation": "TRESORERIE - PASSIF | 30.519 | 267.352",
+       "entete_colonnes": "PASSIF (En KDH) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 44.721,
+       "unite_source": "KMAD",
+       "valeur_source": "44.721",
+       "document": "Auto_Nejma_RFS_S1_25.pdf",
+       "page": 13,
+       "citation": "DISPONIBILITES | 44.721 | 85.431",
+       "entete_colonnes": "ACTIF (En KDH) 30/06/2025 31/12/2024",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "Auto_Nejma_RFS_S1_25.pdf",
+      "page": 23,
+      "citation": "– Les dettes financières résultant de l’intégration des obligations liées au crédit-bail chez AUTO NEJMA."
+     },
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie",
+      "ms_brut": "n.p."
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 282.1
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  },
+  "H1-2026": {
+   "type": "semestriel",
+   "cloture": "2026-06-30",
+   "donnees": {
+    "chiffre_affaires": {
+     "valeur_mdh": 1993.025,
+     "unite_source": "KMAD",
+     "valeur_source": "1 993 025",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Chiffre d'affaires | 1 993 025 | 1 831 982 | 4 210 641",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1993.0
+     }
+    },
+    "resultat_exploitation": {
+     "valeur_mdh": 197.517,
+     "unite_source": "KMAD",
+     "valeur_source": "197 517",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Résultat d'exploitation | 197 517 | 237 128 | 533 038",
+     "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 197.5
+     }
+    },
+    "resultat_net_ensemble": {
+     "valeur_mdh": 114.401,
+     "unite_source": "KMAD",
+     "valeur_source": "114 401",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Résultat net de l'ensemble consolidé | 114 401 | 146 966 | 324 182",
+     "entete_colonnes": "PASSIF (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 114.4
+     }
+    },
+    "resultat_net_part_groupe": {
+     "valeur_mdh": 114.401,
+     "unite_source": "KMAD",
+     "valeur_source": "114 401",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Résultat net part du Groupe | 114 401 | 146 966 | 324 182",
+     "entete_colonnes": "PASSIF (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 114.4
+     }
+    },
+    "capitaux_propres_part_groupe": {
+     "valeur_mdh": 1390.747,
+     "unite_source": "KMAD",
+     "valeur_source": "1 390 747",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 11,
+     "citation": "Capitaux propres de l’ensemble consolidé | 1 390 747 | 1 281 792 | 1 459 008",
+     "entete_colonnes": "PASSIF (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1390.7
+     }
+    },
+    "flux_exploitation": {
+     "valeur_mdh": -235.6,
+     "unite_source": "KMAD",
+     "valeur_source": "-235 600",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 12,
+     "citation": "FLUX NETS DE TRÉSORERIE GÉNÉRÉS PAR L’ACTIVITÉ | -174 873 | -235 600 | -3 839 | 5. PÉRIMÈTRE DE CONSOLIDATION",
+     "entete_colonnes": "(En KMAD) Capital Total",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "note": "colonne du milieu du tableau, imprimée « 30/06/2025 » : l'en-tête du tableau est inversé (la 1re colonne porte le résultat net 146 966 du S1 2025 ; le compte de résultat du même dépôt donne 114 401 pour le S1 2026 et 146 966 pour le S1 2025) ; la colonne 30/06/2026 réelle est donc la 2e, confirmée par MASI Screener (−235,6)",
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": -235.6
+     }
+    },
+    "flux_investissement": {
+     "valeur_mdh": -80.433,
+     "unite_source": "KMAD",
+     "valeur_source": "-80 433",
+     "document": "Auto_Nejma_RFS_S1_26.pdf",
+     "page": 12,
+     "citation": "FLUX NETS DE TRÉSORERIE LIÉS AUX OPÉRATIONS D’INVESTISSEMENT | -33 331 | -80 433 | -87 790",
+     "entete_colonnes": "Cession d’immobilisations 572 -2 089 1 857 30-juin-2026 31-déc-2025",
+     "perimetre": "consolide",
+     "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+     "statut": "publie",
+     "note": "colonne du milieu du tableau, imprimée « 30/06/2025 » : l'en-tête du tableau est inversé (la 1re colonne porte le résultat net 146 966 du S1 2025 ; le compte de résultat du même dépôt donne 114 401 pour le S1 2026 et 146 966 pour le S1 2025) ; la colonne 30/06/2026 réelle est donc la 2e, confirmée par MASI Screener (−235,6)",
+     "controle_ms": {
+      "resultat": "absent_ms",
+      "ms_brut": "absent"
+     }
+    },
+    "dette_nette": {
+     "valeur_mdh": 1040.537,
+     "mode": "calcul_sur_composantes_publiees",
+     "formule": "+ dettes_financieres + tresorerie_passif - disponibilites — INCLUS : « Dettes financières » du bilan consolidé (emprunt obligataire / emprunts bancaires et dettes résultant du retraitement du crédit-bail), « Trésorerie - passif » (découverts, spots), moins les « Disponibilités » ; NON DÉDUITS : les titres et valeurs de placement, que le tableau des flux ne compte pas dans la trésorerie (trésorerie nette de clôture = disponibilités - trésorerie passif) ; CRÉDIT-BAIL : les obligations de crédit-bail sont retraitées et comprises dans les dettes financières, la note des dettes citée (note_dettes) n'en donne aucun montant isolé : rien n'est retranché (aucun montant publié). Calcul propre au projet, l'émetteur ne publie pas de dette nette.",
+     "composantes": {
+      "dettes_financieres": {
+       "valeur_mdh": 573.439,
+       "unite_source": "KMAD",
+       "valeur_source": "573 439",
+       "document": "Auto_Nejma_RFS_S1_26.pdf",
+       "page": 11,
+       "citation": "Dettes financières | 573 439 | 675 182 | 636 534",
+       "entete_colonnes": "PASSIF (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "tresorerie_passif": {
+       "valeur_mdh": 535.554,
+       "unite_source": "KMAD",
+       "valeur_source": "535 554",
+       "document": "Auto_Nejma_RFS_S1_26.pdf",
+       "page": 11,
+       "citation": "TRESORERIE - PASSIF | 535 554 | 30 519 | 1",
+       "entete_colonnes": "PASSIF (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      },
+      "disponibilites": {
+       "valeur_mdh": 68.456,
+       "unite_source": "KMAD",
+       "valeur_source": "68 456",
+       "document": "Auto_Nejma_RFS_S1_26.pdf",
+       "page": 11,
+       "citation": "DISPONIBILITES | 68 456 | 44 721 | 92 131",
+       "entete_colonnes": "COMPTE DE RESULTAT (En KDH) 30/06/2026 30/06/2025 31/12/2025",
+       "perimetre": "consolide",
+       "referentiel": "CNC (normes marocaines, avis n°5 du CNC)",
+       "statut": "publie",
+       "controle_ms": {
+        "resultat": "non_verifie",
+        "note": "composante de bilan"
+       }
+      }
+     },
+     "statut": "calcule_depuis_composantes_publiees",
+     "composantes_incluses": {
+      "dettes_financieres": "dettes financières (bilan consolidé)",
+      "tresorerie_passif": "trésorerie - passif",
+      "disponibilites": "disponibilités (en déduction)"
+     },
+     "composantes_exclues": [
+      "titres et valeurs de placement (non comptés dans la trésorerie du tableau des flux)",
+      "provisions, fournisseurs, autres créditeurs"
+     ],
+     "note_dettes": {
+      "document": "Auto_Nejma_RFS_S1_26.pdf",
+      "page": 17,
+      "citation": "• Les dettes financières résultant de l’intégration des obligations liées au"
+     },
+     "controle_ms": {
+      "resultat": "concordant",
+      "ms_valeur": 1040.5
+     }
+    },
+    "ebe": {
+     "valeur_mdh": null,
+     "raison_null": "EBE : aucune ligne « EBE » aux états de l'émetteur (comptes sociaux et consolidés CNC sans soldes de gestion)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 271.4
+     }
+    },
+    "interets_minoritaires": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : aucune ligne de minoritaires aux états consolidés (résultat de l'ensemble = part du groupe)",
+     "controle_ms": {
+      "resultat": "absent_ms"
+     }
+    },
+    "nombre_actions": {
+     "valeur_mdh": null,
+     "raison_null": "non relevé dans ce lot : nombre d'actions relevé seulement FY2020-FY2025 (tableau de l'actionnariat du rapport annuel)",
+     "controle_ms": {
+      "resultat": "non_verifie",
+      "ms_valeur": 1023264.0
+     }
+    },
+    "dividende_par_action_propose": {
+     "valeur_mdh": null,
+     "raison_null": "sans objet : semestre — un dividende se propose au titre d'un exercice",
+     "controle_ms": {
+      "resultat": "ms_indique_non_publie"
+     }
+    }
+   }
+  }
+ },
+ "documents": {
+  "Auto_Nejma_RFA_2023.pdf": {
+   "fichier": "Auto_Nejma_RFA_2023.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2023.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2023",
+   "sha256": "482b1f752e3a237590db774cf3db5ac84cd82eff192f22fa6376ee6e1aaea12a",
+   "octets": 34805144,
+   "pages": 63,
+   "type": "FY",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports annuels 2023"
+  },
+  "Auto_Nejma_RFA_2024_0.pdf": {
+   "fichier": "Auto_Nejma_RFA_2024_0.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2024_0.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2024",
+   "sha256": "23257c961362562634044f911c0f5ba53f4ef16814bb83e1e015bf77fc71d106",
+   "octets": 10741012,
+   "pages": 122,
+   "type": "FY",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports annuels 2024"
+  },
+  "Auto_Nejma_RFA_2025.pdf": {
+   "fichier": "Auto_Nejma_RFA_2025.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2025.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2025",
+   "sha256": "3aa45802abba43218834cceb2854e802a8dca5209115098f60d36b212a7dbc3b",
+   "octets": 9837647,
+   "pages": 122,
+   "type": "FY",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports annuels 2025"
+  },
+  "AutoNejma_RFS_juin_24.pdf": {
+   "fichier": "AutoNejma_RFS_juin_24.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/AutoNejma_RFS_juin_24.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfs-juin-2024",
+   "sha256": "4588a82c758c96a017fb06bc3abfbcc94b9039bfd846b6c174aca52af014d2c8",
+   "octets": 3514682,
+   "pages": 22,
+   "type": "H1",
+   "annee_nom_fichier": 2024,
+   "libelle_ammc": "Rapports 1er semestre 2024"
+  },
+  "Auto_Nejma_RFS_S1_25.pdf": {
+   "fichier": "Auto_Nejma_RFS_S1_25.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_S1_25.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfs-juin-2025",
+   "sha256": "01196df0f4724320e0680c2da2c1770dfe4b8faa6577a6698c10377b4b7b90d2",
+   "octets": 7346163,
+   "pages": 30,
+   "type": "H1",
+   "annee_nom_fichier": 2025,
+   "libelle_ammc": "Rapports 1er semestre 2025"
+  },
+  "Auto_Nejma_RFS_S1_26.pdf": {
+   "fichier": "Auto_Nejma_RFS_S1_26.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_S1_26.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfs-juin-2026",
+   "sha256": "d1b05497a3ac02681ee711bac8abda2967ffe24979a719dd2bd83e087dcb3f73",
+   "octets": 835586,
+   "pages": 24,
+   "type": "H1",
+   "annee_nom_fichier": 2026,
+   "libelle_ammc": "Rapports 1er semestre 2026"
+  },
+  "auto_nejma_2016.pdf": {
+   "fichier": "auto_nejma_2016.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/auto_nejma_2016.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-10",
+   "sha256": "948f92daed074132adc031c3f7c7de5521f442f984375fea246847af11f47077",
+   "octets": 1824822,
+   "pages": 2,
+   "type": "FY",
+   "annee_nom_fichier": 2016,
+   "libelle_ammc": "Rapports sociaux annuels 2016"
+  },
+  "Auto_Nejma_2018.pdf": {
+   "fichier": "Auto_Nejma_2018.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_2018.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-12",
+   "sha256": "81c827e6f60700d202013bd3f77090e0ab1f5b72922b93f32b2fa452bb4046a9",
+   "octets": 982426,
+   "pages": 2,
+   "type": "FY",
+   "annee_nom_fichier": 2018,
+   "libelle_ammc": "Rapports sociaux annuels 2018"
+  },
+  "Auto_Nejma_RFA_2020.pdf": {
+   "fichier": "Auto_Nejma_RFA_2020.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2020.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2020",
+   "sha256": "70f393ab124f7cecb2c81cd15be0bb100c67c4e5285dfdcb22664cb52937e88e",
+   "octets": 7326600,
+   "pages": 105,
+   "type": "FY",
+   "annee_nom_fichier": 2020,
+   "libelle_ammc": "Rapports annuels 2020"
+  },
+  "Auto_Nejma_RFA_2021.pdf": {
+   "fichier": "Auto_Nejma_RFA_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2021.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2021",
+   "sha256": "4388a3d02794ddab39807371cbb64c86e3d3239dd50dd4e473c45e4a248a490e",
+   "octets": 14416576,
+   "pages": 56,
+   "type": "FY",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports annuels 2021"
+  },
+  "Auto_Nejma_RFA_2022.pdf": {
+   "fichier": "Auto_Nejma_RFA_2022.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFA_2022.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfa-2022",
+   "sha256": "a08ec0f7a2b64773754c0cc892b557f7a3814475fe52b8ca0b08714cceee5235",
+   "octets": 12573231,
+   "pages": 57,
+   "type": "FY",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports annuels 2022"
+  },
+  "Auto Nejma_RFS_2021.pdf": {
+   "fichier": "Auto Nejma_RFS_2021.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto%20Nejma_RFS_2021.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rapport-financier-semestriel-2021",
+   "sha256": "81f13797a30e837c407a71111da9567b61afb5108dbefe3e9364747d1bc1cb86",
+   "octets": 970516,
+   "pages": 12,
+   "type": "H1",
+   "annee_nom_fichier": 2021,
+   "libelle_ammc": "Rapports 1er semestre 2021"
+  },
+  "Auto_Nejma_RFS_juin_22.pdf": {
+   "fichier": "Auto_Nejma_RFS_juin_22.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_juin_22.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfs-juin-2022",
+   "sha256": "87ffb5e95baa7c1193ca37cdf0b647e78d6c10f0d8d6bdc67b7da4a129854018",
+   "octets": 1467929,
+   "pages": 13,
+   "type": "H1",
+   "annee_nom_fichier": 2022,
+   "libelle_ammc": "Rapports 1er semestre 2022"
+  },
+  "Auto_Nejma_RFS_2023.pdf": {
+   "fichier": "Auto_Nejma_RFS_2023.pdf",
+   "url": "https://www.ammc.ma/sites/default/files/Auto_Nejma_RFS_2023.pdf",
+   "page_emetteur_ammc": "https://www.ammc.ma/fr/espace-emetteurs/etats-financiers/auto-nejma-rfs-juin-2023",
+   "sha256": "27ee619d82d811f6d0d63dbc0de8cc2ca810de0ad5556e5faf69fb41e2e51baf",
+   "octets": 7568455,
+   "pages": 13,
+   "type": "H1",
+   "annee_nom_fichier": 2023,
+   "libelle_ammc": "Rapports 1er semestre 2023"
+  }
+ },
+ "couverture": {
+  "attendues": 216,
+  "remplies": 100,
+  "supplementaires_remplis": 0,
+  "ecarts_ms_screener": 0,
+  "note": "PÉRIMÈTRE PAR PÉRIODE : consolidé (normes marocaines, avis n°5 du CNC, en KMAD) pour FY2023, FY2024, FY2025, S1 2024, S1 2025 et S1 2026 ; SOCIAL (plan comptable marocain, en dirhams exacts) pour FY2016-FY2022 et S1 2020-S1 2023, car Auto Nejma ne publie de comptes consolidés qu'à partir de l'exercice 2023. Une série qui mêle les deux n'est pas comparable : le résultat net social 2025 est de 300,0 MDH contre 324,2 consolidé. Pour les périodes sociales, resultat_net_ensemble est le résultat net social, capitaux_propres_part_groupe est le total des capitaux propres du bilan social (A), il n'y a ni part du groupe, ni minoritaires, ni tableau des flux (« sans objet »), et le chiffre d'affaires est la somme des ventes de marchandises et des ventes de biens et services produits (le CPC social n'imprime pas de total). MASI Screener ne publie que le consolidé 2023+ : aucun contrôle tiers sur les périodes sociales (sauf recoupements de texte : CA S1 2021 « 1 099,9 MDHS », S1 2022 « baisse de 12 % »). FY2017 et FY2019 : colonne comparative des dépôts 2018 et RFA 2020 (statut comparatif, pas de dépôt d'origine dans la liste AMMC) ; S1 2020 : colonne comparative du dépôt de juin 2021 (compte de résultat seul, le comparatif du bilan est celui du 31/12) ; S1 2019 : dépôt en image, non lu. Le consolidé 2022 existe en colonne comparative (et pro forma) du RFA 2023 : non relevé, FY2022 est lu en social dans son dépôt d'origine. Dans le dépôt du S1 2024 les colonnes comparatives du compte de résultat portent un en-tête illisible (deux colonnes « 30 juin 2024 » sans date) : le S1 2023 consolidé n'est pas relevé. ⚠ Le tableau des flux du S1 2026 a ses colonnes inversées par rapport à son en-tête (la colonne « 30/06/2026 » porte le résultat net 146 966 du S1 2025) : la valeur retenue est celle de la 2e colonne, recoupée à MASI Screener (−235,6). Dette nette consolidée = dettes financières + trésorerie-passif − disponibilités ; les titres et valeurs de placement ne sont pas déduits parce que le tableau des flux ne les compte pas dans la trésorerie (92,1 MDH au 31/12/2025 contre 363,2 de titres) ; les obligations de crédit-bail sont comprises dans les dettes financières sans montant isolé dans la note citée. Les dettes calculées concordent avec MASI Screener (FY2023 445,0 ; FY2024 330,0 ; FY2025 544,4 ; S1 2026 1 040,5). Aucune ligne EBE aux états de l'émetteur."
+ }
+}
