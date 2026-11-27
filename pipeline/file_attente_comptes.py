@@ -136,6 +136,13 @@ _ORDINAL = {"1": 1, "premier": 1, "2": 2, "deuxième": 2, "deuxieme": 2, "second
 _TRIMESTRE = re.compile(
     r"(?i)\b(1|2|3|4|premier|deuxi[èe]me|second|troisi[èe]me|quatri[èe]me)\s*(?:er|re|e|[èe]me|nd)?\s+trimestre\s+(20\d\d)")
 _TRIM_T = re.compile(r"(?i)\bT([1-4])[\s-]*(20\d\d)\b")
+# Exercice décalé (27/11/2026, Cartier Saada) : « indicateurs du 2ème trimestre
+# de l'exercice à cheval 2026-2027 ». Deux années, mais elles NOMMENT
+# l'exercice : la période s'écrit telle qu'imprimée (`T2-2026/2027`), sans
+# deviner à quels mois civils elle correspond.
+_TRIMESTRE_CHEVAL = re.compile(
+    r"(?i)\b(1|2|3|4|premier|deuxi[èe]me|second|troisi[èe]me|quatri[èe]me)\s*(?:er|re|e|[èe]me|nd)?\s+trimestre"
+    r"\s+de\s+l['’]\s*exercice\s+(?:[àa]\s+cheval\s+)?(20\d\d)\s*[-/]\s*(20\d\d)")
 _CONTENU_TRIM = re.compile(r"(?i)indicateurs|chiffre d.affaires|r[ée]sultats|comptes|information financi")
 _SEMESTRE_PERIODE = re.compile(
     r"(?i)(?:\b(?:1er|premier)\s+semestre\s+(20\d\d)|\bS1[\s-]*(20\d\d)\b"
@@ -181,6 +188,9 @@ def _annee_unique(titre: str) -> str | None:
 
 
 def _periode_trimestre(titre: str) -> str | None:
+    m = _TRIMESTRE_CHEVAL.search(titre)
+    if m:
+        return f"T{_ORDINAL[m.group(1).lower()]}-{m.group(2)}/{m.group(3)}"
     m = _TRIMESTRE.search(titre)
     if m:
         return f"T{_ORDINAL[m.group(1).lower()]}-{m.group(2)}"
