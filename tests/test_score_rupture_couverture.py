@@ -63,9 +63,17 @@ def test_la_mention_ne_change_aucun_point(monkeypatch):
     assert s["valeur"] == s0["valeur"] and s["etat"] == s0["etat"]
     assert ({k: v.get("points") for k, v in (s.get("facteurs") or {}).items()}
             == {k: v.get("points") for k, v in (s0.get("facteurs") or {}).items()})
+    # ⚠️ 27/11/2026 : ce test attendait ["MM50", "MM200"] en dur et a bloqué la
+    # garde de publication le jour où CMT a atteint sa 50e séance depuis la
+    # reprise du 16/09 : la MM50 ne traversait plus la rupture, le code avait
+    # raison et le test était une échéance. Les moyennes signalées se déduisent
+    # du nombre de séances écoulées, jamais d'une liste figée.
     mm = (s.get("facteurs") or {}).get("moyennes_mobiles")
-    if mm is not None:
-        assert mm["rupture"]["moyennes"] == ["MM50", "MM200"]
+    rup = sb.rupture_de_reference("CMT", bg)
+    if mm is not None and mm.get("points") is not None and rup:
+        attendues = [nom for nom, fen in (("MM20", 20), ("MM50", 50), ("MM200", 200))
+                     if rup["seances"] < fen]
+        assert mm["rupture"] == rup and rup["moyennes"] == attendues
         assert "référence remise à neuf" in mm["mesure"]
     # 17/11/2026 : score_bvc est celui de la semaine close ; le score du jour
     # recalculé ici se compare à score_bvc_jour quand il est publié.
