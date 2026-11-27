@@ -1,14 +1,14 @@
 {
  "schema": "etat_service/1",
  "_quoi": "État du service publié (lots 3.1 et 3.5). Produit par pipeline/etat_service.py dans le commit de data.json ; ne pas éditer.",
- "genere_a": "2026-11-26T22:05:16+00:00",
+ "genere_a": "2026-11-27T10:26:53+00:00",
  "derniere_publication": {
-  "ecrit_a": "2026-11-26T22:01:16+0000",
-  "seance": "2026-11-26",
-  "titres_seance": 65,
+  "ecrit_a": "2026-11-27T10:23:57+0000",
+  "seance": "2026-11-27",
+  "titres_seance": 46,
   "titres": 82,
-  "cloture": true,
-  "motif": "conforme"
+  "cloture": false,
+  "motif": "46 titres au prix de la séance (minimum 50); écrit avant la clôture de 15h30"
  },
  "derniere_cloture": {
   "seance": "2026-11-26",
@@ -17,8 +17,10 @@
  },
  "prochaine_echeance": "2026-11-30T08:00:00+00:00",
  "seance_attendue_ensuite": "2026-11-27",
- "statut": "à jour",
- "en_retard": [],
+ "statut": "en retard",
+ "en_retard": [
+  "Chandelles (pipeline/candles)"
+ ],
  "taches": [
   {
    "nom": "Publication de la clôture (update_bvc)",
@@ -29,21 +31,21 @@
   },
   {
    "nom": "Indice MASI",
-   "derniere": "2026-11-26",
+   "derniere": "2026-11-27",
    "en_retard": false,
    "statut": "à jour",
    "detail": "date de l'indice dans data.json"
   },
   {
    "nom": "Chandelles (pipeline/candles)",
-   "derniere": "2026-11-26",
-   "en_retard": false,
-   "statut": "à jour",
+   "derniere": null,
+   "en_retard": true,
+   "statut": "état inconnu",
    "detail": "dernière séance portée par au moins 50 titres"
   },
   {
    "nom": "Actualités (news.json)",
-   "derniere": "2026-11-26",
+   "derniere": "2026-11-27",
    "en_retard": false,
    "statut": "à jour",
    "detail": "date de collecte"
@@ -64,10 +66,10 @@
   },
   {
    "nom": "Sources de prix réelles",
-   "derniere": "2026-11-26",
+   "derniere": "2026-11-27",
    "en_retard": false,
    "statut": "à jour",
-   "detail": "cdg 65 · candles 15 · idbourse 1 · idbourse_perime 1"
+   "detail": "cdg 46 · candles 34 · idbourse_perime 2"
   },
   {
    "nom": "Contrôle du soir (verifier_seance)",
