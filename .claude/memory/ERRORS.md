@@ -1454,3 +1454,21 @@ l'attendu ARRONDI (−0,03). Un contrôle de données en séance dépend de l'in
 du passage : toute comparaison à un seuil se fait sur la valeur brute, l'arrondi
 est réservé à l'affichage. Corrigé dans `tools/audit_chaine.py`, cas ADH ajouté
 avec son contrôle négatif (deux centimes restent signalés).
+
+**Troisième blocage, 27/11 après-midi (passages de 12h55 et 13h55).** Cette
+fois, ni cours ni calcul : un dépôt AMMC publié le jour même, « Cartier Saada -
+CP relatif aux indicateurs du 2ème trimestre de l'exercice à cheval 2026-2027 ».
+Deux années au titre → le classeur refusait (à raison) de choisir une année et
+rangeait le dépôt en « autre » ; l'invariant de
+`test_file_attente_toutes_natures.py::test_classement_des_depots_reels` interdit
+qu'un « indicateurs du … trimestre » finisse en « autre ». Correctif : la
+formule « trimestre de l'exercice (à cheval) AAAA-AAAA » est reconnue, période
+écrite telle qu'imprimée (`T2-2026/2027`), sans deviner de mois civils.
+
+**Leçon commune aux trois blocages du 27/11.** La garde de publication lance la
+suite ENTIÈRE, y compris des tests qui relisent des registres alimentés par le
+monde extérieur le jour même (dépôts AMMC, séance en cours). Une publication
+nouvelle d'un émetteur peut donc suspendre la publication des COURS. Question
+ouverte, soumise à Abd Moutalib : restreindre la garde aux contrôles qui portent
+sur les fichiers de cotation, et laisser les autres échouer dans `tests.yml`.
+

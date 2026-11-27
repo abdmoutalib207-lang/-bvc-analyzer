@@ -83,6 +83,18 @@ def test_trimestre_sans_contenu_financier_est_autre():
     assert classer("Alpha - Avis de convocation du 3ème trimestre 2026") == (AUTRE, None)
 
 
+def test_trimestre_d_un_exercice_a_cheval():
+    # Cartier Saada, dépôt AMMC du 27/11/2026 : exercice décalé. Les deux années
+    # nomment l'exercice, la période s'écrit telle qu'imprimée.
+    t = ("Cartier Saada - CP relatif aux indicateurs du 2ème trimestre de "
+         "l'exercice à cheval 2026-2027")
+    assert classer(t) == (TRIMESTRIELS, "T2-2026/2027")
+    # contrôles : sans contenu financier, « autre » ; deux années hors de la
+    # formule d'exercice, toujours pas d'année choisie
+    assert classer("Alpha - Convocation du 2ème trimestre de l'exercice 2026-2027") == (AUTRE, None)
+    assert classer("Alpha - Indicateurs du trimestre, perspectives 2026-2027") == (AUTRE, None)
+
+
 # ── file étendue : intégré ou non, par nature ───────────────────────────
 
 def _dep(ticker, date, titre):
