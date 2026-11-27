@@ -1445,3 +1445,12 @@ d'un titre.
 nombre de séances depuis la reprise), jamais d'une liste figée. Prochaine
 échéance du même type pour CMT : 200 séances (MM200), vers l'été 2027 — le test
 corrigé la couvre.
+
+**Second blocage le même matin, même nature.** La CI de la PR de correctif a
+buté sur `test_audit_arithmetique.py::test_le_fichier_publie_est_coherent` :
+ADH à 37,79 pour une référence de 37,80, variation source 0,00. L'écart réel
+(−0,026 %) est sous la tolérance d'un centime (0,029 %), mais l'audit comparait
+l'attendu ARRONDI (−0,03). Un contrôle de données en séance dépend de l'instant
+du passage : toute comparaison à un seuil se fait sur la valeur brute, l'arrondi
+est réservé à l'affichage. Corrigé dans `tools/audit_chaine.py`, cas ADH ajouté
+avec son contrôle négatif (deux centimes restent signalés).
