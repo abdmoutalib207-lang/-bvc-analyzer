@@ -1421,3 +1421,36 @@ refuse la mention sans note citée. CMT, CSR et TGCC la portent encore (xfail st
 à relire). Écrire la réserve exercice par exercice : note lue (montant retiré, cité en
 composante), note absente du dépôt (dit tel quel), ou exercice antérieur à la norme.
 
+
+## Famille 34 — Un test qui fige une valeur qui dépend du calendrier (27/11/2026)
+
+**Ce qui s'est passé.** Le 27/11, le passage manuel d'`update_bvc` de 09h55 a
+refusé de publier : la garde de publication (suite complète sur le `data.json`
+généré) a échoué sur un seul test,
+`test_score_rupture_couverture.py::test_la_mention_ne_change_aucun_point`, qui
+attendait `["MM50", "MM200"]` en dur. Ce jour-là, CMT atteignait sa 50e séance
+depuis la reprise du 16/09 : la MM50 ne traversait plus la rupture, et le code
+(`score_bvc.rupture_de_reference`) l'a correctement retirée de la mention. Le
+code avait raison, le test était une échéance programmée. Données saines,
+aucune publication pendant la séance.
+
+**Cause.** Une liste observée un jour donné a été écrite comme invariant dans un
+test qui relit les données publiées, qui, elles, avancent d'une séance par jour.
+
+**Signal.** Un test de la seconde famille (données publiées) qui compare à une
+constante une grandeur fonction du nombre de séances, de la date ou de l'âge
+d'un titre.
+
+**Parade.** Déduire l'attendu de la même grandeur que le code mesure (ici le
+nombre de séances depuis la reprise), jamais d'une liste figée. Prochaine
+échéance du même type pour CMT : 200 séances (MM200), vers l'été 2027 — le test
+corrigé la couvre.
+
+**Second blocage le même matin, même nature.** La CI de la PR de correctif a
+buté sur `test_audit_arithmetique.py::test_le_fichier_publie_est_coherent` :
+ADH à 37,79 pour une référence de 37,80, variation source 0,00. L'écart réel
+(−0,026 %) est sous la tolérance d'un centime (0,029 %), mais l'audit comparait
+l'attendu ARRONDI (−0,03). Un contrôle de données en séance dépend de l'instant
+du passage : toute comparaison à un seuil se fait sur la valeur brute, l'arrondi
+est réservé à l'affichage. Corrigé dans `tools/audit_chaine.py`, cas ADH ajouté
+avec son contrôle négatif (deux centimes restent signalés).

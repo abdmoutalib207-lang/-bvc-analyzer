@@ -516,12 +516,18 @@ def controler_arithmetique(sym, t, bpa_sym) -> list:
     if ref_reprise:
         ref = ref_reprise
     if c is not None and ref and p and not meta.get("suspendu"):
-        att = round((p - ref) / ref * 100, 2)
+        # ⚠️ 27/11/2026 : l'écart se mesure sur la valeur NON arrondie. ADH à
+        # 37,79 pour une référence de 37,80 (un centime, −0,026 %) arrondissait
+        # à −0,03, au-delà de la tolérance d'un centime (0,029 %) : l'arrondi
+        # de l'attendu transformait l'écart toléré en avertissement, et la garde
+        # de publication refusait la séance. L'arrondi ne sert qu'à l'affichage.
+        brut = (p - ref) / ref * 100
+        att = round(brut, 2)
         tol = max(TOL_CHG, 100 * 0.011 / ref)          # un centime d'écart (et son arrondi) sur la référence
-        if (c > tol and att < -tol) or (c < -tol and att > tol):
+        if (c > tol and brut < -tol) or (c < -tol and brut > tol):
             out.append(_inc(sym, "arith.chg", ERREUR,
                             "variation publiée de sens contraire à (cours − référence)", c, att))
-        elif abs(c - att) > tol:
+        elif abs(c - brut) > tol:
             out.append(_inc(sym, "arith.chg_ecart", AVERT,
                             "variation publiée ≠ (cours − référence) ÷ référence (base bougie ≠ référence ?)", c, att))
     d, ddh = _num(t.get("div")), _num(t.get("div_dh"))

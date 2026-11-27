@@ -98,3 +98,15 @@ def test_base_bougie_differente_avertit_sans_bloquer():
 def test_un_centime_sur_un_petit_cours_ne_declenche_rien():
     t = _fiche(price=19.08, reference=19.07, chg=0.0)   # cours ≈ veille à 1 centime (chg source)
     assert ac.controler_arithmetique("XXX", t, None) == []
+
+
+def test_un_centime_sur_un_cours_moyen_ne_declenche_rien():
+    # ADH, 27/11/2026 à 10h11 : 37,79 contre une référence de 37,80 et une
+    # variation source de 0,00. L'écart réel vaut −0,026 %, sous la tolérance
+    # d'un centime (0,029 %) ; arrondi à −0,03 il la dépassait et bloquait la
+    # publication.
+    t = _fiche(price=37.79, reference=37.80, chg=0.0)
+    assert ac.controler_arithmetique("XXX", t, None) == []
+    # contrôle : deux centimes d'écart restent signalés
+    t = _fiche(price=37.78, reference=37.80, chg=0.0)
+    assert [i["controle"] for i in ac.controler_arithmetique("XXX", t, None)] == ["arith.chg_ecart"]
